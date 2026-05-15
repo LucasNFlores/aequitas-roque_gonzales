@@ -16,7 +16,7 @@ Este repositorio sirve como base para el sistema de gestión construido con **La
 
 ## Requisitos previos
 
-- **PHP** ^8.2 (con extensiones: `pdo_sqlite`, `pdo_mysql`, `openssl`, `mbstring`, `tokenizer`, `xml`, `ctype`, `json`, `bcmath`)
+- **PHP** ^8.4 (con extensiones: `pdo_sqlite`, `pdo_mysql`, `openssl`, `mbstring`, `tokenizer`, `xml`, `ctype`, `json`, `bcmath`)
 - **Composer** (gestor de dependencias PHP)
 - **Node.js** + **npm** (para compilar assets con Vite)
 - **MySQL** (todos los desarrolladores usan MySQL en local)
