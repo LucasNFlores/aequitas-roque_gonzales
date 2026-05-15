@@ -124,8 +124,26 @@ php artisan boost:mcp
 
 ---
 
+## Archivos ignorados por el repositorio
+
+| Archivo / Carpeta | Razón |
+| :--- | :--- |
+| `.env` | Contiene credenciales y configuración sensible local. |
+| `.env.*` | Variantes de entorno (producción, backup). |
+| `vendor/` | Dependencias de Composer (se instalan con `composer install`). |
+| `node_modules/` | Dependencias de Node (se instalan con `npm install`). |
+| `storage/*.key`, `storage/pail` | Archivos generados por la aplicación en runtime. |
+| `.agents/` | Skills de IA generados automáticamente por `boost:install`. |
+| `AGENTS.md` | Guidelines del agente, regenerado por `boost:update`. |
+| `boost.json` | Configuración local de Laravel Boost por desarrollador. |
+| `.mcp.json` | Configuración específica del agente MCP (Cursor, Claude, etc.). |
+| `CLAUDE.md`, `junie/` | Archivos específicos de agentes de IA individuales. |
+
+> **Nota:** Los archivos de Laravel Boost (`.agents/`, `AGENTS.md`, `boost.json`) se regeneran automáticamente al correr `php artisan boost:install` o `boost:update`. No es necesario ni recomendable versionarlos.
+
+---
+
 ## Notas
 
 - Ajustar permisos de `storage/` y `bootstrap/cache/` si es necesario (en Linux/Mac: `chmod -R 775 storage bootstrap/cache`).
-- El archivo `.env` y `google-services.json` (si aplica) **no deben versionarse**.
 - Actualizar la documentación a medida que avance el desarrollo.
