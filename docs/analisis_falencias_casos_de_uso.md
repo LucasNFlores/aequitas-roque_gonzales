@@ -46,59 +46,11 @@ CU4 (Agendar Turno con Coordinador) y CU5 (Agendar Turno con Profesional) son pr
 
 ---
 
-### 1.3 CU6 No Cubre Modificación y Eliminación de Turnos Externos
-
-CU6 (Registrar Turno Externo) permite crear un turno externo, pero CU7 (Modificar Turno) y CU8 (Eliminar Turno) mencionan comportamiento especial para turnos externos sin un CU específico.
-
-**CU7 dice:** "Si es turno externo el sistema desbloquea el horario anterior y bloquea el nuevo."
-**CU8 dice:** "Si era turno externo el sistema desbloquea la disponibilidad del profesional."
-
-Esto implica lógica diferente pero no hay un CU dedicado para turnos externos.
-
-**Solución:** Extender los flujos existentes con un caso especial:
-
-#### CU6 - Registrar Turno Externo (Extendido)
-
-- **Actor Primario:** Secretario
-- **Descripción:** Registra compromisos externos del profesional (como audiencias judiciales), bloqueando su disponibilidad.
-- **Precondición:** Profesional registrado en el sistema.
-- **Flujo de Eventos:**
-    1. El Actor ingresa fecha, hora y detalle del evento externo.
-    2. El Actor selecciona el profesional involved.
-    3. El Sistema verifica disponibilidad del profesional en ese horario.
-    4. El Sistema registra el evento.
-    5. El Sistema bloquea la disponibilidad del profesional en ese horario.
-    6. El Sistema notifica al profesional.
-- **Postcondición:** Evento externo registrado. Disponibilidad del profesional bloqueada. Profesional notificado.
-- **Flujo Alternativo:** Si no hay disponibilidad -> el sistema informa y solicita otro horario.
-
-**Nota:** Agregar validación específica en CU7 y CU8 para turnos externos (ya mencionado pero sin CU dedicado).
-
----
-
 ## 2. Falencias Funcionales (Casos de Uso Faltantes)
 
-### 2.1 Falta: Búsqueda y Filtrado General
-
-No existe un caso de uso genérico de búsqueda. Los CUs mencionan "buscar por DNI o nombre" pero no hay un CU dedicado.
-
-**Solución:** Crear nuevo caso de uso:
-
-#### CU22 - Buscar Entidades
-
-- **Actor Primario:** Cualquier actor autenticado
-- **Descripción:** Permite buscar y filtrar clientes, procesos, turnos y reportes según diversos criterios.
-- **Precondición:** El actor debe estar autenticado.
-- **Flujo de Eventos:**
-    1. El Actor accede al módulo de búsqueda.
-    2. El Actor selecciona el tipo de entidad a buscar (cliente/proceso/turno/reporte).
-    3. El Actor ingresa criterios de búsqueda (DNI, nombre, estado, fecha, etc.).
-    4. El Sistema devuelve resultados filtrados.
-- **Postcondición:** Resultados de búsqueda mostrados.
-
 ---
 
-### 2.2 Falta: Notificar Decisión al Cliente
+### 2.1 Falta: Notificar Decisión al Cliente
 
 CU13 (Admisión de Cliente) notifica al secretario cuando se decide aceptar o rechazar un caso, pero **no hay notificación al cliente**.
 
@@ -128,7 +80,7 @@ En el **Flujo Alternativo** de CU13, agregar:
 
 ---
 
-### 2.3 Falta: Cambiar Profesional Asignado
+### 2.2 Falta: Cambiar Profesional Asignado
 
 CU14 asigna un profesional, pero no hay caso de uso para reasignar si el profesional no está disponible o necesita ser cambiado.
 
@@ -137,7 +89,7 @@ CU14 asigna un profesional, pero no hay caso de uso para reasignar si el profesi
 #### CU24 - Reasignar Profesional
 
 - **Actor Primario:** Coordinador
-- **Descripción:** Permite cambiar el profesional asignado a un proceso, definiendo nuevos honorarios y modalidad de pago si corresponde.
+- **Descripción:** Permite cambiar el profesional asignado a un proceso, definiendo nuevos honorarios.
 - **Precondición:** Proceso con profesional asignado.
 - **Flujo de Eventos:**
     1. El Actor busca el proceso por cliente o número de proceso.
@@ -146,14 +98,14 @@ CU14 asigna un profesional, pero no hay caso de uso para reasignar si el profesi
     4. El Sistema muestra lista de profesionales disponibles según especialidad.
     5. El Actor selecciona el nuevo profesional.
     6. El Sistema verifica disponibilidad.
-    7. El Actor confirma la reasignación y define nuevos honorarios y modalidad de pago si cambian.
+    7. El Actor confirma la reasignación y define nuevos honorarios.
     8. El Sistema actualiza la relación proceso-profesional.
     9. El Sistema notifica al profesional anterior y al nuevo profesional.
 - **Postcondición:** Nuevo profesional asignado al proceso. Profesionales notificados.
 
 ---
 
-### 2.4 Falta: Consultar Reportes
+### 2.3 Falta: Consultar Reportes
 
 CU18 crea reportes "visibles para coordinador y director general", pero no existe un caso de uso para que estos actores consulten los reportes.
 
@@ -174,7 +126,7 @@ CU18 crea reportes "visibles para coordinador y director general", pero no exist
 
 ---
 
-### 2.5 Falta: Editar Reporte
+### 2.4 Falta: Editar Reporte
 
 Solo existen CU18 (registrar) y CU20 (eliminar) para reportes. No hay caso de uso para editar un reporte ya creado.
 
@@ -196,63 +148,25 @@ Solo existen CU18 (registrar) y CU20 (eliminar) para reportes. No hay caso de us
 
 ---
 
-### 2.8 Falta: Configurar Notificaciones
+### 2.5 Falta: Gestionar Disponibilidad del Profesional
 
-No existe un caso de uso genérico de búsqueda. Los CUs mencionan "buscar por DNI o nombre" pero no hay un CU dedicado.
-
-**Solución:** Crear nuevo caso de uso:
-
-#### CU28 - Buscar Entidades
-
-- **Actor Primario:** Cualquier actor autenticado
-- **Descripción:** Permite buscar y filtrar clientes, procesos, turnos y reportes según diversos criterios.
-- **Precondición:** El actor debe estar autenticado.
-- **Flujo de Eventos:**
-    1. El Actor accede al módulo de búsqueda.
-    2. El Actor selecciona el tipo de entidad a buscar (cliente/proceso/turno/reporte).
-    3. El Actor ingresa criterios de búsqueda (DNI, nombre, estado, fecha, etc.).
-    4. El Sistema devuelve resultados filtrados.
-- **Postcondición:** Resultados de búsqueda mostrados.
-
----
-
-### 2.7 Falta: Consultar Auditoría
-
-Tienen OwenIt Auditing instalado pero no hay caso de uso para consultar el historial de cambios.
+Los casos de uso de turno verifican disponibilidad pero no hay forma de que el profesional defina sus horarios de atención, días libres, o vacaciones.
 
 **Solución:** Crear nuevo caso de uso:
 
-#### CU29 - Consultar Historial de Auditoría
+#### CU27 - Gestionar Disponibilidad (revisar si hacer esto, pero es una buena observacion de que no se cubre en ningun lado)
 
-- **Actor Primario:** Director General / Coordinador
-- **Descripción:** Permite consultar el historial de cambios realizados en cualquier entidad del sistema.
-- **Precondición:** El actor debe tener permisos de auditoría (director general o coordinador).
+- **Actor Primario:** Profesional
+- **Descripción:** Permite definir horarios de atención, días no disponibles, y vacaciones.
+- **Precondición:** El profesional debe estar autenticado.
 - **Flujo de Eventos:**
-    1. El Actor accede al módulo de auditoría.
-    2. El Actor selecciona el tipo de entidad y el ID específico.
-    3. El Sistema muestra el historial de cambios (fecha, usuario, old_values, new_values).
-    4. El Actor puede filtrar por rango de fechas o tipo de usuario.
-- **Postcondición:** Historial de auditoría consultado.
-
----
-
-### 2.8 Falta: Configurar Notificaciones
-
-El documento menciona Brevo (email y WhatsApp) pero no hay caso de uso para gestionar plantillas, canales o configuración de notificaciones.
-
-**Solución:** Crear nuevo caso de uso:
-
-#### CU30 - Configurar Notificaciones
-
-- **Actor Primario:** Director General / Coordinador
-- **Descripción:** Permite gestionar plantillas de notificación, canales habilitados (email/WhatsApp/SMS) y configuración general de notificaciones.
-- **Precondición:** El actor debe tener permisos de administrador.
-- **Flujo de Eventos:**
-    1. El Actor accede al módulo de configuración de notificaciones.
-    2. El Actor puede crear/editar plantillas de notificación por tipo (recordatorio turno, decisión admisión, cambio de estado, etc.).
-    3. El Actor puede habilitar/deshabilitar canales por tipo de notificación.
+    1. El Actor accede a la configuración de disponibilidad.
+    2. El Actor define sus horarios de atención (días y horarios).
+    3. El Actor puede bloquear fechas específicas (vacaciones, días libres).
     4. El Sistema guarda la configuración.
-- **Postcondición:** Plantillas y canales configurados.
+- **Postcondición:** Disponibilidad configurada y utilizada para verificar turnos.
+- **Flujo Alternativo:** Si el profesional intenta bloquear una fecha con turnos existentes -> el sistema informa y solicita cancelar primero los turnos.
+ún rol de negocio requiere consultar el historial de auditoría directamente. Queda como feature técnica disponible para el equipo de desarrollo.
 
 ---
 
@@ -270,33 +184,11 @@ El documento menciona Brevo (email y WhatsApp) pero no hay caso de uso para gest
 
 **Problema:** Dice "verifica formato correcto" pero no especifica formatos ni límite de tamaño.
 
-**Resuelto:** Formato válido: PDF. Límite de tamaño: ~20MB (equivalente a ~20 páginas/carillas de PDF).
+**Resolucion:** Formato válido: PDF. Límite de tamaño: ~10MB (equivalente a ~10 páginas/carillas de PDF).
 
 ---
 
-### 3.3 CU12 - Registrar Comprobante de Pago
-
-**Problema:** Dice "descargado de ARCA" pero no hay especificación de la integración.
-
-**Nota:** La integración con ARCA es **manual**. El secretary descarga el PDF de ARCA (fuera del sistema) y luego lo sube mediante CU12. No hay conexión automática con la API de ARCA.
-
-**CU12 Simplificado:**
-
-- **Actor Primario:** Secretario
-- **Descripción:** Permite registrar el comprobante de pago descargado de ARCA, asociándolo al cliente correspondiente.
-- **Precondición:** Cliente registrado en el sistema.
-- **Flujo de Eventos:**
-    1. El Actor descarga manualmente el comprobante de ARCA (fuera del sistema).
-    2. El Actor sube el PDF del comprobante al sistema.
-    3. El Actor asocia el comprobante al cliente.
-    4. El Sistema verifica el formato del archivo (PDF).
-    5. El Sistema guarda el comprobante.
-    6. El Sistema notifica el registro exitoso.
-- **Postcondición:** Comprobante de pago registrado y asociado al cliente.
-
----
-
-### 3.4 CU13 - Admisión de Cliente
+### 3.4 CU13 - Admisión de Cliente (me parece una buena observacion que puede ser una buena adicion, y en base de datos y demas es un pequeño cambio no más)
 
 **Problema:** No hay campo para registrar el motivo del rechazo.
 
@@ -319,7 +211,7 @@ El documento menciona Brevo (email y WhatsApp) pero no hay caso de uso para gest
 
 **Problema:** No menciona gestión de permisos, solo roles. Con Spatie Permission, ¿quién asigna permisos específicos?
 
-**Resuelto:** Roles fijos. Los roles son estáticos (definidos en código via seeder). Solo se asignan usuarios a roles existentes. CU21 manipula `model_has_roles` pero no hace CRUD de roles.
+**Resolucion:** Roles fijos. Los roles son estáticos (definidos en código via seeder). Solo se asignan usuarios a roles existentes. CU21 manipula `model_has_roles` pero no hace CRUD de roles.
 
 ---
 
@@ -335,8 +227,6 @@ El documento menciona Brevo (email y WhatsApp) pero no hay caso de uso para gest
 | CU25 | Consultar Reportes de Proceso |
 | CU26 | Editar Reporte |
 | CU27 | Gestionar Disponibilidad |
-| CU28 | Consultar Historial de Auditoría |
-| CU29 | Configurar Notificaciones |
 
 ### Casos de Uso Modificados
 
@@ -360,11 +250,11 @@ El documento menciona Brevo (email y WhatsApp) pero no hay caso de uso para gest
 
 ### Total de CUs
 
-- **Originales documentados:** 20 (con gap en CU19)
-- **Propuestos nuevos:** 9
-- **Modificados:** 6
-- **Eliminados por fusión:** 1
-- **Total proyectado:** ~28 CUs
+- **Originales documentados:** 20 (con gap en CU19, eliminado intencionalmente)
+- **Eliminados:** 2 (CU5 fusionado con CU4, CU19 eliminado)
+- **Propuestos nuevos:** 6
+- **Modificados:** 7
+- **Total proyectado:** 22 CUs
 
 ---
 
@@ -379,6 +269,6 @@ Las siguientes decisiones fueron tomadas y quedan resueltas:
 | 3 | ¿La eliminación es física o lógica? | **Lógica (soft delete)** — Nunca se realiza hard delete |
 | 4 | ¿Existe CU19? | **Eliminado intencionalmente** |
 | 5 | ¿Los roles de Spatie son fijos o editables? | **Fijos** — Definidos en código, solo se asignan usuarios a roles existentes |
-| 6 | ¿Límite de tamaño para documentos? | **~20MB** (~20 páginas/carillas de PDF) |
+| 6 | ¿Límite de tamaño para documentos? | **~10MB** (~10 páginas/carillas de PDF) |
 | 7 | ¿Formatos válidos para documentos? | **Solo PDF** |
 | 8 | ¿Coordinador y director general pueden editar reportes? | **No** — Solo consultarlos |
