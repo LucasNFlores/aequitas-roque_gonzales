@@ -40,16 +40,17 @@ Ya existen:
 Para cada tabla, el orden es:
 
 ```bash
-# 1. Crear archivos
+# 1. Crear archivos (el flag -a ya incluye migration, factory, seeder, controller, requests, policy, resource)
 php artisan make:model Xxxx -a
-php artisan make:migration create_xxxx_table
 
-# 2. Completar la migración con las columnas
+# 2. Editar la migración que se creó automáticamente
 
-# 3. Probar que funciona
+# 3. Editar el modelo si hace falta
+
+# 4. Probar que funciona
 php artisan migrate
 
-# 4. Commit + push
+# 5. Commit + push
 git add ... archivos ...
 git commit -m "feat: add xxxx table and model"
 git push
@@ -147,10 +148,9 @@ Estas tablas no dependen de otras, así que se crean primero.
 **1. Crear archivos:**
 ```bash
 php artisan make:model Cliente -a
-php artisan make:migration create_clientes_table
 ```
 
-**2. Completar `database/migrations/xxxx_create_clientes_table.php`:**
+**2. Editar la migración** (`database/migrations/xxxx_create_clientes_table.php`):
 ```php
 public function up(): void
 {
@@ -176,7 +176,7 @@ php artisan migrate
 
 **4. Commit y push:**
 ```bash
-git add database/migrations/xxxx_create_clientes_table.php app/Models/Cliente.php app/Factories/ClienteFactory.php database/seeders/ClienteSeeder.php app/Http/Controllers/ClienteController.php app/Http/Requests/StoreClienteRequest.php app/Http/Requests/UpdateClienteRequest.php app/Policies/ClientePolicy.php app/Http/Resources/ClienteResource.php
+git add app/Models/Cliente.php app/Factories/ClienteFactory.php database/seeders/ClienteSeeder.php app/Http/Controllers/ClienteController.php app/Http/Requests/StoreClienteRequest.php app/Http/Requests/UpdateClienteRequest.php app/Policies/ClientePolicy.php app/Http/Resources/ClienteResource.php database/migrations/xxxx_create_clientes_table.php
 git commit -m "feat: add clientes table and model"
 git push
 ```
@@ -186,10 +186,9 @@ git push
 **1. Crear archivos:**
 ```bash
 php artisan make:model Servicio -a
-php artisan make:migration create_servicios_table
 ```
 
-**2. Completar `database/migrations/xxxx_create_servicios_table.php`:**
+**2. Editar la migración** (`database/migrations/xxxx_create_servicios_table.php`):
 ```php
 public function up(): void
 {
@@ -210,7 +209,7 @@ php artisan migrate
 
 **4. Commit y push:**
 ```bash
-git add database/migrations/xxxx_create_servicios_table.php app/Models/Servicio.php app/Factories/ServicioFactory.php database/seeders/ServicioSeeder.php app/Http/Controllers/ServicioController.php app/Http/Requests/StoreServicioRequest.php app/Http/Requests/UpdateServicioRequest.php app/Policies/ServicioPolicy.php app/Http/Resources/ServicioResource.php
+git add app/Models/Servicio.php app/Factories/ServicioFactory.php database/seeders/ServicioSeeder.php app/Http/Controllers/ServicioController.php app/Http/Requests/StoreServicioRequest.php app/Http/Requests/UpdateServicioRequest.php app/Policies/ServicioPolicy.php app/Http/Resources/ServicioResource.php database/migrations/xxxx_create_servicios_table.php
 git commit -m "feat: add servicios table and model"
 git push
 ```
@@ -226,10 +225,9 @@ Estas tablas **dependen de otras**, por eso van después.
 **1. Crear archivos:**
 ```bash
 php artisan make:model Proceso -a
-php artisan make:migration create_procesos_table
 ```
 
-**2. Completar `database/migrations/xxxx_create_procesos_table.php`:**
+**2. Editar la migración** (`database/migrations/xxxx_create_procesos_table.php`):
 ```php
 public function up(): void
 {
@@ -258,7 +256,7 @@ php artisan migrate
 
 **4. Commit y push:**
 ```bash
-git add database/migrations/xxxx_create_procesos_table.php app/Models/Proceso.php app/Factories/ProcesoFactory.php database/seeders/ProcesoSeeder.php app/Http/Controllers/ProcesoController.php app/Http/Requests/StoreProcesoRequest.php app/Http/Requests/UpdateProcesoRequest.php app/Policies/ProcesoPolicy.php app/Http/Resources/ProcesoResource.php
+git add app/Models/Proceso.php app/Factories/ProcesoFactory.php database/seeders/ProcesoSeeder.php app/Http/Controllers/ProcesoController.php app/Http/Requests/StoreProcesoRequest.php app/Http/Requests/UpdateProcesoRequest.php app/Policies/ProcesoPolicy.php app/Http/Resources/ProcesoResource.php database/migrations/xxxx_create_procesos_table.php
 git commit -m "feat: add procesos table and model"
 git push
 ```
@@ -268,10 +266,9 @@ git push
 **1. Crear archivos:**
 ```bash
 php artisan make:model Turno -a
-php artisan make:migration create_turnos_table
 ```
 
-**2. Completar `database/migrations/xxxx_create_turnos_table.php`:**
+**2. Editar la migración** (`database/migrations/xxxx_create_turnos_table.php`):
 ```php
 public function up(): void
 {
@@ -297,7 +294,7 @@ php artisan migrate
 
 **4. Commit y push:**
 ```bash
-git add database/migrations/xxxx_create_turnos_table.php app/Models/Turno.php app/Factories/TurnoFactory.php database/seeders/TurnoSeeder.php app/Http/Controllers/TurnoController.php app/Http/Requests/StoreTurnoRequest.php app/Http/Requests/UpdateTurnoRequest.php app/Policies/TurnoPolicy.php app/Http/Resources/TurnoResource.php
+git add app/Models/Turno.php app/Factories/TurnoFactory.php database/seeders/TurnoSeeder.php app/Http/Controllers/TurnoController.php app/Http/Requests/StoreTurnoRequest.php app/Http/Requests/UpdateTurnoRequest.php app/Policies/TurnoPolicy.php app/Http/Resources/TurnoResource.php database/migrations/xxxx_create_turnos_table.php
 git commit -m "feat: add turnos table and model"
 git push
 ```
@@ -307,10 +304,9 @@ git push
 **1. Crear archivos:**
 ```bash
 php artisan make:model Documento -a
-php artisan make:migration create_documentos_table
 ```
 
-**2. Completar `database/migrations/xxxx_create_documentos_table.php`:**
+**2. Editar la migración** (`database/migrations/xxxx_create_documentos_table.php`):
 ```php
 public function up(): void
 {
@@ -333,7 +329,7 @@ php artisan migrate
 
 **4. Commit y push:**
 ```bash
-git add database/migrations/xxxx_create_documentos_table.php app/Models/Documento.php app/Factories/DocumentoFactory.php database/seeders/DocumentoSeeder.php app/Http/Controllers/DocumentoController.php app/Http/Requests/StoreDocumentoRequest.php app/Http/Requests/UpdateDocumentoRequest.php app/Policies/DocumentoPolicy.php app/Http/Resources/DocumentoResource.php
+git add app/Models/Documento.php app/Factories/DocumentoFactory.php database/seeders/DocumentoSeeder.php app/Http/Controllers/DocumentoController.php app/Http/Requests/StoreDocumentoRequest.php app/Http/Requests/UpdateDocumentoRequest.php app/Policies/DocumentoPolicy.php app/Http/Resources/DocumentoResource.php database/migrations/xxxx_create_documentos_table.php
 git commit -m "feat: add documentos table and model"
 git push
 ```
@@ -343,10 +339,9 @@ git push
 **1. Crear archivos:**
 ```bash
 php artisan make:model Reporte -a
-php artisan make:migration create_reportes_table
 ```
 
-**2. Completar `database/migrations/xxxx_create_reportes_table.php`:**
+**2. Editar la migración** (`database/migrations/xxxx_create_reportes_table.php`):
 ```php
 public function up(): void
 {
@@ -369,7 +364,7 @@ php artisan migrate
 
 **4. Commit y push:**
 ```bash
-git add database/migrations/xxxx_create_reportes_table.php app/Models/Reporte.php app/Factories/ReporteFactory.php database/seeders/ReporteSeeder.php app/Http/Controllers/ReporteController.php app/Http/Requests/StoreReporteRequest.php app/Http/Requests/UpdateReporteRequest.php app/Policies/ReportePolicy.php app/Http/Resources/ReporteResource.php
+git add app/Models/Reporte.php app/Factories/ReporteFactory.php database/seeders/ReporteSeeder.php app/Http/Controllers/ReporteController.php app/Http/Requests/StoreReporteRequest.php app/Http/Requests/UpdateReporteRequest.php app/Policies/ReportePolicy.php app/Http/Resources/ReporteResource.php database/migrations/xxxx_create_reportes_table.php
 git commit -m "feat: add reportes table and model"
 git push
 ```
@@ -379,10 +374,9 @@ git push
 **1. Crear archivos:**
 ```bash
 php artisan make:model ComprobantePago -a
-php artisan make:migration create_comprobantes_pago_table
 ```
 
-**2. Completar `database/migrations/xxxx_create_comprobantes_pago_table.php`:**
+**2. Editar la migración** (`database/migrations/xxxx_create_comprobantes_pago_table.php`):
 ```php
 public function up(): void
 {
@@ -404,7 +398,7 @@ php artisan migrate
 
 **4. Commit y push:**
 ```bash
-git add database/migrations/xxxx_create_comprobantes_pago_table.php app/Models/ComprobantePago.php app/Factories/ComprobantePagoFactory.php database/seeders/ComprobantePagoSeeder.php app/Http/Controllers/ComprobantePagoController.php app/Http/Requests/StoreComprobantePagoRequest.php app/Http/Requests/UpdateComprobantePagoRequest.php app/Policies/ComprobantePagoPolicy.php app/Http/Resources/ComprobantePagoResource.php
+git add app/Models/ComprobantePago.php app/Factories/ComprobantePagoFactory.php database/seeders/ComprobantePagoSeeder.php app/Http/Controllers/ComprobantePagoController.php app/Http/Requests/StoreComprobantePagoRequest.php app/Http/Requests/UpdateComprobantePagoRequest.php app/Policies/ComprobantePagoPolicy.php app/Http/Resources/ComprobantePagoResource.php database/migrations/xxxx_create_comprobantes_pago_table.php
 git commit -m "feat: add comprobantes_pago table and model"
 git push
 ```
@@ -414,10 +408,9 @@ git push
 **1. Crear archivos:**
 ```bash
 php artisan make:model Notificacione -a
-php artisan make:migration create_notificaciones_table
 ```
 
-**2. Completar `database/migrations/xxxx_create_notificaciones_table.php`:**
+**2. Editar la migración** (`database/migrations/xxxx_create_notificaciones_table.php`):
 ```php
 public function up(): void
 {
@@ -441,7 +434,7 @@ php artisan migrate
 
 **4. Commit y push:**
 ```bash
-git add database/migrations/xxxx_create_notificaciones_table.php app/Models/Notificacione.php app/Factories/NotificacioneFactory.php database/seeders/NotificacioneSeeder.php app/Http/Controllers/NotificacioneController.php app/Http/Requests/StoreNotificacioneRequest.php app/Http/Requests/UpdateNotificacioneRequest.php app/Policies/NotificacionePolicy.php app/Http/Resources/NotificacioneResource.php
+git add app/Models/Notificacione.php app/Factories/NotificacioneFactory.php database/seeders/NotificacioneSeeder.php app/Http/Controllers/NotificacioneController.php app/Http/Requests/StoreNotificacioneRequest.php app/Http/Requests/UpdateNotificacioneRequest.php app/Policies/NotificacionePolicy.php app/Http/Resources/NotificacioneResource.php database/migrations/xxxx_create_notificaciones_table.php
 git commit -m "feat: add notificaciones table and model"
 git push
 ```
