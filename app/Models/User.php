@@ -26,6 +26,11 @@ class User extends Authenticatable implements Auditable
         'name',
         'email',
         'password',
+        'dni',
+        'telefono',
+        'domicilio',
+        'fecha_nacimiento',
+        'fecha_ingreso',
     ];
 
     /**
@@ -45,9 +50,11 @@ class User extends Authenticatable implements Auditable
      */
     protected function casts(): array
     {
-        return [
+         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-        ];
+            'fecha_nacimiento' => 'date',
+            'fecha_ingreso' => 'date',
+         ];
     }
 }
