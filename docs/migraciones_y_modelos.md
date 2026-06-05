@@ -143,7 +143,7 @@ git push
 
 Estas tablas no dependen de otras, así que se crean primero.
 
-### clientes
+### clientes (hecho)
 
 **1. Crear archivos:**
 ```bash
