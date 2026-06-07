@@ -369,7 +369,7 @@ git commit -m "feat: add reportes table and model"
 git push
 ```
 
-### comprobantes_pago
+### comprobantes_pago(hecho)
 
 **1. Crear archivos:**
 ```bash
