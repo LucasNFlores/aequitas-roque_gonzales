@@ -334,7 +334,7 @@ git commit -m "feat: add documentos table and model"
 git push
 ```
 
-### reportes
+### reportes(hecho)
 
 **1. Crear archivos:**
 ```bash
