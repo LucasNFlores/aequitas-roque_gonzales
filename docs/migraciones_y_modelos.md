@@ -181,7 +181,7 @@ git commit -m "feat: add clientes table and model"
 git push
 ```
 
-### servicios
+### servicios (hecho)
 
 **1. Crear archivos:**
 ```bash
@@ -220,7 +220,7 @@ git push
 
 Estas tablas **dependen de otras**, por eso van después.
 
-### procesos
+### procesos(hecho)
 
 **1. Crear archivos:**
 ```bash
@@ -261,7 +261,7 @@ git commit -m "feat: add procesos table and model"
 git push
 ```
 
-### turnos
+### turnos(hecho)
 
 **1. Crear archivos:**
 ```bash
