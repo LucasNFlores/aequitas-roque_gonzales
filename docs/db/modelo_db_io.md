@@ -142,4 +142,5 @@ Table notificaciones {
   fecha_envio timestamp
   estado varchar [note: 'enviado | fallido']
   created_at timestamp
+  deleted_at timestamp [null]
 }
