@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Proceso;
 use App\Http\Requests\StoreProcesoRequest;
 use App\Http\Requests\UpdateProcesoRequest;
+use App\Models\Proceso;
 
 class ProcesoController extends Controller
 {

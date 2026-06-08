@@ -12,14 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('notificaciones', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
-        $table->foreignId('cliente_id')->nullable()->constrained()->onDelete('set null');
-        $table->enum('canal', ['email', 'whatsapp']);
-        $table->text('mensaje');
-        $table->timestamp('fecha_envio');
-        $table->enum('estado', ['enviado', 'fallido'])->default('enviado');
-        $table->timestamps();
+            $table->id();
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('cliente_id')->nullable()->constrained()->onDelete('set null');
+            $table->enum('canal', ['email', 'whatsapp']);
+            $table->text('mensaje');
+            $table->timestamp('fecha_envio');
+            $table->enum('estado', ['enviado', 'fallido'])->default('enviado');
+            $table->timestamps();
         });
     }
 

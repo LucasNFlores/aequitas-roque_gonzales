@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ComprobantePago;
 use App\Http\Requests\StoreComprobantePagoRequest;
 use App\Http\Requests\UpdateComprobantePagoRequest;
+use App\Models\ComprobantePago;
 
 class ComprobantePagoController extends Controller
 {

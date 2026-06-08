@@ -15,13 +15,13 @@ return new class extends Migration
             $table->id();
             $table->string('nombre');
             $table->string('apellido');
-        $table->string('dni')->unique();
-        $table->string('telefono');
-        $table->string('correo');
-        $table->string('domicilio');
-        $table->date('fecha_nacimiento');
-        $table->timestamps();
-        $table->softDeletes();
+            $table->string('dni')->unique();
+            $table->string('telefono');
+            $table->string('correo');
+            $table->string('domicilio');
+            $table->date('fecha_nacimiento');
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 

@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Documento;
 use App\Http\Requests\StoreDocumentoRequest;
 use App\Http\Requests\UpdateDocumentoRequest;
+use App\Models\Documento;
 
 class DocumentoController extends Controller
 {

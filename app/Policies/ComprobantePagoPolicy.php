@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\ComprobantePago;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class ComprobantePagoPolicy
 {

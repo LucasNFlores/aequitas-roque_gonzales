@@ -12,13 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('documentos', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('proceso_id')->constrained()->onDelete('cascade');
-        $table->string('archivo_path');
-        $table->string('tipo_documento');
-        $table->string('nombre');
-        $table->timestamps();
-        $table->softDeletes();
+            $table->id();
+            $table->foreignId('proceso_id')->constrained()->onDelete('cascade');
+            $table->string('archivo_path');
+            $table->string('tipo_documento');
+            $table->string('nombre');
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 

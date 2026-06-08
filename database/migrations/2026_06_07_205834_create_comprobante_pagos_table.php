@@ -12,12 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('comprobante_pagos', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('cliente_id')->constrained()->onDelete('cascade');
-        $table->string('archivo_path');
-        $table->date('fecha_subida');
-        $table->text('descripcion')->nullable();
-        $table->timestamps();
+            $table->id();
+            $table->foreignId('cliente_id')->constrained()->onDelete('cascade');
+            $table->string('archivo_path');
+            $table->date('fecha_subida');
+            $table->text('descripcion')->nullable();
+            $table->timestamps();
         });
     }
 

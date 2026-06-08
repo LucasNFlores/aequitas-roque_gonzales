@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Turno;
 use App\Http\Requests\StoreTurnoRequest;
 use App\Http\Requests\UpdateTurnoRequest;
+use App\Models\Turno;
 
 class TurnoController extends Controller
 {
