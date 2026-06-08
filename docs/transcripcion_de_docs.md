@@ -1,408 +1,933 @@
-# Documento de Requerimientos y Especificación del Sistema
+# Trabajo Práctico Integrador
+### "Tecnicatura Superior de Desarrollo de Software"
+
+**Integrantes:** Flores Lucas, Espinola Yamila, Gonzalez Lucia  
+**Profesor/es:** Villalba Carlos  
+**Instituto:** Superior Roque Gonzalez  
+**Año:** 2026
+
+---
 
 ## 1. Descripción del Escenario
 
 El estudio jurídico (en adelante, la organización) se dedica a brindar servicios profesionales en las áreas Civil, Comercial y de Familia. Actualmente, la gestión interna se realiza de manera manual o mediante herramientas dispersas, como planillas, archivos físicos y comunicaciones informales. Este enfoque, si bien permitió operar en etapas iniciales, genera dificultades en la organización de la información, duplicación de datos, demoras en la atención y una limitada trazabilidad de los procesos.
 
-Entre las principales problemáticas se destacan:
-
-* Falta de centralización de la información de clientes.
-* Dificultad para coordinar turnos entre secretaría, coordinadores y profesionales.
-* Manejo poco estructurado de la documentación.
-* Ausencia de un seguimiento claro de los casos en curso.
+Entre las principales problemáticas se destacan la falta de centralización de la información de clientes, la dificultad para coordinar turnos entre secretaría, coordinadores y profesionales, el manejo poco estructurado de la documentación y la ausencia de un seguimiento claro de los casos en curso.
 
 Con el objetivo de mejorar la eficiencia operativa, optimizar la atención al cliente y garantizar una adecuada gestión de la información, se propone el desarrollo de un sistema de gestión y administración interna jurídica que permita centralizar todas las actividades del estudio.
 
-### Flujo del Sistema
+En el nuevo sistema, el proceso comenzará cuando un cliente se presente por primera vez en el estudio. En esta instancia, la secretaría registrará sus datos básicos y clasificará el tipo de servicio requerido como "asesoramiento". Posteriormente, se agendará un turno con el coordinador, quien será notificado automáticamente por el sistema.
 
-1. **Admisión Inicial:** El proceso comienza cuando un cliente se presenta por primera vez. La secretaría registrará sus datos básicos y clasificará el tipo de servicio requerido como "asesoramiento". Posteriormente, se agendará un turno con el coordinador, quien será notificado automáticamente.
-2. **Evaluación del Coordinador:** Durante la consulta, el coordinador abrirá el legajo del cliente, evaluará la viabilidad del caso, definirá el tipo de servicio a prestar, asignará el profesional correspondiente según su especialidad y establecerá los honorarios junto con la modalidad de pago. Una vez tomada la decisión de aceptar o rechazar el caso, se notificará a la secretaría.
-3. **Procesamiento Administrativo:** Si el caso es aceptado, la secretaría solicitará al cliente la documentación necesaria según el tipo de servicio. Dicha documentación será digitalizada y cargada en el sistema. Además, se agendará un nuevo turno con el profesional designado, notificando tanto al profesional como al cliente (el sistema solo enviará notificaciones, sin permitir aún la confirmación o cancelación por parte del cliente).
-4. **Gestión del Caso:** Los profesionales podrán acceder a la información completa del cliente, historial de casos y documentación. Registrarán el avance de cada caso mediante la actualización de estados (*iniciado, en proceso, finalizado o en espera*) y la generación de actas (reportes).
-5. **Gestión de Pagos:** La secretaría accederá al sistema externo de ARCA, descargará el comprobante correspondiente y lo cargará en el sistema interno.
-6. **Módulo de Turnos:** Permitirá registrar citas internas y compromisos externos (como audiencias judiciales). En compromisos externos, se bloqueará la disponibilidad del profesional. Se incluirán recordatorios automáticos previos a cada evento.
+Durante la consulta, el coordinador abrirá el legajo del cliente, evaluará la viabilidad del caso, definirá el tipo de servicio a prestar, asignará el profesional correspondiente según su especialidad y establecerá los honorarios junto con la modalidad de pago. Una vez tomada la decisión de aceptar o rechazar el caso, se notificará a la secretaría para continuar, o no, con el proceso administrativo.
+
+Luego, la secretaría solicitará al cliente la documentación necesaria según el tipo de servicio definido. Dicha documentación será digitalizada y cargada en el sistema, asegurando su disponibilidad para los profesionales. Además, se agendará un nuevo turno con el profesional designado, quien será notificado, así como también el cliente. En esta etapa, el sistema solo enviará notificaciones, sin permitir aún la confirmación o cancelación por parte del cliente.
+
+El sistema permitirá a los profesionales acceder a la información completa del cliente, incluyendo sus datos, historial de casos y documentación asociada. Asimismo, podrán registrar el avance de cada caso mediante la actualización de estados (iniciado, en proceso, finalizado o en espera) y la generación de actas que documenten las acciones realizadas, facilitando el control por parte de los coordinadores.
+
+En relación con los pagos, la secretaría deberá acceder al sistema externo de ARCA, descargar el comprobante correspondiente y cargarlo en el sistema interno.
+
+El sistema incluirá también un módulo de gestión de turnos que permitirá registrar tanto citas dentro del estudio como compromisos externos, tales como audiencias judiciales. En estos casos, se bloqueará la disponibilidad del profesional para evitar la asignación de nuevos turnos en esos horarios. Además, se generarán recordatorios automáticos previos a cada evento.
+
+Mediante la implementación de esta solución, el estudio logrará centralizar la gestión de clientes, casos, documentación, turnos y pagos, mejorando la organización interna, reduciendo errores operativos y aumentando la eficiencia en la prestación de servicios profesionales.
 
 ---
 
 ## 2. Requisitos Funcionales (Casos de Uso)
 
-**Actores:** Secretario, Cliente, Abogados, Contadores, Coordinadores, Director General.
-
-### CU1 - Registrar Cliente
-
-* **Actor Primario:** Secretario
-* **Descripción:** Permite registrar en el sistema a un nuevo cliente, almacenando sus datos personales y de contacto.
-* **Precondición:** El cliente no debe existir previamente en el sistema.
-* **Flujo de Eventos:**
-    1. El Actor ingresa los datos personales del cliente (nombre, DNI, contacto, dirección).
-    2. El Sistema valida que los datos estén completos y correctos.
-    3. El Actor confirma el registro.
-    4. El Sistema almacena la información del cliente.
-    5. El Sistema notifica registro exitoso.
-* **Postcondición:** Cliente asociado al sistema.
-* **Flujo Alternativo:** Si el cliente ya existe -> el sistema informa duplicidad y cancela el registro.
-
-### CU2 - Modificar Cliente
-
-* **Actor Primario:** Secretario
-* **Descripción:** Permite actualizar los datos personales de un cliente ya registrado.
-* **Precondición:** El cliente debe existir en el sistema.
-* **Flujo de Eventos:**
-    1. El Actor busca al cliente por DNI o nombre.
-    2. El Sistema muestra los datos actuales del cliente.
-    3. El Actor modifica los campos necesarios.
-    4. El Sistema valida los datos ingresados.
-    5. El Actor confirma los cambios.
-    6. El Sistema guarda los datos actualizados y notifica éxito.
-* **Postcondición:** Datos del cliente actualizados en el sistema.
-* **Flujo Alternativo:** Si los datos son inválidos -> el sistema informa el error y solicita corrección.
-
-### CU3 - Eliminar Cliente
-
-* **Actor Primario:** Secretario
-* **Descripción:** Permite eliminar el registro de un cliente del sistema.
-* **Precondición:** El cliente debe existir en el sistema y no tener procesos activos.
-* **Flujo de Eventos:**
-    1. El Actor busca al cliente por DNI o nombre.
-    2. El Sistema muestra los datos del cliente.
-    3. El Actor solicita eliminar el cliente.
-    4. El Sistema verifica que no tenga procesos activos.
-    5. El Actor confirma la eliminación.
-    6. El Sistema elimina el registro del cliente.
-* **Postcondición:** Cliente eliminado del sistema.
-* **Flujo Alternativo:** Si el cliente tiene procesos activos -> el sistema informa que no puede eliminarse.
-
-### CU4 - Agendar Turno con Coordinador
-
-* **Actor Primario:** Secretario
-* **Descripción:** Permite registrar un turno inicial entre el cliente y el coordinador.
-* **Precondición:** Cliente registrado en el sistema.
-* **Flujo de Eventos:**
-    1. El Actor selecciona fecha y hora del turno.
-    2. El Sistema verifica disponibilidad del coordinador.
-    3. El Actor confirma el turno.
-    4. El Sistema registra el turno en la agenda.
-    5. El Sistema notifica al coordinador y al cliente.
-* **Postcondición:** Turno asociado al cliente. Coordinador y cliente notificados.
-* **Flujo Alternativo:** Si no hay disponibilidad -> el sistema solicita otra fecha.
-
-### CU5 - Agendar Turno con Profesional
-
-* **Actor Primario:** Secretario
-* **Descripción:** Permite registrar un turno entre el cliente y el profesional asignado.
-* **Precondición:** Profesional asignado al caso. Cliente admitido.
-* **Flujo de Eventos:**
-    1. El Actor selecciona fecha y hora.
-    2. El Sistema verifica disponibilidad del profesional.
-    3. El Actor confirma el turno.
-    4. El Sistema registra el turno.
-    5. El Sistema notifica al profesional y al cliente.
-* **Postcondición:** Turno registrado. Cliente asociado al turno. Turno asociado al profesional.
-* **Flujo Alternativo:** Si no hay disponibilidad el sistema solicita otra fecha.
-
-### CU6 - Registrar Turno Externo
-
-* **Actor Primario:** Secretario
-* **Descripción:** Registra compromisos externos del profesional (como audiencias judiciales), bloqueando su disponibilidad.
-* **Precondición:** Profesional registrado en el sistema.
-* **Flujo de Eventos:**
-    1. El Actor ingresa fecha, hora y detalle del evento externo.
-    2. El Sistema registra el evento.
-    3. El Sistema bloquea la disponibilidad del profesional en ese horario.
-    4. El Sistema notifica al profesional.
-* **Postcondición:** Evento externo registrado. Disponibilidad del profesional bloqueada.
-
-### CU7 - Modificar Turno
-
-* **Actor Primario:** Secretario
-* **Descripción:** Permite modificar la fecha y/o hora de un turno registrado.
-* **Precondición:** El turno debe existir en el sistema.
-* **Flujo de Eventos:**
-    1. El Actor busca y selecciona el turno a modificar.
-    2. El Sistema muestra los datos actuales del turno.
-    3. El Actor ingresa la nueva fecha y/o hora.
-    4. El Sistema verifica disponibilidad en el nuevo horario.
-    5. El Actor confirma el cambio.
-    6. El Sistema actualiza el turno y notifica a los involucrados.
-* **Postcondición:** Turno actualizado. Involucrados notificados.
-* **Flujo Alternativo:** Si es turno externo el sistema desbloquea el horario anterior y bloquea el nuevo.
-
-### CU8 - Eliminar Turno
-
-* **Actor Primario:** Secretario
-* **Descripción:** Permite eliminar un turno registrado en el sistema.
-* **Precondición:** El turno debe existir en el sistema.
-* **Flujo de Eventos:**
-    1. El Actor busca y selecciona el turno a eliminar.
-    2. El Actor confirma la eliminación.
-    3. El Sistema elimina el turno del sistema.
-    4. El Sistema (si era turno externo) desbloquea la disponibilidad del profesional.
-    5. El Sistema notifica a los involucrados.
-* **Postcondición:** Turno eliminado. Disponibilidad actualizada si correspondía.
-
-### CU9 - Cargar Documentación
-
-* **Actor Primario:** Secretario
-* **Descripción:** Permite cargar los documentos entregados por el cliente al sistema, asociándolos a su legajo.
-* **Precondición:** Cliente registrado y legajo creado.
-* **Flujo de Eventos:**
-    1. El Actor abre el legajo del cliente.
-    2. El Actor carga los documentos.
-    3. El Sistema verifica formato correcto de los documentos.
-    4. El Sistema guarda los archivos.
-    5. El Sistema notifica el guardado exitoso.
-* **Postcondición:** Documentación almacenada y asociada al cliente.
-* **Flujo Alternativo:** Documento con formato no compatible -> el sistema informa el error.
-
-### CU10 - Reemplazar Documentación
-
-* **Actor Primario:** Secretario
-* **Descripción:** Permite reemplazar un documento existente por una nueva versión, manteniendo la referencia en el legajo.
-* **Precondición:** El documento debe existir en el sistema.
-* **Flujo de Eventos:**
-    1. El Actor busca y selecciona el documento a reemplazar.
-    2. El Actor carga el nuevo archivo.
-    3. El Sistema verifica formato correcto.
-    4. El Sistema reemplaza el archivo manteniendo el nombre y referencia.
-    5. El Sistema notifica el reemplazo exitoso.
-* **Postcondición:** Documento actualizado en el sistema.
-* **Flujo Alternativo:** Formato no compatible -> el sistema informa el error.
-
-### CU11 - Eliminar Documentación
-
-* **Actor Primario:** Secretario
-* **Descripción:** Permite eliminar un documento del legajo de un cliente.
-* **Precondición:** El documento debe existir en el sistema.
-* **Flujo de Eventos:**
-    1. El Actor busca y selecciona el documento a eliminar.
-    2. El Actor confirma la eliminación.
-    3. El Sistema elimina el archivo del sistema.
-    4. El Sistema updates el legajo del cliente.
-* **Postcondición:** Documento eliminado del legajo.
-
-### CU12 - Registrar Comprobante de Pago
-
-* **Actor Primario:** Secretario
-* **Descripción:** Permite registrar el comprobante de pago descargado de ARCA, asociándolo al cliente correspondiente.
-* **Precondición:** Cliente registrado. Servicio designado con honorario definido.
-* **Flujo de Eventos:**
-    1. El Actor accede al sistema externo de ARCA y descarga el comprobante.
-    2. El Actor sube el comprobante al sistema y lo asocia al cliente.
-    3. El Sistema verifica el formato del archivo.
-    4. El Sistema guarda el comprobante vinculado al cliente.
-    5. El Sistema notifica el registro exitoso.
-* **Postcondición:** Comprobante de pago registrado y asociado al cliente.
-* **Flujo Alternativo:** Formato no compatible -> el sistema informa el error.
-
-### CU13 - Admisión de Cliente
-
-* **Actor Primario:** Coordinador
-* **Descripción:** El coordinador analiza el caso del cliente para determinar si será atendido y bajo qué condiciones.
-* **Precondición:** Existe un turno agendado con el cliente.
-* **Flujo de Eventos:**
-    1. El Actor abre el legajo electrónico generado.
-    2. El Actor evalúa la viabilidad del caso.
-    3. El Actor registra la decisión (admitido/rechazado).
-    4. El Sistema notifica al secretario.
-* **Postcondición:** Cliente evaluado y admitido.
-* **Flujo Alternativo:** Si el caso es rechazado -> se finaliza el proceso.
-
-### CU14 - Asignar Profesional
-
-* **Actor Primario:** Coordinador
-* **Descripción:** Permite asignar un profesional adecuado según el tipo de servicio requerido, definiendo honorario y modalidad de pago.
-* **Precondición:** Cliente admitido.
-* **Flujo de Eventos:**
-    1. El Actor busca los profesionales vinculados al servicio necesario.
-    2. El Sistema devuelve lista de profesionales filtrada según tipo de servicio.
-    3. El Actor selecciona profesional disponible.
-    4. El Sistema verifica disponibilidad.
-    5. El Actor confirma selección y define honorario y modalidad de pago.
-    6. El Sistema notifica al profesional y al secretario.
-* **Postcondición:** Profesional asociado al caso. Profesional y secretario notificados.
-* **Flujo Alternativo:** Si el profesional no tiene disponibilidad se busca otro con disponibilidad.
-
-### CU15 - Consultar Legajo
-
-* **Actor Primario:** Profesional
-* **Descripción:** Permite acceder a los datos completos e historial del cliente.
-* **Precondición:** El profesional debe estar asignado al caso.
-* **Flujo de Eventos:**
-    1. El Actor ingresa DNI del cliente.
-    2. El Sistema recupera información relacionada al cliente.
-    3. El Sistema devuelve los datos del cliente.
-* **Postcondición:** Datos del cliente accesibles para visualización (sin modificaciones).
-* **Flujo Alternativo:** No hay conicidencias con el DNI buscado -> el sistema informa.
-
-### CU16 - Descargar Documentación
-
-* **Actor Primario:** Profesional
-* **Descripción:** Permite descargar documentos del legajo del cliente.
-* **Precondición:** El profesional debe tener acceso al legajo del cliente.
-* **Flujo de Eventos:**
-    1. El Actor selecciona el documento a descargar.
-    2. El Sistema verifica que el documento existe.
-    3. El Sistema descarga el documento.
-* **Postcondición:** Documento descargado exitosamente.
-* **Flujo Alternativo:** El documento no existe -> el sistema informa.
-
-### CU17 - Actualizar Estado de Proceso
-
-* **Actor Primario:** Profesional / Coordinador
-* **Descripción:** Permite modificar el estado del proceso de un caso.
-* **Precondición:** El caso debe estar activo en el sistema.
-* **Flujo de Eventos:**
-    1. El Actor selecciona el estado (iniciado / en proceso / finalizado / en espera).
-    2. El Sistema guarda el nuevo estado.
-    3. El Sistema actualiza el historial del caso.
-* **Postcondición:** Estado del proceso actualizado en el historial.
-
-### CU18 - Registrar Reporte
-
-* **Actor Primario:** Profesional
-* **Descripción:** Permite registrar actas de reuniones o acciones realizadas, visibles para coordinador y director general.
-* **Precondición:** El profesional debe estar asignado al caso.
-* **Flujo de Eventos:**
-    1. El Actor ingresa el contenido del reporte.
-    2. El Sistema guarda el reporte.
-    3. El Sistema asocia el reporte al proceso.
-* **Postcondición:** Reporte asociado al proceso.
-
-### CU20 - Eliminar Reporte
-
-* **Actor Primario:** Profesional
-* **Descripción:** Permite eliminar un reporte registrado del sistema.
-* **Precondición:** El reporte debe existir en el sistema.
-* **Flujo de Eventos:**
-    1. El Actor busca y selecciona el reporte a eliminar.
-    2. El Actor confirma la eliminación.
-    3. El Sistema elimina el reporte del sistema.
-* **Postcondición:** Reporte eliminado.
-
-### CU21 - Gestionar Usuarios
-
-* **Actor Primario:** Director General / Coordinador
-* **Descripción:** Permite crear, modificar y eliminar usuarios del sistema (secretarios, coordinadores, profesionales, director general).
-* **Precondición:** El actor debe tener permisos de administración.
-* **Flujo de Eventos:**
-    1. El Actor selecciona la acción (crear / modificar / eliminar).
-    2. El Actor ingresa o modifica los datos del usuario y su rol.
-    3. El Sistema valida los datos ingresados.
-    4. El Actor confirma la acción.
-    5. El Sistema ejecuta la operación y notifica el resultado.
-* **Postcondición:** Usuario creado, modificado o eliminado del sistema.
-* **Flujo Alternativo:** Si se intenta eliminar un usuario con procesos activos -> el sistema informa e impide la eliminación.
+**Actores:** Secretario, Cliente, Profesional, Coordinadores, Directivo
 
 ---
 
-## 3. Requisitos No Funcionales
+### Secretario
 
-* **Disponibilidad:** El sistema debe estar disponible en todo momento (alta disponibilidad).
-* **Seguridad:** Debe garantizar seguridad mediante autenticación de usuarios.
-* **Acceso:** Debe ser accesible desde el navegador web.
-* **Rendimiento:** Debe responder en tiempos menores a 3 segundos.
-* **Notificaciones:** El sistema enviará notificaciones automáticas vía email y WhatsApp utilizando un servicio externo (ej: Brevo).
+#### CU 1 - Registrar Cliente
+
+| Campo | Detalle |
+|---|---|
+| **Actor Primario** | Secretario |
+| **Descripción** | Permite registrar en el sistema a un nuevo cliente, almacenando sus datos personales y de contacto, para poder iniciar la gestión de un servicio. |
+| **Precondición** | El cliente no debe existir previamente en el sistema. |
+
+**Flujo de Eventos:**
+
+| # | Acciones del Actor | Respuesta del Sistema |
+|---|---|---|
+| 1 | Ingresa los datos personales del cliente (nombre, DNI, contacto, dirección) | |
+| 2 | | Valida que los datos estén completos y correctos |
+| 3 | Confirma el registro | |
+| 4 | | Almacena la información del cliente |
+| 5 | | Notifica registro exitoso. Se crea proceso con servicio "Consultoría" |
+
+**PostCondición:** Cliente asociado al sistema. Creado Proceso con el servicio "Consultoría".  
+**Flujo Alternativo:** Si el cliente ya existe → el sistema informa duplicidad y cancela el registro.
 
 ---
 
-## 4. Modelo de Dominio
+#### CU 2 - Modificar Cliente
+
+| Campo | Detalle |
+|---|---|
+| **Actor Primario** | Secretario |
+| **Descripción** | Permite actualizar los datos personales de un cliente ya registrado en el sistema. |
+| **Precondición** | El cliente debe existir en el sistema. |
+
+**Flujo de Eventos:**
+
+| # | Acciones del Actor | Respuesta del Sistema |
+|---|---|---|
+| 1 | Busca al cliente por DNI o nombre | |
+| 2 | | Muestra los datos actuales del cliente |
+| 3 | Modifica los campos necesarios | |
+| 4 | | Valida los datos ingresados |
+| 5 | Confirma los cambios | |
+| 6 | | Guarda los datos actualizados y notifica éxito |
+
+**PostCondición:** Datos del cliente actualizados en el sistema.  
+**Flujo Alternativo:** Si los datos son inválidos → el sistema informa el error y solicita corrección.
+
+---
+
+#### CU 3 - Eliminar Cliente
+
+| Campo | Detalle |
+|---|---|
+| **Actor Primario** | Secretario |
+| **Descripción** | Permite eliminar el registro de un cliente del sistema. |
+| **Precondición** | El cliente debe existir en el sistema y no tener procesos activos. |
+
+**Flujo de Eventos:**
+
+| # | Acciones del Actor | Respuesta del Sistema |
+|---|---|---|
+| 1 | Busca al cliente por DNI o nombre | |
+| 2 | | Muestra los datos del cliente |
+| 3 | Solicita eliminar el cliente | |
+| 4 | | Verifica que no tenga procesos activos |
+| 5 | Confirma la eliminación | |
+| 6 | | Soft delete del cliente (Eliminación lógica) |
+
+**PostCondición:** Cliente eliminado del sistema.  
+**Flujo Alternativo:** Si el cliente tiene procesos activos → el sistema informa que no puede eliminarse.
+
+---
+
+#### CU 4 - Agendar Turno Interno
+
+| Campo | Detalle |
+|---|---|
+| **Actor Primario** | Secretario |
+| **Descripción** | Permite registrar un turno entre el cliente y un profesional (coordinador o profesional). |
+| **Precondición** | Cliente registrado en el sistema. Profesional seleccionado. |
+
+**Flujo de Eventos:**
+
+| # | Acciones del Actor | Respuesta del Sistema |
+|---|---|---|
+| 1 | Ingresa el DNI del cliente o lo selecciona de una lista | |
+| 2 | Selecciona el profesional (coordinador o profesional específico) | |
+| 3 | Selecciona fecha y hora del turno | |
+| 4 | | Verifica disponibilidad del profesional seleccionado |
+| 5 | Confirma el turno | |
+| 6 | | Registra el turno |
+| 7 | | Notifica al profesional y al cliente |
+
+**PostCondición:** Turno registrado. Cliente asociado al turno. Profesional asociado al turno. Involucrados notificados.  
+**Flujo Alternativo:** Si no hay disponibilidad → el sistema solicita otra fecha.
+
+---
+
+#### CU 4.1 - Agendar Turno de Seguimiento
+
+| Campo | Detalle |
+|---|---|
+| **Actor Primario** | Secretario |
+| **Descripción** | Permite registrar un turno entre el cliente y un profesional (coordinador o profesional). |
+| **Precondición** | Cliente registrado en el sistema. Profesional seleccionado. |
+
+**Flujo de Eventos:**
+
+| # | Acciones del Actor | Respuesta del Sistema |
+|---|---|---|
+| 1 | Busca y selecciona el legajo o caso activo del cliente | |
+| 2 | | Muestra los datos del caso y recupera automáticamente al Profesional asignado al mismo |
+| 3 | Selecciona fecha y hora del turno | |
+| 4 | | Verifica disponibilidad del profesional seleccionado |
+| 5 | Confirma el turno | |
+| 6 | | Registra el turno vinculándolo al legajo/caso específico |
+| 7 | | Notifica al profesional y al cliente |
+
+**PostCondición:** Turno registrado y vinculado al caso/proceso. Profesional asociado al turno. Involucrados notificados.  
+**Flujo Alternativo:** Si no hay disponibilidad → el sistema solicita otra fecha.
+
+---
+
+#### CU 5 - Agendar Turno Externo
+
+| Campo | Detalle |
+|---|---|
+| **Actor Primario** | Secretario |
+| **Descripción** | Registra compromisos externos del profesional (como audiencias judiciales), bloqueando su disponibilidad. |
+| **Precondición** | Profesional registrado en el sistema. |
+
+**Flujo de Eventos:**
+
+| # | Acciones del Actor | Respuesta del Sistema |
+|---|---|---|
+| 1 | Ingresa fecha, hora y detalle del evento externo | |
+| 2 | Selecciona el profesional involucrado | |
+| 3 | | Verifica la disponibilidad del profesional para ese día completo |
+| 4 | | Registra el evento |
+| 5 | | Bloquea la disponibilidad del profesional en ese día |
+| 6 | | Notifica al profesional |
+
+**PostCondición:** Evento externo registrado. Disponibilidad del profesional bloqueada por el día completo. Profesional notificado.  
+**Flujo Alternativo:** Si no hay disponibilidad → el sistema informa y solicita otro horario.
+
+---
+
+#### CU 6 - Modificar Turno
+
+| Campo | Detalle |
+|---|---|
+| **Actor Primario** | Secretario |
+| **Descripción** | Permite modificar la fecha y/o hora de un turno registrado. |
+| **Precondición** | El turno debe existir en el sistema. |
+
+**Flujo de Eventos:**
+
+| # | Acciones del Actor | Respuesta del Sistema |
+|---|---|---|
+| 1 | Busca y selecciona el turno a modificar | |
+| 2 | | Muestra los datos actuales del turno |
+| 3 | Ingresa la nueva fecha y/o hora | |
+| 4 | | Verifica disponibilidad en el nuevo horario |
+| 5 | Confirma el cambio | |
+| 6 | | Actualiza el turno y notifica a los involucrados |
+
+**PostCondición:** Turno actualizado. Involucrados notificados.  
+**Flujo Alternativo:** Si es turno externo → el sistema desbloquea el horario anterior y bloquea el nuevo.
+
+---
+
+#### CU 6.1 - Modificar Turno Externo
+
+| Campo | Detalle |
+|---|---|
+| **Actor Primario** | Secretario |
+| **Descripción** | Permite modificar la fecha y/o hora de un turno externo registrado. |
+| **Precondición** | El turno debe existir en el sistema. |
+
+**Flujo de Eventos:**
+
+| # | Acciones del Actor | Respuesta del Sistema |
+|---|---|---|
+| 1 | Busca y selecciona el turno a modificar | |
+| 2 | | Muestra los datos actuales del turno |
+| 3 | Ingresa la nueva fecha y/o hora | |
+| 4 | | Verifica disponibilidad en el nuevo horario |
+| 5 | Confirma el cambio | |
+| 6 | | Actualiza el turno, notifica a los involucrados, libera la fecha anterior |
+
+**PostCondición:** Turno actualizado. Libera la fecha anteriormente bloqueada del profesional. Involucrados notificados.  
+**Flujo Alternativo:** El sistema desbloquea el horario anterior y bloquea el nuevo.
+
+---
+
+#### CU 7 - Eliminar Turno
+
+| Campo | Detalle |
+|---|---|
+| **Actor Primario** | Secretario |
+| **Descripción** | Permite eliminar un turno registrado en el sistema. |
+| **Precondición** | El turno debe existir en el sistema. |
+
+**Flujo de Eventos:**
+
+| # | Acciones del Actor | Respuesta del Sistema |
+|---|---|---|
+| 1 | Busca y selecciona el turno a eliminar | |
+| 2 | Confirma la eliminación | |
+| 3 | | Elimina el turno del sistema |
+| 4 | | Si era turno externo, desbloquea la disponibilidad del profesional |
+| 5 | | Notifica a los involucrados |
+
+**PostCondición:** Turno eliminado. Disponibilidad actualizada si correspondía.
+
+---
+
+#### CU 8 - Ver Agenda de un Profesional
+
+| Campo | Detalle |
+|---|---|
+| **Actor Primario** | Secretario, Profesional, Coordinador |
+| **Descripción** | Permite ver los turnos agendados de un profesional/coordinador. |
+| **Precondición** | El actor debe contar con permisos para ver la agenda. Profesional existente en el sistema. |
+
+**Flujo de Eventos:**
+
+| # | Acciones del Actor | Respuesta del Sistema |
+|---|---|---|
+| 1 | Busca al profesional por DNI o nombre | Verifica permisos del usuario para ver la información |
+| 2 | | Se devuelven fechas y horas de los turnos del profesional |
+
+**PostCondición:** Devolver información de fechas y horas de turnos.  
+**Flujo Alternativo:** Sin permisos → se devuelve un mensaje de falta de permisos.
+
+---
+
+#### CU 9 - Cargar Documentación
+
+| Campo | Detalle |
+|---|---|
+| **Actor Primario** | Secretario |
+| **Descripción** | Permite cargar los documentos entregados por el cliente al sistema, asociándolos a su legajo. |
+| **Precondición** | Cliente registrado y legajo creado. |
+
+**Flujo de Eventos:**
+
+| # | Acciones del Actor | Respuesta del Sistema |
+|---|---|---|
+| 1 | Abre el legajo del cliente | |
+| 2 | Carga los documentos | |
+| 3 | | Verifica el formato correcto de los documentos (Formato válido: PDF. Límite de tamaño: ~20MB) |
+| 4 | | Guarda los archivos |
+| 5 | | Notifica el guardado exitoso |
+
+**PostCondición:** Documentación almacenada y asociada al cliente.  
+**Flujo Alternativo:** Documento con formato no compatible → el sistema informa el error.
+
+---
+
+#### CU 10 - Reemplazar Documentación
+
+| Campo | Detalle |
+|---|---|
+| **Actor Primario** | Secretario |
+| **Descripción** | Permite reemplazar un documento existente por una nueva versión, manteniendo la referencia en el legajo. |
+| **Precondición** | El documento debe existir en el sistema. |
+
+**Flujo de Eventos:**
+
+| # | Acciones del Actor | Respuesta del Sistema |
+|---|---|---|
+| 1 | Busca y selecciona el documento a reemplazar | |
+| 2 | Carga el nuevo archivo | |
+| 3 | | Verifica formato correcto |
+| 4 | | Reemplaza el archivo manteniendo el nombre y referencia |
+| 5 | | Notifica el reemplazo exitoso |
+
+**PostCondición:** Documento actualizado en el sistema.  
+**Flujo Alternativo:** Formato no compatible → el sistema informa el error.
+
+---
+
+#### CU 11 - Eliminar Documentación
+
+| Campo | Detalle |
+|---|---|
+| **Actor Primario** | Secretario |
+| **Descripción** | Permite eliminar un documento del legajo de un cliente. |
+| **Precondición** | El documento debe existir en el sistema. |
+
+**Flujo de Eventos:**
+
+| # | Acciones del Actor | Respuesta del Sistema |
+|---|---|---|
+| 1 | Busca y selecciona el documento a eliminar | |
+| 2 | Confirma la eliminación | |
+| 3 | | Elimina el archivo del sistema |
+| 4 | | Actualiza el legajo del cliente |
+
+**PostCondición:** Documento eliminado del legajo.
+
+---
+
+#### CU 12 - Registrar Comprobante de Pago
+
+| Campo | Detalle |
+|---|---|
+| **Actor Primario** | Secretario |
+| **Descripción** | Permite registrar el comprobante de pago descargado de ARCA, asociándolo al cliente correspondiente. |
+| **Precondición** | Cliente registrado en el sistema. |
+
+**Flujo de Eventos:**
+
+| # | Acciones del Actor | Respuesta del Sistema |
+|---|---|---|
+| 1 | Selecciona el proceso al que estará asociado el comprobante | |
+| 2 | Sube el PDF del comprobante al sistema | |
+| 3 | | Verifica el formato del archivo (PDF) |
+| 4 | | Guarda el comprobante |
+| 5 | | Notifica el registro exitoso |
+
+**PostCondición:** Comprobante de pago registrado y asociado al cliente.
+
+---
+
+#### CU 13 - Ver Comprobante de Pago
+
+| Campo | Detalle |
+|---|---|
+| **Actor Primario** | Secretario, Coordinador, Directivo |
+| **Descripción** | Permite consultar y visualizar un comprobante de pago descargado de ARCA. |
+| **Precondición** | Cliente registrado con al menos un comprobante cargado. |
+
+**Flujo de Eventos:**
+
+| # | Acciones del Actor | Respuesta del Sistema |
+|---|---|---|
+| 1 | Buscar cliente por DNI o nombre | |
+| 2 | | Muestra lista de comprobantes del cliente |
+| 3 | Seleccionar el comprobante | |
+| 4 | | Sirve el archivo y sus datos |
+
+**PostCondición:** Comprobante de pago devuelto para visualización.  
+**Flujo Alternativo:** El cliente no tiene comprobantes registrados → el sistema informa.
+
+---
+
+### Coordinador
+
+#### CU 14 - Admisión de Cliente
+
+| Campo | Detalle |
+|---|---|
+| **Actor Primario** | Coordinador |
+| **Descripción** | El coordinador analiza el caso del cliente para determinar si será atendido y bajo qué condiciones. |
+| **Precondición** | Existe un turno agendado con el cliente. Existe un proceso de servicio "Consultoría" asociado al cliente. |
+
+**Flujo de Eventos:**
+
+| # | Acciones del Actor | Respuesta del Sistema |
+|---|---|---|
+| 1 | Abre el legajo electrónico generado y evalúa la viabilidad del caso | |
+| 2 | Registra la decisión (admitido/rechazado) | |
+| 3 | Se modifica el proceso al servicio correspondiente (en caso de admitirlo, sino CU 14.1) | Se modifica el estado del proceso a "admitido" |
+| 4 | Asigna profesional (CU 15) | |
+| 5 | | Notifica al secretario |
+| 5b | | Notifica al cliente sobre la decisión (admitido/rechazado) y en caso de rechazo, incluye el motivo |
+
+**PostCondición:** Cliente evaluado y admitido.  
+**Flujo Alternativo:** Si el caso es rechazado → CU 14.1
+
+---
+
+#### CU 14.1 - Registrar Motivo de Rechazo
+
+| Campo | Detalle |
+|---|---|
+| **Actor Primario** | Coordinador |
+| **Descripción** | Permite registrar el motivo por el cual se rechaza un caso durante la admisión. |
+| **Precondición** | Caso en evaluación. |
+
+**Flujo de Eventos:**
+
+| # | Acciones del Actor | Respuesta del Sistema |
+|---|---|---|
+| 1 | Selecciona "rechazar caso" | |
+| 2 | | Solicita el motivo del rechazo (selección de motivo predefinido o texto libre) |
+| 3 | Ingresa el motivo | |
+| 4 | | Guarda el motivo junto con la decisión de rechazo. Se modifica el estado del caso a "rechazado" |
+
+**PostCondición:** Motivo de rechazo registrado en el sistema. El Sistema notifica al cliente sobre la decisión e incluye el motivo.
+
+---
+
+#### CU 15 - Asignar Profesional
+
+| Campo | Detalle |
+|---|---|
+| **Actor Primario** | Coordinador, Secretario |
+| **Descripción** | Permite asignar un profesional adecuado según el tipo de servicio requerido, definiendo honorario. |
+| **Precondición** | Cliente admitido. |
+
+**Flujo de Eventos:**
+
+| # | Acciones del Actor | Respuesta del Sistema |
+|---|---|---|
+| 1 | Busca los profesionales vinculados al servicio necesario | |
+| 2 | | Devuelve lista de profesionales filtrada según tipo de servicio |
+| 3 | Selecciona profesional disponible | |
+| 4 | | Verifica disponibilidad |
+| 5 | Confirma selección y define honorario/servicio | |
+| 6 | | Notifica al profesional y al secretario |
+
+**PostCondición:** Profesional asociado al caso. Profesional y secretario notificados.  
+**Flujo Alternativo:** Si el profesional no tiene disponibilidad → se busca otro con disponibilidad.
+
+---
+
+#### CU 16 - Reasignar Profesional
+
+| Campo | Detalle |
+|---|---|
+| **Actor Primario** | Coordinador |
+| **Descripción** | Permite cambiar el profesional asignado a un proceso, definiendo nuevos honorarios y modalidad de pago si corresponde. |
+| **Precondición** | Cliente admitido. Profesional previamente asignado al Proceso. |
+
+**Flujo de Eventos:**
+
+| # | Acciones del Actor | Respuesta del Sistema |
+|---|---|---|
+| 1 | Busca el proceso por cliente o número de proceso | |
+| 2 | | Muestra los datos del proceso incluyendo el profesional actualmente asignado |
+| 3 | Selecciona "reasignar profesional" | |
+| 4 | | Muestra lista de profesionales disponibles según especialidad |
+| 5 | Selecciona el nuevo profesional | |
+| 6 | | Verifica disponibilidad |
+| 7 | Confirma la reasignación y define nuevos honorarios y modalidad de pago si cambian | Actualiza la relación proceso-profesional. Notifica al profesional anterior y al nuevo profesional |
+
+**PostCondición:** Nuevo profesional asignado al proceso. Profesionales notificados.
+
+---
+
+### Profesional / Coordinador
+
+#### CU 17 - Consultar Legajo
+
+| Campo | Detalle |
+|---|---|
+| **Actor Primario** | Profesional / Coordinador / Directivo |
+| **Descripción** | Permite acceder a los datos completos e historial del cliente. |
+| **Precondición** | El actor debe tener permisos de consulta y estar asignado al caso (si es profesional) o tener rol de coordinador/Directivo. |
+
+**Flujo de Eventos:**
+
+| # | Acciones del Actor | Respuesta del Sistema |
+|---|---|---|
+| 1 | Ingresa DNI del cliente | |
+| 2 | | Recupera información relacionada al cliente |
+| 3 | | Devuelve los datos del cliente |
+
+**PostCondición:** Datos del cliente accesibles para visualización (sin modificaciones).  
+**Flujo Alternativo:** No hay coincidencias con el DNI buscado → el sistema informa.
+
+---
+
+#### CU 18 - Descargar Documentación
+
+| Campo | Detalle |
+|---|---|
+| **Actor Primario** | Profesional |
+| **Descripción** | Permite descargar documentos del legajo del cliente. |
+| **Precondición** | El profesional debe tener acceso al legajo del cliente. |
+
+**Flujo de Eventos:**
+
+| # | Acciones del Actor | Respuesta del Sistema |
+|---|---|---|
+| 1 | Selecciona el documento a descargar | |
+| 2 | | Verifica que el documento existe |
+| 3 | | Descarga el documento |
+
+**PostCondición:** Documento descargado exitosamente.  
+**Flujo Alternativo:** El documento no existe → el sistema informa.
+
+---
+
+#### CU 19 - Actualizar Estado de Proceso
+
+| Campo | Detalle |
+|---|---|
+| **Actor Primario** | Profesional / Coordinador |
+| **Descripción** | Permite modificar el estado del proceso de un caso. |
+| **Precondición** | El caso debe estar activo en el sistema. |
+
+**Flujo de Eventos:**
+
+| # | Acciones del Actor | Respuesta del Sistema |
+|---|---|---|
+| 1 | Selecciona el estado (iniciado / en proceso / finalizado / en espera) | |
+| 2 | | Guarda el nuevo estado |
+| 3 | | Actualiza el historial del caso |
+
+**PostCondición:** Estado del proceso actualizado en el historial.
+
+---
+
+#### CU 20 - Registrar Reporte
+
+| Campo | Detalle |
+|---|---|
+| **Actor Primario** | Profesional |
+| **Descripción** | Permite registrar actas de reuniones o acciones realizadas, visibles para coordinador y Directivo. |
+| **Precondición** | El profesional debe estar asignado al caso. |
+
+**Flujo de Eventos:**
+
+| # | Acciones del Actor | Respuesta del Sistema |
+|---|---|---|
+| 1 | Ingresa el contenido del reporte | |
+| 2 | | Guarda el reporte |
+| 3 | | Asocia el reporte al proceso |
+
+**PostCondición:** Reporte asociado al proceso.
+
+---
+
+#### CU 19 - Editar Reporte
+
+| Campo | Detalle |
+|---|---|
+| **Actor Primario** | Profesional |
+| **Descripción** | Permite modificar el contenido de un reporte ya registrado. |
+| **Precondición** | El reporte debe existir en el sistema. El actor debe ser el creador del reporte. |
+
+**Flujo de Eventos:**
+
+| # | Acciones del Actor | Respuesta del Sistema |
+|---|---|---|
+| 1 | Busca y selecciona el reporte a editar | |
+| 2 | | Muestra el contenido actual del reporte |
+| 3 | Modifica el contenido | |
+| 4 | | Valida los datos ingresados |
+| 5 | Confirma los cambios | |
+| 6 | | Guarda los cambios y actualiza la fecha de modificación |
+
+**PostCondición:** Reporte actualizado.
+
+---
+
+#### CU 21 - Eliminar Reporte
+
+| Campo | Detalle |
+|---|---|
+| **Actor Primario** | Profesional |
+| **Descripción** | Permite eliminar un reporte registrado del sistema. |
+| **Precondición** | El reporte debe existir en el sistema. |
+
+**Flujo de Eventos:**
+
+| # | Acciones del Actor | Respuesta del Sistema |
+|---|---|---|
+| 1 | Busca y selecciona el reporte a eliminar | |
+| 2 | Confirma la eliminación | |
+| 3 | | Elimina el reporte del sistema |
+
+**PostCondición:** Reporte eliminado.
+
+---
+
+#### CU 22 - Consultar Reportes de Proceso
+
+| Campo | Detalle |
+|---|---|
+| **Actor Primario** | Coordinador / Directivo |
+| **Descripción** | El actor debe tener permisos de consulta (coordinador o Directivo). |
+| **Precondición** | Cliente admitido. |
+
+**Flujo de Eventos:**
+
+| # | Acciones del Actor | Respuesta del Sistema |
+|---|---|---|
+| 1 | Accede al módulo de reportes | |
+| 2 | El actor puede buscar por proceso, rango de fechas o profesional | |
+| 3 | | Muestra lista de reportes que coinciden con los criterios |
+| 4 | Selecciona un reporte | |
+| 5 | | Muestra el contenido completo del reporte |
+
+**PostCondición:** Reporte consultado y legible.
+
+---
+
+### Directivo / Coordinador
+
+#### CU 23 - Agregar Nuevo Usuario
+
+| Campo | Detalle |
+|---|---|
+| **Actor Primario** | Directivo |
+| **Descripción** | Permite agregar un nuevo usuario al sistema. |
+| **Precondición** | El actor primario debe contar con los permisos requeridos. Los datos únicos no deben existir en otros usuarios. |
+
+**Flujo de Eventos:**
+
+| # | Acciones del Actor | Respuesta del Sistema |
+|---|---|---|
+| 1 | Ingresar datos del nuevo usuario | |
+| 2 | Ingresar el rol del nuevo usuario | |
+| 3 | | Crea un nuevo usuario |
+| 4 | | Se le asigna una contraseña aleatoria |
+| 5 | | Devuelve un mensaje de confirmación y la contraseña generada |
+
+**PostCondición:** Usuario creado. Se devuelve la contraseña autogenerada.
+
+---
+
+#### CU 24 - Modificar Usuario
+
+| Campo | Detalle |
+|---|---|
+| **Actor Primario** | Directivo |
+| **Descripción** | Permite actualizar los datos y/o roles de un usuario ya registrado en el sistema. |
+| **Precondición** | El usuario debe existir en el sistema. El actor principal debe estar verificado. |
+
+**Flujo de Eventos:**
+
+| # | Acciones del Actor | Respuesta del Sistema |
+|---|---|---|
+| 1 | Busca al usuario por DNI o nombre | |
+| 2 | | Muestra los datos actuales del usuario |
+| 3 | Modifica los campos necesarios | |
+| 4 | | Valida los datos ingresados |
+| 5 | Confirma los cambios | |
+| 6 | | Guarda los datos actualizados y notifica éxito |
+
+**PostCondición:** Modificados los datos del usuario.  
+**Flujo Alternativo:** El usuario no existe.
+
+---
+
+#### CU 25 - Eliminar Usuario
+
+| Campo | Detalle |
+|---|---|
+| **Actor Primario** | Directivo |
+| **Descripción** | Permite realizar un soft delete de un usuario del sistema. |
+| **Precondición** | El usuario debe existir en el sistema. El actor principal debe estar verificado. |
+
+**Flujo de Eventos:**
+
+| # | Acciones del Actor | Respuesta del Sistema |
+|---|---|---|
+| 1 | Busca al usuario por DNI o nombre | |
+| 2 | | Muestra los datos del usuario |
+| 3 | Solicita eliminar el usuario | |
+| 4 | | Verifica que no tenga procesos activos |
+| 5 | Confirma la eliminación | |
+| 6 | | Soft delete del usuario (Eliminación lógica) |
+
+**PostCondición:** Usuario "eliminado" del sistema.  
+**Flujo Alternativo:** Si el usuario tiene procesos activos → el sistema informa que no puede eliminarse.
+
+---
+
+## 3. Diagrama de Casos de Uso
+
+[Ver diagrama en draw.io](https://app.diagrams.net/#G1L2CoM1vEQATUypv-bHjGyQQNZ5I2QXXh)
+
+---
+
+## 4. Requisitos No Funcionales
+
+- El sistema debe estar disponible en todo momento (alta disponibilidad).
+- Debe garantizar seguridad mediante autenticación de usuarios.
+- Debe ser accesible desde el navegador web.
+- Debe responder en tiempos menores a 3 segundos.
+- El sistema enviará notificaciones automáticas vía email y WhatsApp utilizando un servicio externo (ej: Brevo).
+
+---
+
+## 5. Modelo de Dominio
 
 ### Lista de Conceptos
 
-* Cliente
-* Proceso
-* Servicio
-* Turno
-* Profesional
-* Usuario
-* Documento
-* Reporte
-* Comprobante_Pago
-* Notificación
+- Cliente
+- Proceso
+- Servicio
+- Turno
+- Profesional
+- Usuario
+- Documento
+- Reporte
+- Comprobante_Pago
+- Notificación
+
+---
 
 ### Relación entre Conceptos
 
 | Concepto | Relación | Tipo de Relación |
-| :--- | :--- | :--- |
-| **Cliente** | Proceso (el cliente tiene un proceso judicial) | Parte lógico |
-| **Proceso** | Reporte (el proceso genera reportes) | Descripción |
-| **Servicio** | Proceso (el servicio define el tipo de proceso) | Descripción |
-| **Turno** | Cliente (el turno pertenece a un cliente) | Parte Lógico |
-| **Profesional** | Proceso (el abogado atiende un proceso) | Parte Lógico |
-| **Usuario** | Usuario Rol (define su función en el sistema) | Descripción |
-| **Documento** | Proceso (se asocia al proceso de ese cliente) | Parte Lógica |
-| **Reporte** | Proceso (describe el avance del proceso) | Descripción |
-| **Comprobante Pago** | Cliente (pertenece a un cliente) | Contenido Lógico |
-| **Notificación** | Turno (informa sobre el turno) | Descripción |
+|---|---|---|
+| Cliente | Cliente — Proceso (el cliente tiene un proceso judicial) | Parte lógica |
+| Proceso | Proceso — Reporte (el proceso genera reportes) | Descripción |
+| Servicio | Servicio — Proceso (el servicio define el tipo de proceso) | Descripción |
+| Turno | Turno — Cliente (el turno pertenece a un cliente) | Parte lógica |
+| Profesional | Profesional — Proceso (el profesional atiende un proceso) | Parte lógica |
+| Usuario | Usuario — Rol (define su función en el sistema) | Descripción |
+| Documento | Documento — Proceso (se asocia al proceso de un cliente) | Parte lógica |
+| Reporte | Reporte — Proceso (describe el avance del proceso) | Descripción |
+| ComprobantePago | ComprobantePago — Cliente (pertenece a un cliente) | Contenido lógico |
+| Notificación | Notificación — Cliente (informa sobre un turno) | Descripción |
+
+---
 
 ### Descripción de Atributos
 
-#### **1. Cliente**
+#### Concepto 1: Cliente
 
-* `nombre`: Nombre de pila del cliente.
-* `apellido`: Apellido del cliente.
-* `DNI`: Documento Nacional de Identidad único para identificar al cliente.
-* `teléfono`: Número de contacto telefónico.
-* `correo`: Dirección de email del cliente.
-* `domicilio`: Dirección física donde reside.
-* `fecha nacimiento`: Fecha de nacimiento del cliente.
-* `estado admisión`: Aceptado/Rechazado.
+| Atributo | Descripción |
+|---|---|
+| nombre | Nombre de pila del cliente |
+| apellido | Apellido del cliente |
+| dni | Documento Nacional de Identidad único para identificar al cliente |
+| telefono | Número de contacto telefónico |
+| correo | Dirección de email del cliente |
+| domicilio | Dirección física donde reside |
+| fecha_nacimiento | Fecha de nacimiento del cliente |
+| estado_admision | Estado de admisión del cliente (Aceptado/Rechazado) |
 
-#### **2. Notificación**
+#### Concepto 2: Notificación
 
-* `mensaje`: Contenido del aviso o comunicación enviada.
-* `fecha envio`: Fecha y hora en que se envía la notificación.
-* `canal`: Medio utilizado (ej: email, SMS, app).
-* `destinatario_tipo`: Tipo de receptor (cliente, profesional).
+| Atributo | Descripción |
+|---|---|
+| mensaje | Contenido del aviso o comunicación enviada |
+| fecha_envio | Fecha y hora en que se envía la notificación |
+| canal | Medio utilizado para la notificación (email, SMS, aplicación, etc.) |
+| estado | Estado de la notificación (pendiente, enviada, leída) |
 
-#### **3. Documento**
+#### Concepto 3: Documento
 
-* `archivo`: Archivo digital que contiene el documento.
-* `tipo_documento`: Clasificación del documento (ej: contrato, informe).
+| Atributo | Descripción |
+|---|---|
+| archivo_path | Ruta o ubicación del archivo digital almacenado |
+| tipo_documento | Clasificación del documento (contrato, informe, formulario, etc.) |
+| nombre | Nombre identificador del documento |
 
-#### **4. Comprobante Pago**
+#### Concepto 4: ComprobantePago
 
-* `archivo`: Archivo que respalda el pago.
-* `fecha subida`: Fecha en que se cargó el comprobante al sistema.
-* `descripción`: Detalle adicional del pago realizado.
+| Atributo | Descripción |
+|---|---|
+| archivo_path | Archivo digital que respalda el pago realizado |
+| fecha_subida | Fecha en que se cargó el comprobante al sistema |
+| descripcion | Detalle adicional relacionado con el pago realizado |
 
-#### **5. Proceso**
+#### Concepto 5: Proceso
 
-* `nombre`: Nombre identificador del proceso.
-* `descripción`: Explicación del proceso y su finalidad.
-* `fecha inicio`: Fecha en que comienza el proceso.
-* `tipo`: Categoría del proceso (ej: administrativo, Familia, Civil).
-* `estado`: Situación actual.
+| Atributo | Descripción |
+|---|---|
+| nombre | Nombre identificador del proceso |
+| descripcion | Explicación del proceso y su finalidad |
+| fecha_inicio | Fecha en que comienza el proceso |
+| tipo | Categoría del proceso (administrativo, familia, civil, etc.) |
+| estado | Situación actual del proceso |
+| motivo_rechazo | Motivo registrado en caso de que el proceso sea rechazado |
 
-#### **6. Reporte**
+#### Concepto 6: Reporte
 
-* `fecha`: Fecha de emisión del reporte.
-* `contenido`: Detalle textual del reporte del caso.
+| Atributo | Descripción |
+|---|---|
+| contenido | Información detallada sobre el avance o situación del proceso |
+| fecha | Fecha de emisión del reporte |
 
-#### **7. Servicio**
+#### Concepto 7: Servicio
 
-* `nombre`: Nombre del servicio ofrecido.
-* `costo servicio`: Precio asociado al servicio.
+| Atributo | Descripción |
+|---|---|
+| nombre | Nombre del servicio ofrecido |
+| costo_servicio | Precio asociado al servicio |
 
-#### **8. Profesional**
+#### Concepto 8: Profesional
 
-* `nombre`: Nombre del profesional.
-* `apellido`: Apellido del profesional.
-* `dni`: Documento identificatorio único.
-* `teléfono`: Número de teléfono de contacto.
-* `correo`: Email profesional.
-* `domicilio`: Dirección del profesional.
-* `fecha nacimiento`: Fecha de nacimiento.
-* `fecha_ingreso`: Fecha en que comenzó a trabajar en la organización.
+| Atributo | Descripción |
+|---|---|
+| nombre | Nombre del profesional |
+| apellido | Apellido del profesional |
+| dni | Documento identificatorio único |
+| telefono | Número telefónico de contacto |
+| correo | Email profesional |
+| domicilio | Dirección del profesional |
+| fecha_nacimiento | Fecha de nacimiento |
+| fecha_ingreso | Fecha en que comenzó a trabajar en la organización |
 
-#### **9. Usuario**
+#### Concepto 9: Usuario
 
-* `correo`: Email utilizado para acceder al sistema.
-* `contraseña`: Clave de acceso del usuario.
-* `rol`: Tipo de usuario dentro del sistema (admin, cliente, profesional).
+| Atributo | Descripción |
+|---|---|
+| nombre | Nombre del usuario del sistema |
+| email | Correo electrónico utilizado para acceder al sistema |
+| password | Contraseña de acceso al sistema |
+| dni | Documento identificatorio del usuario |
+| telefono | Número de contacto del usuario |
+| domicilio | Dirección registrada |
+| fecha_nacimiento | Fecha de nacimiento |
+| fecha_ingreso | Fecha de incorporación al sistema |
 
-#### **10. Turno**
+#### Concepto 10: Turno
 
-* `fecha hora`: Fecha y hora asignada al turno.
-* `es externo`: Indica si el turno es fuera de la organización (booleano).
-* `detalle externo`: Información adicional si el turno es externo.
+| Atributo | Descripción |
+|---|---|
+| fecha_hora | Fecha y hora asignada al turno |
+| es_externo | Indica si el turno se realiza fuera de la organización |
+| detalle_externo | Información adicional cuando el turno es externo |
+| tipo | Tipo de turno asignado |
+
+---
+
+## 6. Diagrama de Secuencia (DSS) — Casos más relevantes
+
+### CU4 — Agendar Turno Interno
+
+**Flujo principal:**
+1. Secretario → Sistema: `seleccionarCliente(dni)`
+2. Sistema → Secretario: `mostrarDatosCliente()`
+3. Secretario → Sistema: `seleccionarProfesional()`
+4. Secretario → Sistema: `ingresarFechaHora()`
+5. Sistema (interno): `verificarDisponibilidad()`
+
+**[alt] Profesional disponible:**
+6. Secretario → Sistema: `confirmarTurno()`
+7. Sistema (interno): `registrarTurno()`
+8. Sistema (interno): `asociarCliente()`
+9. Sistema (interno): `asociarProfesional()`
+10. Sistema → Secretario: `turnoRegistrado()`
+11. Sistema (interno): `notificarCliente()`
+12. Sistema (interno): `notificarProfesional()`
+
+**[alt] Profesional no disponible:**
+- Sistema → Secretario: `solicitarNuevaFecha()`
+
+---
+
+### CU14 — Admisión de Cliente
+
+**Flujo principal:**
+1. Coordinador → Sistema: `abrirLegajo(cliente)`
+2. Sistema → Coordinador: `mostrarInformacionCaso()`
+3. Coordinador → Sistema: `registrarDecision(admitido/rechazado)`
+
+**[alt] Caso admitido:**
+4. Sistema (interno): `actualizarEstadoProceso("Admitido")`
+5. Sistema → Coordinador: `solicitarAsignacionProfesional()`
+6. Sistema (interno): `notificarSecretario()`
+7. Sistema (interno): `notificarCliente()`
+
+**[alt] Caso rechazado:**
+8. Coordinador → Sistema: `ingresarMotivoRechazo()`
+9. Sistema (interno): `guardarMotivoRechazo()`
+10. Sistema (interno): `actualizarEstadoProceso("Rechazado")`
+11. Sistema (interno): `notificarSecretario()`
+12. Sistema (interno): `notificarCliente()`
+
+---
+
+### CU15 — Asignar Profesional
+
+**Flujo principal:**
+1. Coordinador → Sistema: `buscarProfesionales(servicio)`
+2. Sistema → Coordinador: `mostrarProfesionalesDisponibles()`
+3. Coordinador → Sistema: `seleccionarProfesional()`
+4. Sistema (interno): `verificarDisponibilidad()`
+
+**[alt] Profesional disponible:**
+5. Coordinador → Sistema: `confirmarAsignacion(honorarios)`
+6. Sistema (interno): `asociarProfesionalAlProceso()`
+7. Sistema (interno): `registrarHonorarios()`
+8. Sistema (interno): `notificarProfesional()`
+9. Sistema (interno): `notificarSecretario()`
+10. Sistema → Coordinador: `asignacionExitosa()`
+
+**[alt] Profesional no disponible:**
+- Sistema → Coordinador: `informarFaltaDisponibilidad()`
+
+---
+
+### CU19 — Actualizar Estado de Proceso
+
+**Flujo principal:**
+1. Profesional → Sistema: `seleccionarProceso()`
+2. Sistema → Profesional: `mostrarDatosProceso()`
+3. Profesional → Sistema: `actualizarEstado(nuevoEstado)`
+4. Sistema (interno): `guardarEstado()`
+5. Sistema (interno): `actualizarHistorial()`
+6. Sistema → Profesional: `estadoActualizado()`
