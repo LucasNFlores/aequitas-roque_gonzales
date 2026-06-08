@@ -2,16 +2,18 @@
 
 namespace App\Models;
 
-use Database\Factories\NotificacioneFactory;
+use Database\Factories\NotificacionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Notificacione extends Model
+class Notificacion extends Model
 {
-    /** @use HasFactory<NotificacioneFactory> */
+    /** @use HasFactory<NotificacionFactory> */
     use HasFactory, SoftDeletes;
+
+    protected $table = 'notificaciones';
 
     protected $fillable = [
         'user_id',

@@ -42,7 +42,7 @@ class Cliente extends Model
 
     public function notificaciones(): HasMany
     {
-        return $this->hasMany(Notificacione::class);
+        return $this->hasMany(Notificacion::class);
     }
 
     public function turnos(): HasMany

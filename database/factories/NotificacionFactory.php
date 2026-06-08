@@ -2,13 +2,13 @@
 
 namespace Database\Factories;
 
-use App\Models\Notificacione;
+use App\Models\Notificacion;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<Notificacione>
+ * @extends Factory<Notificacion>
  */
-class NotificacioneFactory extends Factory
+class NotificacionFactory extends Factory
 {
     /**
      * Define the model's default state.

@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Notificacione;
-use App\Http\Requests\StoreNotificacioneRequest;
-use App\Http\Requests\UpdateNotificacioneRequest;
+use App\Http\Requests\StoreNotificacionRequest;
+use App\Http\Requests\UpdateNotificacionRequest;
+use App\Models\Notificacion;
 
-class NotificacioneController extends Controller
+class NotificacionController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -27,7 +27,7 @@ class NotificacioneController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreNotificacioneRequest $request)
+    public function store(StoreNotificacionRequest $request)
     {
         //
     }
@@ -35,7 +35,7 @@ class NotificacioneController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Notificacione $notificacione)
+    public function show(Notificacion $notificacion)
     {
         //
     }
@@ -43,7 +43,7 @@ class NotificacioneController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Notificacione $notificacione)
+    public function edit(Notificacion $notificacion)
     {
         //
     }
@@ -51,7 +51,7 @@ class NotificacioneController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateNotificacioneRequest $request, Notificacione $notificacione)
+    public function update(UpdateNotificacionRequest $request, Notificacion $notificacion)
     {
         //
     }
@@ -59,7 +59,7 @@ class NotificacioneController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Notificacione $notificacione)
+    public function destroy(Notificacion $notificacion)
     {
         //
     }

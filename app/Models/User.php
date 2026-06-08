@@ -82,6 +82,6 @@ class User extends Authenticatable implements Auditable
 
     public function notificaciones(): HasMany
     {
-        return $this->hasMany(Notificacione::class);
+        return $this->hasMany(Notificacion::class);
     }
 }

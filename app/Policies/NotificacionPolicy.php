@@ -2,11 +2,10 @@
 
 namespace App\Policies;
 
-use App\Models\Notificacione;
+use App\Models\Notificacion;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
-class NotificacionePolicy
+class NotificacionPolicy
 {
     /**
      * Determine whether the user can view any models.
@@ -19,7 +18,7 @@ class NotificacionePolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Notificacione $notificacione): bool
+    public function view(User $user, Notificacion $notificacion): bool
     {
         return false;
     }
@@ -35,7 +34,7 @@ class NotificacionePolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Notificacione $notificacione): bool
+    public function update(User $user, Notificacion $notificacion): bool
     {
         return false;
     }
@@ -43,7 +42,7 @@ class NotificacionePolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Notificacione $notificacione): bool
+    public function delete(User $user, Notificacion $notificacion): bool
     {
         return false;
     }
@@ -51,7 +50,7 @@ class NotificacionePolicy
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, Notificacione $notificacione): bool
+    public function restore(User $user, Notificacion $notificacion): bool
     {
         return false;
     }
@@ -59,7 +58,7 @@ class NotificacionePolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, Notificacione $notificacione): bool
+    public function forceDelete(User $user, Notificacion $notificacion): bool
     {
         return false;
     }
