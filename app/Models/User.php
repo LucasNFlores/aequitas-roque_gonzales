@@ -5,16 +5,18 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-
-use Spatie\Permission\Traits\HasRoles;
 use OwenIt\Auditing\Contracts\Auditable;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements Auditable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, HasRoles, Notifiable, SoftDeletes;
+
     use \OwenIt\Auditing\Auditable;
 
     /**
@@ -50,11 +52,36 @@ class User extends Authenticatable implements Auditable
      */
     protected function casts(): array
     {
-         return [
+        return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'fecha_nacimiento' => 'date',
             'fecha_ingreso' => 'date',
-         ];
+        ];
+    }
+
+    public function turnos(): HasMany
+    {
+        return $this->hasMany(Turno::class);
+    }
+
+    public function reportes(): HasMany
+    {
+        return $this->hasMany(Reporte::class);
+    }
+
+    public function procesosComoProfesional(): HasMany
+    {
+        return $this->hasMany(Proceso::class, 'profesional_id');
+    }
+
+    public function procesosComoCoordinador(): HasMany
+    {
+        return $this->hasMany(Proceso::class, 'coordinador_id');
+    }
+
+    public function notificaciones(): HasMany
+    {
+        return $this->hasMany(Notificacione::class);
     }
 }
