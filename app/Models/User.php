@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -83,5 +84,10 @@ class User extends Authenticatable implements Auditable
     public function notificaciones(): HasMany
     {
         return $this->hasMany(Notificacion::class);
+    }
+
+    public function servicios(): BelongsToMany
+    {
+        return $this->belongsToMany(Servicio::class, 'user_servicios');
     }
 }
