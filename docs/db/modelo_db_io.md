@@ -2,7 +2,9 @@ Table users {
   id bigint [pk, increment]
   name varchar
   email varchar [unique]
+  email_verified_at timestamp [null]
   password varchar
+  remember_token varchar [null]
   // profesional fields (null si no es profesional)
   dni varchar [null, unique]
   telefono varchar [null]
@@ -70,6 +72,11 @@ Table servicios {
   deleted_at timestamp [null]
 }
 
+Table user_servicios {
+  user_id bigint [ref: > users.id]
+  servicio_id bigint [ref: > servicios.id]
+}
+
 Table procesos {
   id bigint [pk, increment]
   cliente_id bigint [ref: > clientes.id]
@@ -123,7 +130,7 @@ Table reportes {
   deleted_at timestamp [null]
 }
 
-Table comprobantes_pago {
+Table comprobante_pagos {
   id bigint [pk, increment]
   cliente_id bigint [ref: > clientes.id]
   archivo_path varchar
@@ -142,5 +149,6 @@ Table notificaciones {
   fecha_envio timestamp
   estado varchar [note: 'enviado | fallido']
   created_at timestamp
+  updated_at timestamp
   deleted_at timestamp [null]
 }
