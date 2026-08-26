@@ -19,6 +19,9 @@
                     <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
                         {{ __('Usuarios y Roles') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('servicios.index')" :active="request()->routeIs('servicios.*')">
+                        {{ __('Servicios') }}
+                    </x-nav-link>
                     @endhasanyrole
                     <x-nav-link :href="route('tutorial')" :active="request()->routeIs('tutorial')">
                         {{ __('Guía Técnica') }}
