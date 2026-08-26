@@ -10,15 +10,13 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class ServicioFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
+    protected $model = Servicio::class;
+
     public function definition(): array
     {
         return [
-            //
+            'nombre' => fake()->unique()->sentence(3),
+            'costo_servicio' => fake()->randomFloat(2, 500, 15000),
         ];
     }
 }
