@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -35,6 +36,7 @@ Route::middleware('auth')->group(function () {
  */
 Route::middleware(['auth', 'role:Administrador|Supervisor'])->group(function () {
     Route::get('/usuarios', [UserController::class, 'index'])->name('users.index');
+    Route::resource('servicios', ServicioController::class)->except(['show']);
 });
 
 /* * NIVEL 2: Escritura/Edición.
