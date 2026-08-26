@@ -1,0 +1,43 @@
+sequenceDiagram
+    actor Secretario
+    participant Sistema as Sistema (Controller)
+    participant Cliente as Cliente (Model)
+    participant User as User/Profesional (Model)
+    participant Turno as Turno (Model)
+    participant Notificacion as Notificacion (Model)
+
+    Secretario->>Sistema: buscarClientePorDni(dni)
+    Sistema->>Cliente: obtenerPorDni(dni)
+    Cliente-->>Sistema: cliente o null
+
+    alt Cliente no encontrado
+        Sistema-->>Secretario: errorClienteNoExiste()
+    end
+
+    Sistema-->>Secretario: mostrarDatosCliente(cliente)
+
+    Secretario->>Sistema: seleccionarProfesional(profesionalId)
+    Sistema->>User: obtenerConServicios(profesionalId)
+    User-->>Sistema: profesional con servicios
+    Sistema-->>Secretario: mostrarDatosProfesional(profesional)
+
+    Secretario->>Sistema: ingresarFechaHora(fechaHora)
+    Sistema->>Turno: existeTurnoEnHorario(profesionalId, fechaHora)
+    Turno-->>Sistema: true / false
+
+    alt Profesional no disponible
+        Sistema-->>Secretario: solicitarNuevaFecha(mensaje)
+    else Profesional disponible
+        Secretario->>Sistema: confirmarTurno(clienteId, profesionalId, fechaHora)
+
+        Sistema->>Turno: crearTurnoInterno(clienteId, profesionalId, fechaHora)
+        Turno-->>Sistema: turno creado
+
+        Sistema->>Notificacion: enviarNotificacionProfesional(profesionalId, mensaje)
+        Notificacion-->>Sistema: notificacion registrada
+
+        Sistema->>Notificacion: enviarNotificacionCliente(clienteId, mensaje)
+        Notificacion-->>Sistema: notificacion registrada
+
+        Sistema-->>Secretario: turnoRegistradoConExito(turno)
+    end

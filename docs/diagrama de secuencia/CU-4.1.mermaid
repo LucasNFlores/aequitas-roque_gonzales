@@ -1,0 +1,51 @@
+sequenceDiagram
+    actor Secretario
+    participant Sistema as Sistema (Controller)
+    participant Proceso as Proceso (Model)
+    participant Cliente as Cliente (Model)
+    participant User as User/Profesional (Model)
+    participant Turno as Turno (Model)
+    participant Notificacion as Notificacion (Model)
+
+    Secretario->>Sistema: buscarProceso(query)
+    Sistema->>Proceso: buscarPorNombreODescripcion(query)
+    Proceso-->>Sistema: lista de procesos
+
+    alt Sin resultados
+        Sistema-->>Secretario: mensajeSinResultados()
+    end
+
+    Sistema-->>Secretario: mostrarProcesos(procesos)
+    Secretario->>Sistema: seleccionarProceso(procesoId)
+
+    Sistema->>Proceso: obtenerConRelaciones(procesoId)
+    Proceso-->>Sistema: proceso con cliente, profesional y servicio
+
+    Sistema->>Cliente: obtenerPorId(proceso.clienteId)
+    Cliente-->>Sistema: cliente
+
+    Sistema->>User: obtenerPorId(proceso.profesionalId)
+    User-->>Sistema: profesional
+
+    Sistema-->>Secretario: mostrarDatosCasoYProfesional(proceso, cliente, profesional)
+
+    Secretario->>Sistema: ingresarFechaHora(fechaHora)
+    Sistema->>Turno: existeTurnoEnHorario(profesionalId, fechaHora)
+    Turno-->>Sistema: true / false
+
+    alt Profesional no disponible
+        Sistema-->>Secretario: solicitarNuevaFecha(mensaje)
+    else Profesional disponible
+        Secretario->>Sistema: confirmarTurno(procesoId, profesionalId, clienteId, fechaHora)
+
+        Sistema->>Turno: crearTurnoDeSeguimiento(clienteId, profesionalId, procesoId, fechaHora)
+        Turno-->>Sistema: turno creado
+
+        Sistema->>Notificacion: enviarNotificacionProfesional(profesionalId, mensaje)
+        Notificacion-->>Sistema: notificacion registrada
+
+        Sistema->>Notificacion: enviarNotificacionCliente(clienteId, mensaje)
+        Notificacion-->>Sistema: notificacion registrada
+
+        Sistema-->>Secretario: turnoRegistradoConExito(turno, proceso)
+    end
