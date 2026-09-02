@@ -18,9 +18,8 @@ class RoleSeeder extends Seeder
 
         // Creamos los roles base del sistema
         $rol_admin = Role::create(['name' => 'Administrador']);
-        $rol_empleado = Role::create(['name' => 'Empleado']);
-        $rol_cliente = Role::create(['name' => 'Cliente']);
-        $rol_supervisor = Role::create(['name' => 'Supervisor']);
+        $rol_profesional = Role::create(['name' => 'Profesional']);
+        $rol_coordinador = Role::create(['name' => 'Coordinador']);
         $rol_directivo = Role::create(['name' => 'Directivo']);
 
         // Asignamos permisos a los roles
