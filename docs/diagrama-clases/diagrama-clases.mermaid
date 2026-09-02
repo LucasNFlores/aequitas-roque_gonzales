@@ -1,129 +1,151 @@
 classDiagram
 direction LR
-    class User {
-	    -String name
-	    -String email
-	    -String password
-	    -String dni
-	    -String telefono
-	    -String domicilio
-	    -Date fecha_nacimiento
-	    -Date fecha_ingreso
-	    +HasMany turnos()
-	    +HasMany reportes()
-	    +HasMany procesosComoProfesional()
-	    +HasMany procesosComoCoordinador()
-	    +HasMany notificaciones()
+
+    namespace Acceso_y_Personas {
+        class User {
+            -String name
+            -String email
+            -String password
+            -String dni
+            -String telefono
+            -String domicilio
+            -Date fecha_nacimiento
+            -Date fecha_ingreso
+            +HasMany turnos()
+            +HasMany reportes()
+            +HasMany procesosComoProfesional()
+            +HasMany procesosComoCoordinador()
+            +HasMany notificaciones()
+            +BelongsToMany servicios()
+        }
+
+        class Cliente {
+            -String nombre
+            -String apellido
+            -String dni
+            -String telefono
+            -String correo
+            -String domicilio
+            -Date fecha_nacimiento
+            +HasMany procesos()
+            +HasMany comprobantesPago()
+            +HasMany notificaciones()
+            +HasMany turnos()
+        }
     }
 
-    class Cliente {
-	    -String nombre
-	    -String apellido
-	    -String dni
-	    -String telefono
-	    -String correo
-	    -String domicilio
-	    -Date fecha_nacimiento
-	    +HasMany procesos()
-	    +HasMany comprobantesPago()
-	    +HasMany notificaciones()
-	    +HasMany turnos()
+    namespace Gestion_Juridica {
+        class Proceso {
+            -BigInt cliente_id
+            -BigInt profesional_id
+            -BigInt servicio_id
+            -BigInt coordinador_id
+            -String nombre
+            -Text descripcion
+            -Date fecha_inicio
+            -String tipo
+            -String estado
+            -String motivo_rechazo
+            +BelongsTo cliente()
+            +BelongsTo profesional()
+            +BelongsTo coordinador()
+            +BelongsTo servicio()
+            +HasMany turnos()
+            +HasMany documentos()
+            +HasMany reportes()
+        }
+
+        class Servicio {
+            -String nombre
+            -Decimal costo_servicio
+            +HasMany procesos()
+            +BelongsToMany usuarios()
+        }
     }
 
-    class Proceso {
-	    -BigInt cliente_id
-	    -BigInt profesional_id
-	    -BigInt servicio_id
-	    -BigInt coordinador_id
-	    -String nombre
-	    -Text descripcion
-	    -Date fecha_inicio
-	    -String tipo
-	    -String estado
-	    -String motivo_rechazo
-	    +BelongsTo cliente()
-	    +BelongsTo profesional()
-	    +BelongsTo coordinador()
-	    +BelongsTo servicio()
-	    +HasMany turnos()
-	    +HasMany documentos()
-	    +HasMany reportes()
+    namespace Agenda {
+        class Turno {
+            -BigInt cliente_id
+            -BigInt profesional_id
+            -BigInt proceso_id
+            -DateTime fecha_hora
+            -Boolean es_externo
+            -String detalle_externo
+            -String tipo
+            +BelongsTo cliente()
+            +BelongsTo profesional()
+            +BelongsTo proceso()
+        }
     }
 
-    class Turno {
-	    -BigInt cliente_id
-	    -BigInt profesional_id
-	    -BigInt proceso_id
-	    -DateTime fecha_hora
-	    -Boolean es_externo
-	    -String detalle_externo
-	    -String tipo
-	    +BelongsTo cliente()
-	    +BelongsTo profesional()
-	    +BelongsTo proceso()
+    namespace Documentacion_y_Seguimiento {
+        class Documento {
+            -BigInt proceso_id
+            -String archivo_path
+            -String tipo_documento
+            -String nombre
+            +BelongsTo proceso()
+        }
+
+        class Reporte {
+            -BigInt proceso_id
+            -BigInt profesional_id
+            -Text contenido
+            -Date fecha
+            +BelongsTo proceso()
+            +BelongsTo profesional()
+        }
     }
 
-    class Servicio {
-	    -String nombre
-	    -Decimal costo_servicio
-	    +HasMany procesos()
+    namespace Pagos {
+        class ComprobantePago {
+            -BigInt cliente_id
+            -String archivo_path
+            -Date fecha_subida
+            -String descripcion
+            +BelongsTo cliente()
+        }
     }
 
-    class Documento {
-	    -BigInt proceso_id
-	    -String archivo_path
-	    -String tipo_documento
-	    -String nombre
-	    +BelongsTo proceso()
+    namespace Comunicaciones {
+        class Notificacion {
+            -BigInt user_id
+            -BigInt cliente_id
+            -String canal
+            -Text mensaje
+            -DateTime fecha_envio
+            -String estado
+            +BelongsTo user()
+            +BelongsTo cliente()
+        }
     }
 
-    class Reporte {
-	    -BigInt proceso_id
-	    -BigInt profesional_id
-	    -Text contenido
-	    -Date fecha
-	    +BelongsTo proceso()
-	    +BelongsTo profesional()
-    }
-
-    class Notificacion {
-	    -BigInt user_id
-	    -BigInt cliente_id
-	    -String canal
-	    -Text mensaje
-	    -DateTime fecha_envio
-	    -String estado
-	    +BelongsTo user()
-	    +BelongsTo cliente()
-    }
-
-    class ComprobantePago {
-	    -BigInt cliente_id
-	    -String archivo_path
-	    -Date fecha_subida
-	    -String descripcion
-	    +BelongsTo cliente()
-    }
-
-	<<Authenticatable>> User
-	<<SoftDeletes>> Cliente
-	<<SoftDeletes>> Proceso
-	<<SoftDeletes>> Turno
-	<<SoftDeletes>> Servicio
-	<<SoftDeletes>> Documento
-	<<SoftDeletes>> Reporte
-	<<SoftDeletes>> Notificacion
-	<<HasFactory>> ComprobantePago
+    <<Authenticatable>> User
+    <<Auditable>> User
+    <<HasRoles>> User
+    <<Notifiable>> User
+    <<SoftDeletes>> User
+    <<SoftDeletes>> Cliente
+    <<SoftDeletes>> Proceso
+    <<SoftDeletes>> Turno
+    <<SoftDeletes>> Servicio
+    <<SoftDeletes>> Documento
+    <<SoftDeletes>> Reporte
+    <<SoftDeletes>> Notificacion
+    <<HasFactory>> ComprobantePago
 
     User "1" --> "N" Turno : turnos
     User "1" --> "N" Reporte : reportes
     User "1" --> "N" Proceso : procesosComoProfesional
     User "1" --> "N" Proceso : procesosComoCoordinador
     User "1" --> "N" Notificacion : notificaciones
+    User "N" --> "N" Servicio : servicios
+
     Cliente "1" --> "N" Proceso : procesos
     Cliente "1" --> "N" ComprobantePago : comprobantesPago
     Cliente "1" --> "N" Notificacion : notificaciones
     Cliente "1" --> "N" Turno : turnos
+
     Proceso "N" --> "1" Cliente : cliente
     Proceso "N" --> "1" User : profesional
     Proceso "N" --> "1" User : coordinador
@@ -131,13 +153,20 @@ direction LR
     Proceso "1" --> "N" Turno : turnos
     Proceso "1" --> "N" Documento : documentos
     Proceso "1" --> "N" Reporte : reportes
+
     Servicio "1" --> "N" Proceso : procesos
+    Servicio "N" --> "N" User : usuarios
+
     Turno "N" --> "1" Cliente : cliente
     Turno "N" --> "1" User : profesional
     Turno "N" --> "1" Proceso : proceso
+
     Documento "N" --> "1" Proceso : proceso
+
     Reporte "N" --> "1" Proceso : proceso
     Reporte "N" --> "1" User : profesional
+
     Notificacion "N" --> "1" User : user
     Notificacion "N" --> "1" Cliente : cliente
+
     ComprobantePago "N" --> "1" Cliente : cliente

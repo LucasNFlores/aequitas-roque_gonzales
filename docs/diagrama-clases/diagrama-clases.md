@@ -4,139 +4,153 @@
 
 ```mermaid
 classDiagram
-    direction LR
-    class User {
-        << Authenticatable >>
-        << Auditable >>
-        << HasRoles >>
-        << Notifiable >>
-        << SoftDeletes >>
-        -String name
-        -String email
-        -String password
-        -String dni
-        -String telefono
-        -String domicilio
-        -Date fecha_nacimiento
-        -Date fecha_ingreso
-        +HasMany turnos()
-        +HasMany reportes()
-        +HasMany procesosComoProfesional()
-        +HasMany procesosComoCoordinador()
-        +HasMany notificaciones()
+direction LR
+
+    namespace Acceso_y_Personas {
+        class User {
+            -String name
+            -String email
+            -String password
+            -String dni
+            -String telefono
+            -String domicilio
+            -Date fecha_nacimiento
+            -Date fecha_ingreso
+            +HasMany turnos()
+            +HasMany reportes()
+            +HasMany procesosComoProfesional()
+            +HasMany procesosComoCoordinador()
+            +HasMany notificaciones()
+            +BelongsToMany servicios()
+        }
+
+        class Cliente {
+            -String nombre
+            -String apellido
+            -String dni
+            -String telefono
+            -String correo
+            -String domicilio
+            -Date fecha_nacimiento
+            +HasMany procesos()
+            +HasMany comprobantesPago()
+            +HasMany notificaciones()
+            +HasMany turnos()
+        }
     }
 
-    class Cliente {
-        << SoftDeletes >>
-        -String nombre
-        -String apellido
-        -String dni
-        -String telefono
-        -String correo
-        -String domicilio
-        -Date fecha_nacimiento
-        +HasMany procesos()
-        +HasMany comprobantesPago()
-        +HasMany notificaciones()
-        +HasMany turnos()
+    namespace Gestion_Juridica {
+        class Proceso {
+            -BigInt cliente_id
+            -BigInt profesional_id
+            -BigInt servicio_id
+            -BigInt coordinador_id
+            -String nombre
+            -Text descripcion
+            -Date fecha_inicio
+            -String tipo
+            -String estado
+            -String motivo_rechazo
+            +BelongsTo cliente()
+            +BelongsTo profesional()
+            +BelongsTo coordinador()
+            +BelongsTo servicio()
+            +HasMany turnos()
+            +HasMany documentos()
+            +HasMany reportes()
+        }
+
+        class Servicio {
+            -String nombre
+            -Decimal costo_servicio
+            +HasMany procesos()
+            +BelongsToMany usuarios()
+        }
     }
 
-    class Proceso {
-        << SoftDeletes >>
-        -BigInt cliente_id
-        -BigInt profesional_id
-        -BigInt servicio_id
-        -BigInt coordinador_id
-        -String nombre
-        -Text descripcion
-        -Date fecha_inicio
-        -String tipo
-        -String estado
-        -String motivo_rechazo
-        +BelongsTo cliente()
-        +BelongsTo profesional()
-        +BelongsTo coordinador()
-        +BelongsTo servicio()
-        +HasMany turnos()
-        +HasMany documentos()
-        +HasMany reportes()
+    namespace Agenda {
+        class Turno {
+            -BigInt cliente_id
+            -BigInt profesional_id
+            -BigInt proceso_id
+            -DateTime fecha_hora
+            -Boolean es_externo
+            -String detalle_externo
+            -String tipo
+            +BelongsTo cliente()
+            +BelongsTo profesional()
+            +BelongsTo proceso()
+        }
     }
 
-    class Turno {
-        << SoftDeletes >>
-        -BigInt cliente_id
-        -BigInt profesional_id
-        -BigInt proceso_id
-        -DateTime fecha_hora
-        -Boolean es_externo
-        -String detalle_externo
-        -String tipo
-        +BelongsTo cliente()
-        +BelongsTo profesional()
-        +BelongsTo proceso()
+    namespace Documentacion_y_Seguimiento {
+        class Documento {
+            -BigInt proceso_id
+            -String archivo_path
+            -String tipo_documento
+            -String nombre
+            +BelongsTo proceso()
+        }
+
+        class Reporte {
+            -BigInt proceso_id
+            -BigInt profesional_id
+            -Text contenido
+            -Date fecha
+            +BelongsTo proceso()
+            +BelongsTo profesional()
+        }
     }
 
-    class Servicio {
-        << SoftDeletes >>
-        -String nombre
-        -Decimal costo_servicio
-        +HasMany procesos()
+    namespace Pagos {
+        class ComprobantePago {
+            -BigInt cliente_id
+            -String archivo_path
+            -Date fecha_subida
+            -String descripcion
+            +BelongsTo cliente()
+        }
     }
 
-    class Documento {
-        << SoftDeletes >>
-        -BigInt proceso_id
-        -String archivo_path
-        -String tipo_documento
-        -String nombre
-        +BelongsTo proceso()
+    namespace Comunicaciones {
+        class Notificacion {
+            -BigInt user_id
+            -BigInt cliente_id
+            -String canal
+            -Text mensaje
+            -DateTime fecha_envio
+            -String estado
+            +BelongsTo user()
+            +BelongsTo cliente()
+        }
     }
 
-    class Reporte {
-        << SoftDeletes >>
-        -BigInt proceso_id
-        -BigInt profesional_id
-        -Text contenido
-        -Date fecha
-        +BelongsTo proceso()
-        +BelongsTo profesional()
-    }
+    <<Authenticatable>> User
+    <<Auditable>> User
+    <<HasRoles>> User
+    <<Notifiable>> User
+    <<SoftDeletes>> User
+    <<SoftDeletes>> Cliente
+    <<SoftDeletes>> Proceso
+    <<SoftDeletes>> Turno
+    <<SoftDeletes>> Servicio
+    <<SoftDeletes>> Documento
+    <<SoftDeletes>> Reporte
+    <<SoftDeletes>> Notificacion
+    <<HasFactory>> ComprobantePago
 
-    class Notificacion {
-        << SoftDeletes >>
-        -BigInt user_id
-        -BigInt cliente_id
-        -String canal
-        -Text mensaje
-        -DateTime fecha_envio
-        -String estado
-        +BelongsTo user()
-        +BelongsTo cliente()
-    }
-
-    class ComprobantePago {
-        << HasFactory >>
-        -BigInt cliente_id
-        -String archivo_path
-        -Date fecha_subida
-        -String descripcion
-        +BelongsTo cliente()
-    }
-
-    %% Relaciones de User
     User "1" --> "N" Turno : turnos
     User "1" --> "N" Reporte : reportes
     User "1" --> "N" Proceso : procesosComoProfesional
     User "1" --> "N" Proceso : procesosComoCoordinador
     User "1" --> "N" Notificacion : notificaciones
+    User "N" --> "N" Servicio : servicios
 
-    %% Relaciones de Cliente
     Cliente "1" --> "N" Proceso : procesos
     Cliente "1" --> "N" ComprobantePago : comprobantesPago
     Cliente "1" --> "N" Notificacion : notificaciones
     Cliente "1" --> "N" Turno : turnos
 
-    %% Relaciones de Proceso
     Proceso "N" --> "1" Cliente : cliente
     Proceso "N" --> "1" User : profesional
     Proceso "N" --> "1" User : coordinador
@@ -145,28 +159,32 @@ classDiagram
     Proceso "1" --> "N" Documento : documentos
     Proceso "1" --> "N" Reporte : reportes
 
-    %% Relaciones de Servicio
     Servicio "1" --> "N" Proceso : procesos
+    Servicio "N" --> "N" User : usuarios
 
-    %% Relaciones de Turno
     Turno "N" --> "1" Cliente : cliente
     Turno "N" --> "1" User : profesional
     Turno "N" --> "1" Proceso : proceso
 
-    %% Relaciones de Documento
     Documento "N" --> "1" Proceso : proceso
 
-    %% Relaciones de Reporte
     Reporte "N" --> "1" Proceso : proceso
     Reporte "N" --> "1" User : profesional
 
-    %% Relaciones de Notificacion
     Notificacion "N" --> "1" User : user
     Notificacion "N" --> "1" Cliente : cliente
 
-    %% Relaciones de ComprobantePago
     ComprobantePago "N" --> "1" Cliente : cliente
 ```
+
+## Módulos del Diagrama
+
+- **Acceso y Personas**: agrupa usuarios internos del sistema y clientes del estudio.
+- **Gestión Jurídica**: concentra procesos legales y servicios ofrecidos.
+- **Agenda**: contiene los turnos internos, seguimientos y eventos externos.
+- **Documentación y Seguimiento**: reúne documentos del expediente y reportes profesionales.
+- **Pagos**: registra comprobantes asociados a clientes.
+- **Comunicaciones**: modela las notificaciones enviadas a usuarios y clientes.
 
 ## Descripción de Relaciones
 
@@ -176,6 +194,7 @@ classDiagram
 - `procesosComoProfesional()` → Proceso[] : Un usuario puede ser profesional de muchos procesos
 - `procesosComoCoordinador()` → Proceso[] : Un usuario puede ser coordinador de muchos procesos
 - `notificaciones()` → Notificacion[] : Un usuario puede recibir muchas notificaciones
+- `servicios()` → Servicio[] : Un usuario profesional puede estar asociado a muchos servicios
 
 ### Cliente
 - `procesos()` → Proceso[] : Un cliente puede tener muchos procesos
@@ -194,6 +213,7 @@ classDiagram
 
 ### Servicio
 - `procesos()` → Proceso[] : Un servicio puede estar en muchos procesos
+- `usuarios()` → User[] : Un servicio puede estar asociado a muchos usuarios profesionales
 
 ### Turno
 - `cliente()` → Cliente : Un turno pertenece a un cliente
