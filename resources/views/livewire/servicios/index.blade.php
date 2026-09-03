@@ -1,9 +1,24 @@
+{{--
+    EXPLICACIÓN DE ESTA PÁGINA PARA DESARROLLO
+
+    Esta es una vista Livewire. El componente PHP está en
+    app/Livewire/Servicios/Index.php y este archivo contiene la interfaz.
+
+    - Tailwind CSS define el aspecto visual y el diseño responsive.
+    - Alpine.js controla formOpen y deleteOpen directamente en el navegador.
+    - Livewire ejecuta en el servidor la autorización, validación y persistencia.
+    - @click cambia la interfaz inmediatamente; wire:click ejecuta la acción de Livewire.
+    - El modal no usa @if porque debe existir en el HTML desde el inicio. x-show sólo lo oculta.
+    - wire:loading muestra información mientras Livewire espera una respuesta del servidor.
+    - Los eventos servicio-guardado y servicio-eliminado cierran los modales después de completar la operación.
+--}}
 <div
     x-data="{ formOpen: false, deleteOpen: false }"
     x-on:servicio-guardado.window="formOpen = false"
     x-on:servicio-eliminado.window="deleteOpen = false"
     x-on:keydown.escape.window="formOpen = false; deleteOpen = false"
 >
+{{-- Mensaje que Livewire actualiza después de crear, editar o eliminar. --}}
 @if($successMessage !== '')
     <div class="mb-6 rounded border border-green-400 bg-green-100 px-4 py-3 text-green-700" role="alert">
         {{ $successMessage }}
@@ -26,11 +41,13 @@
     </div>
 </div>
 
+{{-- wire:model.live actualiza la búsqueda sin recargar toda la página. --}}
 <div class="mt-6">
     <label for="search" class="sr-only">Buscar servicio</label>
     <input id="search" type="search" wire:model.live.debounce.300ms="search" placeholder="Buscar por nombre..." class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-sm" />
 </div>
 
+{{-- Livewire reemplaza sólo las partes necesarias de esta tabla al buscar o paginar. --}}
 <div class="mt-6 overflow-x-auto rounded-lg shadow-md">
     <table class="w-full text-left text-sm text-gray-500">
         <thead class="bg-gray-50 text-xs uppercase text-gray-700">
@@ -73,6 +90,7 @@
     {{ $servicios->links() }}
 </div>
 
+{{-- Modal de alta/edición: Alpine lo abre localmente; Livewire procesa los datos. --}}
 <div x-cloak x-show="formOpen" x-transition.opacity role="dialog" aria-modal="true" aria-labelledby="servicio-modal-title" wire:key="servicio-form-modal" @click.self="formOpen = false; $wire.closeModal()" class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-gray-900/60 px-4 py-6 backdrop-blur-sm sm:px-6">
         <div class="relative max-h-[calc(100vh-3rem)] w-full max-w-xl overflow-y-auto rounded-xl bg-white shadow-2xl">
             <div wire:loading.flex wire:target="createServicio,editServicio" class="absolute inset-0 z-10 items-center justify-center rounded-xl bg-white/80">
@@ -90,6 +108,7 @@
                 </button>
             </div>
 
+            {{-- wire:submit evita una recarga y envía los campos al método saveServicio. --}}
             <form wire:submit="saveServicio" class="space-y-6 px-6 py-6 sm:px-8">
                 <div>
                     <label for="modal-nombre" class="block text-sm font-medium text-gray-700">Nombre del servicio</label>
@@ -120,6 +139,7 @@
         </div>
     </div>
 
+{{-- Modal de confirmación: la apertura es local y la eliminación se confirma en Livewire. --}}
 <div x-cloak x-show="deleteOpen" x-transition.opacity role="dialog" aria-modal="true" aria-labelledby="delete-modal-title" wire:key="servicio-delete-modal" @click.self="deleteOpen = false; $wire.closeDeleteModal()" class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-gray-900/60 px-4 py-6 backdrop-blur-sm sm:px-6">
         <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl sm:p-8">
             <div class="flex items-start gap-4">

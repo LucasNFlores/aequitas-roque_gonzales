@@ -72,9 +72,32 @@ npm run dev
 
 ---
 
+## Cómo funcionan las vistas interactivas
+
+El estándar para las pantallas que necesitan interacción es **Laravel MVC + Blade + Livewire + Alpine.js + Tailwind CSS**:
+
+- **Laravel MVC:** contiene las rutas, permisos, validaciones, modelos y reglas del sistema.
+- **Blade:** construye el HTML inicial de la página.
+- **Tailwind CSS:** define colores, tamaños, espacios y diseño responsive.
+- **Alpine.js:** maneja interacciones que sólo necesitan el navegador, como abrir o cerrar un modal. Por eso estas acciones son inmediatas.
+- **Livewire:** se utiliza cuando hay que consultar o guardar datos. Envía una petición al servidor sin recargar toda la página.
+
+En `/servicios`, por ejemplo, al presionar **Nuevo Servicio** ocurre lo siguiente:
+
+1. Alpine muestra el modal inmediatamente.
+2. Livewire prepara el formulario y verifica el permiso `gestionar_servicios`.
+3. Al guardar, Livewire valida los datos y los persiste en la base de datos.
+4. Livewire informa el resultado y Alpine cierra el modal.
+
+No todas las vistas necesitan Livewire. Una vista estática puede usar sólo Blade + Tailwind. Tampoco es obligatorio crear una API: la aplicación continúa utilizando MVC.
+
+---
+
 ## Calidad y formato durante el desarrollo
 
-Antes de confirmar cambios PHP, ejecutar Laravel Pint sobre los archivos modificados:
+Laravel Pint es una herramienta de desarrollo que ordena automáticamente el formato del código PHP. No es parte de la aplicación en producción, no cambia la lógica y no requiere Docker.
+
+Antes de confirmar cambios PHP, ejecutar Pint sobre los archivos modificados:
 
 ```bash
 vendor/bin/pint --dirty --format agent
@@ -86,7 +109,12 @@ Si el proyecto está levantado con Docker Sail, usar:
 docker compose exec -T laravel.test vendor/bin/pint --dirty --format agent
 ```
 
-Pint corrige automáticamente el formato PHP sin modificar la lógica de la aplicación. Se recomienda ejecutarlo antes de cada commit junto con las pruebas afectadas:
+Usar una sola de las dos opciones:
+
+- Si PHP y Composer están instalados en la computadora, usar el primer comando.
+- Si se trabaja con Docker y PHP está dentro del contenedor, usar el segundo.
+
+Si no se usa Docker, no hay que instalar Docker para ejecutar Pint; alcanza con ejecutar primero `composer install` y luego el comando local. Se recomienda ejecutarlo antes de cada commit junto con las pruebas afectadas:
 
 ```bash
 php artisan test --compact tests/Feature/NombreDelTest.php

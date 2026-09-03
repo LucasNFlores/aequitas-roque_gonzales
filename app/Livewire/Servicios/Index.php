@@ -9,6 +9,13 @@ use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+/**
+ * Componente Livewire de la pantalla de servicios.
+ *
+ * Livewire mantiene el estado y ejecuta las operaciones importantes en el
+ * servidor. Alpine.js se ocupa solamente de mostrar u ocultar los modales en
+ * el navegador para que la interfaz responda sin esperar una petición.
+ */
 class Index extends Component
 {
     use WithPagination;
@@ -31,6 +38,7 @@ class Index extends Component
 
     protected function rules(): array
     {
+        // Estas reglas se ejecutan en el servidor, incluso si el navegador fue manipulado.
         return [
             'nombre' => [
                 'required',
@@ -44,11 +52,13 @@ class Index extends Component
 
     public function updatingSearch(): void
     {
+        // Si cambia el texto de búsqueda, volvemos a la primera página.
         $this->resetPage();
     }
 
     public function createServicio(): void
     {
+        // El botón abre el modal inmediatamente con Alpine; este método prepara los datos.
         $this->authorizeManagement();
         $this->resetForm();
         $this->showModal = true;
@@ -56,6 +66,7 @@ class Index extends Component
 
     public function editServicio(int $servicioId): void
     {
+        // La ventana se muestra con Alpine y Livewire carga los datos del servicio.
         $this->authorizeManagement();
 
         $servicio = Servicio::findOrFail($servicioId);
@@ -69,6 +80,7 @@ class Index extends Component
 
     public function confirmDelete(int $servicioId): void
     {
+        // Primero validamos el permiso y que el servicio exista antes de confirmar la baja.
         $this->authorizeManagement();
         Servicio::findOrFail($servicioId);
         $this->deletingServicioId = $servicioId;
@@ -77,6 +89,7 @@ class Index extends Component
 
     public function saveServicio(): void
     {
+        // Crear y editar comparten este método; la presencia del ID indica que es una edición.
         $this->authorizeManagement();
         $validated = $this->validate();
 
@@ -100,6 +113,7 @@ class Index extends Component
 
     public function deleteServicio(): void
     {
+        // La baja es lógica porque el modelo Servicio utiliza SoftDeletes.
         $this->authorizeManagement();
 
         Servicio::findOrFail($this->deletingServicioId)->delete();
@@ -124,6 +138,7 @@ class Index extends Component
 
     public function render(): View
     {
+        // Cada render consulta sólo los servicios activos y aplica la búsqueda/paginación.
         $servicios = Servicio::query()
             ->when($this->search !== '', function (Builder $query): void {
                 $query->where('nombre', 'like', '%'.$this->search.'%');
