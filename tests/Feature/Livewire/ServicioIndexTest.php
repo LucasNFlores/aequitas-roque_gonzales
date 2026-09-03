@@ -30,19 +30,35 @@ class ServicioIndexTest extends TestCase
         $this->actingAs($administrator)
             ->get(route('servicios-viejo.index'))
             ->assertOk()
-            ->assertSee('Versión clásica');
+            ->assertSee('Versión clásica')
+            ->assertDontSee('x-data', false)
+            ->assertDontSee('x-show', false)
+            ->assertDontSee('wire:', false)
+            ->assertDontSee('@livewire', false)
+            ->assertDontSee('resources/js/app.js', false)
+            ->assertDontSee('livewire/livewire.js', false);
 
         $servicio = Servicio::factory()->create();
 
         $this->actingAs($administrator)
             ->get(route('servicios-viejo.create'))
             ->assertOk()
-            ->assertSee('Nuevo Servicio - Versión clásica');
+            ->assertSee('Nuevo Servicio - Versión clásica')
+            ->assertDontSee('x-data', false)
+            ->assertDontSee('wire:', false)
+            ->assertDontSee('@livewire', false)
+            ->assertDontSee('resources/js/app.js', false)
+            ->assertDontSee('livewire/livewire.js', false);
 
         $this->actingAs($administrator)
             ->get(route('servicios-viejo.edit', $servicio))
             ->assertOk()
-            ->assertSee($servicio->nombre);
+            ->assertSee($servicio->nombre)
+            ->assertDontSee('x-data', false)
+            ->assertDontSee('wire:', false)
+            ->assertDontSee('@livewire', false)
+            ->assertDontSee('resources/js/app.js', false)
+            ->assertDontSee('livewire/livewire.js', false);
     }
 
     public function test_service_can_be_created_updated_and_deleted_from_livewire(): void
