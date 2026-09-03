@@ -40,7 +40,11 @@ Route::middleware(['auth', 'permission:editar_roles'])->group(function () {
 });
 
 Route::middleware(['auth', 'permission:gestionar_servicios'])->group(function () {
-    Route::resource('servicios', ServicioController::class)->except(['show']);
+    Route::get('/servicios', fn () => view('servicios.index'))->name('servicios.index');
+    Route::resource('servicios-viejo', ServicioController::class)
+        ->except(['show'])
+        ->names('servicios-viejo')
+        ->parameters(['servicios-viejo' => 'servicio']);
 });
 
 Route::get('/tutorial', function () {

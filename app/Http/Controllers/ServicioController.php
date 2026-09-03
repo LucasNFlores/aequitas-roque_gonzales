@@ -5,44 +5,46 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreServicioRequest;
 use App\Http\Requests\UpdateServicioRequest;
 use App\Models\Servicio;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class ServicioController extends Controller
 {
-    public function index()
+    public function index(): View
     {
         $servicios = Servicio::latest()->paginate(10);
 
-        return view('servicios.index', compact('servicios'));
+        return view('servicios-viejo.index', compact('servicios'));
     }
 
-    public function create()
+    public function create(): View
     {
-        return view('servicios.create');
+        return view('servicios-viejo.create');
     }
 
-    public function store(StoreServicioRequest $request)
+    public function store(StoreServicioRequest $request): RedirectResponse
     {
         Servicio::create($request->validated());
 
-        return redirect()->route('servicios.index')->with('success', 'Servicio creado correctamente.');
+        return redirect()->route('servicios-viejo.index')->with('success', 'Servicio creado correctamente.');
     }
 
-    public function edit(Servicio $servicio)
+    public function edit(Servicio $servicio): View
     {
-        return view('servicios.edit', compact('servicio'));
+        return view('servicios-viejo.edit', compact('servicio'));
     }
 
-    public function update(UpdateServicioRequest $request, Servicio $servicio)
+    public function update(UpdateServicioRequest $request, Servicio $servicio): RedirectResponse
     {
         $servicio->update($request->validated());
 
-        return redirect()->route('servicios.index')->with('success', 'Servicio actualizado correctamente.');
+        return redirect()->route('servicios-viejo.index')->with('success', 'Servicio actualizado correctamente.');
     }
 
-    public function destroy(Servicio $servicio)
+    public function destroy(Servicio $servicio): RedirectResponse
     {
         $servicio->delete();
 
-        return redirect()->route('servicios.index')->with('success', 'Servicio eliminado correctamente.');
+        return redirect()->route('servicios-viejo.index')->with('success', 'Servicio eliminado correctamente.');
     }
 }
