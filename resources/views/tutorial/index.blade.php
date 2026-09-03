@@ -87,7 +87,7 @@
                             <h4 class="font-bold text-lg text-indigo-700 border-b pb-2 mb-3">✅ Permisos (@@can) - RECOMENDADO</h4>
                             <p class="text-sm text-gray-600 mb-3">Evalúa <strong>qué acción</strong> puede hacer el usuario. Ideal para mostrar/ocultar botones de Editar o Eliminar.</p>
                             <div class="bg-gray-800 p-3 rounded text-sm font-mono text-gray-300">
-                                <span class="text-pink-400">@@can</span>(<span class="text-yellow-300">'editar_usuarios'</span>)<br>
+                                <span class="text-pink-400">@@can</span>(<span class="text-yellow-300">'modificar_usuarios'</span>)<br>
                                 &nbsp;&nbsp;&nbsp;&nbsp;&lt;button&gt;Editar&lt;/button&gt;<br>
                                 <span class="text-pink-400">@@endcan</span>
                             </div>
@@ -97,7 +97,7 @@
                             <h4 class="font-bold text-lg text-indigo-700 border-b pb-2 mb-3">👔 Roles (@@role)</h4>
                             <p class="text-sm text-gray-600 mb-3">Evalúa <strong>quién</strong> es el usuario. Útil para mostrar menús enteros según el cargo.</p>
                             <div class="bg-gray-800 p-3 rounded text-sm font-mono text-gray-300">
-                                <span class="text-pink-400">@@hasanyrole</span>(<span class="text-yellow-300">'Administrador|Director'</span>)<br>
+                                <span class="text-pink-400">@@hasanyrole</span>(<span class="text-yellow-300">'Administrador|Directivo'</span>)<br>
                                 &nbsp;&nbsp;&nbsp;&nbsp;&lt;a href="/panel"&gt;Panel&lt;/a&gt;<br>
                                 <span class="text-pink-400">@@endhasanyrole</span>
                             </div>

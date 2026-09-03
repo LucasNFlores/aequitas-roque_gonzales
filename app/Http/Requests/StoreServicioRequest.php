@@ -8,7 +8,7 @@ class StoreServicioRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('gestionar_servicios') ?? false;
     }
 
     public function rules(): array

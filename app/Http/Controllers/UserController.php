@@ -3,40 +3,51 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
-    // Mostrar el formulario con los roles
-    public function editRoles(User $user)
+    public function editRoles(User $user): View
     {
-        // Traemos todos los roles de la base de datos
-        $roles = Role::all();
+        $roles = Role::query()->orderBy('name')->get();
 
         return view('users.roles', compact('user', 'roles'));
     }
 
-    // Guardar los roles seleccionados
-    public function updateRoles(Request $request, User $user)
+    public function updateRoles(Request $request, User $user): RedirectResponse
     {
-        // Spatie tiene un método mágico llamado "syncRoles".
-        // Lo que hace es: mira los roles que llegaron del formulario,
-        // se los asigna al usuario, y le quita los que no estén marcados.
-        $user->syncRoles($request->roles);
+        $validated = $request->validate([
+            'roles' => ['nullable', 'array'],
+            'roles.*' => ['string', 'exists:roles,name'],
+        ]);
 
-        // Volvemos a la página anterior con un mensaje de éxito
+        $roles = $validated['roles'] ?? [];
+        $currentUser = $request->user();
+
+        abort_unless($currentUser instanceof User, 403);
+
+        if (
+            ! $currentUser->hasRole('Administrador')
+            && ($user->hasRole('Administrador') || in_array('Administrador', $roles, true))
+        ) {
+            abort(403);
+        }
+
+        $user->syncRoles($roles);
+
         return redirect()->back()->with('success', 'Roles actualizados correctamente.');
     }
 
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): View
     {
-        $users = User::latest()->paginate(10);
+        $users = User::with('roles')->latest()->paginate(10);
 
-        // IMPORTANTE: Asegurate que diga 'users.index' y que tenga el return
         return view('users.index', compact('users'));
     }
 

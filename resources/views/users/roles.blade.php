@@ -23,6 +23,7 @@
 
                     <div class="mb-6 space-y-3">
                         @foreach($roles as $role)
+                            @if(auth()->user()->hasRole('Administrador') || $role->name !== 'Administrador')
                             <div class="flex items-center">
                                 <input class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 h-5 w-5" 
                                        type="checkbox" 
@@ -35,6 +36,7 @@
                                     {{ $role->name }}
                                 </label>
                             </div>
+                            @endif
                         @endforeach
                     </div>
 

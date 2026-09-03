@@ -15,14 +15,16 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                   @hasanyrole('Administrador|Supervisor')
+                   @can('listar_usuarios')
                     <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
                         {{ __('Usuarios y Roles') }}
                     </x-nav-link>
+                    @endcan
+                    @can('gestionar_servicios')
                     <x-nav-link :href="route('servicios.index')" :active="request()->routeIs('servicios.*')">
                         {{ __('Servicios') }}
                     </x-nav-link>
-                    @endhasanyrole
+                    @endcan
                     <x-nav-link :href="route('tutorial')" :active="request()->routeIs('tutorial')">
                         {{ __('Guía Técnica') }}
                     </x-nav-link>
