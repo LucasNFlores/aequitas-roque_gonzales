@@ -1,55 +1,83 @@
-# Especificacion del sistema de gestion juridica
+# Especificación del sistema de gestión jurídica
 
-## Alcance de usuarios
+## Fuente de verdad
 
-- El sistema debe ser utilizado unicamente por empleados del estudio juridico.
-- Los roles autenticables son Secretario, Profesional, Coordinador y Directivo.
-- El cliente debe existir como dato administrativo, sin credenciales, acceso, permisos ni panel propio.
+La matriz online **“Aequitas - Matriz de Módulos, Funciones y Permisos por Rol V2”** es la fuente definitiva de alcance, casos de uso y permisos. Esta especificación documenta sus reglas confirmadas y las decisiones complementarias aprobadas.
 
-## Requisitos funcionales
+## Usuarios autenticables
 
-### Clientes y procesos
+- El sistema debe ser utilizado únicamente por empleados del estudio jurídico.
+- Los roles autenticables son Secretario, Profesional, Coordinador, Directivo y Administrador.
+- El Administrador es un superadministrador con capacidad para realizar todas las operaciones.
+- El Directivo puede administrar usuarios y servicios, además de consultar la información autorizada.
+- El cliente es un dato administrativo sin credenciales, permisos, login ni acceso al sistema.
 
-- El sistema debe permitir registrar clientes con sus datos personales y de contacto.
-- Al registrar un cliente debe crear un proceso inicial de Consultoria en estado pendiente.
-- El proceso debe conservar cliente, servicio, coordinador, profesional, fechas, tipo, descripcion y motivo de rechazo.
-- El secretario debe poder asignar al cliente el primer servicio de Consultoria.
-- El coordinador debe poder admitir o rechazar el proceso y registrar el motivo cuando corresponda.
-- El coordinador debe poder asignar un profesional compatible con el servicio.
-- El sistema debe permitir administrar mediante CRUD los estados disponibles de los procesos.
-- El secretario debe poder consultar y modificar todos los clientes, procesos, turnos y comprobantes.
-- El profesional debe poder consultar unicamente los procesos que tiene asignados.
-- El directivo debe poder consultar la informacion general sin modificarla.
+## Clientes y procesos
 
-### Turnos
+- El sistema debe permitir registrar, modificar y dar de baja lógicamente clientes.
+- Al registrar un cliente debe crear un proceso inicial de Consultoría en estado `pendiente` y un turno inicial con el Coordinador.
+- El proceso debe conservar cliente, servicio, coordinador, profesional, fechas, tipo, descripción, honorarios y motivo de rechazo.
+- El Coordinador debe poder admitir o rechazar el proceso y registrar el motivo de rechazo.
+- Secretario, Coordinador y Administrador deben poder asignar o reasignar profesionales según servicio o especialidad.
+- Los listados de clientes y procesos deben permitir búsqueda, filtros y paginación.
+- El historial de estados debe conservar estado anterior, estado nuevo, fecha, usuario y motivo.
+- El Profesional solo debe consultar y operar procesos que tenga asignados.
 
-- El sistema debe permitir crear turnos para clientes con secretario, coordinador o profesional como responsable/interviniente.
-- Solo secretario, coordinador y profesional pueden crear o gestionar turnos.
-- Debe impedir conflictos de agenda.
+## Estados y categorías
+
+- Coordinador y Administrador deben poder crear, editar, ordenar, activar y desactivar estados de procesos.
+- Coordinador y Administrador deben poder administrar categorías o tipos de documentos.
+- El sistema debe impedir desactivar estados o categorías que dejen datos activos sin una transición válida.
+
+## Turnos
+
+- Solo Secretario y Administrador pueden crear, modificar y cancelar turnos.
+- Secretario, Profesional, Coordinador y Administrador pueden consultar la agenda de un profesional.
+- El sistema debe impedir conflictos de agenda.
 - Un turno externo debe bloquear la jornada completa y guardar su detalle.
-- Debe permitir reprogramar y cancelar turnos, actualizando la disponibilidad y notificando a los involucrados.
+- La reprogramación debe liberar la disponibilidad anterior.
+- La cancelación debe conservar el turno con estado `cancelado` y liberar la disponibilidad.
+- Los cambios de turno deben generar notificaciones a los involucrados.
 
-### Documentos y reportes
+## Documentos
 
-- El profesional debe poder solicitar documentacion asociada a un proceso.
-- El sistema debe permitir subir, consultar y descargar documentos PDF vinculados al proceso.
-- El sistema debe permitir administrar mediante CRUD los tipos o categorias de documentos.
-- El profesional debe poder registrar reportes con contenido y fecha.
-- El cliente y los roles autorizados deben poder consultar la informacion correspondiente.
+- Secretario y Administrador pueden cargar, reemplazar y eliminar documentación.
+- Secretario, Profesional, Coordinador y Administrador pueden visualizar documentación.
+- Profesional asignado, Coordinador y Administrador pueden descargar documentación.
+- Solo se deben aceptar archivos PDF de hasta 20 MB.
 
-### Pagos y notificaciones
+## Reportes
 
-- El secretario debe poder cargar un comprobante y registrar su nombre y una nota de texto libre, asociandolo al cliente.
-- El sistema debe registrar canal, mensaje, destinatario, fecha y estado de cada notificacion.
-- Los eventos de alta, admision, rechazo, asignacion y cambios de turno deben generar notificaciones segun el rol destinatario.
+- El Profesional asignado debe poder registrar reportes con contenido y fecha.
+- El Profesional autor puede editar o eliminar lógicamente sus reportes.
+- El Profesional debe poder consultar sus propios reportes.
+- Coordinador, Directivo y Administrador deben poder consultar reportes autorizados del proceso.
+- El Administrador debe poder administrar reportes.
+
+## Pagos y notificaciones
+
+- Secretario y Administrador deben poder registrar comprobantes PDF descargados desde ARCA.
+- El sistema no debe integrar automáticamente con ARCA.
+- Secretario, Coordinador, Directivo y Administrador deben poder consultar comprobantes autorizados.
+- El sistema debe registrar canal, mensaje, destinatario, fecha, estado y resultado de cada notificación.
 - Las notificaciones deben poder enviarse internamente, por correo y por WhatsApp mediante Brevo.
 
-### Auditoria y seguridad
+## Administración y autenticación
 
-- El sistema debe restringir cada operacion segun el rol del usuario.
-- Las entidades principales deben admitir baja logica.
-- Los cambios sensibles deben quedar auditados.
+- Directivo y Administrador deben poder agregar, modificar y eliminar lógicamente usuarios.
+- La baja lógica de un usuario debe verificar que no tenga procesos activos.
+- Todos los roles internos deben poder iniciar y cerrar sesión y cambiar su contraseña o perfil.
+- Los permisos deben validarse tanto en la interfaz como en el servidor.
+
+## Conservación y eliminación
+
+- Clientes, usuarios, procesos, servicios, estados, categorías y reportes deben admitir baja lógica.
+- Los turnos no deben eliminarse físicamente; deben cancelarse conservando su historial.
+- Documentos y comprobantes deben marcarse como eliminados u ocultos, conservando referencia, historial y auditoría.
+- La eliminación lógica de documentos o comprobantes no debe borrar automáticamente el archivo físico.
+- Las notificaciones deben conservarse como registro auditable.
+- Las consultas operativas deben excluir registros dados de baja, salvo vistas explícitas de auditoría o restauración.
 
 ## Criterio de completitud
 
-La aplicacion se considerara alineada con la descripcion cuando los flujos anteriores puedan ejecutarse desde la interfaz, con autorizacion por rol, persistencia consistente, estados y categorias configurables, notificaciones y pruebas automatizadas de los casos principales. El contenido final de los dashboards queda pendiente de definicion.
+La aplicación se considerará alineada cuando los 40 casos de uso de la matriz puedan ejecutarse desde la interfaz con autorización por rol, alcance del Profesional, persistencia consistente, estados y categorías configurables, archivos validados, conservación histórica, notificaciones y pruebas automatizadas de los casos principales.

@@ -8,13 +8,14 @@ Este sistema es una aplicación web diseñada para administrar un estudio juríd
 
 ## Actores del Sistema
 
-El sistema cuenta con cinco tipos de usuarios con roles diferenciados:
+El sistema cuenta con cinco roles autenticables diferenciados y un cliente administrativo sin acceso:
 
 - **Secretario**: Es el encargado del registro inicial de clientes, la carga de documentación, el agendamiento de turnos y la gestión de comprobantes de pago.
-- **Cliente**: Es la persona que solicita los servicios del estudio. No interactúa directamente con el sistema, sino que recibe notificaciones.
-- **Profesional**: Es el abogado o especialista que atiende los casos. Puede consultar legajos, actualizar estados de procesos y generar reportes.
-- **Coordinador**: Es quien evalúa la viabilidad de los casos, decide si admitir o rechazar un cliente, asigna profesionales y supervisa el avance de los procesos.
-- **Directivo**: Tiene acceso completo al sistema y puede gestionar usuarios y consultar reportes.
+- **Cliente**: Es la persona que solicita los servicios del estudio. No tiene credenciales, permisos ni acceso al sistema.
+- **Profesional**: Es el abogado o especialista que atiende los procesos asignados. Puede consultar y descargar su documentación, actualizar estados y administrar sus propios reportes.
+- **Coordinador**: Es quien evalúa la viabilidad de los casos, decide si admitir o rechazar un cliente, asigna profesionales y supervisa el avance de los procesos. También administra estados y especialidades autorizadas.
+- **Directivo**: Consulta la operación autorizada y puede administrar usuarios y servicios.
+- **Administrador**: Es el superadministrador y puede realizar todas las operaciones del sistema.
 
 ---
 
@@ -22,7 +23,7 @@ El sistema cuenta con cinco tipos de usuarios con roles diferenciados:
 
 ### Usuario
 
-Representa a cualquier persona que accede al sistema. Puede ser un coordinador, un profesional o un directivo. Opcionalmente, un usuario puede tener datos profesionales asociados como DNI, teléfono, domicilio, fecha de nacimiento y fecha de ingreso al estudio. Los usuarios tienen roles y permisos que controlan qué acciones pueden realizar.
+Representa a un empleado autenticable. Puede ser Secretario, Profesional, Coordinador, Directivo o Administrador. Opcionalmente, puede tener datos profesionales asociados como DNI, teléfono, domicilio, fecha de nacimiento y fecha de ingreso al estudio. Los usuarios tienen roles y permisos que controlan qué acciones pueden realizar.
 
 ### Cliente
 
@@ -66,7 +67,7 @@ Es un mensaje automático enviado por el sistema para informar a clientes o usua
 
 ### Registro de un Nuevo Cliente
 
-Cuando un cliente se presenta por primera vez en el estudio, el secretary registra sus datos personales en el sistema.automáticamente se crea un proceso con el servicio "Consultoría" en estado pendiente. A continuación, se agenda un turno con el coordinador, quien recibe una notificación automática.
+Cuando un cliente se presenta por primera vez en el estudio, el Secretario o Administrador registra sus datos personales en el sistema. Automáticamente se crea un proceso con el servicio "Consultoría" en estado pendiente y un turno inicial con el Coordinador.
 
 ### Admisión del Cliente
 
@@ -74,19 +75,19 @@ El coordinador abre el legajo electrónico del cliente, evalúa la viabilidad de
 
 ### Asignación de Profesional
 
-El coordinador selecciona un profesional disponible según su especialidad y el tipo de servicio requerido. El profesional asignado recibe una notificación y el secretary también es informado para coordinar los siguientes pasos.
+El Secretario, Coordinador o Administrador selecciona un profesional disponible según su especialidad y el tipo de servicio requerido. El profesional asignado recibe una notificación y el Secretario también es informado para coordinar los siguientes pasos.
 
 ### Solicitud de Documentación
 
-Una vez admitido el cliente, el secretary solicita los documentos necesarios según el tipo de servicio. Estos documentos son digitalizados y cargados en el sistema, quedando disponibles para el profesional asignado.
+Una vez admitido el cliente, el Secretario o Administrador solicita y carga los documentos necesarios según el tipo de servicio. Estos documentos son PDF de hasta 20 MB y quedan disponibles según los permisos del rol.
 
 ### Agendamiento de Turnos con el Profesional
 
-Se agenda un nuevo turno entre el cliente y el profesional designado. Ambos reciben notificaciones con los detalles del turno. Los turnos pueden ser internos (consultas en el estudio) o externos (audiencias judiciales). Los turnos externos bloquean la disponibilidad del profesional para todo el día.
+El Secretario o Administrador agenda un nuevo turno entre el cliente y el profesional designado. Los turnos pueden ser internos (consultas en el estudio) o externos (audiencias judiciales). Los turnos externos bloquean la disponibilidad del profesional para todo el día.
 
 ### Seguimiento del Proceso
 
-El profesional puede acceder al legajo completo del cliente, consultar su historial de procesos y toda la documentación asociada. A medida que avanza el caso, actualiza el estado del proceso (iniciado, en proceso, finalizado o en espera). Cada actualización queda registrada en el historial del proceso.
+El profesional asignado puede acceder al legajo de sus procesos y consultar su documentación. A medida que avanza el caso, actualiza el estado del proceso (iniciado, en proceso, finalizado o en espera). Cada actualización queda registrada en el historial del proceso.
 
 ### Registro de Reportes
 
@@ -94,11 +95,11 @@ El profesional puede registrar actas de reuniones o acciones realizadas durante 
 
 ### Gestión de Pagos
 
-El secretary descarga el comprobante de pago desde el sistema externo de ARCA y lo carga en el sistema interno, asociándolo al cliente correspondiente. Esto permite mantener un registro ordenado de todos los pagos.
+El Secretario o Administrador carga el comprobante de pago PDF descargado manualmente desde ARCA y lo asocia al cliente correspondiente. El sistema no integra automáticamente con ARCA.
 
 ### Modificación y Cancelación de Turnos
 
-Si un turno debe modificarse, el secretary puede cambiar la fecha y hora. El sistema verifica la disponibilidad del profesional y notifica a todos los involucrados. Si se cancela un turno externo, se desbloquea la disponibilidad del profesional.
+Si un turno debe modificarse, el Secretario o Administrador puede cambiar la fecha y hora. El sistema verifica la disponibilidad del profesional y notifica a todos los involucrados. Si se cancela un turno externo, se desbloquea la disponibilidad del profesional y se conserva el turno con estado cancelado.
 
 ---
 
@@ -112,7 +113,7 @@ La siguiente descripción explica cómo se relacionan las entidades entre sí:
 - Un **Proceso** puede tener muchos **Turnos** (seguimientos), muchos **Documentos** y muchos **Reportes**.
 - Una **Notificación** puede estar vinculada a un **Usuario** y/o a un **Cliente**.
 
-El sistema utiliza eliminación lógica (SoftDeletes) en todas las entidades principales, lo que significa que los registros no se borran permanentemente sino que se marcan con una fecha de eliminación. Esto permite mantener trazabilidad y recuperar datos si es necesario.
+El sistema aplica una política mixta. Clientes, usuarios, procesos, servicios, estados, categorías y reportes utilizan eliminación lógica. Los turnos se cancelan y conservan su historial. Documentos y comprobantes se ocultan o marcan como eliminados sin borrar automáticamente el archivo físico. Las notificaciones se conservan como registros auditables.
 
 ---
 
@@ -136,10 +137,10 @@ El sistema envía notificaciones automáticas en los siguientes momentos:
 
 - Cuando se agenda un turno, tanto el cliente como el profesional reciben la confirmación.
 - Cuando el coordinador admite o rechaza un caso, el cliente es notificado con el resultado y, en caso de rechazo, el motivo correspondiente.
-- Cuando se asigna un profesional a un proceso, tanto el profesional como el secretary reciben la información.
+- Cuando se asigna un profesional a un proceso, tanto el profesional como el Secretario reciben la información.
 - Cuando se modifica o cancela un turno, los involucrados son notificados.
 
-Las notificaciones se envían a través de email y WhatsApp utilizando un servicio externo (brevo).
+Las notificaciones se envían internamente, por email y por WhatsApp utilizando el servicio externo Brevo.
 
 ---
 
@@ -147,7 +148,8 @@ Las notificaciones se envían a través de email y WhatsApp utilizando un servic
 
 | Rol             | Funcionalidades principales                                                                                 |
 | --------------- | ----------------------------------------------------------------------------------------------------------- |
-| **Secretario**  | Registrar/modificar/eliminar clientes, agendar turnos, cargar documentación, gestionar comprobantes de pago |
-| **Coordinador** | Evaluar casos, admitir o rechazar clientes, asignar/reasignar profesionales, consultar reportes             |
-| **Profesional** | Consultar legajos, actualizar estados de procesos, generar reportes, descargar documentación                |
-| **Directivo**   | Gestionar usuarios, consultar reportes, acceso completo al sistema                                          |
+| **Secretario**  | Registrar/modificar/eliminar clientes, gestionar agenda autorizada, documentación, comprobantes y asignaciones |
+| **Coordinador** | Evaluar casos, admitir/rechazar, asignar/reasignar profesionales, consultar reportes y administrar estados |
+| **Profesional** | Consultar procesos asignados, visualizar/descargar documentación, actualizar estados y administrar reportes propios |
+| **Directivo**   | Gestionar usuarios y servicios, consultar legajos, comprobantes y reportes autorizados |
+| **Administrador** | Ejecutar todas las operaciones y administrar la configuración del sistema |
