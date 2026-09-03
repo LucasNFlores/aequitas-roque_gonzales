@@ -15,6 +15,22 @@ La fuente definitiva de alcance y permisos es el documento online **“Aequitas 
 | Administrador | Superadministrador del sistema; puede realizar todas las operaciones y administrar la configuración operativa. |
 | Cliente | Registro administrativo y destinatario eventual de comunicaciones externas; no posee credenciales, permisos ni acceso al sistema. |
 
+## Estándar transversal de vistas
+
+- Tailwind CSS es el estándar visual para las vistas de la aplicación.
+- Alpine.js debe manejar en el navegador las interacciones locales, como modales, desplegables, pestañas, confirmaciones y estados visuales.
+- Livewire debe utilizarse en las vistas que necesiten consultar o modificar datos sin recargar la página, manteniendo autorización y validación en el servidor.
+- Blade + Tailwind es suficiente para vistas estáticas o formularios simples que no necesiten interacción reactiva.
+- La aplicación conserva su arquitectura MVC; no se requiere una API separada para adoptar este estándar.
+
+## Decisión de interfaz para la gestión de servicios
+
+- La ruta `/servicios` utiliza una interfaz híbrida con Blade, Livewire, Alpine.js y Tailwind CSS.
+- Alpine.js controla localmente la apertura, el cierre, las transiciones y el comportamiento responsive de los modales, evitando una petición al servidor sólo para mostrar u ocultar la interfaz.
+- Livewire conserva la lógica de servidor: autorización mediante `gestionar_servicios`, carga de datos, validación, creación, actualización y baja lógica.
+- La vista mantiene el CRUD clásico en `/servicios-viejo` como referencia para el equipo.
+- No se introduce una API separada para este módulo; la interacción local no modifica las reglas de autorización ni la persistencia del backend.
+
 ## Flujo principal
 
 ```text

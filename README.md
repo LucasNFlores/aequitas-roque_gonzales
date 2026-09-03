@@ -72,6 +72,28 @@ npm run dev
 
 ---
 
+## Calidad y formato durante el desarrollo
+
+Antes de confirmar cambios PHP, ejecutar Laravel Pint sobre los archivos modificados:
+
+```bash
+vendor/bin/pint --dirty --format agent
+```
+
+Si el proyecto está levantado con Docker Sail, usar:
+
+```bash
+docker compose exec -T laravel.test vendor/bin/pint --dirty --format agent
+```
+
+Pint corrige automáticamente el formato PHP sin modificar la lógica de la aplicación. Se recomienda ejecutarlo antes de cada commit junto con las pruebas afectadas:
+
+```bash
+php artisan test --compact tests/Feature/NombreDelTest.php
+```
+
+---
+
 ## Desarrollo con IA (Laravel Boost + OpenCode)
 
 Este proyecto incluye **Laravel Boost**, el servidor MCP oficial de Laravel para agentes de IA.

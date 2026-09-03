@@ -69,6 +69,22 @@ La matriz online **“Aequitas - Matriz de Módulos, Funciones y Permisos por Ro
 - Todos los roles internos deben poder iniciar y cerrar sesión y cambiar su contraseña o perfil.
 - Los permisos deben validarse tanto en la interfaz como en el servidor.
 
+## Estándar de interfaz
+
+- Las vistas deben utilizar Tailwind CSS para estilos, layout y comportamiento responsive.
+- Las interacciones locales que no requieren servidor deben resolverse con Alpine.js.
+- Las vistas interactivas que consultan o modifican información deben utilizar Livewire, conservando autorización y validación en el servidor.
+- Las vistas estáticas o simples pueden utilizar Blade + Tailwind sin Livewire.
+- El estándar no exige convertir la aplicación MVC en una arquitectura basada en API.
+
+## Interfaz de gestión de servicios
+
+- La gestión de servicios debe estar disponible en `/servicios` mediante una interfaz híbrida de Blade, Livewire, Alpine.js y Tailwind CSS.
+- Alpine.js debe controlar localmente la visibilidad y las transiciones de los modales de alta, edición y confirmación de baja.
+- Livewire debe ejecutar en el servidor la autorización, validación, creación, actualización y baja lógica de servicios.
+- La aplicación debe conservar la versión tradicional del CRUD en `/servicios-viejo` como referencia para el equipo.
+- La adopción de esta interfaz no requiere separar el módulo en una API ni modificar las reglas de permisos existentes.
+
 ## Conservación y eliminación
 
 - Clientes, usuarios, procesos, servicios, estados, categorías y reportes deben admitir baja lógica.

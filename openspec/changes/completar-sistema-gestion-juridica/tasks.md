@@ -30,22 +30,26 @@
 - [ ] Implementar reportes con autoría, consulta propia y administración del Administrador.
 - [ ] Implementar comprobantes PDF descargados desde ARCA.
 - [ ] Implementar administración de usuarios para Directivo y Administrador.
-- [ ] Implementar CRUD de servicios y asignación de especialidades.
+- [x] Implementar el CRUD de servicios con Livewire, Alpine.js y Tailwind CSS.
+- [ ] Implementar asignación de especialidades y servicios a profesionales.
 - [ ] Implementar registro y consulta autorizada de notificaciones.
 - [ ] Implementar canales internos, correo y WhatsApp mediante Brevo.
 
 ## Frontend
 
+- [x] Definir Tailwind CSS como estándar visual y Alpine.js + Livewire para vistas interactivas.
 - [ ] Definir navegación y acciones visibles por rol.
 - [ ] Crear listados paginados y filtros de clientes y procesos.
 - [ ] Crear historial visual de estados.
 - [ ] Crear agenda y vista de disponibilidad.
 - [ ] Crear pantallas de documentos, reportes, comprobantes y notificaciones.
-- [ ] Crear administración de usuarios, servicios, estados y categorías.
+- [ ] Crear administración de usuarios, estados y categorías.
+- [x] Mantener la versión clásica de servicios en `/servicios-viejo` como referencia.
 - [ ] Definir dashboards por rol.
 
 ## Calidad y entrega
 
+- [x] Incorporar Laravel Pint al flujo de desarrollo para formatear los archivos PHP modificados antes de cada commit.
 - [ ] Verificar los 40 casos de uso contra la matriz online.
 - [ ] Probar restricciones de archivos y accesos no autorizados.
 - [ ] Probar conservación de historial, bajas lógicas y cancelaciones.
