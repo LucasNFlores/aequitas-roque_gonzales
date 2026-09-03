@@ -7,33 +7,21 @@ use Illuminate\Database\Seeder;
 
 class UserSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
+        $users = [
+            ['name' => 'Admin', 'email' => 'admin@example.com', 'role' => 'Administrador'],
+            ['name' => 'Carlos Villalba', 'email' => 'carlos@example.com', 'role' => 'Secretario'],
+            ['name' => 'Juan Perez', 'email' => 'juanperez@example.com', 'role' => 'Profesional'],
+        ];
 
-        // Creamos un usuario administrador por defecto
-        $admin = User::create([
-            'name' => 'Admin',
-            'email' => 'admin@example.com',
-            'password' => bcrypt('1234'),
-        ]);
-        $admin->assignRole('Administrador');
+        foreach ($users as $userData) {
+            $user = User::updateOrCreate(
+                ['email' => $userData['email']],
+                ['name' => $userData['name'], 'password' => '1234'],
+            );
 
-        $usuario1 = User::create([
-            'name' => 'Carlos VIllalba',
-            'email' => 'carlos@example.com',
-            'password' => bcrypt('1234'),
-        ]);
-        $usuario1->assignRole('Empleado');
-
-        $usuario2 = User::create([
-            'name' => 'Juan Perez',
-            'email' => 'juanperez@example.com',
-            'password' => bcrypt('1234'),
-        ]);
-        $usuario2->assignRole('Cliente');
-
+            $user->syncRoles([$userData['role']]);
+        }
     }
 }
