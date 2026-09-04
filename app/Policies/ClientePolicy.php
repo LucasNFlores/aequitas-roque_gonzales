@@ -7,57 +7,44 @@ use App\Models\User;
 
 class ClientePolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
     public function viewAny(User $user): bool
     {
-        return false;
+        return $user->can('listar_filtrar_clientes');
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
     public function view(User $user, Cliente $cliente): bool
     {
-        return false;
+        if ($user->hasRole('Profesional')) {
+            return $user->can('consultar_legajos')
+                && $cliente->procesos()->where('profesional_id', $user->id)->exists();
+        }
+
+        return $user->can('listar_filtrar_clientes');
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
     public function create(User $user): bool
     {
-        return false;
+        return $user->can('registrar_clientes');
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
     public function update(User $user, Cliente $cliente): bool
     {
-        return false;
+        return $user->can('modificar_clientes');
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
     public function delete(User $user, Cliente $cliente): bool
     {
-        return false;
+        return $user->can('eliminar_clientes')
+            && ! $cliente->procesos()
+                ->whereNotIn('estado', ['finalizado', 'rechazado'])
+                ->exists();
     }
 
-    /**
-     * Determine whether the user can restore the model.
-     */
     public function restore(User $user, Cliente $cliente): bool
     {
-        return false;
+        return $user->can('eliminar_clientes');
     }
 
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
     public function forceDelete(User $user, Cliente $cliente): bool
     {
         return false;

@@ -18,7 +18,13 @@ class ClienteFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'nombre' => fake()->firstName(),
+            'apellido' => fake()->lastName(),
+            'dni' => fake()->unique()->numerify('########'),
+            'telefono' => fake()->phoneNumber(),
+            'correo' => fake()->safeEmail(),
+            'domicilio' => fake()->address(),
+            'fecha_nacimiento' => fake()->dateTimeBetween('-70 years', '-18 years')->format('Y-m-d'),
         ];
     }
 }

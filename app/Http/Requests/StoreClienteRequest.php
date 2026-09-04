@@ -2,28 +2,26 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
+use App\Models\Cliente;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreClienteRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return false;
+        return $this->user()?->can('create', Cliente::class) ?? false;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            //
+            'nombre' => ['required', 'string', 'max:100'],
+            'apellido' => ['required', 'string', 'max:100'],
+            'dni' => ['required', 'string', 'max:20', 'unique:clientes,dni'],
+            'telefono' => ['required', 'string', 'max:50'],
+            'correo' => ['required', 'email', 'max:255'],
+            'domicilio' => ['required', 'string', 'max:255'],
+            'fecha_nacimiento' => ['required', 'date', 'before:today'],
         ];
     }
 }

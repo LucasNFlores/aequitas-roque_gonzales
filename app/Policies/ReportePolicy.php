@@ -2,62 +2,62 @@
 
 namespace App\Policies;
 
+use App\Models\Proceso;
 use App\Models\Reporte;
 use App\Models\User;
 
 class ReportePolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
     public function viewAny(User $user): bool
     {
-        return false;
+        return $user->can('consultar_reportes');
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
     public function view(User $user, Reporte $reporte): bool
     {
-        return false;
+        if ($user->hasRole('Profesional')) {
+            return $user->can('consultar_reportes')
+                && $reporte->profesional_id === $user->id
+                && $reporte->proceso?->profesional_id === $user->id;
+        }
+
+        return $user->can('consultar_reportes');
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
     public function create(User $user): bool
     {
-        return false;
+        return $user->can('registrar_reportes');
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
+    public function createFor(User $user, Proceso $proceso): bool
+    {
+        if ($user->hasRole('Profesional')) {
+            return $user->can('registrar_reportes')
+                && $proceso->profesional_id === $user->id;
+        }
+
+        return $user->can('registrar_reportes');
+    }
+
     public function update(User $user, Reporte $reporte): bool
     {
-        return false;
+        return $user->hasRole('Administrador')
+            || ($user->can('editar_reportes_propios')
+                && $reporte->profesional_id === $user->id);
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
     public function delete(User $user, Reporte $reporte): bool
     {
-        return false;
+        return $user->hasRole('Administrador')
+            || ($user->can('eliminar_reportes_propios')
+                && $reporte->profesional_id === $user->id);
     }
 
-    /**
-     * Determine whether the user can restore the model.
-     */
     public function restore(User $user, Reporte $reporte): bool
     {
-        return false;
+        return $this->update($user, $reporte);
     }
 
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
     public function forceDelete(User $user, Reporte $reporte): bool
     {
         return false;

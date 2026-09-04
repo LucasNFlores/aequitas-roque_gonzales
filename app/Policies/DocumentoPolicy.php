@@ -7,59 +7,53 @@ use App\Models\User;
 
 class DocumentoPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
     public function viewAny(User $user): bool
     {
-        return false;
+        return $user->can('visualizar_documentacion');
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
     public function view(User $user, Documento $documento): bool
     {
-        return false;
+        if ($user->hasRole('Profesional')) {
+            return $user->can('visualizar_documentacion')
+                && $documento->proceso?->profesional_id === $user->id;
+        }
+
+        return $user->can('visualizar_documentacion');
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
     public function create(User $user): bool
     {
-        return false;
+        return $user->can('cargar_documentacion');
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
     public function update(User $user, Documento $documento): bool
     {
-        return false;
+        return $user->can('reemplazar_documentacion');
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
     public function delete(User $user, Documento $documento): bool
     {
-        return false;
+        return $user->can('eliminar_documentacion');
     }
 
-    /**
-     * Determine whether the user can restore the model.
-     */
     public function restore(User $user, Documento $documento): bool
     {
-        return false;
+        return $user->can('reemplazar_documentacion');
     }
 
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
     public function forceDelete(User $user, Documento $documento): bool
     {
         return false;
+    }
+
+    public function download(User $user, Documento $documento): bool
+    {
+        if ($user->hasRole('Profesional')) {
+            return $user->can('descargar_documentacion')
+                && $documento->proceso?->profesional_id === $user->id;
+        }
+
+        return $user->can('descargar_documentacion');
     }
 }

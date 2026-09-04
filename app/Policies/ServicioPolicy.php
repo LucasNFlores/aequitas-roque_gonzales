@@ -39,6 +39,6 @@ class ServicioPolicy
 
     public function forceDelete(User $user, Servicio $servicio): bool
     {
-        return $user->can('gestionar_servicios');
+        return false;
     }
 }

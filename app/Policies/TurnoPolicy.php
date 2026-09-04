@@ -7,57 +7,47 @@ use App\Models\User;
 
 class TurnoPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
     public function viewAny(User $user): bool
     {
-        return false;
+        return $user->can('ver_agenda_profesional');
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
     public function view(User $user, Turno $turno): bool
     {
-        return false;
+        if ($user->hasRole('Profesional')) {
+            return $user->can('ver_agenda_profesional')
+                && $turno->profesional_id === $user->id;
+        }
+
+        return $user->can('ver_agenda_profesional');
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
     public function create(User $user): bool
     {
-        return false;
+        return $user->canAny([
+            'agendar_turnos_internos',
+            'agendar_turnos_seguimiento',
+            'agendar_turnos_externos',
+        ]);
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
     public function update(User $user, Turno $turno): bool
     {
-        return false;
+        return $turno->es_externo
+            ? $user->can('modificar_turnos_externos')
+            : $user->can('modificar_turnos');
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
     public function delete(User $user, Turno $turno): bool
     {
-        return false;
+        return $user->can('eliminar_turnos');
     }
 
-    /**
-     * Determine whether the user can restore the model.
-     */
     public function restore(User $user, Turno $turno): bool
     {
         return false;
     }
 
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
     public function forceDelete(User $user, Turno $turno): bool
     {
         return false;

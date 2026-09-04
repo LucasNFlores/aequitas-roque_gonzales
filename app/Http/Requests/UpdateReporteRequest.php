@@ -2,28 +2,35 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
-use Illuminate\Foundation\Http\FormRequest;
+use App\Models\Reporte;
 
-class UpdateReporteRequest extends FormRequest
+class UpdateReporteRequest extends StoreReporteRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return false;
+        $reporte = $this->route('reporte');
+
+        return $reporte instanceof Reporte
+            && ($this->user()?->can('update', $reporte) ?? false);
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            //
+            'proceso_id' => ['prohibited'],
+            'profesional_id' => ['prohibited'],
+            'contenido' => ['sometimes', 'required', 'string', 'max:20000'],
+            'fecha' => ['sometimes', 'required', 'date', 'before_or_equal:today'],
         ];
+    }
+
+    /**
+     * Report updates are authorized against the report owner, not its current process assignment.
+     *
+     * @return array<int, callable(\Illuminate\Validation\Validator): void>
+     */
+    public function after(): array
+    {
+        return [];
     }
 }
