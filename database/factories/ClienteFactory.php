@@ -24,7 +24,7 @@ class ClienteFactory extends Factory
             'telefono' => fake()->phoneNumber(),
             'correo' => fake()->unique()->safeEmail(),
             'domicilio' => fake()->address(),
-            'fecha_nacimiento' => fake()->dateTimeBetween('-80 years', '-18 years')->format('Y-m-d'),
+            'fecha_nacimiento' => fake()->dateTimeBetween('-70 years', '-18 years')->format('Y-m-d'),
         ];
     }
 }

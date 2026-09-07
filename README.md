@@ -5,7 +5,8 @@ Este repositorio sirve como base para el sistema de gestión construido con **La
 ## Estructura
 
 - `app/` : lógica de la aplicación (modelos, controladores, comandos)
-- `resources/` : vistas Blade, componentes Livewire, assets
+- `resources/` : vistas Blade, componentes Livewire y assets
+- `resources/views/components/README.md` : organización y convención de componentes Blade
 - `routes/` : definición de rutas (web, api, ai)
 - `database/` : migraciones, seeders y factories
 - `config/` : archivos de configuración

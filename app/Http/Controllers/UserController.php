@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UpdateUserRolesRequest;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -12,31 +13,16 @@ class UserController extends Controller
 {
     public function editRoles(User $user): View
     {
+        $this->authorize('manageRoles', $user);
+
         $roles = Role::query()->orderBy('name')->get();
 
         return view('users.roles', compact('user', 'roles'));
     }
 
-    public function updateRoles(Request $request, User $user): RedirectResponse
+    public function updateRoles(UpdateUserRolesRequest $request, User $user): RedirectResponse
     {
-        $validated = $request->validate([
-            'roles' => ['nullable', 'array'],
-            'roles.*' => ['string', 'exists:roles,name'],
-        ]);
-
-        $roles = $validated['roles'] ?? [];
-        $currentUser = $request->user();
-
-        abort_unless($currentUser instanceof User, 403);
-
-        if (
-            ! $currentUser->hasRole('Administrador')
-            && ($user->hasRole('Administrador') || in_array('Administrador', $roles, true))
-        ) {
-            abort(403);
-        }
-
-        $user->syncRoles($roles);
+        $user->syncRoles($request->validated('roles') ?? []);
 
         return redirect()->back()->with('success', 'Roles actualizados correctamente.');
     }
@@ -46,6 +32,8 @@ class UserController extends Controller
      */
     public function index(): View
     {
+        $this->authorize('viewAny', User::class);
+
         $users = User::with('roles')->latest()->paginate(10);
 
         return view('users.index', compact('users'));

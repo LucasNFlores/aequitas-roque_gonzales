@@ -14,6 +14,11 @@ class ClientePolicy
 
     public function view(User $user, Cliente $cliente): bool
     {
+        if ($user->hasRole('Profesional')) {
+            return $user->can('consultar_legajos')
+                && $cliente->procesos()->where('profesional_id', $user->id)->exists();
+        }
+
         return $user->can('listar_filtrar_clientes');
     }
 
@@ -29,7 +34,10 @@ class ClientePolicy
 
     public function delete(User $user, Cliente $cliente): bool
     {
-        return $user->can('eliminar_clientes');
+        return $user->can('eliminar_clientes')
+            && ! $cliente->procesos()
+                ->whereNotIn('estado', ['finalizado', 'rechazado'])
+                ->exists();
     }
 
     public function restore(User $user, Cliente $cliente): bool

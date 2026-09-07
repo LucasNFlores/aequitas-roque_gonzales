@@ -2,7 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Models\Cliente;
 use App\Models\Notificacion;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,7 +20,12 @@ class NotificacionFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'user_id' => User::factory(),
+            'cliente_id' => Cliente::factory(),
+            'canal' => 'email',
+            'mensaje' => fake()->sentence(),
+            'fecha_envio' => fake()->dateTimeBetween('-30 days', 'now'),
+            'estado' => 'enviado',
         ];
     }
 }
