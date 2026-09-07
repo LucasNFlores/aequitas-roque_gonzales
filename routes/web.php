@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\UserController;
@@ -45,6 +46,10 @@ Route::middleware(['auth', 'permission:gestionar_servicios'])->group(function ()
         ->except(['show'])
         ->names('servicios-viejo')
         ->parameters(['servicios-viejo' => 'servicio']);
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::resource('clientes', ClienteController::class);
 });
 
 Route::get('/tutorial', function () {

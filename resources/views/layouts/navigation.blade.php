@@ -25,6 +25,11 @@
                         {{ __('Servicios') }}
                     </x-nav-link>
                     @endcan
+                    @can('listar_filtrar_clientes')
+                    <x-nav-link :href="route('clientes.index')" :active="request()->routeIs('clientes.*')">
+                        {{ __('Clientes') }}
+                    </x-nav-link>
+                    @endcan
                     <x-nav-link :href="route('tutorial')" :active="request()->routeIs('tutorial')">
                         {{ __('Guía Técnica') }}
                     </x-nav-link>

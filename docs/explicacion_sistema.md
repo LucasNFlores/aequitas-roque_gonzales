@@ -23,6 +23,8 @@ Representa a un empleado autenticable. Sus permisos dependen del rol asignado. L
 
 Persona cuyos datos se administran en el sistema. Su alta crea un proceso inicial de Consultoría y un turno inicial con el Coordinador.
 
+> **Implementación CRUD:** ver `docs/crud-clientes.md` para detalle de modelo `Cliente`, migración reversible, factory/seeder, requests `StoreClienteRequest`/`UpdateClienteRequest`, policy `ClientePolicy` (Administrador/Secretario), controller resource, rutas `clientes.*`, vistas Blade `resources/views/clientes/*` y pruebas `ClienteTest`. Cumple estándar `crud` mínimo; interfaz Blade + Tailwind responsive, extensible a Livewire/Alpine.
+
 ### Servicio
 
 Área o servicio ofrecido por el estudio, con un costo de referencia. Directivo y Administrador pueden gestionarlo. Las especialidades o servicios atendibles por cada profesional son administradas por Coordinador, Directivo y Administrador.
