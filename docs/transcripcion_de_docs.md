@@ -14,6 +14,8 @@ La matriz online **“Aequitas - Matriz de Módulos, Funciones y Permisos por Ro
 
 El sistema es una aplicación web interna para centralizar clientes, procesos jurídicos, turnos, documentación, reportes, comprobantes, usuarios, servicios y notificaciones del estudio.
 
+La copia tabular exacta y sincronizada de la matriz está en [aequitas-matriz-modulos-funciones-permisos-v2.md](aequitas-matriz-modulos-funciones-permisos-v2.md). Este documento conserva la transcripción funcional ampliada.
+
 El cliente se registra como dato administrativo. No inicia sesión, no tiene credenciales, no posee permisos y no accede al sistema.
 
 ## 2. Actores
