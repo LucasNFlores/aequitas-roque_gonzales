@@ -57,7 +57,21 @@ php artisan migrate
 php artisan db:seed
 ```
 
-### Levantar el proyecto (cada vez)
+### Levantar el proyecto con Docker (recomendado)
+
+```bash
+docker compose up -d
+```
+
+La primera vez, o cuando cambie la imagen de Docker:
+
+```bash
+docker compose up -d --build
+```
+
+Laravel queda disponible en `http://localhost:8000` y el servicio Vite se inicia automáticamente en el puerto `5173`. No es necesario ejecutar `npm run dev` por separado.
+
+### Levantar el proyecto sin Docker
 
 ```bash
 # Terminal 1 — Servidor Laravel
