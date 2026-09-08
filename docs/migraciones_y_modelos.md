@@ -241,13 +241,15 @@ public function up(): void
         $table->text('descripcion');
         $table->date('fecha_inicio');
         $table->enum('tipo', ['Civil', 'Comercial', 'Familia']);
-        $table->enum('estado', ['pendiente', 'admitido', 'iniciado', 'en_proceso', 'finalizado', 'en_espera', 'rechazado'])->default('pendiente');
+        $table->string('estado')->default('pendiente');
         $table->text('motivo_rechazo')->nullable();
         $table->timestamps();
         $table->softDeletes();
     });
 }
 ```
+
+La migración inicial utilizaba un enum para estado. La migración 2026_09_08_000002_change_estado_column_to_string_on_procesos_table.php lo convierte en texto para almacenar el slug del catálogo estados_proceso. Las transiciones se registran en historial_estados_proceso.
 
 **3. Probar:**
 ```bash

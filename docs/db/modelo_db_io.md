@@ -77,6 +77,17 @@ Table user_servicios {
   servicio_id bigint [ref: > servicios.id]
 }
 
+Table estados_proceso {
+  id bigint [pk, increment]
+  nombre varchar
+  slug varchar [unique, note: 'Clave estable almacenada en procesos.estado']
+  activo boolean [default: true]
+  posicion int
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp [null]
+}
+
 Table procesos {
   id bigint [pk, increment]
   cliente_id bigint [ref: > clientes.id]
@@ -87,11 +98,23 @@ Table procesos {
   descripcion text
   fecha_inicio date
   tipo varchar [note: 'Civil | Comercial | Familia']
-  estado varchar [note: 'pendiente | admitido | iniciado | en_proceso | finalizado | en_espera | rechazado']
+  estado varchar [note: 'Slug de estados_proceso; los estados base son configurables']
   motivo_rechazo text [null]
   created_at timestamp
   updated_at timestamp
   deleted_at timestamp [null]
+}
+
+Table historial_estados_proceso {
+  id bigint [pk, increment]
+  proceso_id bigint [ref: > procesos.id]
+  usuario_id bigint [null, ref: > users.id]
+  estado_anterior varchar [null]
+  estado_nuevo varchar
+  motivo text [null]
+  fecha_cambio timestamp
+  created_at timestamp
+  updated_at timestamp
 }
 
 Table turnos {

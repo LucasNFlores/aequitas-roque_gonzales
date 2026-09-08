@@ -33,6 +33,8 @@ Persona cuyos datos se administran en el sistema. Su alta crea un proceso inicia
 
 Caso asociado a un cliente y un servicio. Conserva coordinador, profesional, fechas, tipo, descripción, honorarios, estado y motivo de rechazo.
 
+El estado se resuelve desde un catálogo configurable y cada transición queda registrada con estado anterior, estado nuevo, fecha, usuario y motivo.
+
 ### Turno
 
 Cita interna, de seguimiento o externa. Los turnos externos bloquean la jornada completa del profesional. Se cancelan, pero no se eliminan físicamente.
@@ -80,6 +82,8 @@ Registro de una comunicación interna o externa. Los canales externos son correo
 ## Estados de proceso
 
 Los estados iniciales contemplan `pendiente`, `admitido`, `iniciado`, `en_proceso`, `finalizado`, `en_espera` y `rechazado`. Coordinador y Administrador pueden crear, editar, ordenar, activar y desactivar estados, siempre que no queden datos activos sin una transición válida.
+
+El proceso almacena la clave estable del estado y el nombre visible proviene del catálogo. El historial conserva también estados inactivos para mantener la trazabilidad.
 
 ## Política de conservación y baja
 

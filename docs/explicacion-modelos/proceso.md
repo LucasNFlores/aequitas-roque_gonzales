@@ -19,6 +19,7 @@ Proceso es el modelo más completo del sistema para entender relaciones. A difer
 namespace App\Models;
 
 use Database\Factories\ProcesoFactory;
+use DomainException;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -86,11 +87,15 @@ protected function casts(): array
 }
 ```
 
-Un solo cast en Proceso: `fecha_inicio` como fecha. El resto de los campos son strings, números o enums que Eloquent ya sabe manejar.
+Un solo cast en Proceso: `fecha_inicio` como fecha. El estado se almacena como un string con el slug estable del catálogo estados_proceso.
 
-### 5. Relaciones — La parte más importante
+### 5. Estado e historial
 
-Proceso tiene **7 relaciones**: 4 `belongsTo` (el proceso pertenece a alguien) + 3 `hasMany` (el proceso tiene cosas).
+El método transitionTo sólo permite estados activos del catálogo, conserva el motivo de la transición y dispara el registro histórico. El modelo registra también el estado inicial al crear un proceso y cualquier cambio de estado realizado desde otra operación del sistema.
+
+### 6. Relaciones — La parte más importante
+
+Proceso tiene **8 relaciones**: 4 `belongsTo` (el proceso pertenece a alguien) + 4 `hasMany` (el proceso tiene cosas).
 
 ---
 
@@ -207,6 +212,13 @@ public function reportes(): HasMany
 {
     return $this->hasMany(Reporte::class);
 }
+
+public function historialEstados(): HasMany
+{
+    return $this->hasMany(HistorialEstadoProceso::class)
+        ->orderByDesc('fecha_cambio')
+        ->orderByDesc('id');
+}
 ```
 
 **¿Cómo funciona?** Laravel busca `proceso_id` en la tabla del modelo que le pasás:
@@ -293,6 +305,7 @@ $proceso = Proceso::with([
     'turnos',
     'documentos',
     'reportes',
+    'historialEstados',
 ])->find(1);
 
 // Navegar las relaciones encadenadas
@@ -342,6 +355,7 @@ $proceso->forceDelete();  // borrado real, sin vuelta atrás
 ├──────────────────────────────────────────────────┤
 │  MÉTODOS                                          │
 │  casts() → fecha_inicio: date                     │
+│  transitionTo() → cambio validado + historial     │
 │                                                    │
 │  BELONGS TO (el proceso pertenece a...)            │
 │  ├─ cliente()      → belongsTo(Cliente)           │
@@ -352,7 +366,8 @@ $proceso->forceDelete();  // borrado real, sin vuelta atrás
 │  HAS MANY (el proceso tiene...)                    │
 │  ├─ turnos()       → hasMany(Turno)               │
 │  ├─ documentos()   → hasMany(Documento)           │
-│  └─ reportes()     → hasMany(Reporte)             │
+│  ├─ reportes()     → hasMany(Reporte)             │
+│  └─ historialEstados() → hasMany(HistorialEstado)│
 ├──────────────────────────────────────────────────┤
 │  TABLA ASOCIADA                                   │
 │  procesos (id, cliente_id, profesional_id,        │
