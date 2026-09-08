@@ -85,6 +85,24 @@
                         </x-navigation.nav-link>
                     @endcan
 
+                    @can('listar_filtrar_procesos')
+                        <x-navigation.nav-link :href="route('procesos.index')" :active="request()->routeIs('procesos.*')">
+                            <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5v-16ZM4 5.5v16M8 7h8m-8 4h8m-8 4h5" />
+                            </svg>
+                            <span>{{ __('Procesos') }}</span>
+                        </x-navigation.nav-link>
+                    @endcan
+
+                    @can('gestionar_estados_proceso')
+                        <x-navigation.nav-link :href="route('estados-proceso.index')" :active="request()->routeIs('estados-proceso.*')">
+                            <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5 6h14M5 12h14M5 18h14M8 6v0m4 6v0m-2 6v0" />
+                            </svg>
+                            <span>{{ __('Estados de proceso') }}</span>
+                        </x-navigation.nav-link>
+                    @endcan
+
                     <x-navigation.nav-link :href="route('tutorial')" :active="request()->routeIs('tutorial')">
                         <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5v-16ZM4 5.5v16M8 7h8m-8 4h8" />

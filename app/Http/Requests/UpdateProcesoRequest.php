@@ -29,7 +29,13 @@ class UpdateProcesoRequest extends FormRequest
             'descripcion' => ['sometimes', 'required', 'string', 'max:10000'],
             'fecha_inicio' => ['sometimes', 'required', 'date'],
             'tipo' => ['sometimes', 'required', Rule::in(Proceso::TIPOS)],
-            'estado' => ['sometimes', 'required', Rule::in(Proceso::ESTADOS)],
+            'estado' => [
+                'sometimes',
+                'required',
+                Rule::exists('estados_proceso', 'slug')
+                    ->where('activo', true)
+                    ->whereNull('deleted_at'),
+            ],
             'motivo_rechazo' => ['sometimes', 'nullable', 'string', 'max:5000', 'required_if:estado,rechazado'],
         ];
     }

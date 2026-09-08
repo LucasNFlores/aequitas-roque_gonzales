@@ -28,6 +28,9 @@ class AppServiceProvider extends ServiceProvider
         'reassignProfessional',
         'updateState',
         'viewHistory',
+        'reorder',
+        'activate',
+        'deactivate',
         'createFor',
         'manageRoles',
     ];

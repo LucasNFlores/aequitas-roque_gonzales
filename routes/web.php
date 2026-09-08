@@ -48,6 +48,14 @@ Route::middleware(['auth', 'permission:gestionar_servicios'])->group(function ()
         ->parameters(['servicios-viejo' => 'servicio']);
 });
 
+Route::middleware(['auth', 'permission:listar_filtrar_procesos'])->group(function () {
+    Route::get('/procesos', fn () => view('procesos.index'))->name('procesos.index');
+});
+
+Route::middleware(['auth', 'permission:gestionar_estados_proceso'])->group(function () {
+    Route::get('/estados-proceso', fn () => view('estados-proceso.index'))->name('estados-proceso.index');
+});
+
 Route::middleware(['auth'])->group(function () {
     Route::resource('clientes', ClienteController::class);
 });
