@@ -153,6 +153,8 @@ Credenciales seed `UserSeeder.php:14` pass `1234`:
 * `admin@example.com` -> Administrador (acceso total)
 * `carlos@example.com` -> Secretario (CRUD completo clientes)
 * `juanperez@example.com` -> Profesional (403 en /clientes)
+* `coordinador@example.com` -> Coordinador (listado de clientes, sin alta/edición/baja)
+* `directivo@example.com` -> Directivo (listado de clientes, sin alta/edición/baja)
 
 ## Estándar de interfaz y extensiones opcionales
 

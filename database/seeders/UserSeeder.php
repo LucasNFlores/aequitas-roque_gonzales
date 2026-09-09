@@ -13,6 +13,8 @@ class UserSeeder extends Seeder
             ['name' => 'Admin', 'email' => 'admin@example.com', 'role' => 'Administrador'],
             ['name' => 'Carlos Villalba', 'email' => 'carlos@example.com', 'role' => 'Secretario'],
             ['name' => 'Juan Perez', 'email' => 'juanperez@example.com', 'role' => 'Profesional'],
+            ['name' => 'Coordinador Demo', 'email' => 'coordinador@example.com', 'role' => 'Coordinador'],
+            ['name' => 'Directivo Demo', 'email' => 'directivo@example.com', 'role' => 'Directivo'],
         ];
 
         foreach ($users as $userData) {

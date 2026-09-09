@@ -4,7 +4,9 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Database\Seeders\RoleSeeder;
+use Database\Seeders\UserSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -31,6 +33,32 @@ class RolePermissionTest extends TestCase
 
         $this->assertSame(5, Role::count());
         $this->assertSame(41, Role::findByName('Administrador')->permissions()->count());
+    }
+
+    public function test_user_seeder_creates_one_user_per_role_with_password_1234(): void
+    {
+        $this->seed([RoleSeeder::class, UserSeeder::class]);
+
+        $expectedUsers = [
+            'admin@example.com' => 'Administrador',
+            'carlos@example.com' => 'Secretario',
+            'juanperez@example.com' => 'Profesional',
+            'coordinador@example.com' => 'Coordinador',
+            'directivo@example.com' => 'Directivo',
+        ];
+
+        $this->assertCount(count($expectedUsers), User::all());
+
+        foreach ($expectedUsers as $email => $role) {
+            $user = User::where('email', $email)->firstOrFail();
+
+            $this->assertTrue($user->hasRole($role));
+            $this->assertTrue(Hash::check('1234', $user->password));
+        }
+
+        $this->seed(UserSeeder::class);
+
+        $this->assertCount(count($expectedUsers), User::all());
     }
 
     public function test_permissions_control_the_existing_user_and_service_routes(): void

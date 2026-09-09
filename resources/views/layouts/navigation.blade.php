@@ -88,7 +88,8 @@
                     @can('listar_filtrar_procesos')
                         <x-navigation.nav-link :href="route('procesos.index')" :active="request()->routeIs('procesos.*')">
                             <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5v-16ZM4 5.5v16M8 7h8m-8 4h8m-8 4h5" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3.75 7.5A2.25 2.25 0 0 1 6 5.25h3.75L12 7.5h6A2.25 2.25 0 0 1 20.25 9.75v.75H6.5a2.75 2.75 0 0 0-2.66 2.05L2.25 18.75V7.5Z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="m2.25 18.75 1.59-5.95A2.75 2.75 0 0 1 6.5 10.75h15.25l-1.58 5.93a3.75 3.75 0 0 1-3.63 2.82H4.5a2.25 2.25 0 0 1-2.25-2.25v-.5Zm7.5-4.5h7.5m-7.5 3h5" />
                             </svg>
                             <span>{{ __('Procesos') }}</span>
                         </x-navigation.nav-link>
@@ -138,7 +139,7 @@
                     </span>
                     <div class="min-w-0">
                         <p class="truncate text-sm font-semibold text-gray-900">{{ Auth::user()->name }}</p>
-                        <p class="truncate text-xs text-gray-500">{{ Auth::user()->email }}</p>
+                        <p class="truncate text-xs text-gray-500">{{ Auth::user()->getRoleNames()->implode(', ') }}</p>
                     </div>
                 </div>
             </div>
