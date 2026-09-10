@@ -4,8 +4,10 @@ namespace Tests\Feature;
 
 use App\Models\Cliente;
 use App\Models\User;
+use Database\Seeders\ClienteSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class ClienteTest extends TestCase
@@ -68,6 +70,9 @@ class ClienteTest extends TestCase
         $secretario->assignRole('Secretario');
 
         $this->actingAs($secretario)->get(route('clientes.index'))->assertOk();
+        $this->actingAs($secretario)->get(route('clientes.create'))
+            ->assertOk()
+            ->assertSee('Crear Cliente');
         $this->actingAs($secretario)->post(route('clientes.store'), $this->validData(['dni' => '31234567', 'correo' => 'sec@example.com']))
             ->assertRedirect(route('clientes.index'));
         $this->assertDatabaseHas('clientes', ['dni' => '31234567']);
@@ -140,7 +145,7 @@ class ClienteTest extends TestCase
         $cliente = Cliente::factory()->create();
         $this->assertDatabaseHas('clientes', ['id' => $cliente->id]);
 
-        $this->seed(\Database\Seeders\ClienteSeeder::class);
+        $this->seed(ClienteSeeder::class);
         $this->assertDatabaseHas('clientes', ['dni' => '30123456']);
         $this->assertDatabaseHas('clientes', ['dni' => '31234567']);
     }
@@ -148,14 +153,14 @@ class ClienteTest extends TestCase
     public function test_migration_is_reversible(): void
     {
         // RefreshDatabase already ran migrations; we test that down() drops and up() recreates
-        $this->assertTrue(\Illuminate\Support\Facades\Schema::hasTable('clientes'));
+        $this->assertTrue(Schema::hasTable('clientes'));
         // Simulate rollback of last batch (clientes table)
         $this->artisan('migrate:rollback', ['--step' => 1])->assertExitCode(0);
         // After rollback of one step, clientes might still exist if not last; instead test drop and recreate manually
         // Ensure we can recreate
-        if (!\Illuminate\Support\Facades\Schema::hasTable('clientes')) {
+        if (! Schema::hasTable('clientes')) {
             $this->artisan('migrate')->assertExitCode(0);
-            $this->assertTrue(\Illuminate\Support\Facades\Schema::hasTable('clientes'));
+            $this->assertTrue(Schema::hasTable('clientes'));
         } else {
             $this->assertTrue(true); // migration reversible already proven by down() implementation
         }
