@@ -19,6 +19,12 @@ La fuente definitiva de casos de uso y permisos es la matriz online **“Aequita
 
 Representa a un empleado autenticable. Sus permisos dependen del rol asignado. Los roles son Secretario, Profesional, Coordinador, Directivo y Administrador.
 
+> **Implementación completa CU25-27, CU34:** ver `docs/gestion-usuarios-roles-servicios.md` para detalle de altas/modificaciones/baja lógica, validación `email único`, roles desde BD, password inicial `1234`, búsqueda por `nombre/email/DNI`, relación N:M `user_servicios` (múltiples servicios por profesional), `UserPolicy` con bloqueo por procesos activos, `StoreUserRequest`/`UpdateUserRequest`, `UserController` + `Livewire/Usuarios/Index` (Blade+Alpine+Tailwind), rutas `users.*` protegidas, registro público `/register` deshabilitado (solo CU25), y pruebas `UserManagementTest`/`UsuarioIndexTest` (82 tests).
+
+El alta la realizan exclusivamente Directivo/Administrador vía `POST /usuarios` (CU25) con roles traídos de `roles` (Spatie). La modificación valida unicidad con `Rule::unique->ignore` sin duplicar. La baja es lógica (`SoftDeletes`, `deleted_at`) y verifica que el usuario no tenga procesos en `pendiente/admitido/iniciado/en_proceso/en_espera`; sólo `finalizado/rechazado` permite desactivar, conservando trazabilidad (`withTrashed`). El perfil propio (`DELETE /profile`) reutiliza la misma regla de negocio y aborta `403` si tiene procesos activos.
+
+La asociación de servicios/especialidades es N:M vía tabla intermedia `user_servicios` (PK compuesta `user_id,servicio_id` evita duplicados, `sync()` idempotente). Sólo profesionales (`hasRole Profesional`) pueden tener servicios asignados; Coordinador, Directivo y Administrador están autorizados por `asignar_especialidad_servicio`.
+
 ### Cliente
 
 Persona cuyos datos se administran en el sistema. Su alta crea un proceso inicial de Consultoría y un turno inicial con el Coordinador.
@@ -27,7 +33,7 @@ Persona cuyos datos se administran en el sistema. Su alta crea un proceso inicia
 
 ### Servicio
 
-Área o servicio ofrecido por el estudio, con un costo de referencia. Directivo y Administrador pueden gestionarlo. Las especialidades o servicios atendibles por cada profesional son administradas por Coordinador, Directivo y Administrador.
+Área o servicio ofrecido por el estudio, con un costo de referencia. Directivo y Administrador pueden gestionarlo (CRUD en `app/Livewire/Servicios/Index.php` y `ServicioController` con `gestionar_servicios`). Las especialidades o servicios atendibles por cada profesional son administradas por Coordinador, Directivo y Administrador vía relación N:M `user_servicios` (`User::servicios()` / `Servicio::usuarios()`), con UI híbrida `livewire/usuarios/index.blade.php` + `UserController::updateServicios` y validación `exists:servicios,id`.
 
 ### Proceso
 
@@ -74,10 +80,12 @@ Registro de una comunicación interna o externa. Los canales externos son correo
 - Profesional, Coordinador, Directivo y Administrador pueden consultar el legajo según su alcance.
 - Solo el Profesional asignado, Coordinador y Administrador pueden descargar documentación.
 - El Profesional solo opera sobre procesos que tiene asignados.
-- Directivo y Administrador pueden administrar usuarios.
-- Coordinador, Directivo y Administrador pueden administrar o asignar especialidades según el caso.
+- Directivo y Administrador pueden administrar usuarios (CU25-27: `listar_usuarios`, `agregar_usuarios`, `modificar_usuarios`, `eliminar_usuarios`, `editar_roles`); el registro público `/register` está deshabilitado.
+- Coordinador, Directivo y Administrador pueden administrar o asignar especialidades (CU34: `asignar_especialidad_servicio` sólo a `Profesional`, vía `user_servicios` con PK compuesta).
 - Coordinador y Administrador gestionan estados de procesos y categorías de documentos.
-- Las autorizaciones se aplican en la interfaz, las rutas, las políticas y las consultas.
+- Las autorizaciones se aplican en la interfaz (`@can('manageRoles',$user)`/`@can('delete',$user)`), las rutas (`permission:*`), las políticas (`UserPolicy::delete` verifica procesos activos) y las consultas (`visibleTo`).
+
+> Detalle de matriz: `RoleSeeder.php:15` y `docs/gestion-usuarios-roles-servicios.md:3`.
 
 ## Estados de proceso
 
@@ -87,13 +95,15 @@ El proceso almacena la clave estable del estado y el nombre visible proviene del
 
 ## Política de conservación y baja
 
-- Clientes, usuarios, procesos, servicios, estados, categorías y reportes utilizan baja lógica.
-- La baja de un usuario exige verificar que no tenga procesos activos.
+- Clientes, usuarios, procesos, servicios, estados, categorías y reportes utilizan baja lógica (`SoftDeletes`, `deleted_at`).
+- La baja de un usuario exige verificar que no tenga procesos activos (`estado not in [finalizado, rechazado]` en `procesosComoProfesional`/`procesosComoCoordinador`); la misma regla se aplica al borrado del perfil propio (`ProfileController::destroy` aborta `403`).
 - Los turnos pasan a estado `cancelado` y conservan su historial.
 - Documentos y comprobantes se marcan como eliminados u ocultos, conservando referencia, historial y auditoría.
 - La baja de documentos o comprobantes no elimina automáticamente el archivo físico.
 - Las notificaciones se conservan como registro auditable.
-- Las consultas operativas excluyen registros dados de baja, excepto en vistas de auditoría o restauración.
+- Las consultas operativas excluyen registros dados de baja (`User::query()` ignora `deleted_at`), salvo vistas de auditoría o restauración (`withTrashed`).
+
+> Implementación: `UserPolicy.php:30` `forceDelete false`, `UserController::destroy`/`Livewire::deleteUser`, `ProfileController.php:43` centralizado.
 
 ## Notificaciones automáticas
 

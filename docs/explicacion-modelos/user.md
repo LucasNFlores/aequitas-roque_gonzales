@@ -242,6 +242,29 @@ public function notificaciones(): HasMany
 
 Relación estándar: busca `user_id` en la tabla `notificaciones`.
 
+#### `BelongsToMany` — "Muchos a muchos vía tabla intermedia"
+
+```php
+public function servicios(): BelongsToMany
+{
+    return $this->belongsToMany(Servicio::class, 'user_servicios');
+}
+```
+
+A diferencia de `HasMany`, **no hay una FK directa** en ninguna de las dos tablas. Se usa una tercera tabla intermedia `user_servicios` con `user_id` y `servicio_id` (PK compuesta evita duplicados).
+
+- Un `User` (Profesional) puede tener **múltiples servicios** (`$user->servicios()->sync([1,2])`).
+- Un `Servicio` puede pertenecer a **múltiples profesionales** (`$servicio->usuarios`).
+
+**Por qué intermedia:** permite asignar especialidades sin duplicar filas ni limitar a un solo servicio por usuario. Se gestiona desde `UserController::updateServicios` y `Livewire/Usuarios/Index::saveServicios` con `permission:asignar_especialidad_servicio` (Coordinador/Directivo/Admin) y validación `hasRole('Profesional')`. Ver `docs/gestion-usuarios-roles-servicios.md:4`.
+
+```php
+$profesional = User::find(1); // hasRole Profesional
+$profesional->servicios()->sync([1,3]); // asigna Civil y Familia
+$profesional->servicios; // Collection de Servicio
+$profesional->servicios()->where('nombre','Civil')->exists(); // true
+```
+
 ---
 
 ## Tipos de retorno en las relaciones
@@ -324,6 +347,7 @@ $nuevo->forceDelete();   // DELETE FROM users WHERE id = ?
 │  procesosProfesional() → hasMany(Proceso)     │
 │  procesosCoordinador() → hasMany(Proceso)     │
 │  notificaciones() → hasMany(Notificacion)     │
+│  servicios()      → BelongsToMany(Servicio)   │
 ├─────────────────────────────────────────────┤
 │  TABLA ASOCIADA                               │
 │  users (id, name, email, password,            │

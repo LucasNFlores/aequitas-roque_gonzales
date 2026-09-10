@@ -28,16 +28,39 @@ Route::middleware('auth')->group(function () {
 });
 
 // -----------------------------------------------------------------------------
-// MÓDULO DE USUARIOS Y ROLES (Protegido por Spatie)
+// MÓDULO DE USUARIOS Y ROLES (Protegido por Spatie) - CU25, CU26, CU27, CU34
 // -----------------------------------------------------------------------------
 
 Route::middleware(['auth', 'permission:listar_usuarios'])->group(function () {
     Route::get('/usuarios', [UserController::class, 'index'])->name('users.index');
 });
 
+Route::middleware(['auth', 'permission:agregar_usuarios'])->group(function () {
+    Route::get('/usuarios/create', [UserController::class, 'create'])->name('users.create');
+    Route::post('/usuarios', [UserController::class, 'store'])->name('users.store');
+});
+
+Route::middleware(['auth', 'permission:modificar_usuarios'])->group(function () {
+    Route::get('/usuarios/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+    Route::put('/usuarios/{user}', [UserController::class, 'update'])->name('users.update');
+    Route::patch('/usuarios/{user}', [UserController::class, 'update']);
+});
+
+Route::middleware(['auth', 'permission:eliminar_usuarios'])->group(function () {
+    Route::delete('/usuarios/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/usuarios/{user}', [UserController::class, 'show'])->name('users.show')->middleware('permission:listar_usuarios');
+});
+
 Route::middleware(['auth', 'permission:editar_roles'])->group(function () {
     Route::get('/usuarios/{user}/roles', [UserController::class, 'editRoles'])->name('users.roles.edit');
     Route::put('/usuarios/{user}/roles', [UserController::class, 'updateRoles'])->name('users.roles.update');
+});
+
+Route::middleware(['auth', 'permission:asignar_especialidad_servicio'])->group(function () {
+    Route::put('/usuarios/{user}/servicios', [UserController::class, 'updateServicios'])->name('users.servicios.update');
 });
 
 Route::middleware(['auth', 'permission:gestionar_servicios'])->group(function () {

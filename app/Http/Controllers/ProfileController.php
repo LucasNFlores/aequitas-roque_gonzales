@@ -39,6 +39,9 @@ class ProfileController extends Controller
 
     /**
      * Delete the user's account.
+     *
+     * Centraliza la baja en UserPolicy::delete (CU27): impide eliminación física y
+     * verifica procesos activos, igual que el CRUD administrativo.
      */
     public function destroy(Request $request): RedirectResponse
     {
@@ -47,6 +50,17 @@ class ProfileController extends Controller
         ]);
 
         $user = $request->user();
+
+        // Verificación de negocio centralizada: igual que UserPolicy::delete pero sin exigir permiso eliminar_usuarios
+        // (el perfil propio puede borrarse si no tiene procesos activos, aunque el rol no tenga ese permiso)
+        $hasActiveProcess = $user->procesosComoProfesional()
+            ->whereNotIn('estado', ['finalizado', 'rechazado'])
+            ->exists()
+            || $user->procesosComoCoordinador()
+                ->whereNotIn('estado', ['finalizado', 'rechazado'])
+                ->exists();
+
+        abort_if($hasActiveProcess, 403, 'No se puede eliminar el perfil con procesos activos.');
 
         Auth::logout();
 

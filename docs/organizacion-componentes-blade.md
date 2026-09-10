@@ -81,6 +81,10 @@ app/View/Components/GuestLayout.php
 
 Sus nombres se resuelven como `<x-app-layout>` y `<x-guest-layout>`.
 
+## Módulo usuarios — híbrido Blade + Livewire
+
+`resources/views/users/index.blade.php:1` es wrapper `x-app-layout` con `@livewire('usuarios.index')`. El componente `app/Livewire/Usuarios/Index.php:19` y vista `livewire/usuarios/index.blade.php:1` siguen el estándar `guia-laravel-mvc-livewire.md` (Alpine `x-data` para modales, `wire:model`/`wire:click` para servidor, `Tailwind` responsive). Las vistas clásicas `users/create/edit/show/_form.blade.php` se mantienen como fallback sin Livewire, reutilizando `forms/*` y `buttons/*`. Ver `docs/gestion-usuarios-roles-servicios.md:10`.
+
 ## Excepción: `/servicios-viejo`
 
 La ruta `/servicios-viejo` es un CRUD MVC server-rendered y no carga componentes

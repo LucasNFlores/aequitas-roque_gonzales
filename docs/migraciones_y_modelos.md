@@ -23,15 +23,14 @@ Laravel usa `->constrained()` para definir estas relaciones automáticamente.
 
 ## Estado actual del proyecto
 
-Ya existen:
-- `users` — tabla base + modelo `User` (con traits de Spatie para roles)
-- `permissions`, `roles`, `model_has_permissions`, `model_has_roles`, `role_has_permissions` — creados por Spatie (paquete de permisos)
-- `audits` — tabla de auditoría (registra quién cambió qué)
+Ya existen (implementado y probado, 82 tests):
+- `users` — tabla base + `add_profesional_fields_to_users` (dni unique nullable, telefono, domicilio, fecha_nacimiento, fecha_ingreso, softDeletes corregido `dropColumn/dropSoftDeletes`) + modelo `User` (`HasFactory, HasRoles, SoftDeletes, Auditable`, `servicios() BelongsToMany`, `procesosComoProfesional/Coordinador HasMany`)
+- `user_servicios` — tabla intermedia N:M `user_id, servicio_id` PK compuesta, `constrained cascade` (permite múltiples servicios por profesional, evita duplicados, disponible para `Proceso.servicio_id`)
+- `permissions`, `roles`, `model_has_permissions`, `model_has_roles`, `role_has_permissions` — creados por Spatie
+- `audits` — tabla de auditoría
+- `clientes`, `servicios`, `procesos`, `turnos`, `documentos`, `reportes`, `comprobantes_pago`, `notificaciones`, `estados_proceso`, `historial_estados_proceso` — ver secciones Fase 1-3
 
-**Falta crear:**
-1. Modificar `users` para agregar campos de profesional
-2. Crear `clientes`, `servicios`
-3. Crear `procesos`, `turnos`, `documentos`, `reportes`, `comprobantes_pago`, `notificaciones`
+> **Documentación CRUD usuarios:** ver `docs/gestion-usuarios-roles-servicios.md` para `StoreUserRequest/UpdateUserRequest`, `UserPolicy`, `UserController`, `Livewire/Usuarios/Index`, rutas `users.*`, vistas `resources/views/users/*` y `livewire/usuarios/*`, registro `/register` deshabilitado, búsqueda por `name/email/dni`.
 
 ---
 
@@ -87,7 +86,7 @@ public function down(): void
 {
     Schema::table('users', function (Blueprint $table) {
         $table->dropColumn(['dni', 'telefono', 'domicilio', 'fecha_nacimiento', 'fecha_ingreso']);
-        $table->dropSoftDeletes();
+        $table->dropSoftDeletes(); // corregido (antes dropColum/dropsoftDeletes)
     });
 }
 ```
@@ -213,6 +212,31 @@ git add app/Models/Servicio.php app/Factories/ServicioFactory.php database/seede
 git commit -m "feat: add servicios table and model"
 git push
 ```
+
+### user_servicios — intermedia N:M (hecho, CU34)
+
+Permite que **un usuario (Profesional) tenga múltiples servicios/especialidades** y un servicio múltiples profesionales.
+
+**Migración** `database/migrations/2026_08_23_190000_create_user_servicios_table.php:13`:
+
+```php
+Schema::create('user_servicios', function (Blueprint $table) {
+    $table->foreignId('user_id')->constrained()->onDelete('cascade');
+    $table->foreignId('servicio_id')->constrained()->onDelete('cascade');
+    $table->primary(['user_id','servicio_id']); // evita duplicados
+});
+```
+
+**Modelos:**
+
+```php
+// app/Models/User.php:89
+public function servicios(): BelongsToMany { return $this->belongsToMany(Servicio::class,'user_servicios'); }
+// app/Models/Servicio.php:34
+public function usuarios(): BelongsToMany { return $this->belongsToMany(User::class,'user_servicios'); }
+```
+
+**Uso:** ` $user->servicios()->sync([1,2])` idempotente; `whereHas('servicios')` para asignaciones a `Proceso.servicio_id`. Autorización `asignar_especialidad_servicio` (Coordinador/Directivo/Admin) y validación `exists:servicios,id` + check `hasRole('Profesional')` → `422` si no es profesional. Detalle en `docs/gestion-usuarios-roles-servicios.md:4`.
 
 ---
 
