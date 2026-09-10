@@ -89,7 +89,7 @@ Protegidas por `auth` (guest → `302` a `/login`) + `ClientePolicy` en controll
 
 Carpeta `resources/views/clientes/`:
 
-* `_form.blade.php` - parcial compartido `action, $cliente?, $submitLabel`. Campos `nombre, apellido, dni, telefono, correo (type email), domicilio, fecha_nacimiento (type date, format Y-m-d)`, `@csrf`, `@method('PUT')` si edición, `x-input-label/text-input/error` y `old()`.
+* `_form.blade.php` - parcial compartido `action, $cliente?, $submitLabel`. Campos `nombre, apellido, dni, telefono, correo (type email), domicilio, fecha_nacimiento (type date, format Y-m-d)`, `@csrf`, `@method('PUT')` si edición, `x-forms.input-label/text-input/error`, `x-buttons.primary-button` y `old()`.
 * `create.blade.php` - `<x-app-layout>` + `@include('clientes._form', ['action' => route('clientes.store'), 'submitLabel' => 'Crear Cliente'])`
 * `edit.blade.php` - similar con `route('clientes.update', $cliente)`
 * `show.blade.php` - detalle en grid 2 cols, `format('d/m/Y')` para fecha, botones `Editar` y `Volver`
