@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreClienteRequest;
 use App\Http\Requests\UpdateClienteRequest;
 use App\Models\Cliente;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -30,7 +31,20 @@ class ClienteController extends Controller
     {
         $this->authorize('create', Cliente::class);
 
-        Cliente::create($request->validated());
+        try {
+            Cliente::create($request->validated());
+        } catch (UniqueConstraintViolationException $exception) {
+            $message = strtolower($exception->getMessage());
+            $field = str_contains($message, 'correo') ? 'correo' : 'dni';
+
+            return back()
+                ->withInput()
+                ->withErrors([
+                    $field => $field === 'correo'
+                        ? 'Ya existe un cliente registrado con este correo electrónico.'
+                        : 'Ya existe un cliente registrado con este DNI. Verificá el número o buscá al cliente existente.',
+                ]);
+        }
 
         return redirect()->route('clientes.index')->with('success', 'Cliente creado correctamente.');
     }

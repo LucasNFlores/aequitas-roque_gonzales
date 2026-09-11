@@ -108,7 +108,17 @@ class ClienteTest extends TestCase
         // dni duplicate
         Cliente::factory()->create(['dni' => '30123456', 'correo' => 'unique@example.com']);
         $this->actingAs($admin)->post(route('clientes.store'), $this->validData())
-            ->assertSessionHasErrors('dni');
+            ->assertSessionHasErrors([
+                'dni' => 'Ya existe un cliente registrado con este DNI. Verificá el número o buscá al cliente existente.',
+            ]);
+
+        Cliente::factory()->create(['dni' => '30987654', 'correo' => 'duplicado@example.com']);
+        $this->actingAs($admin)->post(route('clientes.store'), $this->validData([
+            'dni' => '30123457',
+            'correo' => 'duplicado@example.com',
+        ]))->assertSessionHasErrors([
+            'correo' => 'Ya existe un cliente registrado con este correo electrónico.',
+        ]);
     }
 
     public function test_unauthorized_roles_cannot_access_clientes(): void
