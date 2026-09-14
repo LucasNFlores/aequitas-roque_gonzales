@@ -1,0 +1,41 @@
+sequenceDiagram
+    actor Coordinador
+    participant Sistema as Sistema (Controller/Livewire)
+    participant Proceso as Proceso (Model)
+    participant EstadoProceso as EstadoProceso (Model)
+    participant Historial as HistorialEstadoProceso (Model)
+    participant Notificacion as Notificacion (Model)
+
+    Coordinador->>Sistema: seleccionarProceso(procesoId)
+    Sistema->>Proceso: obtenerPorId(procesoId)
+    Proceso-->>Sistema: proceso
+    Sistema-->>Coordinador: mostrarDatosProceso(proceso)
+
+    Coordinador->>Sistema: rechazarProceso(procesoId, motivo)
+    Sistema->>Sistema: authorize(registrar_motivo_rechazo)
+
+    alt No autorizado
+        Sistema-->>Coordinador: errorSinPermiso()
+    else Autorizado
+        Sistema->>Proceso: validar(motivo requerido)
+
+        alt Motivo vacio
+            Sistema-->>Coordinador: errorValidacion('Motivo obligatorio')
+        else Motivo valido
+            Sistema->>EstadoProceso: obtenerActivoPorSlug('rechazado')
+            EstadoProceso-->>Sistema: estadoRechazado
+
+            alt Estado no activo
+                Sistema-->>Coordinador: errorEstadoInvalido()
+            else Estado activo
+                Sistema->>Proceso: transitionTo('rechazado', motivo, usuarioId)
+                Proceso->>Historial: crear(estadoAnterior, estadoNuevo='rechazado', fecha=now(), usuarioId, motivo)
+                Historial-->>Proceso: historial creado
+                Proceso-->>Sistema: proceso actualizado
+
+                Sistema->>Notificacion: registrar(canal='interno', destinatario=cliente, mensaje='Proceso rechazado: '+motivo)
+                Notificacion-->>Sistema: notificacion registrada
+                Sistema-->>Coordinador: rechazoExitoso(proceso)
+            end
+        end
+    end

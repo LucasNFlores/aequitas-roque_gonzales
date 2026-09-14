@@ -1,0 +1,29 @@
+sequenceDiagram
+    actor Secretario
+    participant Sistema as Sistema (Controller)
+    participant Proceso as Proceso (Model)
+    participant Documento as Documento (Model)
+    participant Notificacion as Notificacion (Model)
+
+    Secretario->>Sistema: seleccionarProceso(procesoId)
+    Sistema->>Proceso: obtenerPorId(procesoId)
+    Proceso-->>Sistema: proceso
+    Sistema-->>Secretario: mostrarDatosProceso(proceso)
+
+    Secretario->>Sistema: cargarDocumentacion(procesoId, archivo, tipo, nombre)
+    Sistema->>Sistema: authorize(cargar_documentacion)
+
+    alt No autorizado
+        Sistema-->>Secretario: errorSinPermiso()
+    else Autorizado
+        Sistema->>Documento: validar(archivo, tipo, nombre)
+        Documento-->>Sistema: valido / errores
+
+        alt Documento valido [pdf <=20MB]
+            Sistema->>Documento: crear(procesoId, archivo_path, tipo, nombre)
+            Documento-->>Sistema: documento creado
+            Sistema-->>Secretario: cargaExitosa(documento)
+        else Documento no compatible
+            Sistema-->>Secretario: informarError(errores)
+        end
+    end

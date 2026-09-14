@@ -1,0 +1,40 @@
+sequenceDiagram
+    actor Profesional as Profesional/Coordinador
+    participant Sistema as Sistema (Controller/Livewire)
+    participant Proceso as Proceso (Model)
+    participant EstadoProceso as EstadoProceso (Model)
+    participant Historial as HistorialEstadoProceso (Model)
+    participant Notificacion as Notificacion (Model)
+
+    Profesional->>Sistema: seleccionarProceso(procesoId)
+    Sistema->>Proceso: obtenerVisibleParaUsuario(procesoId, usuarioId)
+    Proceso-->>Sistema: proceso o null
+
+    alt Proceso no visible / Profesional no asignado
+        Sistema-->>Profesional: errorSinPermisoOAlcance()
+    else Proceso visible
+        Sistema-->>Profesional: mostrarDatosProceso(proceso, estadosActivos)
+
+        Profesional->>Sistema: actualizarEstado(procesoId, nuevoEstadoSlug, motivo)
+        Sistema->>Sistema: authorize(actualizar_estado)
+
+        alt No autorizado
+            Sistema-->>Profesional: errorSinPermiso()
+        else Autorizado
+            Sistema->>EstadoProceso: validarEstadoActivo(nuevoEstadoSlug)
+            EstadoProceso-->>Sistema: activo / inactivo / no existe
+
+            alt Estado no activo o inexistente
+                Sistema-->>Profesional: errorEstadoInvalido()
+            else Estado activo
+                Sistema->>Proceso: transitionTo(nuevoEstadoSlug, motivo, usuarioId)
+                Proceso->>Historial: crear(estadoAnterior, estadoNuevo=nuevoEstadoSlug, fecha=now(), usuarioId, motivo)
+                Historial-->>Proceso: historial creado
+                Proceso-->>Sistema: proceso actualizado
+
+                Sistema->>Notificacion: registrar(canal='interno', mensaje='Estado actualizado a '+nuevoEstadoSlug)
+                Notificacion-->>Sistema: notificacion registrada
+                Sistema-->>Profesional: actualizacionExitosa(proceso, historial)
+            end
+        end
+    end

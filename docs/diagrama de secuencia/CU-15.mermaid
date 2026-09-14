@@ -1,0 +1,35 @@
+sequenceDiagram
+    actor Coordinador
+    participant Sistema as Sistema (Controller/Livewire)
+    participant Proceso as Proceso (Model)
+    participant EstadoProceso as EstadoProceso (Model)
+    participant Historial as HistorialEstadoProceso (Model)
+    participant Notificacion as Notificacion (Model)
+
+    Coordinador->>Sistema: seleccionarProceso(procesoId)
+    Sistema->>Proceso: obtenerPorId(procesoId)
+    Proceso-->>Sistema: proceso en estado pendiente
+    Sistema-->>Coordinador: mostrarDatosProceso(proceso, cliente)
+
+    Coordinador->>Sistema: admitirProceso(procesoId)
+    Sistema->>Sistema: authorize(admitir_proceso)
+
+    alt No autorizado
+        Sistema-->>Coordinador: errorSinPermiso()
+    else Autorizado
+        Sistema->>EstadoProceso: obtenerActivoPorSlug('admitido')
+        EstadoProceso-->>Sistema: estadoAdmitido
+
+        alt Estado no activo
+            Sistema-->>Coordinador: errorEstadoInvalido()
+        else Estado activo
+            Sistema->>Proceso: transitionTo('admitido', motivo=null, usuarioId)
+            Proceso->>Historial: crear(estadoAnterior='pendiente', estadoNuevo='admitido', fecha=now(), usuarioId, motivo=null)
+            Historial-->>Proceso: historial creado
+            Proceso-->>Sistema: proceso actualizado
+
+            Sistema->>Notificacion: registrar(canal='interno', destinatario=cliente, mensaje='Proceso admitido')
+            Notificacion-->>Sistema: notificacion registrada
+            Sistema-->>Coordinador: admisionExitosa(proceso)
+        end
+    end

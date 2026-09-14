@@ -1,0 +1,36 @@
+sequenceDiagram
+    actor Profesional
+    participant Sistema as Sistema (Controller/Livewire)
+    participant Proceso as Proceso (Model)
+    participant Reporte as Reporte (Model)
+    participant Notificacion as Notificacion (Model)
+
+    Profesional->>Sistema: seleccionarProceso(procesoId)
+    Sistema->>Proceso: obtenerConVerificacionAsignacion(procesoId, profesionalId)
+    Proceso-->>Sistema: proceso o null
+
+    alt No asignado
+        Sistema-->>Profesional: errorSinPermisoOAlcance()
+    else Asignado
+        Sistema-->>Profesional: mostrarFormularioReporte(proceso)
+
+        Profesional->>Sistema: registrarReporte(procesoId, contenido, fecha)
+        Sistema->>Sistema: authorize(registrar_reporte)
+
+        alt No autorizado
+            Sistema-->>Profesional: errorSinPermiso()
+        else Autorizado
+            Sistema->>Reporte: validar(contenido, fecha)
+            Reporte-->>Sistema: valido / errores
+
+            alt Datos invalidos
+                Sistema-->>Profesional: informarError(errores)
+            else Datos validos
+                Sistema->>Reporte: crear(procesoId, autorId=profesionalId, contenido, fecha)
+                Reporte-->>Sistema: reporte creado
+                Sistema->>Notificacion: registrar(canal='interno', destinatario=coordinador, mensaje='Nuevo reporte en proceso '+procesoId)
+                Notificacion-->>Sistema: notificacion registrada
+                Sistema-->>Profesional: reporteCreado(reporte)
+            end
+        end
+    end
