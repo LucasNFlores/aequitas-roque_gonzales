@@ -75,6 +75,10 @@ Route::middleware(['auth', 'permission:listar_filtrar_procesos'])->group(functio
     Route::get('/procesos', fn () => view('procesos.index'))->name('procesos.index');
 });
 
+Route::middleware(['auth', 'permission:ver_comprobantes_pago'])->group(function () {
+    Route::get('/comprobantes', fn () => view('comprobantes.index'))->name('comprobantes.index');
+});
+
 Route::middleware(['auth', 'permission:gestionar_estados_proceso'])->group(function () {
     Route::get('/estados-proceso', fn () => view('estados-proceso.index'))->name('estados-proceso.index');
 });

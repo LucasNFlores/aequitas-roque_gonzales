@@ -14,6 +14,7 @@ class ComprobantePago extends Model
 
     protected $fillable = [
         'cliente_id',
+        'proceso_id',
         'archivo_path',
         'fecha_subida',
         'descripcion',
@@ -29,5 +30,14 @@ class ComprobantePago extends Model
     public function cliente(): BelongsTo
     {
         return $this->belongsTo(Cliente::class);
+    }
+
+    /**
+     * El vínculo con el proceso es opcional. Se deja preparado para poder
+     * asociar un comprobante a una causa cuando ese flujo esté disponible.
+     */
+    public function proceso(): BelongsTo
+    {
+        return $this->belongsTo(Proceso::class);
     }
 }

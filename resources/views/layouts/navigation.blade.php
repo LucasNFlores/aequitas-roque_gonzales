@@ -95,6 +95,16 @@
                         </x-navigation.nav-link>
                     @endcan
 
+                    @can('ver_comprobantes_pago')
+                        <x-navigation.nav-link :href="route('comprobantes.index')" :active="request()->routeIs('comprobantes.*')">
+                            <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 3.75h7.25L19 8.5v11.75A1.75 1.75 0 0 1 17.25 22h-10.5A1.75 1.75 0 0 1 5 20.25v-14.5A1.75 1.75 0 0 1 6.75 4H7Z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M14 3.75V9h5M8.5 13h7m-7 3.5h5" />
+                            </svg>
+                            <span>{{ __('Comprobantes') }}</span>
+                        </x-navigation.nav-link>
+                    @endcan
+
                     @can('gestionar_estados_proceso')
                         <x-navigation.nav-link :href="route('estados-proceso.index')" :active="request()->routeIs('estados-proceso.*')">
                             <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">

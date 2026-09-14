@@ -23,4 +23,12 @@ class StoreClienteRequest extends FormRequest
             'fecha_nacimiento' => ['required', 'date', 'before:today', 'after:1900-01-01'],
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'dni.unique' => 'Ya existe un cliente registrado con este DNI. Verificá el número o buscá al cliente existente.',
+            'correo.unique' => 'Ya existe un cliente registrado con este correo electrónico.',
+        ];
+    }
 }

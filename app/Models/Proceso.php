@@ -129,6 +129,11 @@ class Proceso extends Model
         return $this->hasMany(Documento::class);
     }
 
+    public function comprobantesPago(): HasMany
+    {
+        return $this->hasMany(ComprobantePago::class);
+    }
+
     public function reportes(): HasMany
     {
         return $this->hasMany(Reporte::class);
