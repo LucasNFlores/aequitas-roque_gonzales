@@ -37,7 +37,7 @@
                         {{ $slot }}
                     </div>
 
-                    <p class="text-xs leading-5 text-slate-500">Acceso seguro para clientes y profesionales del estudio.</p>
+                    <p class="text-xs leading-5 text-slate-500">Acceso seguro para nuestros profesionales del estudio.</p>
                 </div>
 
                 <aside class="relative hidden overflow-hidden rounded-[2rem] lg:block" aria-label="Aequitas, gestión jurídica">
