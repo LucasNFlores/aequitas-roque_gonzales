@@ -209,7 +209,10 @@ class UsuarioIndexTest extends TestCase
             ->assertSee('wire:click="createUser"', false)
             ->assertSee('x-data', false)
             ->assertSee('x-show="formOpen"', false)
-            ->assertSee('x-show="serviciosOpen"', false);
+            ->assertSee('x-show="serviciosOpen"', false)
+            ->assertSee('wire:loading.attr="disabled"', false)
+            ->assertSee('disabled:cursor-not-allowed', false)
+            ->assertSee('disabled:opacity-50', false);
 
         // Livewire component renderiza búsqueda y paginación
         Livewire::actingAs($directivo)->test(UsuariosIndex::class)

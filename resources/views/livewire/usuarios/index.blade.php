@@ -250,7 +250,7 @@
             @error('selectedServicios') <span class="block text-sm text-red-600">{{ $message }}</span> @enderror
             <div class="flex flex-col-reverse gap-3 pt-4 sm:flex-row sm:justify-end">
                 <button type="button" @click="serviciosOpen = false; $wire.closeServiciosModal()" class="inline-flex w-full items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-gray-700 shadow-sm transition hover:bg-gray-50 sm:w-auto">Cancelar</button>
-                <button type="submit" wire:loading.attr="disabled" class="inline-flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-white sm:w-auto">
+                <button type="submit" wire:loading.attr="disabled" class="inline-flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto">
                     <span wire:loading.remove wire:target="saveServicios">Guardar</span>
                     <span wire:loading wire:target="saveServicios">Guardando...</span>
                 </button>
