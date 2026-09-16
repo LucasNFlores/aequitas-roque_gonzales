@@ -1,43 +1,81 @@
 sequenceDiagram
-    actor Secretario
-    participant Sistema as Sistema (Controller)
+    autonumber
+    actor Operador as Secretario / Administrador
+    participant Sistema as TurnoController
+    participant Policy as TurnoPolicy
+    participant Request as StoreTurnoRequest
     participant Cliente as Cliente (Model)
-    participant User as User/Profesional (Model)
+    participant User as User (Model)
+    participant Proceso as Proceso (Model)
     participant Turno as Turno (Model)
     participant Notificacion as Notificacion (Model)
 
-    Secretario->>Sistema: buscarClientePorDni(dni)
-    Sistema->>Cliente: obtenerPorDni(dni)
-    Cliente-->>Sistema: cliente o null
+    Note over Operador,Sistema: CU 4 registra una cita interna entre un cliente y un profesional o coordinador.
+
+    Operador->>Sistema: ingresarDniONombreCliente(criterio)
+    Sistema->>Cliente: buscarClienteActivo(criterio)
+    Cliente-->>Sistema: cliente o sin resultados
 
     alt Cliente no encontrado
-        Sistema-->>Secretario: errorClienteNoExiste()
+        Sistema-->>Operador: informarClienteNoExiste()
+    else Cliente encontrado
+        Sistema-->>Operador: mostrarDatosCliente(cliente)
+
+        Operador->>Sistema: seleccionarProfesionalOCoordinador(usuarioId)
+        Sistema->>User: consultarUsuarioActivo(usuarioId)
+        User-->>Sistema: usuario seleccionado
+        Sistema-->>Operador: mostrarDatosProfesionalOCoordinador(usuario)
+
+        Operador->>Sistema: ingresarFechaHora(fechaHora)
+        Operador->>Sistema: confirmarTurno(clienteId, usuarioId, fechaHora)
+        Sistema->>Policy: authorize(create, Turno::class)
+        Policy->>Policy: user.canAny(permisosDeAgendamiento)
+        Policy-->>Sistema: permitido o denegado
+
+        alt Operador sin permiso
+            Sistema-->>Operador: errorSinPermiso()
+        else Operador autorizado
+            Sistema->>Request: validarDatosTurnoInterno()
+            Request->>Cliente: exists(cliente_id) y no eliminado
+            Cliente-->>Request: válido o error
+            Request->>User: exists(profesional_id) y no eliminado
+            User-->>Request: válido o error
+            Request->>User: verificarRolProfesional(profesional_id)
+            User-->>Request: rol Profesional o error
+            Request->>Request: verificar tipo=consulta_inicial y es_externo=false
+
+            opt Proceso informado
+                Request->>Proceso: verificar cliente y profesional relacionados
+                Proceso-->>Request: relación válida o error
+            end
+
+            Request-->>Sistema: datos válidos o errores
+
+            alt Datos inválidos
+                Sistema-->>Operador: mostrarErroresDeValidacion()
+            else Datos válidos
+                Sistema->>Turno: verificarDisponibilidad(usuarioId, fechaHora)
+                Turno-->>Sistema: disponible o ocupado
+
+                alt Horario ocupado
+                    Sistema-->>Operador: solicitarNuevaFecha()
+                else Horario disponible
+                    Sistema->>Turno: crear(cliente_id, profesional_id, proceso_id opcional, fecha_hora, tipo=consulta_inicial, es_externo=false)
+                    Turno-->>Sistema: turno registrado
+
+                    par Notificar al profesional o coordinador
+                        Sistema->>Notificacion: registrarDestinatarioUsuario(usuarioId, mensaje)
+                        Notificacion-->>Sistema: notificación registrada
+                    and Notificar al cliente
+                        Sistema->>Notificacion: registrarDestinatarioCliente(clienteId, mensaje)
+                        Notificacion-->>Sistema: notificación registrada
+                    end
+
+                    Sistema-->>Operador: turnoRegistradoConExito(turno)
+                end
+            end
+        end
     end
 
-    Sistema-->>Secretario: mostrarDatosCliente(cliente)
-
-    Secretario->>Sistema: seleccionarProfesional(profesionalId)
-    Sistema->>User: obtenerConServicios(profesionalId)
-    User-->>Sistema: profesional con servicios
-    Sistema-->>Secretario: mostrarDatosProfesional(profesional)
-
-    Secretario->>Sistema: ingresarFechaHora(fechaHora)
-    Sistema->>Turno: existeTurnoEnHorario(profesionalId, fechaHora)
-    Turno-->>Sistema: true / false
-
-    alt Profesional no disponible
-        Sistema-->>Secretario: solicitarNuevaFecha(mensaje)
-    else Profesional disponible
-        Secretario->>Sistema: confirmarTurno(clienteId, profesionalId, fechaHora)
-
-        Sistema->>Turno: crearTurnoInterno(clienteId, profesionalId, fechaHora)
-        Turno-->>Sistema: turno creado
-
-        Sistema->>Notificacion: enviarNotificacionProfesional(profesionalId, mensaje)
-        Notificacion-->>Sistema: notificacion registrada
-
-        Sistema->>Notificacion: enviarNotificacionCliente(clienteId, mensaje)
-        Notificacion-->>Sistema: notificacion registrada
-
-        Sistema-->>Secretario: turnoRegistradoConExito(turno)
-    end
+    Note over User,Request: Diferencia detectada: Drive admite profesional o coordinador&#59; StoreTurnoRequest actual solo acepta un usuario con rol Profesional.
+    Note over Turno,Notificacion: La disponibilidad, la persistencia del turno y el envío de notificaciones son parte del CU, pero aún no tienen flujo ejecutable en TurnoController::store().
