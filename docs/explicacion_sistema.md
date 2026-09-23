@@ -27,7 +27,7 @@ La asociación de servicios/especialidades es N:M vía tabla intermedia `user_se
 
 ### Cliente
 
-Persona cuyos datos se administran en el sistema. Su alta crea un proceso inicial de Consultoría y un turno inicial con el Coordinador.
+Persona cuyos datos se administran en el sistema. Su alta crea un proceso inicial de Consultoría y un turno inicial con el Coordinador. Para un cliente ya registrado, Secretario o Administrador pueden crear un proceso adicional sin registrar otro cliente ni generar un turno inicial.
 
 > **Implementación CRUD:** ver `docs/crud-clientes.md` para detalle de modelo `Cliente`, migración reversible, factory/seeder, requests `StoreClienteRequest`/`UpdateClienteRequest`, policy `ClientePolicy` (Administrador/Secretario), controller resource, rutas `clientes.*`, vistas Blade `resources/views/clientes/*` y pruebas `ClienteTest`. Cumple estándar `crud` mínimo; interfaz Blade + Tailwind responsive, extensible a Livewire/Alpine.
 
@@ -40,6 +40,8 @@ Persona cuyos datos se administran en el sistema. Su alta crea un proceso inicia
 Caso asociado a un cliente y un servicio. Conserva coordinador, profesional, fechas, tipo, descripción, honorarios, estado y motivo de rechazo.
 
 El estado se resuelve desde un catálogo configurable y cada transición queda registrada con estado anterior, estado nuevo, fecha, usuario y motivo.
+
+El proceso adicional se crea para un cliente existente mediante CU 38; conserva el flujo de admisión y no agenda un turno de forma automática.
 
 ### Turno
 
@@ -66,17 +68,19 @@ Registro de una comunicación interna o externa. Los canales externos son correo
 1. El Secretario o Administrador registra al cliente.
 2. El sistema crea un proceso de Consultoría en estado `pendiente`.
 3. El sistema crea un turno inicial con el Coordinador.
-4. El Coordinador admite o rechaza el proceso y registra el motivo si corresponde.
-5. Secretario, Coordinador o Administrador asignan un profesional compatible.
-6. Se solicitan y cargan los documentos necesarios.
-7. Se agendan turnos de seguimiento.
-8. El Profesional actualiza estados y registra reportes.
-9. Se cargan comprobantes de pago y se envían notificaciones.
-10. Los cambios sensibles quedan auditados.
+4. Para un cliente existente, Secretario o Administrador pueden crear un proceso adicional sin duplicar al cliente ni crear un turno automático.
+5. El Coordinador admite o rechaza el proceso y registra el motivo si corresponde.
+6. Secretario, Coordinador o Administrador asignan un profesional compatible.
+7. Se solicitan y cargan los documentos necesarios.
+8. Se agendan turnos de seguimiento.
+9. El Profesional actualiza estados y registra reportes.
+10. Se cargan comprobantes de pago y se envían notificaciones.
+11. Los cambios sensibles quedan auditados.
 
 ## Reglas de permisos
 
 - Solo Secretario y Administrador pueden crear, modificar y cancelar turnos.
+- Secretario y Administrador pueden crear un proceso adicional para un cliente existente (CU 38), sin generar un turno automático.
 - Profesional, Coordinador, Directivo y Administrador pueden consultar el legajo según su alcance.
 - Solo el Profesional asignado, Coordinador y Administrador pueden descargar documentación.
 - El Profesional solo opera sobre procesos que tiene asignados.

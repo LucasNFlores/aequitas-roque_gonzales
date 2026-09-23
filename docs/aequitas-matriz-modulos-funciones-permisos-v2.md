@@ -4,8 +4,8 @@
 
 - **Fuente de verdad:** Google Sheets.
 - **Pestaña:** Aequitas - Matriz de Módulos, Funciones y Permisos por Rol V2.
-- **Última sincronización local:** 2026-09-07.
-- **Casos de uso:** 40.
+- **Última sincronización local:** 2026-09-23.
+- **Casos de uso:** 41.
 - **Roles:** Secretario, Profesional, Coordinador, Directivo y Administrador.
 - **Convención:** Sí indica autorización explícita en la matriz; No indica que el rol no está autorizado. El Administrador es superadministrador y queda autorizado en todos los casos de uso.
 
@@ -39,6 +39,7 @@
 | Gestión de Procesos / Admisión | CU 20 | Actualizar Estado de Proceso | No | Sí | Sí | No | Sí | Actualiza estados dentro del proceso autorizado |
 | Gestión de Procesos / Admisión | CU 29 | Listar y Filtrar Procesos | Sí | Sí | Sí | Sí | Sí | Bandeja filtrable por estado, cliente o profesional asignado |
 | Gestión de Procesos / Admisión | CU 30 | Consultar Historial de Estados del Proceso | Sí | Sí | Sí | Sí | Sí | Auditoría de cambios, fechas, motivos y usuario interviniente |
+| Gestión de Procesos / Admisión | CU 38 | Crear Proceso Adicional | Sí | No | No | No | Sí | Permite crear un nuevo proceso para un cliente existente; no registra un cliente ni genera un turno inicial. |
 | Seguimiento y Reportes | CU 21 | Registrar Reporte | No | Sí | No | No | Sí | Reporte creado por el profesional asignado |
 | Seguimiento y Reportes | CU 22 | Editar Reporte | No | Sí | No | No | Sí | Solo el autor o Administrador; conserva historial |
 | Seguimiento y Reportes | CU 23 | Eliminar Reporte | No | Sí | No | No | Sí | Baja lógica por el autor o Administrador; conserva auditoría |

@@ -32,13 +32,14 @@ El cliente se registra como dato administrativo. No inicia sesión, no tiene cre
 1. El Secretario o Administrador registra al cliente.
 2. El sistema crea automáticamente un proceso de Consultoría en estado `pendiente`.
 3. El sistema crea un turno inicial con el Coordinador.
-4. El Coordinador admite o rechaza el proceso y registra el motivo si corresponde.
-5. Secretario, Coordinador o Administrador asignan o reasignan el profesional según servicio o especialidad.
-6. Se cargan los documentos necesarios en el legajo.
-7. Se agendan turnos de seguimiento.
-8. El Profesional actualiza el estado y registra reportes.
-9. Se cargan comprobantes PDF descargados desde ARCA.
-10. El sistema registra y envía notificaciones según el evento y el destinatario.
+4. Para un cliente ya registrado, Secretario o Administrador pueden crear un proceso adicional sin registrar otro cliente ni generar un turno inicial.
+5. El Coordinador admite o rechaza el proceso y registra el motivo si corresponde.
+6. Secretario, Coordinador o Administrador asignan o reasignan el profesional según servicio o especialidad.
+7. Se cargan los documentos necesarios en el legajo.
+8. Se agendan turnos de seguimiento.
+9. El Profesional actualiza el estado y registra reportes.
+10. Se cargan comprobantes PDF descargados desde ARCA.
+11. El sistema registra y envía notificaciones según el evento y el destinatario.
 
 ## 4. Requisitos funcionales
 
@@ -70,6 +71,7 @@ El cliente se registra como dato administrativo. No inicia sesión, no tiene cre
 | CU 28 | Gestión de Clientes | Listar y Filtrar Clientes | Secretario, Coordinador, Directivo |
 | CU 29 | Gestión de Procesos / Admisión | Listar y Filtrar Procesos | Secretario, Profesional, Coordinador, Directivo |
 | CU 30 | Gestión de Procesos / Admisión | Consultar Historial de Estados | Secretario, Profesional, Coordinador, Directivo |
+| CU 38 | Gestión de Procesos / Admisión | Crear Proceso Adicional | Secretario |
 | CU 21 | Seguimiento y Reportes | Registrar Reporte | Profesional asignado |
 | CU 22 | Seguimiento y Reportes | Editar Reporte | Profesional autor |
 | CU 23 | Seguimiento y Reportes | Eliminar Reporte | Profesional autor |
@@ -92,6 +94,7 @@ El Administrador está autorizado en todos los casos de uso, por su carácter de
 ### Clientes y procesos
 
 - El alta de cliente debe crear el proceso inicial de Consultoría y el turno inicial con el Coordinador.
+- Secretario y Administrador pueden crear un proceso adicional para un cliente ya registrado. Este flujo no crea otro cliente ni un turno automático; la agenda se gestiona mediante los casos de uso de turnos.
 - Los listados deben admitir búsqueda, filtros por estado, cliente y profesional, y paginación.
 - La asignación o reasignación puede actualizar el profesional, servicio y honorarios.
 - El historial de estados conserva estado anterior, estado nuevo, fecha, usuario y motivo.

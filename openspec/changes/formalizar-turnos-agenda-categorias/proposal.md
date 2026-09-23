@@ -10,7 +10,7 @@ Definir un plan de implementación verificable para los flujos de turnos, dispon
 - **Especificación vigente:** `openspec/specs/gestion-juridica/spec.md`.
 - **Documentación ampliada:** `docs/transcripcion_de_docs.md` y `docs/explicacion_sistema.md`.
 
-La matriz contiene 40 casos de uso y cinco roles. El Administrador es superadministrador.
+La matriz contiene 41 casos de uso y cinco roles. El Administrador es superadministrador.
 
 ## Problema
 
