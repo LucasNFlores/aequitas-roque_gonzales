@@ -19,6 +19,7 @@ class Turno extends Model
     protected $fillable = [
         'cliente_id',
         'profesional_id',
+        'coordinador_id',
         'proceso_id',
         'fecha_hora',
         'es_externo',
@@ -55,6 +56,11 @@ class Turno extends Model
     public function profesional(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function coordinador(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'coordinador_id');
     }
 
     public function proceso(): BelongsTo

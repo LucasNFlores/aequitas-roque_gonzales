@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Notificacion extends Model
 {
-    public const CANALES = ['email', 'whatsapp'];
+    public const CANALES = ['interno', 'email', 'whatsapp'];
 
     public const ESTADOS = ['enviado', 'fallido'];
 

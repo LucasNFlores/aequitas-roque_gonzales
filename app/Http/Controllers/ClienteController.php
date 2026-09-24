@@ -2,15 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\RegistrarClienteInicial;
 use App\Http\Requests\StoreClienteRequest;
 use App\Http\Requests\UpdateClienteRequest;
 use App\Models\Cliente;
+use DomainException;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class ClienteController extends Controller
 {
+    public function __construct(private readonly RegistrarClienteInicial $registrarClienteInicial) {}
+
     public function index(): View
     {
         $this->authorize('viewAny', Cliente::class);
@@ -32,7 +36,11 @@ class ClienteController extends Controller
         $this->authorize('create', Cliente::class);
 
         try {
-            Cliente::create($request->validated());
+            $this->registrarClienteInicial->handle($request->validated());
+        } catch (DomainException $exception) {
+            return back()
+                ->withInput()
+                ->withErrors(['fecha_hora_inicial' => $exception->getMessage()]);
         } catch (UniqueConstraintViolationException $exception) {
             $message = strtolower($exception->getMessage());
             $field = str_contains($message, 'correo') ? 'correo' : 'dni';

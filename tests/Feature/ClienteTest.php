@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Cliente;
+use App\Models\Servicio;
 use App\Models\User;
 use Database\Seeders\ClienteSeeder;
 use Database\Seeders\RoleSeeder;
@@ -24,7 +25,16 @@ class ClienteTest extends TestCase
             'correo' => 'juan.perez@example.com',
             'domicilio' => 'Av. Corrientes 1234',
             'fecha_nacimiento' => '1990-05-15',
+            'fecha_hora_inicial' => '2030-05-20 10:30:00',
         ], $overrides);
+    }
+
+    private function configureInitialRegistration(): void
+    {
+        Servicio::factory()->create(['nombre' => 'Consulta legal inicial']);
+
+        $coordinador = User::factory()->create();
+        $coordinador->assignRole('Coordinador');
     }
 
     public function test_administrador_can_crud_cliente(): void
@@ -32,6 +42,7 @@ class ClienteTest extends TestCase
         $this->seed(RoleSeeder::class);
         $admin = User::factory()->create();
         $admin->assignRole('Administrador');
+        $this->configureInitialRegistration();
 
         // index
         $this->actingAs($admin)->get(route('clientes.index'))->assertOk();
@@ -58,6 +69,7 @@ class ClienteTest extends TestCase
         $this->assertDatabaseHas('clientes', ['id' => $cliente->id, 'nombre' => 'Juan Carlos']);
 
         // destroy (soft delete)
+        $cliente->procesos()->firstOrFail()->update(['estado' => 'finalizado']);
         $this->actingAs($admin)->delete(route('clientes.destroy', $cliente))
             ->assertRedirect(route('clientes.index'));
         $this->assertSoftDeleted('clientes', ['id' => $cliente->id]);
@@ -68,6 +80,7 @@ class ClienteTest extends TestCase
         $this->seed(RoleSeeder::class);
         $secretario = User::factory()->create();
         $secretario->assignRole('Secretario');
+        $this->configureInitialRegistration();
 
         $this->actingAs($secretario)->get(route('clientes.index'))->assertOk();
         $this->actingAs($secretario)->get(route('clientes.create'))
@@ -82,6 +95,7 @@ class ClienteTest extends TestCase
             ->assertRedirect(route('clientes.index'));
         $this->assertDatabaseHas('clientes', ['id' => $cliente->id, 'nombre' => 'Actualizado']);
 
+        $cliente->procesos()->firstOrFail()->update(['estado' => 'finalizado']);
         $this->actingAs($secretario)->delete(route('clientes.destroy', $cliente))->assertRedirect(route('clientes.index'));
         $this->assertSoftDeleted('clientes', ['id' => $cliente->id]);
     }

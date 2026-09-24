@@ -66,6 +66,11 @@ class User extends Authenticatable implements Auditable
         return $this->hasMany(Turno::class);
     }
 
+    public function turnosComoCoordinador(): HasMany
+    {
+        return $this->hasMany(Turno::class, 'coordinador_id');
+    }
+
     public function reportes(): HasMany
     {
         return $this->hasMany(Reporte::class);

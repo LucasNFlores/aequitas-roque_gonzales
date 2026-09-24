@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Permitir registrar, consultar, editar y dar de baja lógica a clientes. El acceso completo está habilitado para los roles **Administrador** (superadministrador vía `Gate::before`) y **Secretario**. Cumple el estándar mínimo del commit `crud` (modelo, migración, factory/seeder, requests, policy, controller resource, vistas Blade, rutas protegidas y pruebas).
+Permitir registrar, consultar, editar y dar de baja lógica a clientes. El acceso completo está habilitado para los roles **Administrador** (superadministrador vía `Gate::before`) y **Secretario**. Al registrar un cliente se crea de forma atómica el proceso inicial, el turno con el Coordinador y la notificación interna. Cumple el estándar mínimo del commit `crud` (modelo, migración, factory/seeder, requests, policy, controller resource, vistas Blade, rutas protegidas y pruebas).
 
 ## Componentes implementados
 
@@ -46,7 +46,7 @@ Reversible: `php artisan migrate` / `php artisan migrate:rollback --step=1 && ph
 
 **Store** `app/Http/Requests/StoreClienteRequest.php:10`
 * `authorize(): $this->user()?->can('registrar_clientes')`
-* `rules: nombre required|string|max:255, apellido required, dni required|string|max:20|unique:clientes,dni, telefono required, correo required|email|unique:clientes,correo, domicilio required, fecha_nacimiento required|date|before:today|after:1900-01-01`
+* `rules: nombre required|string|max:255, apellido required, dni required|string|max:20|unique:clientes,dni, telefono required, correo required|email|unique:clientes,correo, domicilio required, fecha_nacimiento required|date|before:today|after:1900-01-01, fecha_hora_inicial required|date`
 
 **Update** `app/Http/Requests/UpdateClienteRequest.php:10`
 * `authorize(): can('modificar_clientes')`
@@ -69,7 +69,7 @@ delete/restore  -> can('eliminar_clientes')
 
 * `index(): authorize viewAny, Cliente::latest()->paginate(10) -> view('clientes.index')`
 * `create(): authorize create -> view('clientes.create')`
-* `store(StoreClienteRequest): authorize create, Cliente::create($validated) -> redirect clientes.index with('success')`
+* `store(StoreClienteRequest): authorize create, RegistrarClienteInicial -> transacción cliente + proceso pendiente + turno inicial + notificación interna -> redirect clientes.index with('success')`
 * `show(Cliente): authorize view -> view('clientes.show')`
 * `edit(Cliente): authorize update -> view('clientes.edit')`
 * `update(UpdateClienteRequest, Cliente): authorize update, $cliente->update($validated)`
@@ -89,7 +89,7 @@ Protegidas por `auth` (guest → `302` a `/login`) + `ClientePolicy` en controll
 
 Carpeta `resources/views/clientes/`:
 
-* `_form.blade.php` - parcial compartido `action, $cliente?, $submitLabel`. Campos `nombre, apellido, dni, telefono, correo (type email), domicilio, fecha_nacimiento (type date, format Y-m-d)`, `@csrf`, `@method('PUT')` si edición, `x-forms.input-label/text-input/error`, `x-buttons.primary-button` y `old()`.
+* `_form.blade.php` - parcial compartido `action, $cliente?, $submitLabel`. Campos `nombre, apellido, dni, telefono, correo (type email), domicilio, fecha_nacimiento (type date, format Y-m-d)` y, solo en alta, `fecha_hora_inicial` (datetime-local). Incluye `@csrf`, `@method('PUT')` si edición, `x-forms.input-label/text-input/error`, `x-buttons.primary-button` y `old()`.
 * `create.blade.php` - `<x-app-layout>` + `@include('clientes._form', ['action' => route('clientes.store'), 'submitLabel' => 'Crear Cliente'])`
 * `edit.blade.php` - similar con `route('clientes.update', $cliente)`
 * `show.blade.php` - detalle en grid 2 cols, `format('d/m/Y')` para fecha, botones `Editar` y `Volver`
@@ -104,7 +104,7 @@ Navegación `resources/views/layouts/navigation.blade.php:28`:
 
 ### 7. Pruebas
 
-`tests/Feature/ClienteTest.php` - 6 tests, 48 assertions, usa `RefreshDatabase` + `sqlite :memory:` (`phpunit.xml:26`):
+`tests/Feature/ClienteTest.php` - 6 pruebas de CRUD, usa `RefreshDatabase` + `sqlite :memory:` (`phpunit.xml:26`).
 
 * `test_administrador_can_crud_cliente` - index, create, store, show, edit, update, destroy + `assertSoftDeleted`
 * `test_secretario_can_crud_cliente` - idem con rol Secretario
@@ -113,9 +113,12 @@ Navegación `resources/views/layouts/navigation.blade.php:28`:
 * `test_factory_and_seeder_create_data` - `Cliente::factory()->create()` + `ClienteSeeder`
 * `test_migration_is_reversible` - `Schema::hasTable('clientes')` + rollback/re-migrate
 
+`tests/Feature/ClienteInitialProcessTest.php` cubre la creación de cliente, proceso `pendiente`, turno inicial y notificación interna; autorización de Secretario/Administrador, validación de fecha/hora, duplicados y reversión cuando falta el Coordinador o el servicio inicial.
+
 Ejecución:
 ```bash
-php artisan test --filter=ClienteTest
+php artisan test --compact tests/Feature/ClienteTest.php
+php artisan test --compact tests/Feature/ClienteInitialProcessTest.php
 php artisan test # 40 passed (con tests/TestCase.php:11 withoutVite)
 ```
 
@@ -125,8 +128,8 @@ Correcciones auxiliares: `tests/TestCase.php:11` agrega `withoutVite()` para evi
 
 ```
 Usuario (Administrador/Secretario) -> GET /clientes (auth + viewAny) -> ClienteController@index -> Cliente::latest()->paginate(10) -> clientes.index
-  -> Click Nuevo Cliente -> GET /clientes/create (can create) -> _form
-  -> POST /clientes (StoreClienteRequest authorize + validate) -> Cliente::create -> redirect index with success
+  -> Click Nuevo Cliente -> GET /clientes/create (can create) -> _form con fecha y hora inicial
+  -> POST /clientes (StoreClienteRequest authorize + validate) -> transacción: cliente + proceso pendiente + turno con Coordinador + notificación interna -> redirect index with success
   -> Click Ver -> GET /clientes/{id} (can view) -> show
   -> Click Editar -> GET /clientes/{id}/edit (can update) -> _form con old()
   -> PUT /clientes/{id} (UpdateClienteRequest) -> update -> redirect

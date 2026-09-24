@@ -21,6 +21,7 @@ class StoreClienteRequest extends FormRequest
             'correo' => ['required', 'email', 'max:255', 'unique:clientes,correo'],
             'domicilio' => ['required', 'string', 'max:255'],
             'fecha_nacimiento' => ['required', 'date', 'before:today', 'after:1900-01-01'],
+            'fecha_hora_inicial' => ['required', 'date'],
         ];
     }
 
@@ -29,6 +30,7 @@ class StoreClienteRequest extends FormRequest
         return [
             'dni.unique' => 'Ya existe un cliente registrado con este DNI. Verificá el número o buscá al cliente existente.',
             'correo.unique' => 'Ya existe un cliente registrado con este correo electrónico.',
+            'fecha_hora_inicial.required' => 'La fecha y hora del turno inicial es obligatoria.',
         ];
     }
 }
