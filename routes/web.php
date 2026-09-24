@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\UserController;
+use App\Models\Proceso;
 use Illuminate\Support\Facades\Route;
 
 // -----------------------------------------------------------------------------
@@ -85,6 +87,29 @@ Route::middleware(['auth', 'permission:gestionar_estados_proceso'])->group(funct
 
 Route::middleware(['auth', 'permission:gestionar_categorias_documentos'])->group(function () {
     Route::get('/categorias', fn () => view('categorias.index'))->name('categorias.index');
+});
+
+// -----------------------------------------------------------------------------
+// MÓDULO DOCUMENTAL — ruta anidada por proceso (CU9-12, CU19, CU37)
+// -----------------------------------------------------------------------------
+Route::middleware(['auth', 'permission:visualizar_documentacion'])->group(function () {
+    Route::get('/procesos/{proceso}/documentos', fn (Proceso $proceso) => view('documentos.index', compact('proceso')))->name('procesos.documentos.index');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::post('/procesos/{proceso}/documentos', [DocumentoController::class, 'store'])
+        ->middleware('permission:cargar_documentacion')
+        ->name('procesos.documentos.store');
+    Route::put('/procesos/{proceso}/documentos/{documento}', [DocumentoController::class, 'update'])
+        ->middleware('permission:reemplazar_documentacion')
+        ->name('procesos.documentos.update');
+    Route::delete('/procesos/{proceso}/documentos/{documento}', [DocumentoController::class, 'destroy'])
+        ->middleware('permission:eliminar_documentacion')
+        ->name('procesos.documentos.destroy');
+    Route::get('/procesos/{proceso}/documentos/{documento}/descargar', [DocumentoController::class, 'download'])
+        ->name('procesos.documentos.download');
+    Route::get('/procesos/{proceso}/documentos/{documento}', [DocumentoController::class, 'show'])
+        ->name('procesos.documentos.show');
 });
 
 Route::middleware(['auth'])->group(function () {

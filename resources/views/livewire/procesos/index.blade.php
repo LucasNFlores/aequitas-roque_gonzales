@@ -95,6 +95,11 @@
                                     Cambiar estado
                                 </button>
                             @endcan
+                            @can('visualizar_documentacion')
+                                <a href="{{ route('procesos.documentos.index', $proceso) }}" class="mt-2 block w-full rounded-md bg-white px-3 py-2 text-center font-medium text-gray-700 ring-1 ring-gray-200 transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                    Documentación
+                                </a>
+                            @endcan
                         </td>
                     </tr>
                 @empty
