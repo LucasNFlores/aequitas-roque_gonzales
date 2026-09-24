@@ -83,6 +83,10 @@ Route::middleware(['auth', 'permission:gestionar_estados_proceso'])->group(funct
     Route::get('/estados-proceso', fn () => view('estados-proceso.index'))->name('estados-proceso.index');
 });
 
+Route::middleware(['auth', 'permission:gestionar_categorias_documentos'])->group(function () {
+    Route::get('/categorias', fn () => view('categorias.index'))->name('categorias.index');
+});
+
 Route::middleware(['auth'])->group(function () {
     Route::resource('clientes', ClienteController::class);
 });

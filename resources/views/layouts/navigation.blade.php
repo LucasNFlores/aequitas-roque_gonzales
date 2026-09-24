@@ -114,6 +114,15 @@
                         </x-navigation.nav-link>
                     @endcan
 
+                    @can('gestionar_categorias_documentos')
+                        <x-navigation.nav-link :href="route('categorias.index')" :active="request()->routeIs('categorias.*')">
+                            <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3.75 6H7l1.5 2h8L18 6h2.25A1.5 1.5 0 0 1 21.75 7.5V18a1.5 1.5 0 0 1-1.5 1.5H3.75A1.5 1.5 0 0 1 2.25 18V7.5A1.5 1.5 0 0 1 3.75 6Z" />
+                            </svg>
+                            <span>{{ __('Categorías') }}</span>
+                        </x-navigation.nav-link>
+                    @endcan
+
                     <x-navigation.nav-link :href="route('tutorial')" :active="request()->routeIs('tutorial')">
                         <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5v-16ZM4 5.5v16M8 7h8m-8 4h8" />

@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\CategoriaDocumento;
 use App\Models\Proceso;
 use App\Models\Documento;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -20,6 +21,7 @@ class DocumentoFactory extends Factory
     {
         return [
             'proceso_id' => Proceso::factory(),
+            'categoria_id' => CategoriaDocumento::factory(),
             'archivo_path' => 'documentos/'.fake()->uuid().'.pdf',
             'tipo_documento' => fake()->randomElement(['demanda', 'poder', 'prueba']),
             'nombre' => fake()->sentence(3),
