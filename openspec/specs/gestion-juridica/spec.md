@@ -16,6 +16,7 @@ La matriz online **“Aequitas - Matriz de Módulos, Funciones y Permisos por Ro
 
 - El sistema debe permitir registrar, modificar y dar de baja lógicamente clientes.
 - Al registrar un cliente debe crear un proceso inicial de Consultoría en estado `pendiente` y un turno inicial con el Coordinador.
+- Secretario y Administrador deben poder crear un proceso adicional para un cliente ya registrado, sin crear otro cliente ni un turno inicial automáticamente.
 - El proceso debe conservar cliente, servicio, coordinador, profesional, fechas, tipo, descripción, honorarios y motivo de rechazo.
 - El Coordinador debe poder admitir o rechazar el proceso y registrar el motivo de rechazo.
 - Secretario, Coordinador y Administrador deben poder asignar o reasignar profesionales según servicio o especialidad.
@@ -96,4 +97,4 @@ La matriz online **“Aequitas - Matriz de Módulos, Funciones y Permisos por Ro
 
 ## Criterio de completitud
 
-La aplicación se considerará alineada cuando los 40 casos de uso de la matriz puedan ejecutarse desde la interfaz con autorización por rol, alcance del Profesional, persistencia consistente, estados y categorías configurables, archivos validados, conservación histórica, notificaciones y pruebas automatizadas de los casos principales.
+La aplicación se considerará alineada cuando los 41 casos de uso de la matriz puedan ejecutarse desde la interfaz con autorización por rol, alcance del Profesional, persistencia consistente, estados y categorías configurables, archivos validados, conservación histórica, notificaciones y pruebas automatizadas de los casos principales.

@@ -8,7 +8,7 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                
+
                 @if(session('success'))
                     <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
                         <span class="block sm:inline">{{ session('success') }}</span>
@@ -25,13 +25,13 @@
                         @foreach($roles as $role)
                             @if(auth()->user()->hasRole('Administrador') || $role->name !== 'Administrador')
                             <div class="flex items-center">
-                                <input class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 h-5 w-5" 
-                                       type="checkbox" 
-                                       name="roles[]" 
-                                       value="{{ $role->name }}" 
+                                <input class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 h-5 w-5"
+                                       type="checkbox"
+                                       name="roles[]"
+                                       value="{{ $role->name }}"
                                        id="role_{{ $role->id }}"
                                        {{ $user->hasRole($role->name) ? 'checked' : '' }}>
-                                       
+
                                 <label class="ml-3 text-gray-700 font-medium" for="role_{{ $role->id }}">
                                     {{ $role->name }}
                                 </label>
@@ -44,7 +44,7 @@
                         <x-buttons.primary-button>
                             Guardar Cambios
                         </x-buttons.primary-button>
-                        
+
                         <a href="{{ route('users.index') }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
                             Cancelar
                         </a>

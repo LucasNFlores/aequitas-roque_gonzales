@@ -50,7 +50,7 @@
 ## Calidad y entrega
 
 - [x] Incorporar Laravel Pint al flujo de desarrollo para formatear los archivos PHP modificados antes de cada commit.
-- [ ] Verificar los 40 casos de uso contra la matriz online.
+- [ ] Verificar los 41 casos de uso contra la matriz online.
 - [ ] Probar restricciones de archivos y accesos no autorizados.
 - [ ] Probar conservación de historial, bajas lógicas y cancelaciones.
 - [ ] Probar el flujo completo desde el alta de cliente hasta el seguimiento profesional.
