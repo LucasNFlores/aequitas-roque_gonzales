@@ -29,6 +29,7 @@ class Documento extends Model
 
     protected $fillable = [
         'proceso_id',
+        'categoria_id',
         'archivo_path',
         'tipo_documento',
         'nombre',
@@ -37,5 +38,10 @@ class Documento extends Model
     public function proceso(): BelongsTo
     {
         return $this->belongsTo(Proceso::class);
+    }
+
+    public function categoria(): BelongsTo
+    {
+        return $this->belongsTo(CategoriaDocumento::class, 'categoria_id');
     }
 }
