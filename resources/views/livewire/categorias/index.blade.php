@@ -13,7 +13,7 @@
     <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
             <h3 class="text-lg font-medium text-gray-900">Categorías de documentos</h3>
-            <p class="mt-1 text-sm text-gray-500">Clasifican la documentación de los legajos. La baja es lógica: se conserva el historial.</p>
+            <p class="mt-1 text-sm text-gray-500">Clasifican la documentación de los legajos. La baja es lógica y se bloquea si la categoría está en uso.</p>
         </div>
         <button type="button" @click="formOpen = true" wire:click="createCategoria" class="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
             Nueva categoría
@@ -102,11 +102,12 @@
             <h2 class="text-lg font-semibold text-gray-900">Desactivar categoría</h2>
             <p class="mt-2 text-sm leading-6 text-gray-600">
                 @if($docsEnUso > 0)
-                    Tiene {{ $docsEnUso }} documentos históricos que se conservarán. Dejará de ofrecerse para nuevas cargas.
+                    No se puede desactivar: tiene {{ $docsEnUso }} documentos asociados. Reasigne esos documentos o conserve la categoría activa.
                 @else
                     Dejará de ofrecerse para nuevas cargas.
                 @endif
             </p>
+            @error('deactivate')<span class="mt-2 block text-sm text-red-600">{{ $message }}</span>@enderror
             <div class="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
                 <button type="button" @click="deactivateOpen = false; $wire.closeDeactivateModal()" class="inline-flex w-full items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-gray-700 sm:w-auto">Cancelar</button>
                 <button type="button" wire:click="deactivateCategoria" wire:loading.attr="disabled" class="inline-flex w-full items-center justify-center rounded-md bg-red-600 px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-white sm:w-auto">Desactivar</button>

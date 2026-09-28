@@ -43,7 +43,7 @@ class CategoriaDocumento extends Model
         return $query->orderBy('nombre');
     }
 
-    /** Para dropdown de cargas nuevas (CU9/CU13): solo activas. */
+    /** Para dropdown de cargas nuevas (CU9): solo activas. */
     public static function paraCargaNueva()
     {
         return static::activas()->ordenadas()->get();

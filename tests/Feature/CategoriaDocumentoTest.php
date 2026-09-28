@@ -87,7 +87,7 @@ class CategoriaDocumentoTest extends TestCase
         $this->assertEquals($categoria->id, $documento->fresh()->categoria_id);
     }
 
-    public function test_desactivar_en_uso_conserva_historial_y_oculta(): void
+    public function test_desactivar_en_uso_queda_bloqueada(): void
     {
         $user = $this->userWithRole('Coordinador');
         $categoria = CategoriaDocumento::factory()->create(['nombre' => 'Contrato']);
@@ -96,10 +96,24 @@ class CategoriaDocumentoTest extends TestCase
         Livewire::actingAs($user)->test(Index::class)
             ->call('confirmDeactivate', $categoria->id)
             ->call('deactivateCategoria')
+            ->assertHasErrors(['deactivate']);
+
+        $this->assertTrue($categoria->fresh()->activo);
+        $this->assertEquals($categoria->id, $documento->fresh()->categoria_id);
+        $this->assertTrue(CategoriaDocumento::paraCargaNueva()->pluck('id')->contains($categoria->id));
+    }
+
+    public function test_desactivar_sin_uso_oculta_de_cargas(): void
+    {
+        $user = $this->userWithRole('Coordinador');
+        $categoria = CategoriaDocumento::factory()->create(['nombre' => 'Temporal']);
+
+        Livewire::actingAs($user)->test(Index::class)
+            ->call('confirmDeactivate', $categoria->id)
+            ->call('deactivateCategoria')
             ->assertHasNoErrors();
 
         $this->assertFalse($categoria->fresh()->activo);
-        $this->assertEquals($categoria->id, $documento->fresh()->categoria_id);
         $this->assertFalse(CategoriaDocumento::paraCargaNueva()->pluck('id')->contains($categoria->id));
     }
 
@@ -123,6 +137,18 @@ class CategoriaDocumentoTest extends TestCase
         $nombres = CategoriaDocumento::paraCargaNueva()->pluck('nombre');
         $this->assertTrue($nombres->contains('A-activa'));
         $this->assertFalse($nombres->contains('B-inactiva'));
+    }
+
+    public function test_no_autorizado_denegado_en_livewire_directo(): void
+    {
+        // Secretario no tiene CU37: el mount deniega con 403 y nada persiste.
+        $user = $this->userWithRole('Secretario');
+        $categoria = CategoriaDocumento::factory()->create(['nombre' => 'Reservada']);
+
+        Livewire::actingAs($user)->test(Index::class)->assertForbidden();
+
+        $this->assertTrue($categoria->fresh()->activo);
+        $this->assertFalse(CategoriaDocumento::query()->where('nombre', 'Intento')->exists());
     }
 
     public function test_no_autorizado_no_puede_gestionar_por_ruta(): void
