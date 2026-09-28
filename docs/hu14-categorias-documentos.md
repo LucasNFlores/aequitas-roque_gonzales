@@ -10,7 +10,7 @@ Fuente funcional: `C:\Users\Owner\Desktop\ESTUDIO\analisis y diseño\hu14\HU14.p
 
 - CRUD de categorías/tipos documentales con `nombre` único case-insensitive + `descripcion` opcional + `activo`.
 - `documentos.categoria_id` FK `RESTRICT` (bloquea borrado físico, conserva historial).
-- Nuevas cargas (CU9/CU13 vía `Store/UpdateDocumentoRequest`) exigen `categoria_id` de categoría **activa**.
+- Nuevas cargas (CU9 vía `Store/UpdateDocumentoRequest`) exigen `categoria_id` de categoría **activa**. CU13 (`ComprobantePago`) queda fuera del alcance de HU-14.
 - Categoría inactiva: no se ofrece en `paraCargaNueva()`, documentos históricos la conservan y se muestran readonly.
 - Permiso Spatie existente `gestionar_categorias_documentos` (Coordinador + Administrador full, ver `database/seeders/RoleSeeder.php`). Secretario, Profesional y Directivo reciben 403 en ruta y Livewire.
 - Sin ruta `DELETE`: borrado físico prohibido por diseño.
@@ -23,7 +23,7 @@ Fuente funcional: `C:\Users\Owner\Desktop\ESTUDIO\analisis y diseño\hu14\HU14.p
 * `table = 'categorias_documento'`, `fillable = ['nombre','descripcion','activo']`, `casts activo => boolean`
 * Mutator `setNombreAttribute`: `trim()` + colapsar espacios múltiples (RN1)
 * Relaciones `hasMany documentos`
-* Scopes `activas()`, `ordenadas()` y `paraCargaNueva()` (solo activas ordenadas, usada en dropdowns CU9/CU13)
+* Scopes `activas()`, `ordenadas()` y `paraCargaNueva()` (solo activas ordenadas, usada en dropdown CU9)
 * `enUso()`: `documentos()->exists()` para aviso en UI
 
 **Migración** `database/migrations/2026_09_21_000005_create_categorias_documento_table.php`
@@ -64,7 +64,7 @@ Nullable para no romper históricos; nuevas cargas la exigen por validación. Re
 * `rules`: `nombre required|min:3|max:100|unique`, `descripcion nullable|max:255`; mensajes accionables ES ("El nombre es obligatorio", "Ya existe una categoría con ese nombre. Use otro nombre o reactive la existente.")
 * Normalización previa: trim + colapsar espacios; chequeo extra case-insensitive con `whereRaw('LOWER(nombre) = ?')` para que SQLite (tests) se comporte como MySQL `unicode_ci`
 * `saveCategoria()`: create con `activo=true` / update sin cambiar `id` (asociaciones intactas)
-* `confirmDeactivate/deactivateCategoria()`: baja lógica siempre permitida aun en uso, mensaje con conteo de docs históricos
+* `confirmDeactivate/deactivateCategoria()`: baja lógica bloqueada si la categoría está en uso (`enUso()`), según spec; mensaje con conteo de docs asociados
 * `activateCategoria()`: reactivación
 * Filtros `search` (live) + `filtro` todas/activas/inactivas; `withCount('documentos')`
 
@@ -74,7 +74,7 @@ viewAny / create / update / activate / deactivate -> can('gestionar_categorias_d
 ```
 `Gate::before` en `AppServiceProvider` ya contempla `activate/deactivate` como abilities de policy, por lo que Administrador pasa por policy (tiene todos los permisos por `RoleSeeder`).
 
-**Documento (integración CU9/CU13)**
+**Documento (integración CU9)**
 * `app/Models/Documento.php`: `fillable += categoria_id`, `belongsTo categoria()`
 * `StoreDocumentoRequest`: `categoria_id required|exists:categorias_documento,id,activo=true` + mensajes ("La categoría es obligatoria", "no está disponible para nuevas cargas")
 * `UpdateDocumentoRequest`: `categoria_id sometimes|required|exists:...activo=true`
@@ -107,7 +107,7 @@ Sin `DELETE`. El middleware Spatie deniega URL directa con 403.
 * Crear válida queda disponible en `paraCargaNueva()`
 * Duplicado case-insensitive (`DNI` vs `  dni  `) y vacío → error `nombre`
 * Editar no rompe `documento.categoria_id`
-* Desactivar en uso conserva FK y oculta de cargas; reactivar vuelve a ofrecerse
+* Desactivar en uso queda bloqueada con error (spec); desactivar sin uso oculta de cargas; reactivar vuelve a ofrecerse
 * Solo activas en carga nueva
 * No autorizado denegado por ruta (patrón del proyecto: Livewire no autorizado se verifica vía ruta, ver `EstadoProcesoIndexTest`)
 
@@ -131,7 +131,7 @@ php artisan test --filter=AuthorizationPolicyTest  # 7 passed
 |---|---|
 | CRUD nombre único + activo/inactivo | Modelo + migraciones + Livewire `saveCategoria` |
 | Asociar categoría en nuevas cargas | `categoria_id` FK + Requests exigen activa |
-| Baja lógica, inactiva oculta, conserva historial | `activo=false`, `paraCargaNueva()`, modal con conteo, `RESTRICT` |
+| Baja lógica, inactiva oculta, bloqueo en uso según spec | `activo=false` solo sin uso, `enUso()` + error, `paraCargaNueva()`, modal con conteo, `RESTRICT` |
 | Sin borrado físico | Sin ruta delete, sin `destroy`, FK restrict |
 | Validar vacíos/duplicados/edición/reactivación/en uso | Rules + mensajes + chequeo `LOWER()` + tests |
 | Campos mínimos nombre/estado (+descripcion acordada) | `nombre, descripcion, activo, timestamps` |

@@ -133,13 +133,18 @@ class Index extends Component
         $categoria = CategoriaDocumento::query()->findOrFail($this->deactivatingCategoriaId);
         Gate::authorize('deactivate', $categoria);
 
-        // Baja lógica siempre permitida aun en uso: se conserva historial.
+        // Spec gestion-juridica: impedir desactivar categorías en uso
+        // sin transición válida (mirror de EstadosProceso/Index).
         $n = $categoria->documentos()->count();
+        if ($n > 0) {
+            $this->addError('deactivate', "No se puede desactivar: tiene {$n} documentos asociados. Reasigne esos documentos o conserve la categoría activa.");
+
+            return;
+        }
+
         $categoria->update(['activo' => false]);
 
-        $this->successMessage = $n > 0
-            ? "Categoría desactivada. Se conservaron {$n} documentos históricos y dejará de ofrecerse para nuevas cargas."
-            : 'Categoría desactivada. Ya no se ofrecerá para nuevas cargas.';
+        $this->successMessage = 'Categoría desactivada. Ya no se ofrecerá para nuevas cargas.';
         $this->closeDeactivateModal();
         $this->dispatch('categoria-desactivada');
     }
