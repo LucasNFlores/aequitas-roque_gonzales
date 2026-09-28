@@ -53,6 +53,8 @@ class ClienteController extends Controller
     {
         $this->authorize('view', $cliente);
 
+        $cliente->loadMissing(['procesos' => fn ($query) => $query->latest(), 'procesos.servicio']);
+
         return view('clientes.show', compact('cliente'));
     }
 
