@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\DocumentoController;
+use App\Http\Controllers\ProcesoController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\UserController;
@@ -75,6 +76,14 @@ Route::middleware(['auth', 'permission:gestionar_servicios'])->group(function ()
 
 Route::middleware(['auth', 'permission:listar_filtrar_procesos'])->group(function () {
     Route::get('/procesos', fn () => view('procesos.index'))->name('procesos.index');
+});
+
+// HU-23: proceso adicional para un cliente existente (Secretario y Administrador vía Policy create).
+Route::middleware(['auth'])->group(function () {
+    Route::get('/procesos/create', [ProcesoController::class, 'create'])->name('procesos.create');
+    Route::post('/procesos', [ProcesoController::class, 'store'])->name('procesos.store');
+    Route::get('/clientes/{cliente}/procesos/create', [ProcesoController::class, 'createForCliente'])->name('clientes.procesos.create');
+    Route::post('/clientes/{cliente}/procesos', [ProcesoController::class, 'storeForCliente'])->name('clientes.procesos.store');
 });
 
 Route::middleware(['auth', 'permission:ver_comprobantes_pago'])->group(function () {
