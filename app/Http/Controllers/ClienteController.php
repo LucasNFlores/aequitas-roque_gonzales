@@ -40,7 +40,7 @@ class ClienteController extends Controller
         } catch (DomainException $exception) {
             return back()
                 ->withInput()
-                ->withErrors(['fecha_hora_inicial' => $exception->getMessage()]);
+                ->withErrors(['initial_configuration' => $exception->getMessage()]);
         } catch (UniqueConstraintViolationException $exception) {
             $message = strtolower($exception->getMessage());
             $field = str_contains($message, 'correo') ? 'correo' : 'dni';

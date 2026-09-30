@@ -51,6 +51,8 @@
     </div>
 
     @if (! isset($cliente))
+        <x-forms.input-error :messages="$errors->get('initial_configuration')" />
+
         <div>
             <x-forms.input-label for="fecha_hora_inicial" :value="__('Fecha y hora del turno inicial')" />
             <x-forms.text-input id="fecha_hora_inicial" class="block mt-1 w-full" type="datetime-local" name="fecha_hora_inicial" :value="old('fecha_hora_inicial', now()->addDay()->startOfHour()->format('Y-m-d\\TH:i'))" required />

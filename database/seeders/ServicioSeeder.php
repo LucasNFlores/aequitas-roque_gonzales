@@ -10,7 +10,7 @@ class ServicioSeeder extends Seeder
     public function run(): void
     {
         $servicios = [
-            ['nombre' => 'Consulta legal inicial', 'costo_servicio' => 2500.00],
+            ['nombre' => 'Consultoría', 'costo_servicio' => 2500.00],
             ['nombre' => 'Redacción de contrato', 'costo_servicio' => 8000.00],
             ['nombre' => 'Representación en juicio civil', 'costo_servicio' => 15000.00],
             ['nombre' => 'Asesoría en derecho familiar', 'costo_servicio' => 5000.00],

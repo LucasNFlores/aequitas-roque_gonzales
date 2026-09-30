@@ -3,10 +3,11 @@
 namespace Tests\Feature;
 
 use App\Models\Cliente;
-use App\Models\Servicio;
 use App\Models\User;
 use Database\Seeders\ClienteSeeder;
+use Database\Seeders\EstadoProcesoSeeder;
 use Database\Seeders\RoleSeeder;
+use Database\Seeders\ServicioSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
@@ -31,7 +32,8 @@ class ClienteTest extends TestCase
 
     private function configureInitialRegistration(): void
     {
-        Servicio::factory()->create(['nombre' => 'Consulta legal inicial']);
+        $this->seed(EstadoProcesoSeeder::class);
+        $this->seed(ServicioSeeder::class);
 
         $coordinador = User::factory()->create();
         $coordinador->assignRole('Coordinador');

@@ -30,7 +30,7 @@ Schema::create('clientes', function (Blueprint $table) {
 });
 down(): Schema::dropIfExists('clientes');
 ```
-Reversible: `php artisan migrate` / `php artisan migrate:rollback --step=1 && php artisan migrate`.
+La unicidad de correo se agrega mediante una migración posterior, con verificación previa de duplicados existentes. Los índices de DNI y correo incluyen clientes dados de baja, por lo que esos identificadores no se reutilizan.
 
 ### 2. Factory y Seeder
 
@@ -47,6 +47,8 @@ Reversible: `php artisan migrate` / `php artisan migrate:rollback --step=1 && ph
 **Store** `app/Http/Requests/StoreClienteRequest.php:10`
 * `authorize(): $this->user()?->can('registrar_clientes')`
 * `rules: nombre required|string|max:255, apellido required, dni required|string|max:20|unique:clientes,dni, telefono required, correo required|email|unique:clientes,correo, domicilio required, fecha_nacimiento required|date|before:today|after:1900-01-01, fecha_hora_inicial required|date`
+
+La unicidad de correo se respalda además con un índice único añadido en una migración posterior. Esta restricción incluye clientes con baja lógica, al igual que la validación `unique`, por lo que no se reutiliza un correo ya registrado.
 
 **Update** `app/Http/Requests/UpdateClienteRequest.php:10`
 * `authorize(): can('modificar_clientes')`
@@ -69,7 +71,7 @@ delete/restore  -> can('eliminar_clientes')
 
 * `index(): authorize viewAny, Cliente::latest()->paginate(10) -> view('clientes.index')`
 * `create(): authorize create -> view('clientes.create')`
-* `store(StoreClienteRequest): authorize create, RegistrarClienteInicial -> transacción cliente + proceso pendiente + turno inicial + notificación interna -> redirect clientes.index with('success')`
+* `store(StoreClienteRequest): authorize create, RegistrarClienteInicial -> transacción cliente + proceso de Consultoría pendiente + turno inicial + notificación interna -> redirect clientes.index with('success')`
 * `show(Cliente): authorize view -> view('clientes.show')`
 * `edit(Cliente): authorize update -> view('clientes.edit')`
 * `update(UpdateClienteRequest, Cliente): authorize update, $cliente->update($validated)`
@@ -113,7 +115,7 @@ Navegación `resources/views/layouts/navigation.blade.php:28`:
 * `test_factory_and_seeder_create_data` - `Cliente::factory()->create()` + `ClienteSeeder`
 * `test_migration_is_reversible` - `Schema::hasTable('clientes')` + rollback/re-migrate
 
-`tests/Feature/ClienteInitialProcessTest.php` cubre la creación de cliente, proceso `pendiente`, turno inicial y notificación interna; autorización de Secretario/Administrador, validación de fecha/hora, duplicados y reversión cuando falta el Coordinador o el servicio inicial.
+`tests/Feature/ClienteInitialProcessTest.php` cubre la creación de cliente, proceso de Consultoría `pendiente`, turno inicial y notificación interna; autorización de Secretario/Administrador, validación de fecha/hora, unicidad de DNI/correo, estado inicial inactivo o eliminado, configuración incompleta y rollback si falla la persistencia de la notificación.
 
 Ejecución:
 ```bash

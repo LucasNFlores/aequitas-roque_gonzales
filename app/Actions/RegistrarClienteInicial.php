@@ -3,6 +3,7 @@
 namespace App\Actions;
 
 use App\Models\Cliente;
+use App\Models\EstadoProceso;
 use App\Models\Notificacion;
 use App\Models\Proceso;
 use App\Models\Servicio;
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\DB;
 
 class RegistrarClienteInicial
 {
-    private const SERVICIO_INICIAL = 'Consulta legal inicial';
+    private const SERVICIO_INICIAL = 'Consultoría';
 
     /**
      * @param  array{nombre: string, apellido: string, dni: string, telefono: string, correo: string, domicilio: string, fecha_nacimiento: string, fecha_hora_inicial: string}  $attributes
@@ -33,12 +34,21 @@ class RegistrarClienteInicial
                 throw new DomainException('No hay un Coordinador activo para asignar el turno inicial.');
             }
 
+            $estadoPendiente = EstadoProceso::query()
+                ->where('slug', 'pendiente')
+                ->where('activo', true)
+                ->first();
+
+            if (! $estadoPendiente instanceof EstadoProceso) {
+                throw new DomainException('El estado inicial pendiente no está configurado o no está activo.');
+            }
+
             $servicio = Servicio::query()
                 ->where('nombre', self::SERVICIO_INICIAL)
                 ->first();
 
             if (! $servicio instanceof Servicio) {
-                throw new DomainException('No está configurado el servicio inicial "Consulta legal inicial".');
+                throw new DomainException('No está configurado el servicio inicial "Consultoría".');
             }
 
             $fechaHoraInicial = CarbonImmutable::parse($attributes['fecha_hora_inicial']);
@@ -52,7 +62,7 @@ class RegistrarClienteInicial
                 'descripcion' => 'Proceso inicial creado automáticamente al registrar al cliente.',
                 'fecha_inicio' => $fechaHoraInicial->toDateString(),
                 'tipo' => Proceso::TIPOS[0],
-                'estado' => 'pendiente',
+                'estado' => $estadoPendiente->slug,
                 'motivo_rechazo' => null,
             ]);
 
