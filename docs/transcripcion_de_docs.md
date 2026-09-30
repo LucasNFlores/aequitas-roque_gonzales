@@ -105,7 +105,7 @@ Coordinador y Administrador pueden crear, editar, ordenar, activar y desactivar 
 
 ### Categorías de documentos
 
-Coordinador y Administrador pueden crear, editar, activar y eliminar categorías o tipos de documentos. No se puede eliminar o desactivar una categoría utilizada por datos activos sin una regla de reemplazo.
+Coordinador y Administrador pueden crear, editar, activar, desactivar, dar de baja lógicamente y restaurar categorías o tipos de documentos. La desactivación de una categoría con documentos activos requiere una transición válida; la baja lógica conserva su asociación y los archivos físicos para lectura histórica. Restaurar una categoría no modifica su estado activo/inactivo, y solo las categorías activas y no dadas de baja están disponibles en nuevas cargas.
 
 ### Turnos
 

@@ -8,6 +8,7 @@ use App\Models\Documento;
 use App\Models\User;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -127,6 +128,72 @@ class CategoriaDocumentoTest extends TestCase
 
         $this->assertTrue($categoria->fresh()->activo);
         $this->assertTrue(CategoriaDocumento::paraCargaNueva()->pluck('id')->contains($categoria->id));
+    }
+
+    public function test_baja_logica_conserva_documentos_archivos_y_lectura_historica(): void
+    {
+        Storage::fake('local');
+        $coordinador = $this->userWithRole('Coordinador');
+        $categoria = CategoriaDocumento::factory()->create(['nombre' => 'Archivo histórico']);
+        $documento = Documento::factory()->create([
+            'categoria_id' => $categoria->id,
+            'tipo_documento' => 'Tipo de documento legado',
+        ]);
+        Storage::disk('local')->put($documento->archivo_path, 'contenido de prueba');
+
+        Livewire::actingAs($coordinador)->test(Index::class)
+            ->call('confirmDelete', $categoria->id)
+            ->assertSet('showDeleteModal', true)
+            ->call('deleteCategoria')
+            ->assertHasNoErrors();
+
+        $this->assertSoftDeleted($categoria);
+        $this->assertSame($categoria->id, $documento->fresh()->categoria_id);
+        $this->assertSame('Archivo histórico', $documento->fresh()->categoria->nombre);
+        $this->assertTrue($documento->fresh()->categoria->trashed());
+        $this->assertSame('Tipo de documento legado', $documento->fresh()->tipo_documento);
+        $this->assertFalse(CategoriaDocumento::paraCargaNueva()->contains('id', $categoria->id));
+        Storage::disk('local')->assertExists($documento->archivo_path);
+
+        Livewire::actingAs($coordinador)->test(Index::class)
+            ->set('filtro', 'baja')
+            ->assertSee('Archivo histórico')
+            ->assertSee('Restaurar');
+    }
+
+    public function test_restaurar_categoria_no_cambia_su_estado_activo(): void
+    {
+        $coordinador = $this->userWithRole('Coordinador');
+        $activa = CategoriaDocumento::factory()->create(['activo' => true]);
+        $inactiva = CategoriaDocumento::factory()->create(['activo' => false]);
+        $activa->delete();
+        $inactiva->delete();
+
+        Livewire::actingAs($coordinador)->test(Index::class)
+            ->call('confirmRestore', $activa->id)
+            ->assertSet('showRestoreModal', true)
+            ->call('restoreCategoria')
+            ->assertHasNoErrors();
+
+        Livewire::actingAs($coordinador)->test(Index::class)
+            ->call('confirmRestore', $inactiva->id)
+            ->call('restoreCategoria')
+            ->assertHasNoErrors();
+
+        $this->assertFalse($activa->fresh()->trashed());
+        $this->assertTrue($activa->fresh()->activo);
+        $this->assertTrue(CategoriaDocumento::paraCargaNueva()->contains('id', $activa->id));
+        $this->assertFalse($inactiva->fresh()->trashed());
+        $this->assertFalse($inactiva->fresh()->activo);
+        $this->assertFalse(CategoriaDocumento::paraCargaNueva()->contains('id', $inactiva->id));
+    }
+
+    public function test_force_delete_de_categoria_esta_denegado_incluso_para_administrador(): void
+    {
+        $administrador = $this->userWithRole('Administrador');
+        $categoria = CategoriaDocumento::factory()->create();
+
+        $this->assertFalse($administrador->can('forceDelete', $categoria));
     }
 
     public function test_solo_activas_en_carga_nueva(): void

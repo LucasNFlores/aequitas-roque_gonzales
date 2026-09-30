@@ -42,6 +42,6 @@ class Documento extends Model
 
     public function categoria(): BelongsTo
     {
-        return $this->belongsTo(CategoriaDocumento::class, 'categoria_id');
+        return $this->belongsTo(CategoriaDocumento::class, 'categoria_id')->withTrashed();
     }
 }

@@ -4,14 +4,16 @@ namespace App\Models;
 
 use Database\Factories\CategoriaDocumentoFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CategoriaDocumento extends Model
 {
     /** @use HasFactory<CategoriaDocumentoFactory> */
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'categorias_documento';
 
@@ -44,7 +46,7 @@ class CategoriaDocumento extends Model
     }
 
     /** Para dropdown de cargas nuevas (CU9): solo activas. */
-    public static function paraCargaNueva()
+    public static function paraCargaNueva(): Collection
     {
         return static::activas()->ordenadas()->get();
     }

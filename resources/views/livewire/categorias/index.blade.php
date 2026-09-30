@@ -1,8 +1,10 @@
 <div
-    x-data="{ formOpen: false, deactivateOpen: false }"
+    x-data="{ formOpen: false, deactivateOpen: false, deleteOpen: false, restoreOpen: false }"
     x-on:categoria-guardada.window="formOpen = false"
     x-on:categoria-desactivada.window="deactivateOpen = false"
-    x-on:keydown.escape.window="formOpen = false; deactivateOpen = false"
+    x-on:categoria-eliminada.window="deleteOpen = false"
+    x-on:categoria-restaurada.window="restoreOpen = false"
+    x-on:keydown.escape.window="formOpen = false; deactivateOpen = false; deleteOpen = false; restoreOpen = false; $wire.closeModal(); $wire.closeDeactivateModal(); $wire.closeDeleteModal(); $wire.closeRestoreModal()"
 >
     @if($successMessage !== '')
         <div class="mb-6 rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800" role="alert">
@@ -13,11 +15,13 @@
     <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
             <h3 class="text-lg font-medium text-gray-900">Categorías de documentos</h3>
-            <p class="mt-1 text-sm text-gray-500">Clasifican la documentación de los legajos. La baja es lógica y se bloquea si la categoría está en uso.</p>
+            <p class="mt-1 text-sm text-gray-500">Clasifican la documentación de los legajos. Desactivar impide nuevas cargas; la baja lógica conserva asociaciones, documentos y archivos históricos.</p>
         </div>
-        <button type="button" @click="formOpen = true" wire:click="createCategoria" class="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-            Nueva categoría
-        </button>
+        @can('create', \App\Models\CategoriaDocumento::class)
+            <button type="button" @click="formOpen = true" wire:click="createCategoria" class="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                Nueva categoría
+            </button>
+        @endcan
     </div>
 
     <div class="mt-6 flex flex-col gap-3 sm:flex-row">
@@ -26,6 +30,7 @@
             <option value="todas">Todas</option>
             <option value="activas">Activas</option>
             <option value="inactivas">Inactivas</option>
+            <option value="baja">Dadas de baja</option>
         </select>
     </div>
 
@@ -46,18 +51,33 @@
                         <td class="px-6 py-4 font-medium text-gray-900">{{ $categoria->nombre }}</td>
                         <td class="px-6 py-4">{{ $categoria->descripcion ?? '—' }}</td>
                         <td class="px-6 py-4">
-                            <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold {{ $categoria->activo ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700' }}">
-                                {{ $categoria->activo ? 'Activa' : 'Inactiva' }}
+                            <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold {{ $categoria->trashed() ? 'bg-red-100 text-red-700' : ($categoria->activo ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700') }}">
+                                {{ $categoria->trashed() ? 'Dada de baja' : ($categoria->activo ? 'Activa' : 'Inactiva') }}
                             </span>
                         </td>
                         <td class="px-6 py-4">{{ $categoria->documentos_count }}</td>
                         <td class="px-6 py-4">
                             <div class="flex flex-wrap justify-center gap-2">
-                                <button type="button" wire:click="editCategoria({{ $categoria->id }})" @click="formOpen = true" class="rounded-md bg-indigo-50 px-3 py-2 font-medium text-indigo-700 transition hover:bg-indigo-100">Editar</button>
-                                @if($categoria->activo)
-                                    <button type="button" wire:click="confirmDeactivate({{ $categoria->id }})" @click="deactivateOpen = true" class="rounded-md bg-red-50 px-3 py-2 font-medium text-red-700 transition hover:bg-red-100">Desactivar</button>
+                                @if($categoria->trashed())
+                                    @can('restore', $categoria)
+                                        <button type="button" wire:click="confirmRestore({{ $categoria->id }})" @click="restoreOpen = true" class="rounded-md bg-green-50 px-3 py-2 font-medium text-green-700 transition hover:bg-green-100">Restaurar</button>
+                                    @endcan
                                 @else
-                                    <button type="button" wire:click="activateCategoria({{ $categoria->id }})" class="rounded-md bg-green-50 px-3 py-2 font-medium text-green-700 transition hover:bg-green-100">Reactivar</button>
+                                    @can('update', $categoria)
+                                        <button type="button" wire:click="editCategoria({{ $categoria->id }})" @click="formOpen = true" class="rounded-md bg-indigo-50 px-3 py-2 font-medium text-indigo-700 transition hover:bg-indigo-100">Editar</button>
+                                    @endcan
+                                    @if($categoria->activo)
+                                        @can('deactivate', $categoria)
+                                            <button type="button" wire:click="confirmDeactivate({{ $categoria->id }})" @click="deactivateOpen = true" class="rounded-md bg-amber-50 px-3 py-2 font-medium text-amber-700 transition hover:bg-amber-100">Desactivar</button>
+                                        @endcan
+                                    @else
+                                        @can('activate', $categoria)
+                                            <button type="button" wire:click="activateCategoria({{ $categoria->id }})" class="rounded-md bg-green-50 px-3 py-2 font-medium text-green-700 transition hover:bg-green-100">Reactivar</button>
+                                        @endcan
+                                    @endif
+                                    @can('delete', $categoria)
+                                        <button type="button" wire:click="confirmDelete({{ $categoria->id }})" @click="deleteOpen = true" class="rounded-md bg-red-50 px-3 py-2 font-medium text-red-700 transition hover:bg-red-100">Dar de baja</button>
+                                    @endcan
                                 @endif
                             </div>
                         </td>
@@ -111,6 +131,32 @@
             <div class="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
                 <button type="button" @click="deactivateOpen = false; $wire.closeDeactivateModal()" class="inline-flex w-full items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-gray-700 sm:w-auto">Cancelar</button>
                 <button type="button" wire:click="deactivateCategoria" wire:loading.attr="disabled" class="inline-flex w-full items-center justify-center rounded-md bg-red-600 px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-white sm:w-auto">Desactivar</button>
+            </div>
+        </div>
+    </div>
+
+    <div x-cloak x-show="deleteOpen" x-transition.opacity role="dialog" aria-modal="true" @click.self="deleteOpen = false; $wire.closeDeleteModal()" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 px-4 py-6 backdrop-blur-sm">
+        <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl sm:p-8">
+            <h2 class="text-lg font-semibold text-gray-900">Dar de baja categoría</h2>
+            <p class="mt-2 text-sm leading-6 text-gray-600">
+                Se ocultará del catálogo operativo. Los {{ $docsAsociados }} documentos asociados conservarán la categoría histórica y sus archivos; no se borrará ningún documento.
+            </p>
+            <div class="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                <button type="button" @click="deleteOpen = false; $wire.closeDeleteModal()" class="inline-flex w-full items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-gray-700 sm:w-auto">Cancelar</button>
+                <button type="button" wire:click="deleteCategoria" wire:loading.attr="disabled" class="inline-flex w-full items-center justify-center rounded-md bg-red-600 px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-white sm:w-auto">Dar de baja</button>
+            </div>
+        </div>
+    </div>
+
+    <div x-cloak x-show="restoreOpen" x-transition.opacity role="dialog" aria-modal="true" @click.self="restoreOpen = false; $wire.closeRestoreModal()" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 px-4 py-6 backdrop-blur-sm">
+        <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl sm:p-8">
+            <h2 class="text-lg font-semibold text-gray-900">Restaurar categoría</h2>
+            <p class="mt-2 text-sm leading-6 text-gray-600">
+                Se restaurará {{ $categoriaRestaurando?->nombre }} y conservará su estado {{ $categoriaRestaurando?->activo ? 'activo' : 'inactivo' }}. Las categorías inactivas no estarán disponibles para nuevas cargas.
+            </p>
+            <div class="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                <button type="button" @click="restoreOpen = false; $wire.closeRestoreModal()" class="inline-flex w-full items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-gray-700 sm:w-auto">Cancelar</button>
+                <button type="button" wire:click="restoreCategoria" wire:loading.attr="disabled" class="inline-flex w-full items-center justify-center rounded-md bg-green-600 px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-white sm:w-auto">Restaurar</button>
             </div>
         </div>
     </div>

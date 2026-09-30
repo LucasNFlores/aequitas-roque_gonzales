@@ -31,4 +31,19 @@ class CategoriaDocumentoPolicy
     {
         return $user->can('gestionar_categorias_documentos');
     }
+
+    public function delete(User $user, CategoriaDocumento $categoria): bool
+    {
+        return $user->can('gestionar_categorias_documentos');
+    }
+
+    public function restore(User $user, CategoriaDocumento $categoria): bool
+    {
+        return $user->can('gestionar_categorias_documentos');
+    }
+
+    public function forceDelete(User $user, CategoriaDocumento $categoria): bool
+    {
+        return false;
+    }
 }

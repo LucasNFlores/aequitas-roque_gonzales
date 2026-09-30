@@ -86,7 +86,7 @@ class Index extends Component
 
         $rules = [
             'nombre' => ['required', 'string', 'max:255'],
-            'categoriaId' => ['required', 'integer', Rule::exists('categorias_documento', 'id')->where('activo', true)],
+            'categoriaId' => ['required', 'integer', Rule::exists('categorias_documento', 'id')->where('activo', true)->whereNull('deleted_at')],
             'archivo' => $isEditing
                 ? ['nullable', 'file', 'mimes:pdf', 'max:20480']
                 : ['required', 'file', 'mimes:pdf', 'max:20480'],

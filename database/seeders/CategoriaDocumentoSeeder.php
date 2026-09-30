@@ -18,7 +18,7 @@ class CategoriaDocumentoSeeder extends Seeder
         ];
 
         foreach ($base as $row) {
-            CategoriaDocumento::firstOrCreate(
+            CategoriaDocumento::withTrashed()->firstOrCreate(
                 ['nombre' => $row['nombre']],
                 ['descripcion' => $row['descripcion'], 'activo' => true]
             );

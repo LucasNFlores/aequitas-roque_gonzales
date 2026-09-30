@@ -15,9 +15,17 @@ class Index extends Component
 
     public bool $showDeactivateModal = false;
 
+    public bool $showDeleteModal = false;
+
+    public bool $showRestoreModal = false;
+
     public ?int $editingCategoriaId = null;
 
     public ?int $deactivatingCategoriaId = null;
+
+    public ?int $deletingCategoriaId = null;
+
+    public ?int $restoringCategoriaId = null;
 
     public string $nombre = '';
 
@@ -25,7 +33,7 @@ class Index extends Component
 
     public string $search = '';
 
-    public string $filtro = 'todas'; // todas|activas|inactivas
+    public string $filtro = 'todas';
 
     public string $successMessage = '';
 
@@ -89,6 +97,7 @@ class Index extends Component
 
         // Unicidad case-insensitive también en SQLite (MySQL ya lo hace por collation)
         $duplicada = CategoriaDocumento::query()
+            ->withTrashed()
             ->whereRaw('LOWER(nombre) = ?', [mb_strtolower($this->nombre, 'UTF-8')])
             ->when($this->editingCategoriaId !== null, fn ($q) => $q->where('id', '!=', $this->editingCategoriaId))
             ->exists();
@@ -159,6 +168,60 @@ class Index extends Component
         $this->dispatch('categoria-activada');
     }
 
+    public function confirmDelete(int $categoriaId): void
+    {
+        $categoria = CategoriaDocumento::query()->findOrFail($categoriaId);
+        Gate::authorize('delete', $categoria);
+
+        $this->deletingCategoriaId = $categoria->id;
+        $this->resetValidation();
+        $this->showDeleteModal = true;
+    }
+
+    public function deleteCategoria(): void
+    {
+        abort_unless($this->deletingCategoriaId !== null, 404);
+
+        $categoria = CategoriaDocumento::query()->findOrFail($this->deletingCategoriaId);
+        Gate::authorize('delete', $categoria);
+
+        $categoria->delete();
+
+        $this->successMessage = 'Categoría dada de baja. Los documentos asociados y sus archivos se conservan en el historial.';
+        $this->closeDeleteModal();
+        $this->dispatch('categoria-eliminada');
+    }
+
+    public function confirmRestore(int $categoriaId): void
+    {
+        $categoria = CategoriaDocumento::withTrashed()->findOrFail($categoriaId);
+        Gate::authorize('restore', $categoria);
+
+        abort_unless($categoria->trashed(), 404);
+
+        $this->restoringCategoriaId = $categoria->id;
+        $this->resetValidation();
+        $this->showRestoreModal = true;
+    }
+
+    public function restoreCategoria(): void
+    {
+        abort_unless($this->restoringCategoriaId !== null, 404);
+
+        $categoria = CategoriaDocumento::withTrashed()->findOrFail($this->restoringCategoriaId);
+        Gate::authorize('restore', $categoria);
+
+        abort_unless($categoria->trashed(), 404);
+
+        $categoria->restore();
+
+        $this->successMessage = $categoria->activo
+            ? 'Categoría restaurada y disponible para nuevas cargas.'
+            : 'Categoría restaurada, pero permanece inactiva y no está disponible para nuevas cargas.';
+        $this->closeRestoreModal();
+        $this->dispatch('categoria-restaurada');
+    }
+
     public function updatingSearch(): void
     {
         $this->successMessage = '';
@@ -182,21 +245,44 @@ class Index extends Component
         $this->resetValidation();
     }
 
+    public function closeDeleteModal(): void
+    {
+        $this->showDeleteModal = false;
+        $this->deletingCategoriaId = null;
+        $this->resetValidation();
+    }
+
+    public function closeRestoreModal(): void
+    {
+        $this->showRestoreModal = false;
+        $this->restoringCategoriaId = null;
+        $this->resetValidation();
+    }
+
     public function render(): View
     {
         $categorias = CategoriaDocumento::query()
             ->withCount('documentos')
+            ->when($this->filtro === 'baja', fn (Builder $q) => $q->onlyTrashed())
             ->when(trim($this->search) !== '', fn (Builder $q) => $q->where('nombre', 'like', '%'.trim($this->search).'%'))
             ->when($this->filtro === 'activas', fn (Builder $q) => $q->where('activo', true))
             ->when($this->filtro === 'inactivas', fn (Builder $q) => $q->where('activo', false))
             ->orderBy('nombre')
             ->get();
 
-        $docsEnUso = $this->deactivatingCategoriaId
-            ? (int) CategoriaDocumento::query()->find($this->deactivatingCategoriaId)?->documentos()->count()
+        $categoriaEnConfirmacionId = $this->deletingCategoriaId ?? $this->deactivatingCategoriaId;
+        $docsEnUso = $categoriaEnConfirmacionId
+            ? (int) CategoriaDocumento::withTrashed()->find($categoriaEnConfirmacionId)?->documentos()->count()
             : 0;
+        $docsAsociados = $this->deletingCategoriaId
+            ? (int) CategoriaDocumento::withTrashed()->find($this->deletingCategoriaId)?->documentos()->withTrashed()->count()
+            : $docsEnUso;
 
-        return view('livewire.categorias.index', compact('categorias', 'docsEnUso'));
+        $categoriaRestaurando = $this->restoringCategoriaId
+            ? CategoriaDocumento::withTrashed()->find($this->restoringCategoriaId)
+            : null;
+
+        return view('livewire.categorias.index', compact('categorias', 'docsEnUso', 'docsAsociados', 'categoriaRestaurando'));
     }
 
     private function resetForm(): void
