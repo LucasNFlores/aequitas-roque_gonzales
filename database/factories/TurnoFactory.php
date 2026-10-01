@@ -23,10 +23,11 @@ class TurnoFactory extends Factory
             'cliente_id' => Cliente::factory(),
             'profesional_id' => User::factory(),
             'proceso_id' => null,
-            'fecha_hora' => fake()->dateTimeBetween('now', '+30 days'),
+            'fecha_hora' => fake()->dateTimeBetween('+1 hour', '+30 days'),
             'es_externo' => false,
             'detalle_externo' => null,
             'tipo' => 'consulta_inicial',
+            'estado' => 'programado',
         ];
     }
 }

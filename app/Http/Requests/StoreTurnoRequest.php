@@ -22,7 +22,7 @@ class StoreTurnoRequest extends FormRequest
             'cliente_id' => ['required', 'integer', Rule::exists('clientes', 'id')->whereNull('deleted_at')],
             'profesional_id' => ['required', 'integer', Rule::exists('users', 'id')->whereNull('deleted_at')],
             'proceso_id' => ['nullable', 'integer', Rule::exists('procesos', 'id')->whereNull('deleted_at')],
-            'fecha_hora' => ['required', 'date'],
+            'fecha_hora' => ['required', 'date', 'after:now'],
             'es_externo' => ['sometimes', 'boolean'],
             'detalle_externo' => ['nullable', 'string', 'max:5000'],
             'tipo' => ['required', Rule::in(Turno::TIPOS)],
@@ -70,6 +70,32 @@ class StoreTurnoRequest extends FormRequest
                 && (int) $proceso->profesional_id !== (int) $this->input('profesional_id')
             ) {
                 $validator->errors()->add('profesional_id', 'El profesional no coincide con el proceso seleccionado.');
+            }
+
+            // HU-11: seguimiento exige proceso activo; consulta inicial puede no tenerlo.
+            if ($type === 'seguimiento') {
+                if (! $proceso instanceof Proceso) {
+                    $validator->errors()->add('proceso_id', 'El turno de seguimiento requiere un proceso activo.');
+                } elseif (in_array($proceso->estado, Turno::PROCESO_ESTADOS_INACTIVOS, true)) {
+                    $validator->errors()->add('proceso_id', 'El proceso seleccionado no está activo.');
+                }
+            }
+
+            if ($proceso instanceof Proceso && in_array($proceso->estado, Turno::PROCESO_ESTADOS_INACTIVOS, true) && $type === 'seguimiento') {
+                // Ya reportado arriba; se mantiene para claridad de regla.
+            }
+
+            // HU-11: conflicto por rango + bloqueo por externo (mismo profesional).
+            if ($professionalId !== null && filled($this->input('fecha_hora')) && ! $validator->errors()->hasAny(['fecha_hora', 'profesional_id'])) {
+                try {
+                    $fechaHora = \Carbon\Carbon::parse($this->input('fecha_hora'));
+
+                    if (Turno::existeConflicto((int) $professionalId, $fechaHora, null, $isExternal)) {
+                        $validator->errors()->add('fecha_hora', 'El profesional ya tiene un turno en ese horario o la fecha está bloqueada por un turno externo.');
+                    }
+                } catch (\Throwable) {
+                    // El validador de fecha ya reporta formato inválido.
+                }
             }
         }];
     }
