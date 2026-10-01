@@ -24,7 +24,7 @@ class ProcesoPolicy
 
     public function create(User $user): bool
     {
-        return $user->can('registrar_clientes');
+        return $user->can('crear_procesos_adicionales');
     }
 
     public function update(User $user, Proceso $proceso): bool

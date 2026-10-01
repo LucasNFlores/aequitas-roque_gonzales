@@ -12,12 +12,8 @@
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                 @include('procesos._form', [
-                    'action' => ! empty($clienteFijo)
-                        ? route('clientes.procesos.store', $clienteFijo)
-                        : route('procesos.store'),
-                    'cancelUrl' => ! empty($clienteFijo)
-                        ? route('clientes.show', $clienteFijo)
-                        : route('procesos.index'),
+                    'action' => route('clientes.procesos.store', $clienteFijo),
+                    'cancelUrl' => route('clientes.show', $clienteFijo),
                 ])
             </div>
         </div>

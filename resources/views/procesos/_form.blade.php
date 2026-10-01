@@ -1,25 +1,12 @@
 <form id="proceso-adicional-form" action="{{ $action }}" method="POST" class="space-y-4" onsubmit="const btn = document.getElementById('proceso-adicional-submit'); if (btn) { btn.disabled = true; btn.textContent = 'Guardando...'; }">
     @csrf
+    <input type="hidden" name="submission_token" value="{{ old('submission_token', $submissionToken) }}" />
 
     @if ($clienteFijo)
-        <input type="hidden" name="cliente_id" value="{{ $clienteFijo->id }}" />
         <div>
             <x-forms.input-label for="cliente_nombre" :value="__('Cliente')" />
             <x-forms.text-input id="cliente_nombre" class="block mt-1 w-full bg-gray-50" type="text" :value="$clienteFijo->nombre.' '.$clienteFijo->apellido.' (DNI '.$clienteFijo->dni.')'" disabled />
             <p class="mt-1 text-xs text-gray-500">El proceso se vinculará a este cliente existente. No se duplican ni modifican sus datos.</p>
-        </div>
-    @else
-        <div>
-            <x-forms.input-label for="cliente_id" :value="__('Cliente')" />
-            <select id="cliente_id" name="cliente_id" required class="block mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                <option value="">Seleccionar cliente</option>
-                @foreach ($clientes as $cliente)
-                    <option value="{{ $cliente->id }}" @selected((string) old('cliente_id', $selectedClienteId ?? '') === (string) $cliente->id)>
-                        {{ $cliente->apellido }}, {{ $cliente->nombre }} (DNI {{ $cliente->dni }})
-                    </option>
-                @endforeach
-            </select>
-            <x-forms.input-error :messages="$errors->get('cliente_id')" class="mt-2" />
         </div>
     @endif
 

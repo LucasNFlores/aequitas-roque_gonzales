@@ -23,6 +23,9 @@ class RolePermissionTest extends TestCase
         $this->assertTrue(Role::findByName('Directivo')->hasPermissionTo('editar_roles'));
         $this->assertTrue(Role::findByName('Coordinador')->hasPermissionTo('gestionar_estados_proceso'));
         $this->assertTrue(Role::findByName('Profesional')->hasPermissionTo('registrar_reportes'));
+        $this->assertTrue(Role::findByName('Secretario')->hasPermissionTo('crear_procesos_adicionales'));
+        $this->assertTrue(Role::findByName('Administrador')->hasPermissionTo('crear_procesos_adicionales'));
+        $this->assertFalse(Role::findByName('Directivo')->hasPermissionTo('crear_procesos_adicionales'));
         $this->assertFalse(Role::findByName('Profesional')->hasPermissionTo('gestionar_servicios'));
     }
 
@@ -32,7 +35,7 @@ class RolePermissionTest extends TestCase
         $this->seed(RoleSeeder::class);
 
         $this->assertSame(5, Role::count());
-        $this->assertSame(41, Role::findByName('Administrador')->permissions()->count());
+        $this->assertSame(42, Role::findByName('Administrador')->permissions()->count());
     }
 
     public function test_user_seeder_creates_one_user_per_role_with_password_1234(): void

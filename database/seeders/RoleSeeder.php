@@ -15,6 +15,7 @@ class RoleSeeder extends Seeder
     private const PERMISSIONS_BY_ROLE = [
         'Secretario' => [
             'registrar_clientes',
+            'crear_procesos_adicionales',
             'modificar_clientes',
             'eliminar_clientes',
             'agendar_turnos_internos',
@@ -106,11 +107,10 @@ class RoleSeeder extends Seeder
         foreach (self::PERMISSIONS_BY_ROLE as $roleName => $rolePermissionNames) {
             $role = Role::findOrCreate($roleName, 'web');
             $role->syncPermissions(array_map(
-                fn(string $permissionName): Permission => $permissions[$permissionName],
+                fn (string $permissionName): Permission => $permissions[$permissionName],
                 $rolePermissionNames,
             ));
         }
-
 
         // Revisar funcion de sptie para asignar todos los permisos al rol administrador
         Role::findOrCreate('Administrador', 'web')->syncPermissions(array_values($permissions));

@@ -32,6 +32,7 @@ class Proceso extends Model
 
     protected $fillable = [
         'cliente_id',
+        'submission_token',
         'profesional_id',
         'servicio_id',
         'coordinador_id',

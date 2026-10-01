@@ -18,7 +18,8 @@ class StoreProcesoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'cliente_id' => ['required', 'integer', Rule::exists('clientes', 'id')->whereNull('deleted_at')],
+            'cliente_id' => ['prohibited'],
+            'submission_token' => ['required', 'uuid'],
             'profesional_id' => ['nullable', 'integer', Rule::exists('users', 'id')->whereNull('deleted_at')],
             'servicio_id' => ['required', 'integer', Rule::exists('servicios', 'id')->whereNull('deleted_at')],
             'coordinador_id' => ['required', 'integer', Rule::exists('users', 'id')->whereNull('deleted_at')],

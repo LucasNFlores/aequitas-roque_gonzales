@@ -46,3 +46,9 @@ CU 1 registra un cliente nuevo y crea su proceso inicial de Consultoría con un 
 
 - La política concreta para un posible duplicado funcional se definirá al diseñar la pantalla, porque la matriz no prohíbe más de un proceso del mismo tipo para el mismo cliente.
 - Si el catálogo de servicios usa un nombre distinto de «Consultoría», CU 38 debe usar el servicio seleccionado y no asumir el servicio inicial de CU 1.
+
+## Decisiones de implementación
+
+- El formulario y la ruta parten de la ficha de un cliente existente; el identificador del cliente no se acepta desde el cuerpo del formulario.
+- El permiso técnico `crear_procesos_adicionales` es distinto del permiso para registrar clientes y se asigna al Secretario. El Administrador lo recibe junto con los demás permisos por su condición de superadministrador.
+- Cada formulario lleva un token UUID de envío con índice único nullable. La creación se ejecuta en una transacción y los reenvíos con el mismo token devuelven el proceso original; esto evita duplicados accidentales sin impedir procesos similares iniciados por separado.

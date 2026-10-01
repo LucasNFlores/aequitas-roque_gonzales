@@ -80,8 +80,6 @@ Route::middleware(['auth', 'permission:listar_filtrar_procesos'])->group(functio
 
 // HU-23: proceso adicional para un cliente existente (Secretario y Administrador vía Policy create).
 Route::middleware(['auth'])->group(function () {
-    Route::get('/procesos/create', [ProcesoController::class, 'create'])->name('procesos.create');
-    Route::post('/procesos', [ProcesoController::class, 'store'])->name('procesos.store');
     Route::get('/clientes/{cliente}/procesos/create', [ProcesoController::class, 'createForCliente'])->name('clientes.procesos.create');
     Route::post('/clientes/{cliente}/procesos', [ProcesoController::class, 'storeForCliente'])->name('clientes.procesos.store');
 });
