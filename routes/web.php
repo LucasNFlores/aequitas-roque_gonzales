@@ -4,6 +4,7 @@ use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServicioController;
+use App\Http\Controllers\TurnoController;
 use App\Http\Controllers\UserController;
 use App\Models\Proceso;
 use Illuminate\Support\Facades\Route;
@@ -114,6 +115,39 @@ Route::middleware(['auth'])->group(function () {
 
 Route::middleware(['auth'])->group(function () {
     Route::resource('clientes', ClienteController::class);
+});
+
+// -----------------------------------------------------------------------------
+// MÓDULO TURNOS Y AGENDA — HU-11 (CU4, CU4.1, CU6, CU7, CU8)
+// Permisos: Secretario/Admin escriben; Profesional/Coordinador solo agenda.
+// -----------------------------------------------------------------------------
+Route::middleware(['auth'])->group(function () {
+    Route::get('/agenda', [TurnoController::class, 'agenda'])
+        ->middleware('permission:ver_agenda_profesional')
+        ->name('turnos.agenda');
+
+    Route::get('/turnos', [TurnoController::class, 'index'])
+        ->middleware('permission:ver_agenda_profesional')
+        ->name('turnos.index');
+    Route::get('/turnos/create', [TurnoController::class, 'create'])
+        ->middleware('permission:agendar_turnos_internos|agendar_turnos_seguimiento')
+        ->name('turnos.create');
+    Route::post('/turnos', [TurnoController::class, 'store'])
+        ->middleware('permission:agendar_turnos_internos|agendar_turnos_seguimiento')
+        ->name('turnos.store');
+    Route::get('/turnos/{turno}', [TurnoController::class, 'show'])
+        ->middleware('permission:ver_agenda_profesional')
+        ->name('turnos.show');
+    Route::get('/turnos/{turno}/edit', [TurnoController::class, 'edit'])
+        ->middleware('permission:modificar_turnos')
+        ->name('turnos.edit');
+    Route::put('/turnos/{turno}', [TurnoController::class, 'update'])
+        ->middleware('permission:modificar_turnos')
+        ->name('turnos.update');
+    Route::patch('/turnos/{turno}', [TurnoController::class, 'update']);
+    Route::delete('/turnos/{turno}', [TurnoController::class, 'destroy'])
+        ->middleware('permission:eliminar_turnos')
+        ->name('turnos.destroy');
 });
 
 Route::get('/tutorial', function () {

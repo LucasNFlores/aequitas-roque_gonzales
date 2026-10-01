@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Proceso;
 use App\Models\Turno;
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
@@ -32,6 +34,7 @@ class UpdateTurnoRequest extends FormRequest
 
     /**
      * Keep the external flag, type and detail consistent on updates.
+     * HU-11: proceso activo, coherencia cliente/profesional y conflicto por rango.
      *
      * @return array<int, callable(Validator): void>
      */
@@ -55,6 +58,57 @@ class UpdateTurnoRequest extends FormRequest
 
             if (! $isExternal && filled($detail)) {
                 $validator->errors()->add('detalle_externo', 'El detalle externo solo corresponde a turnos externos.');
+            }
+
+            $clienteId = $this->input('cliente_id', $turno?->cliente_id);
+            $profesionalId = $this->input('profesional_id', $turno?->profesional_id);
+            $procesoId = $this->has('proceso_id') ? $this->input('proceso_id') : $turno?->proceso_id;
+
+            if ($profesionalId !== null && $this->has('profesional_id') && ! User::role('Profesional')->whereKey($profesionalId)->exists()) {
+                $validator->errors()->add('profesional_id', 'El usuario seleccionado debe tener el rol Profesional.');
+            }
+
+            $proceso = $procesoId !== null ? Proceso::query()->find($procesoId) : null;
+
+            if ($proceso instanceof Proceso && (int) $proceso->cliente_id !== (int) $clienteId) {
+                $validator->errors()->add('cliente_id', 'El cliente no coincide con el proceso seleccionado.');
+            }
+
+            if (
+                $proceso instanceof Proceso
+                && $proceso->profesional_id !== null
+                && (int) $proceso->profesional_id !== (int) $profesionalId
+            ) {
+                $validator->errors()->add('profesional_id', 'El profesional no coincide con el proceso seleccionado.');
+            }
+
+            if ($type === 'seguimiento') {
+                if (! $proceso instanceof Proceso) {
+                    $validator->errors()->add('proceso_id', 'El turno de seguimiento requiere un proceso activo.');
+                } elseif (in_array($proceso->estado, Turno::PROCESO_ESTADOS_INACTIVOS, true)) {
+                    $validator->errors()->add('proceso_id', 'El proceso seleccionado no está activo.');
+                }
+            }
+
+            $fechaHoraInput = $this->input('fecha_hora', $turno?->fecha_hora?->toDateTimeString());
+
+            if (
+                $profesionalId !== null
+                && filled($fechaHoraInput)
+                && ! $validator->errors()->hasAny(['fecha_hora', 'profesional_id'])
+                && ($this->has('fecha_hora') || $this->has('profesional_id') || $this->has('es_externo'))
+            ) {
+                try {
+                    $fechaHora = \Carbon\Carbon::parse($fechaHoraInput);
+
+                    if ($fechaHora->isPast() && $this->has('fecha_hora')) {
+                        $validator->errors()->add('fecha_hora', 'La fecha y hora deben ser futuras.');
+                    } elseif (Turno::existeConflicto((int) $profesionalId, $fechaHora, $turno?->id, $isExternal)) {
+                        $validator->errors()->add('fecha_hora', 'El profesional ya tiene un turno en ese horario o la fecha está bloqueada por un turno externo.');
+                    }
+                } catch (\Throwable) {
+                    // El validador de fecha ya reporta formato inválido.
+                }
             }
         }];
     }
