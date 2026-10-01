@@ -8,18 +8,18 @@
 
 ## Turnos y cancelación
 
-- [ ] Añadir estado operativo `programado`/`cancelado` a los turnos y migrar los existentes a `programado`.
-- [ ] Completar la autorización por subtipo en policy, Form Requests, rutas y controlador, alineada con CU4–CU7.
-- [ ] Completar las reglas de cliente, proceso, profesional, tipo, flag externo y detalle externo en creación y actualización.
-- [ ] Implementar conflictos por fecha/hora exacta y bloqueo de jornada completa para externos, dentro de una transacción.
-- [ ] Implementar reprogramación segura y cancelación sin borrado, conservando el historial.
-- [ ] Emitir y persistir la notificación auditable de alta, reprogramación y cancelación.
+- [x] Añadir estado operativo `programado`/`cancelado` a los turnos y migrar los existentes a `programado`.
+- [x] Completar la autorización de HU-11 (consulta inicial y seguimiento) en policy, componentes Livewire y rutas, alineada con CU4, CU4.1, CU6 y CU7.
+- [x] Validar cliente, proceso activo, profesional y tipo para alta/reprogramación de turnos internos y de seguimiento; los compromisos externos se mantienen fuera de HU-11.
+- [x] Implementar conflictos por fecha/hora exacta y bloqueo de jornada completa por compromisos externos activos, dentro de una transacción.
+- [x] Implementar reprogramación segura y cancelación sin borrado, conservando el historial.
+- [x] Notificaciones de alta, reprogramación y cancelación: fuera del alcance actual por decisión de producto; seguimiento en [HU-11 — Notificaciones auditables de turnos](https://trello.com/c/Iv2kJ7WQ/74-hu-11-notificaciones-auditables-de-turnos).
 
 ## Agenda
 
-- [ ] Implementar consulta por profesional y rango de fecha, usando alcance previo del Profesional y relaciones precargadas.
-- [ ] Representar tipos de turno, bloqueo externo, estado cancelado e historial sin otorgar operaciones de escritura.
-- [ ] Manejar rangos inválidos, agenda vacía, datos relacionados ausentes y respuestas 403 sin exponer información.
+- [x] Implementar consulta por profesional y rango acotado de fecha, usando alcance previo del Profesional y relaciones precargadas.
+- [x] Representar tipos de turno, bloqueo externo, estado cancelado e historial sin otorgar operaciones de escritura.
+- [x] Manejar rango máximo, agenda vacía, relaciones ausentes y respuestas 403 sin exponer información.
 
 ## Categorías documentales
 
@@ -31,7 +31,7 @@
 
 ## Calidad y cierre
 
-- [ ] Crear pruebas PHPUnit de permisos, URLs directas, alcance del Profesional, validaciones, conflictos, cancelación y notificaciones.
+- [x] Crear pruebas PHPUnit de permisos, URLs directas, alcance del Profesional, validaciones, conflictos y cancelación; verificar explícitamente que HU-11 no genere notificaciones.
 - [ ] Crear pruebas PHPUnit del ciclo de categorías, validación de nombre, datos históricos y preservación de documentos/archivos.
 - [ ] Ejecutar Pint, las pruebas afectadas y `git diff --check` al aplicar código.
 - [ ] Actualizar la documentación operativa afectada después de la implementación y antes de archivar el cambio.

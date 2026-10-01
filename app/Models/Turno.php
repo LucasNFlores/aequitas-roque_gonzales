@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+use Carbon\CarbonInterface;
 use Database\Factories\TurnoFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Turno extends Model
 {
@@ -15,14 +16,11 @@ class Turno extends Model
 
     public const ESTADOS = ['programado', 'cancelado'];
 
-    /** Duración por defecto para detección de solapamiento por rango (HU-11). */
-    public const DURACION_MINUTOS = 60;
-
     /** Estados de proceso que impiden agendar seguimiento. */
     public const PROCESO_ESTADOS_INACTIVOS = ['finalizado', 'rechazado'];
 
     /** @use HasFactory<TurnoFactory> */
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     protected $fillable = [
         'cliente_id',
@@ -34,6 +32,10 @@ class Turno extends Model
         'detalle_externo',
         'tipo',
         'estado',
+    ];
+
+    protected $attributes = [
+        'estado' => 'programado',
     ];
 
     protected function casts(): array
@@ -64,10 +66,6 @@ class Turno extends Model
         return $this->estado === 'programado';
     }
 
-    /**
-     * CU7: cancelación lógica. Nunca delete()/forceDelete().
-     * Conserva historial y libera disponibilidad.
-     */
     public function cancelar(): bool
     {
         if ($this->isCancelado()) {
@@ -77,83 +75,34 @@ class Turno extends Model
         return $this->update(['estado' => 'cancelado']);
     }
 
-    /**
-     * Detecta conflicto por rango horario + bloqueo por externo (HU-11).
-     * Rango: [fecha_hora, fecha_hora + DURACION_MINUTOS).
-     * Externo activo del mismo profesional bloquea todo el día.
-     */
     public static function existeConflicto(
         int $profesionalId,
-        \Carbon\CarbonInterface|\DateTimeInterface|string $fechaHora,
+        CarbonInterface|\DateTimeInterface|string $fechaHora,
         ?int $excluirId = null,
-        bool $esExternoNuevo = false
+        bool $esExternoNuevo = false,
     ): bool {
-        $inicio = $fechaHora instanceof \Carbon\CarbonInterface
+        $fecha = $fechaHora instanceof CarbonInterface
             ? $fechaHora->copy()
-            : \Carbon\Carbon::parse($fechaHora);
-        $fin = $inicio->copy()->addMinutes(self::DURACION_MINUTOS);
-        $ventanaInicio = $inicio->copy()->subMinutes(self::DURACION_MINUTOS);
+            : Carbon::parse($fechaHora);
 
-        $query = self::query()
+        $turnosDelDia = static::query()
             ->activos()
             ->where('profesional_id', $profesionalId)
-            ->whereBetween('fecha_hora', [$ventanaInicio, $fin])
-            ->when($excluirId !== null, fn (Builder $q) => $q->where('id', '!=', $excluirId));
-
-        $candidatos = $query->get(['id', 'fecha_hora', 'es_externo']);
-
-        // Bloqueo por externo: cualquier externo activo ese día bloquea, y un
-        // nuevo externo choca con cualquier turno activo ese día.
-        $fechaDia = $inicio->toDateString();
-        foreach ($candidatos as $candidato) {
-            $candidatoFecha = $candidato->fecha_hora instanceof \Carbon\CarbonInterface
-                ? $candidato->fecha_hora->toDateString()
-                : \Carbon\Carbon::parse($candidato->fecha_hora)->toDateString();
-
-            if ($candidatoFecha !== $fechaDia) {
-                continue;
-            }
-
-            if ($esExternoNuevo || (bool) $candidato->es_externo) {
-                return true;
-            }
-        }
-
-        // Solapamiento por rango para turnos internos.
-        foreach ($candidatos as $candidato) {
-            $candInicio = $candidato->fecha_hora instanceof \Carbon\CarbonInterface
-                ? $candidato->fecha_hora
-                : \Carbon\Carbon::parse($candidato->fecha_hora);
-            $candFin = $candInicio->copy()->addMinutes(self::DURACION_MINUTOS);
-
-            if ($candInicio->lt($fin) && $inicio->lt($candFin)) {
-                return true;
-            }
-        }
-
-        // Externo fuera de la ventana horaria pero mismo día: buscar por fecha.
-        $externoMismoDia = self::query()
-            ->activos()
-            ->where('profesional_id', $profesionalId)
-            ->whereDate('fecha_hora', $fechaDia)
-            ->where('es_externo', true)
-            ->when($excluirId !== null, fn (Builder $q) => $q->where('id', '!=', $excluirId))
-            ->exists();
-
-        if ($externoMismoDia) {
-            return true;
-        }
+            ->whereDate('fecha_hora', $fecha->toDateString())
+            ->when($excluirId !== null, fn (Builder $query): Builder => $query->whereKeyNot($excluirId));
 
         if ($esExternoNuevo) {
-            return self::query()
-                ->activos()
-                ->where('profesional_id', $profesionalId)
-                ->whereDate('fecha_hora', $fechaDia)
-                ->when($excluirId !== null, fn (Builder $q) => $q->where('id', '!=', $excluirId))
-                ->exists();
+            return $turnosDelDia->exists();
         }
 
-        return false;
+        $fechaExacta = $fecha->copy()->second(0);
+
+        return $turnosDelDia
+            ->where(function (Builder $query) use ($fechaExacta): void {
+                $query->where('es_externo', true)
+                    ->orWhere('fecha_hora', $fechaExacta);
+            })
+            ->exists();
     }
 
     public function scopeVisibleTo(Builder $query, User $user): Builder

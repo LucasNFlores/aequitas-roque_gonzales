@@ -3,7 +3,7 @@
 ## Principios
 
 - La matriz V2 define autorización; nombres técnicos de permisos Spatie no sustituyen los CUs.
-- La autorización se aplica en interfaz, ruta, Form Request, policy y consulta.
+- La autorización se aplica en interfaz, ruta, policy y acción de servidor; los formularios Livewire vuelven a validar toda entrada.
 - Las consultas operativas excluyen turnos cancelados y bajas lógicas; la auditoría conserva ambos.
 - El Administrador mantiene acceso a todas las capacidades sin excepción.
 
@@ -37,11 +37,11 @@ La cancelación no ejecutará `delete()` ni `softDelete()`. El turno seguirá di
 | Crear/modificar/cancelar turnos | Sí | No | No | No | Sí |
 | Consultar agenda | Sí | Solo propia | Sí | No | Sí |
 
-`Turno::visibleTo()` debe restringir al Profesional antes de aplicar filtros de profesional o rango. La agenda consulta un profesional y un rango acotado (día, semana o rango explícito) y carga las relaciones necesarias para evitar N+1. Muestra interno, seguimiento, externo y cancelado; este último solo como historial y nunca como bloqueo.
+`Turno::visibleTo()` debe restringir al Profesional antes de aplicar filtros de profesional o rango. La agenda abre en un período futuro por defecto, requiere fechas inicial y final y limita cada consulta a 90 días; además carga las relaciones necesarias para evitar N+1. Muestra interno, seguimiento, externo y cancelado; este último solo como historial y nunca como bloqueo.
 
 ### Notificaciones
 
-La creación, reprogramación y cancelación producen un registro auditable con destinatario, canal, mensaje, fecha, estado y resultado. El cambio emite la acción/evento necesario para la infraestructura de notificaciones; no crea una integración directa duplicada con Brevo.
+Las notificaciones de alta, reprogramación y cancelación quedan fuera de esta entrega por decisión de producto. Se registrarán como trabajo futuro en la tarjeta [HU-11 — Notificaciones auditables de turnos](https://trello.com/c/Iv2kJ7WQ/74-hu-11-notificaciones-auditables-de-turnos); este cambio no envía mensajes ni crea registros de notificación. La especificación general de notificaciones del sistema sigue vigente.
 
 ## Categorías documentales
 
@@ -69,7 +69,7 @@ Las pruebas deben incluir:
 - Matriz completa de roles para CU4–CU8 y CU37, incluso por URL o petición directa.
 - Alcance del Profesional para la agenda.
 - Coherencia tipo/flag/detalle, consistencia cliente-proceso-profesional y conflictos de turnos.
-- Reprogramación, cancelación, conservación de historial y generación de notificaciones auditables.
+- Reprogramación, cancelación, conservación de historial y ausencia de registros de notificación durante HU-11; la integración de notificaciones queda en la tarjeta futura vinculada arriba.
 - Ciclo activo/inactivo/baja de categorías, nombre vacío o duplicado, selección en nuevas cargas y preservación de documentos históricos.
 
 ## Riesgos y controles

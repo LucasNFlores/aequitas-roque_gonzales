@@ -27,12 +27,15 @@ class TurnoPolicy
         return $user->canAny([
             'agendar_turnos_internos',
             'agendar_turnos_seguimiento',
-            'agendar_turnos_externos',
         ]);
     }
 
     public function update(User $user, Turno $turno): bool
     {
+        if ($turno->isCancelado()) {
+            return false;
+        }
+
         return $turno->es_externo
             ? $user->can('modificar_turnos_externos')
             : $user->can('modificar_turnos');
@@ -40,7 +43,7 @@ class TurnoPolicy
 
     public function delete(User $user, Turno $turno): bool
     {
-        return $user->can('eliminar_turnos');
+        return $turno->isProgramado() && $user->can('eliminar_turnos');
     }
 
     public function restore(User $user, Turno $turno): bool
