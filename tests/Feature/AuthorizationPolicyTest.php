@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use App\Http\Requests\StoreDocumentoRequest;
 use App\Http\Requests\StoreProcesoRequest;
 use App\Http\Requests\StoreReporteRequest;
-use App\Http\Requests\StoreTurnoRequest;
+use App\Livewire\Turnos\Form;
 use App\Models\Cliente;
 use App\Models\Documento;
 use App\Models\Proceso;
@@ -16,6 +16,7 @@ use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Validator;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class AuthorizationPolicyTest extends TestCase
@@ -154,7 +155,7 @@ class AuthorizationPolicyTest extends TestCase
 
     public function test_file_and_state_validation_rules_are_present(): void
     {
-        $documentRules = (new StoreDocumentoRequest())->rules();
+        $documentRules = (new StoreDocumentoRequest)->rules();
         $this->assertContains('mimes:pdf', $documentRules['archivo']);
         $this->assertContains('max:20480', $documentRules['archivo']);
 
@@ -168,7 +169,7 @@ class AuthorizationPolicyTest extends TestCase
 
         $stateValidator = Validator::make(
             ['estado' => 'iniciado'],
-            (new StoreProcesoRequest())->rules(),
+            (new StoreProcesoRequest)->rules(),
         );
 
         $this->assertTrue($stateValidator->fails());
@@ -177,19 +178,18 @@ class AuthorizationPolicyTest extends TestCase
 
     public function test_turno_validation_rejects_inconsistent_external_data(): void
     {
-        $request = StoreTurnoRequest::create('/', 'POST', [
-            'es_externo' => false,
-            'tipo' => 'externo',
-            'detalle_externo' => null,
-        ]);
-        $validator = Validator::make($request->all(), $request->rules());
+        $secretary = $this->userWithRole('Secretario');
+        $professional = $this->userWithRole('Profesional');
+        $client = Cliente::factory()->create();
 
-        foreach ($request->after() as $after) {
-            $validator->after($after);
-        }
-
-        $this->assertTrue($validator->fails());
-        $this->assertTrue($validator->errors()->has('tipo'));
+        Livewire::actingAs($secretary)
+            ->test(Form::class)
+            ->set('clienteId', (string) $client->id)
+            ->set('profesionalId', (string) $professional->id)
+            ->set('fechaHora', now()->addDays(2)->format('Y-m-d\\TH:i'))
+            ->set('tipo', 'externo')
+            ->call('save')
+            ->assertHasErrors('tipo');
     }
 
     public function test_professional_report_validation_rejects_an_unassigned_process(): void
