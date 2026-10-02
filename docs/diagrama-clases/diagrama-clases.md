@@ -48,6 +48,7 @@ direction LR
             -String nombre
             -Text descripcion
             -Date fecha_inicio
+            -Decimal honorarios
             -String tipo
             -String estado
             -String motivo_rechazo
@@ -57,7 +58,9 @@ direction LR
             +BelongsTo servicio()
             +HasMany turnos()
             +HasMany documentos()
+            +HasMany comprobantesPago()
             +HasMany reportes()
+            +HasMany historialEstados()
         }
 
         class Servicio {

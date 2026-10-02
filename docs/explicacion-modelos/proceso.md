@@ -57,6 +57,7 @@ protected $fillable = [
     'nombre',
     'descripcion',
     'fecha_inicio',
+    'honorarios',
     'tipo',
     'estado',
     'motivo_rechazo',
@@ -83,11 +84,12 @@ protected function casts(): array
 {
     return [
         'fecha_inicio' => 'date',
+        'honorarios' => 'decimal:2',
     ];
 }
 ```
 
-Un solo cast en Proceso: `fecha_inicio` como fecha. El estado se almacena como un string con el slug estable del catálogo estados_proceso.
+`fecha_inicio` se convierte a fecha y `honorarios` conserva dos decimales. Los honorarios son nullable y la asignación o reasignación los actualiza con el costo de referencia vigente del servicio. El estado se almacena como string con el slug estable del catálogo `estados_proceso`.
 
 ### 5. Estado e historial
 
@@ -95,7 +97,7 @@ El método transitionTo sólo permite estados activos del catálogo, conserva el
 
 ### 6. Relaciones — La parte más importante
 
-Proceso tiene **8 relaciones**: 4 `belongsTo` (el proceso pertenece a alguien) + 4 `hasMany` (el proceso tiene cosas).
+Proceso tiene **9 relaciones**: 4 `belongsTo` (el proceso pertenece a alguien) + 5 `hasMany` (el proceso tiene cosas), incluido su historial de estados.
 
 ---
 
@@ -383,8 +385,8 @@ $proceso->forceDelete();  // borrado real, sin vuelta atrás
 
 | Concepto | Dónde se ve en Proceso |
 |----------|----------------------|
-| `$fillable` | Incluye 4 FK + campos propios |
-| `casts()` | `fecha_inicio => date` |
+| `$fillable` | Incluye 4 FK + campos propios, honorarios y motivo de rechazo |
+| `casts()` | `fecha_inicio => date`, `honorarios => decimal:2` |
 | `SoftDeletes` | Trait, borrado lógico |
 | `belongsTo` estándar | `cliente()`, `servicio()` |
 | `belongsTo` con FK custom | `profesional()`, `coordinador()` |

@@ -97,6 +97,7 @@ Table procesos {
   nombre varchar
   descripcion text
   fecha_inicio date
+  honorarios decimal [null]
   tipo varchar [note: 'Civil | Comercial | Familia']
   estado varchar [note: 'Slug de estados_proceso; los estados base son configurables']
   motivo_rechazo text [null]

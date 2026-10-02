@@ -13,6 +13,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Proceso extends Model
 {
+    public const ESTADO_PENDIENTE = 'pendiente';
+
+    public const ESTADO_ADMITIDO = 'admitido';
+
+    public const ESTADO_RECHAZADO = 'rechazado';
+
     public const TIPOS = ['Civil', 'Comercial', 'Familia'];
 
     public const ESTADOS = [
@@ -39,6 +45,7 @@ class Proceso extends Model
         'nombre',
         'descripcion',
         'fecha_inicio',
+        'honorarios',
         'tipo',
         'estado',
         'motivo_rechazo',
@@ -48,6 +55,7 @@ class Proceso extends Model
     {
         return [
             'fecha_inicio' => 'date',
+            'honorarios' => 'decimal:2',
         ];
     }
 

@@ -18,9 +18,10 @@ La matriz online **“Aequitas - Matriz de Módulos, Funciones y Permisos por Ro
 - Al registrar un cliente debe crear un proceso inicial de Consultoría en estado `pendiente` y un turno inicial con el Coordinador.
 - Secretario y Administrador deben poder crear un proceso adicional para un cliente ya registrado, sin crear otro cliente ni un turno inicial automáticamente.
 - El proceso debe conservar cliente, servicio, coordinador, profesional, fechas, tipo, descripción, honorarios y motivo de rechazo.
-- El Coordinador debe poder admitir o rechazar el proceso y registrar el motivo de rechazo.
-- Secretario, Coordinador y Administrador deben poder asignar o reasignar profesionales según servicio o especialidad.
-- Los listados de clientes y procesos deben permitir búsqueda, filtros y paginación.
+- Coordinador y Administrador pueden admitir o rechazar procesos pendientes; todo rechazo requiere motivo.
+- Secretario, Coordinador y Administrador pueden asignar o reasignar profesionales activos compatibles con el servicio o especialidad; los honorarios toman el costo de referencia vigente del servicio al realizar la asignación.
+- Los listados de clientes y procesos deben permitir búsqueda, filtros y paginación. El listado de procesos debe filtrar por cliente, servicio, estado, coordinador, profesional y rango de fecha de inicio.
+- Secretario, Profesional, Coordinador, Directivo y Administrador pueden listar y filtrar procesos; el Profesional solo ve los asignados. El cambio de estado corresponde al Profesional asignado, Coordinador o Administrador.
 - El historial de estados debe conservar estado anterior, estado nuevo, fecha, usuario y motivo.
 - El Profesional solo debe consultar y operar procesos que tenga asignados.
 
