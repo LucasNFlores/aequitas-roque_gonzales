@@ -67,7 +67,7 @@ class Index extends Component
             ? (string) $user->id
             : $this->profesionalId;
         $estadoFiltro = in_array($this->estadoFiltro, Turno::ESTADOS, true) ? $this->estadoFiltro : '';
-        $tipoFiltro = in_array($this->tipoFiltro, ['consulta_inicial', 'seguimiento'], true) ? $this->tipoFiltro : '';
+        $tipoFiltro = in_array($this->tipoFiltro, ['consulta_inicial', 'seguimiento', 'externo'], true) ? $this->tipoFiltro : '';
 
         $turnos = Turno::query()
             ->visibleTo($user)
