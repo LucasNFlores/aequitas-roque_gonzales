@@ -30,6 +30,26 @@ class TurnoScheduler
         });
     }
 
+    /** @param array{cliente_id: int, profesional_id: int, proceso_id: int|null, fecha_hora: string, detalle_externo: string} $attributes */
+    public function scheduleExternal(array $attributes): Turno
+    {
+        return DB::transaction(function () use ($attributes): Turno {
+            $professionalId = (int) $attributes['profesional_id'];
+            $this->lockProfessionals([$professionalId]);
+
+            $dateTime = Carbon::parse($attributes['fecha_hora'])->second(0);
+            $this->assertAvailability($professionalId, $dateTime, null, true);
+
+            return Turno::query()->create([
+                ...$attributes,
+                'fecha_hora' => $dateTime,
+                'tipo' => 'externo',
+                'es_externo' => true,
+                'estado' => 'programado',
+            ]);
+        });
+    }
+
     public function reschedule(Turno $turno, string $fechaHora): Turno
     {
         return DB::transaction(function () use ($turno, $fechaHora): Turno {
@@ -52,6 +72,40 @@ class TurnoScheduler
             );
 
             $lockedTurno->update(['fecha_hora' => $dateTime]);
+
+            return $lockedTurno->refresh();
+        });
+    }
+
+    public function rescheduleExternal(Turno $turno, string $fechaHora, string $detalleExterno): Turno
+    {
+        return DB::transaction(function () use ($turno, $fechaHora, $detalleExterno): Turno {
+            $this->lockProfessionals([(int) $turno->profesional_id]);
+
+            $lockedTurno = Turno::query()
+                ->where('tipo', 'externo')
+                ->where('es_externo', true)
+                ->lockForUpdate()
+                ->findOrFail($turno->id);
+
+            if ($lockedTurno->isCancelado()) {
+                throw ValidationException::withMessages([
+                    'fechaHora' => 'No se puede reprogramar un compromiso cancelado.',
+                ]);
+            }
+
+            $dateTime = Carbon::parse($fechaHora)->second(0);
+            $this->assertAvailability(
+                (int) $lockedTurno->profesional_id,
+                $dateTime,
+                $lockedTurno->id,
+                true,
+            );
+
+            $lockedTurno->update([
+                'fecha_hora' => $dateTime,
+                'detalle_externo' => $detalleExterno,
+            ]);
 
             return $lockedTurno->refresh();
         });

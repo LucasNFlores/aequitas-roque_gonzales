@@ -3,7 +3,9 @@
 namespace Tests\Feature;
 
 use App\Livewire\Turnos\Agenda;
+use App\Livewire\Turnos\ExternalForm;
 use App\Livewire\Turnos\Form;
+use App\Livewire\Turnos\Index;
 use App\Livewire\Turnos\Show;
 use App\Models\Cliente;
 use App\Models\Proceso;
@@ -76,6 +78,17 @@ class TurnoTest extends TestCase
             'procesoId' => '',
             'fechaHora' => now()->addDays(2)->setTime(10, 0)->format('Y-m-d\\TH:i'),
             'tipo' => 'consulta_inicial',
+        ], $overrides);
+    }
+
+    private function fillNewExternalTurno(array $overrides = []): array
+    {
+        return array_merge([
+            'clienteId' => (string) $this->cliente->id,
+            'profesionalId' => (string) $this->profesional->id,
+            'procesoId' => '',
+            'fechaHora' => now()->addDays(3)->setTime(9, 0)->format('Y-m-d\\TH:i'),
+            'detalleExterno' => 'Audiencia de prueba HU-13',
         ], $overrides);
     }
 
@@ -163,6 +176,148 @@ class TurnoTest extends TestCase
             ->set($this->fillNewTurno(['fechaHora' => $date->copy()->setTime(15, 0)->format('Y-m-d\\TH:i')]))
             ->call('save')
             ->assertHasErrors('fechaHora');
+    }
+
+    public function test_secretario_registra_compromiso_externo_con_detalle_y_bloquea_toda_la_fecha(): void
+    {
+        $date = now()->addDays(6)->setTime(9, 0);
+
+        Livewire::actingAs($this->secretario)
+            ->test(ExternalForm::class)
+            ->set($this->fillNewExternalTurno(['fechaHora' => $date->format('Y-m-d\\TH:i')]))
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertRedirect();
+
+        $turno = Turno::query()->where('tipo', 'externo')->firstOrFail();
+        $this->assertDatabaseHas('turnos', [
+            'id' => $turno->id,
+            'cliente_id' => $this->cliente->id,
+            'profesional_id' => $this->profesional->id,
+            'tipo' => 'externo',
+            'es_externo' => true,
+            'detalle_externo' => 'Audiencia de prueba HU-13',
+            'estado' => 'programado',
+        ]);
+
+        $this->form()
+            ->set($this->fillNewTurno(['fechaHora' => $date->copy()->setTime(17, 0)->format('Y-m-d\\TH:i')]))
+            ->call('save')
+            ->assertHasErrors('fechaHora');
+    }
+
+    public function test_alta_externa_exige_detalle_y_relaciones_compatibles(): void
+    {
+        Livewire::actingAs($this->secretario)
+            ->test(ExternalForm::class)
+            ->set($this->fillNewExternalTurno(['detalleExterno' => '   ']))
+            ->call('save')
+            ->assertHasErrors('detalleExterno');
+
+        $process = $this->procesoActivo();
+        $otherClient = Cliente::factory()->create();
+        $otherProfessional = User::factory()->create();
+        $otherProfessional->assignRole('Profesional');
+
+        Livewire::actingAs($this->secretario)
+            ->test(ExternalForm::class)
+            ->set($this->fillNewExternalTurno([
+                'clienteId' => (string) $otherClient->id,
+                'profesionalId' => (string) $otherProfessional->id,
+                'procesoId' => (string) $process->id,
+                'fechaHora' => now()->addDays(4)->setTime(11, 0)->format('Y-m-d\\TH:i'),
+            ]))
+            ->call('save')
+            ->assertHasErrors(['clienteId', 'profesionalId']);
+    }
+
+    public function test_alta_externa_rechaza_un_dia_ocupado_por_turno_interno(): void
+    {
+        $date = now()->addDays(7)->setTime(10, 0);
+        $this->turno(['fecha_hora' => $date]);
+
+        Livewire::actingAs($this->secretario)
+            ->test(ExternalForm::class)
+            ->set($this->fillNewExternalTurno(['fechaHora' => $date->copy()->setTime(16, 0)->format('Y-m-d\\TH:i')]))
+            ->call('save')
+            ->assertHasErrors('fechaHora');
+    }
+
+    public function test_reprogramacion_externa_valida_la_fecha_antes_de_liberar_la_anterior(): void
+    {
+        $oldDate = now()->addDays(8)->setTime(10, 0);
+        $turno = $this->turno([
+            'fecha_hora' => $oldDate,
+            'es_externo' => true,
+            'detalle_externo' => 'Audiencia inicial',
+            'tipo' => 'externo',
+        ]);
+        $conflictDate = now()->addDays(9)->setTime(12, 0);
+        $this->turno(['fecha_hora' => $conflictDate]);
+
+        Livewire::actingAs($this->secretario)
+            ->test(ExternalForm::class, ['turnoId' => $turno->id])
+            ->set('fechaHora', $conflictDate->format('Y-m-d\\TH:i'))
+            ->set('detalleExterno', 'Audiencia reprogramada')
+            ->call('save')
+            ->assertHasErrors('fechaHora');
+
+        $this->assertDatabaseHas('turnos', [
+            'id' => $turno->id,
+            'fecha_hora' => $oldDate->format('Y-m-d H:i:s'),
+            'detalle_externo' => 'Audiencia inicial',
+        ]);
+
+        $newDate = now()->addDays(10)->setTime(14, 0);
+        Livewire::actingAs($this->secretario)
+            ->test(ExternalForm::class, ['turnoId' => $turno->id])
+            ->set('fechaHora', $newDate->format('Y-m-d\\TH:i'))
+            ->set('detalleExterno', 'Audiencia reprogramada')
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('turnos', [
+            'id' => $turno->id,
+            'fecha_hora' => $newDate->format('Y-m-d H:i:s'),
+            'detalle_externo' => 'Audiencia reprogramada',
+            'estado' => 'programado',
+        ]);
+
+        $this->form()
+            ->set($this->fillNewTurno(['fechaHora' => $oldDate->copy()->setTime(17, 0)->format('Y-m-d\\TH:i')]))
+            ->call('save')
+            ->assertHasNoErrors();
+    }
+
+    public function test_cancelacion_externa_conserva_el_registro_y_libera_la_fecha(): void
+    {
+        $date = now()->addDays(11)->setTime(10, 0);
+        $turno = $this->turno([
+            'fecha_hora' => $date,
+            'es_externo' => true,
+            'detalle_externo' => 'Audiencia cancelada',
+            'tipo' => 'externo',
+        ]);
+
+        Livewire::actingAs($this->secretario)
+            ->test(Show::class, ['turno' => $turno])
+            ->call('requestCancellation')
+            ->call('cancelTurno')
+            ->assertRedirect(route('turnos.index'));
+
+        $this->assertDatabaseHas('turnos', [
+            'id' => $turno->id,
+            'estado' => 'cancelado',
+            'deleted_at' => null,
+            'fecha_hora' => $date->format('Y-m-d H:i:s'),
+            'detalle_externo' => 'Audiencia cancelada',
+        ]);
+
+        $this->form()
+            ->set($this->fillNewTurno(['fechaHora' => $date->copy()->setTime(16, 0)->format('Y-m-d\\TH:i')]))
+            ->call('save')
+            ->assertHasNoErrors();
     }
 
     public function test_reprogramar_excluye_el_turno_actual_y_libera_horario_anterior(): void
@@ -267,5 +422,46 @@ class TurnoTest extends TestCase
         Livewire::actingAs($this->profesional)->test(Form::class)->assertForbidden();
         Livewire::actingAs($coordinator)->test(Form::class)->assertForbidden();
         Livewire::actingAs($director)->test(Agenda::class)->assertForbidden();
+    }
+
+    public function test_escritura_externa_solo_se_permite_a_secretario_y_administrador(): void
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('Administrador');
+        $coordinator = User::factory()->create();
+        $coordinator->assignRole('Coordinador');
+        $director = User::factory()->create();
+        $director->assignRole('Directivo');
+        $turno = $this->turno([
+            'es_externo' => true,
+            'detalle_externo' => 'Compromiso para permisos',
+            'tipo' => 'externo',
+        ]);
+
+        $this->actingAs($this->secretario)->get(route('turnos.externos.create'))->assertOk();
+        $this->actingAs($admin)->get(route('turnos.externos.create'))->assertOk();
+        $this->actingAs($this->secretario)->get(route('turnos.externos.edit', $turno))->assertOk();
+        $this->actingAs($admin)->get(route('turnos.externos.edit', $turno))->assertOk();
+
+        foreach ([$this->profesional, $coordinator, $director] as $user) {
+            $this->actingAs($user)->get(route('turnos.externos.create'))->assertForbidden();
+            $this->actingAs($user)->get(route('turnos.externos.edit', $turno))->assertForbidden();
+            Livewire::actingAs($user)->test(ExternalForm::class)->assertForbidden();
+        }
+
+        Livewire::actingAs($this->profesional)
+            ->test(Index::class)
+            ->assertDontSee('Registrar compromiso externo');
+        Livewire::actingAs($coordinator)
+            ->test(Index::class)
+            ->assertDontSee('Registrar compromiso externo');
+        Livewire::actingAs($this->profesional)
+            ->test(Show::class, ['turno' => $turno])
+            ->call('requestCancellation')
+            ->assertForbidden();
+        Livewire::actingAs($coordinator)
+            ->test(Show::class, ['turno' => $turno])
+            ->call('requestCancellation')
+            ->assertForbidden();
     }
 }

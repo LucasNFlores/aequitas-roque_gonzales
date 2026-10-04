@@ -139,6 +139,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/turnos/create', fn () => view('turnos.create'))
         ->middleware('permission:agendar_turnos_internos|agendar_turnos_seguimiento')
         ->name('turnos.create');
+    Route::get('/turnos/externos/create', fn () => view('turnos.externos.create'))
+        ->middleware('permission:agendar_turnos_externos')
+        ->name('turnos.externos.create');
+    Route::get('/turnos/externos/{turno}/edit', fn (Turno $turno) => view('turnos.externos.edit', compact('turno')))
+        ->middleware('permission:modificar_turnos_externos')
+        ->name('turnos.externos.edit');
     Route::get('/turnos/{turno}', fn (Turno $turno) => view('turnos.show', compact('turno')))
         ->middleware('permission:ver_agenda_profesional')
         ->name('turnos.show');

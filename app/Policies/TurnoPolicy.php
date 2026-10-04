@@ -30,6 +30,11 @@ class TurnoPolicy
         ]);
     }
 
+    public function createExternal(User $user): bool
+    {
+        return $user->can('agendar_turnos_externos');
+    }
+
     public function update(User $user, Turno $turno): bool
     {
         if ($turno->isCancelado()) {
@@ -37,7 +42,7 @@ class TurnoPolicy
         }
 
         return $turno->es_externo
-            ? $user->can('modificar_turnos_externos')
+            ? $turno->tipo === 'externo' && $user->can('modificar_turnos_externos')
             : $user->can('modificar_turnos');
     }
 

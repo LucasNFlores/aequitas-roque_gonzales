@@ -10,7 +10,7 @@
         <div><dt class="font-semibold">Estado</dt><dd>{{ $turno->estado === 'cancelado' ? 'Cancelado (histórico)' : 'Programado' }}</dd></div>
     </dl>
     <div class="flex flex-wrap gap-3"><a href="{{ route('turnos.index') }}" class="rounded border px-4 py-2">Volver</a>
-        @can('update', $turno)<a href="{{ route('turnos.edit', $turno) }}" class="rounded border px-4 py-2">Reprogramar</a>@endcan
+        @can('update', $turno)<a href="{{ $turno->es_externo ? route('turnos.externos.edit', $turno) : route('turnos.edit', $turno) }}" class="rounded border px-4 py-2">Reprogramar</a>@endcan
         @can('delete', $turno)
             @if ($confirmingCancellation)
                 <div role="alertdialog" aria-modal="true" aria-labelledby="confirm-cancel-title" class="w-full rounded border border-red-300 bg-red-50 p-4 text-red-900">
