@@ -394,6 +394,116 @@ class TurnoTest extends TestCase
             ->assertHasErrors('hasta');
     }
 
+    public function test_agenda_aplica_todos_los_profesionales_muestra_limites_y_cancelaciones(): void
+    {
+        $desde = now()->addDays(5)->startOfDay();
+        $hasta = $desde->copy()->addDays(2);
+        $turnoInicial = Cliente::factory()->create(['apellido' => 'InicioHU12']);
+        $turnoFinal = Cliente::factory()->create(['apellido' => 'FinalHU12']);
+        $turnoPrevio = Cliente::factory()->create(['apellido' => 'PrevioFueraHU12']);
+        $turnoPosterior = Cliente::factory()->create(['apellido' => 'PosteriorFueraHU12']);
+
+        $this->turno([
+            'cliente_id' => $turnoInicial->id,
+            'fecha_hora' => $desde,
+        ]);
+        $this->turno([
+            'cliente_id' => $turnoFinal->id,
+            'fecha_hora' => $hasta->copy()->endOfDay(),
+        ]);
+        $this->turno([
+            'fecha_hora' => $desde->copy()->setTime(12, 0),
+            'tipo' => 'seguimiento',
+        ]);
+        $this->turno([
+            'cliente_id' => $turnoPrevio->id,
+            'fecha_hora' => $desde->copy()->subSecond(),
+        ]);
+        $this->turno([
+            'cliente_id' => $turnoPosterior->id,
+            'fecha_hora' => $hasta->copy()->endOfDay()->addSecond(),
+        ]);
+        $this->turno([
+            'fecha_hora' => $desde->copy()->addDay()->setTime(10, 0),
+            'tipo' => 'externo',
+            'es_externo' => true,
+            'detalle_externo' => 'AudienciaHU12',
+        ]);
+        $this->turno([
+            'fecha_hora' => $hasta->copy()->setTime(11, 0),
+            'tipo' => 'externo',
+            'es_externo' => true,
+            'detalle_externo' => 'CanceladoHU12',
+            'estado' => 'cancelado',
+        ]);
+
+        Livewire::actingAs($this->secretario)
+            ->test(Agenda::class)
+            ->set('profesionalId', '')
+            ->set('desde', $desde->toDateString())
+            ->set('hasta', $hasta->toDateString())
+            ->call('applyFilters')
+            ->assertHasNoErrors()
+            ->assertSee('InicioHU12')
+            ->assertSee('FinalHU12')
+            ->assertSee('Seguimiento')
+            ->assertSee('Horario ocupado')
+            ->assertSee('AudienciaHU12')
+            ->assertSee('Bloquea la jornada')
+            ->assertSee('Cancelado (histórico, no ocupa disponibilidad)')
+            ->assertDontSee('PrevioFueraHU12')
+            ->assertDontSee('PosteriorFueraHU12');
+    }
+
+    public function test_agenda_acepta_el_maximo_de_90_dias_y_rechaza_rangos_invertidos(): void
+    {
+        $agenda = Livewire::actingAs($this->secretario)
+            ->test(Agenda::class)
+            ->set('profesionalId', (string) $this->profesional->id)
+            ->set('desde', '2032-01-01')
+            ->set('hasta', '2032-03-30')
+            ->call('applyFilters');
+
+        $agenda->assertHasNoErrors();
+
+        Livewire::actingAs($this->secretario)
+            ->test(Agenda::class)
+            ->set('profesionalId', (string) $this->profesional->id)
+            ->set('desde', '2032-01-01')
+            ->set('hasta', '2032-03-31')
+            ->call('applyFilters')
+            ->assertHasErrors('hasta');
+
+        Livewire::actingAs($this->secretario)
+            ->test(Agenda::class)
+            ->set('profesionalId', (string) $this->profesional->id)
+            ->set('desde', '2032-03-30')
+            ->set('hasta', '2032-01-01')
+            ->call('applyFilters')
+            ->assertHasErrors('hasta');
+    }
+
+    public function test_agenda_muestra_estado_vacio_para_el_periodo_filtrado(): void
+    {
+        Livewire::actingAs($this->secretario)
+            ->test(Agenda::class)
+            ->set('profesionalId', (string) $this->profesional->id)
+            ->set('desde', '2032-01-01')
+            ->set('hasta', '2032-01-03')
+            ->call('applyFilters')
+            ->assertHasNoErrors()
+            ->assertSee('No hay turnos en el período.');
+    }
+
+    public function test_agenda_muestra_error_si_el_filtro_no_es_un_profesional(): void
+    {
+        Livewire::actingAs($this->secretario)
+            ->test(Agenda::class)
+            ->set('profesionalId', (string) $this->secretario->id)
+            ->call('applyFilters')
+            ->assertHasErrors('profesionalId');
+    }
+
     public function test_permiso_de_turno_interno_no_permite_escalar_a_seguimiento(): void
     {
         $restrictedUser = User::factory()->create();

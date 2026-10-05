@@ -75,19 +75,31 @@ class Agenda extends Component
         $rangeDays = Carbon::parse($validated['desde'])->startOfDay()
             ->diffInDays(Carbon::parse($validated['hasta'])->startOfDay());
 
-        if ($rangeDays > self::MAX_RANGE_DAYS) {
+        if ($rangeDays >= self::MAX_RANGE_DAYS) {
             $this->addError('hasta', 'El rango de agenda no puede superar los 90 días.');
 
             return;
         }
 
-        if (! $user->hasRole('Profesional') && $validated['profesionalId'] !== '') {
-            abort_unless(User::query()->role('Profesional')->whereKey($validated['profesionalId'])->exists(), 422);
+        $profesionalId = (string) ($validated['profesionalId'] ?? '');
+
+        if (! $user->hasRole('Profesional') && $profesionalId !== '') {
+            $isActiveProfessional = User::query()
+                ->role('Profesional')
+                ->whereNull('deleted_at')
+                ->whereKey($profesionalId)
+                ->exists();
+
+            if (! $isActiveProfessional) {
+                $this->addError('profesionalId', 'El usuario seleccionado no es un profesional activo.');
+
+                return;
+            }
         }
 
         $this->profesionalAplicado = $user->hasRole('Profesional')
             ? (string) $user->id
-            : (string) ($validated['profesionalId'] ?? '');
+            : $profesionalId;
         $this->desdeAplicado = (string) $validated['desde'];
         $this->hastaAplicado = (string) $validated['hasta'];
         $this->resetPage();
