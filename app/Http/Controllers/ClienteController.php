@@ -6,6 +6,7 @@ use App\Actions\RegistrarClienteInicial;
 use App\Http\Requests\StoreClienteRequest;
 use App\Http\Requests\UpdateClienteRequest;
 use App\Models\Cliente;
+use App\Models\User;
 use DomainException;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
@@ -61,7 +62,17 @@ class ClienteController extends Controller
     {
         $this->authorize('view', $cliente);
 
-        $cliente->loadMissing(['procesos' => fn ($query) => $query->latest(), 'procesos.servicio']);
+        $user = request()->user();
+        abort_unless($user instanceof User, 403);
+
+        $cliente->setRelation(
+            'procesos',
+            $cliente->procesos()
+                ->visibleTo($user)
+                ->with('servicio:id,nombre')
+                ->latest()
+                ->get(),
+        );
 
         return view('clientes.show', compact('cliente'));
     }

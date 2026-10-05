@@ -4,6 +4,7 @@ namespace App\Livewire\Documentos;
 
 use App\Models\CategoriaDocumento;
 use App\Models\Documento;
+use App\Models\DocumentoVersion;
 use App\Models\Proceso;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\DB;
@@ -15,6 +16,7 @@ use Livewire\Component;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
+use Throwable;
 
 class Index extends Component
 {
@@ -115,12 +117,43 @@ class Index extends Component
                 'tipo_documento' => $tipoDocumento,
             ];
 
+            $replacementPath = null;
+
             if ($this->archivo) {
-                $path = $this->archivo->storeAs('documentos/'.$this->proceso->id, Str::uuid().'.pdf', 'local');
-                $data['archivo_path'] = $path;
+                $replacementPath = $this->archivo->storeAs('documentos/'.$this->proceso->id, Str::uuid().'.pdf', 'local');
+                $data['archivo_path'] = $replacementPath;
             }
 
-            $documento->update($data);
+            $documento->loadMissing('categoria');
+
+            try {
+                DB::transaction(function () use ($documento, $data, $replacementPath): void {
+                    if ($replacementPath !== null) {
+                        DocumentoVersion::query()->create([
+                            'documento_id' => $documento->id,
+                            'usuario_id' => auth()->id(),
+                            'archivo_path' => $documento->archivo_path,
+                            'categoria_id' => $documento->categoria_id,
+                            'categoria_nombre' => $documento->categoria?->nombre,
+                            'tipo_documento' => $documento->tipo_documento,
+                            'nombre' => $documento->nombre,
+                            'fecha_reemplazo' => now(),
+                        ]);
+                    }
+
+                    $documento->update($data);
+                });
+            } catch (Throwable $exception) {
+                if ($replacementPath !== null) {
+                    Storage::disk('local')->delete($replacementPath);
+                }
+
+                report($exception);
+                $this->addError('archivo', 'No pudimos guardar el documento. Intentalo nuevamente.');
+
+                return;
+            }
+
             $this->successMessage = 'Documento actualizado correctamente.';
         } else {
             $path = $validated['archivo']->storeAs('documentos/'.$this->proceso->id, Str::uuid().'.pdf', 'local');
@@ -135,7 +168,7 @@ class Index extends Component
                         'nombre' => $validated['nombre'],
                     ]);
                 });
-            } catch (\Throwable $exception) {
+            } catch (Throwable $exception) {
                 Storage::disk('local')->delete($path);
                 report($exception);
                 $this->addError('archivo', 'No pudimos guardar el documento. Intentalo nuevamente.');
@@ -189,7 +222,7 @@ class Index extends Component
 
         $documentos = Documento::query()
             ->where('proceso_id', $this->proceso->id)
-            ->with('categoria')
+            ->with(['categoria', 'proceso:id,profesional_id', 'versiones.categoria', 'versiones.usuario'])
             ->when(trim($this->search) !== '', function ($query) {
                 $search = trim($this->search);
                 $query->where(function ($q) use ($search): void {

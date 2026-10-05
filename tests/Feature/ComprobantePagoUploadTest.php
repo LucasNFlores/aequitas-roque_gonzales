@@ -23,6 +23,7 @@ class ComprobantePagoUploadTest extends TestCase
         parent::setUp();
 
         $this->seed(RoleSeeder::class);
+        Storage::fake('local');
     }
 
     public function test_secretary_can_upload_a_pdf_for_a_selected_client(): void
@@ -65,5 +66,41 @@ class ComprobantePagoUploadTest extends TestCase
             ->set('archivo', UploadedFile::fake()->create('comprobante.pdf', 120, 'application/pdf'))
             ->call('saveComprobante')
             ->assertHasErrors('procesoId');
+    }
+
+    public function test_users_with_cu14_can_open_a_private_receipt_pdf_inline(): void
+    {
+        $secretary = User::factory()->create();
+        $secretary->assignRole('Secretario');
+        $comprobante = ComprobantePago::factory()->create(['archivo_path' => 'comprobantes/recibo.pdf']);
+        Storage::disk('local')->put($comprobante->archivo_path, '%PDF-1.4 test');
+
+        $this->actingAs($secretary)
+            ->get(route('comprobantes.show', $comprobante))
+            ->assertOk()
+            ->assertHeader('content-type', 'application/pdf')
+            ->assertHeader('content-disposition', 'inline; filename=comprobante-'.$comprobante->id.'.pdf');
+    }
+
+    public function test_users_without_cu14_cannot_open_a_receipt_pdf(): void
+    {
+        $professional = User::factory()->create();
+        $professional->assignRole('Profesional');
+        $comprobante = ComprobantePago::factory()->create();
+
+        $this->actingAs($professional)
+            ->get(route('comprobantes.show', $comprobante))
+            ->assertForbidden();
+    }
+
+    public function test_missing_receipt_file_returns_not_found_after_authorization(): void
+    {
+        $coordinator = User::factory()->create();
+        $coordinator->assignRole('Coordinador');
+        $comprobante = ComprobantePago::factory()->create(['archivo_path' => 'comprobantes/inexistente.pdf']);
+
+        $this->actingAs($coordinator)
+            ->get(route('comprobantes.show', $comprobante))
+            ->assertNotFound();
     }
 }

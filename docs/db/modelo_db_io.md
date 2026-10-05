@@ -132,15 +132,40 @@ Table turnos {
   deleted_at timestamp [null]
 }
 
+Table categorias_documento {
+  id bigint [pk, increment]
+  nombre varchar(100) [unique]
+  descripcion varchar(255) [null]
+  activo boolean [default: true]
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp [null]
+}
+
 Table documentos {
   id bigint [pk, increment]
   proceso_id bigint [ref: > procesos.id]
+  categoria_id bigint [null, ref: > categorias_documento.id]
   archivo_path varchar
   tipo_documento varchar
   nombre varchar
   created_at timestamp
   updated_at timestamp
   deleted_at timestamp [null]
+}
+
+Table documento_versiones {
+  id bigint [pk, increment]
+  documento_id bigint [ref: > documentos.id]
+  usuario_id bigint [null, ref: > users.id]
+  archivo_path varchar
+  categoria_id bigint [null, ref: > categorias_documento.id]
+  categoria_nombre varchar [null]
+  tipo_documento varchar
+  nombre varchar
+  fecha_reemplazo timestamp
+  created_at timestamp
+  updated_at timestamp
 }
 
 Table reportes {
@@ -157,6 +182,7 @@ Table reportes {
 Table comprobante_pagos {
   id bigint [pk, increment]
   cliente_id bigint [ref: > clientes.id]
+  proceso_id bigint [null, ref: > procesos.id]
   archivo_path varchar
   fecha_subida date
   descripcion text [null]

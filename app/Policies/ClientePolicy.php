@@ -7,6 +7,24 @@ use App\Models\User;
 
 class ClientePolicy
 {
+    public function viewAnyLegajo(User $user): bool
+    {
+        return $user->can('consultar_legajos');
+    }
+
+    public function viewLegajo(User $user, Cliente $cliente): bool
+    {
+        if (! $user->can('consultar_legajos')) {
+            return false;
+        }
+
+        if ($user->hasRole('Profesional')) {
+            return $cliente->procesos()->where('profesional_id', $user->id)->exists();
+        }
+
+        return true;
+    }
+
     public function viewAny(User $user): bool
     {
         return $user->can('listar_filtrar_clientes');

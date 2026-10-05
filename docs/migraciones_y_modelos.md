@@ -28,7 +28,7 @@ Ya existen (implementado y probado, 82 tests):
 - `user_servicios` — tabla intermedia N:M `user_id, servicio_id` PK compuesta, `constrained cascade` (permite múltiples servicios por profesional, evita duplicados, disponible para `Proceso.servicio_id`)
 - `permissions`, `roles`, `model_has_permissions`, `model_has_roles`, `role_has_permissions` — creados por Spatie
 - `audits` — tabla de auditoría
-- `clientes`, `servicios`, `procesos`, `turnos`, `documentos`, `reportes`, `comprobantes_pago`, `notificaciones`, `estados_proceso`, `historial_estados_proceso` — ver secciones Fase 1-3
+- `clientes`, `servicios`, `procesos`, `turnos`, `categorias_documento`, `documentos`, `documento_versiones`, `reportes`, `comprobante_pagos`, `notificaciones`, `estados_proceso`, `historial_estados_proceso` — ver secciones Fase 1-3
 
 > **Documentación CRUD usuarios:** ver `docs/gestion-usuarios-roles-servicios.md` para `StoreUserRequest/UpdateUserRequest`, `UserPolicy`, `UserController`, `Livewire/Usuarios/Index`, rutas `users.*`, vistas `resources/views/users/*` y `livewire/usuarios/*`, registro `/register` deshabilitado, búsqueda por `name/email/dni`.
 
@@ -352,6 +352,8 @@ public function up(): void
 ```bash
 php artisan migrate
 ```
+
+Las categorías documentales se relacionan mediante `categoria_id`. Al reemplazar un archivo, `documento_versiones` conserva el archivo, nombre, tipo, categoría, usuario y fecha de la versión anterior. La consulta de esas versiones debe pasar por las mismas policies de visualización y descarga del documento.
 
 **4. Commit y push:**
 ```bash

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Documento extends Model
@@ -43,5 +44,12 @@ class Documento extends Model
     public function categoria(): BelongsTo
     {
         return $this->belongsTo(CategoriaDocumento::class, 'categoria_id')->withTrashed();
+    }
+
+    public function versiones(): HasMany
+    {
+        return $this->hasMany(DocumentoVersion::class)
+            ->orderByDesc('fecha_reemplazo')
+            ->orderByDesc('id');
     }
 }

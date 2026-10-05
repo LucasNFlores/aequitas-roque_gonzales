@@ -125,7 +125,7 @@ class Turno extends Model
 
     public function profesional(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'profesional_id');
     }
 
     public function coordinador(): BelongsTo

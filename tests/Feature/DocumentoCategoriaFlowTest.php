@@ -6,6 +6,7 @@ use App\Livewire\Documentos\Index;
 use App\Models\CategoriaDocumento;
 use App\Models\Cliente;
 use App\Models\Documento;
+use App\Models\DocumentoVersion;
 use App\Models\Proceso;
 use App\Models\Servicio;
 use App\Models\User;
@@ -159,6 +160,48 @@ class DocumentoCategoriaFlowTest extends TestCase
         $this->assertEquals($cat2->id, $doc->fresh()->categoria_id);
         $this->assertEquals('Judicial', $doc->fresh()->tipo_documento);
         $this->assertEquals('Actualizado', $doc->fresh()->nombre);
+    }
+
+    public function test_replacing_a_pdf_preserves_the_old_file_and_authorizes_version_access_separately(): void
+    {
+        $proceso = $this->procesoWithCliente();
+        $secretario = $this->userWithRole('Secretario');
+        $coordinador = User::find($proceso->coordinador_id);
+        $directivo = $this->userWithRole('Directivo');
+        $categoria = CategoriaDocumento::factory()->create(['nombre' => 'Identidad']);
+        $documento = Documento::factory()->create([
+            'proceso_id' => $proceso->id,
+            'categoria_id' => $categoria->id,
+            'archivo_path' => 'documentos/'.$proceso->id.'/original.pdf',
+        ]);
+        Storage::disk('local')->put($documento->archivo_path, '%PDF original');
+
+        Livewire::actingAs($secretario)
+            ->test(Index::class, ['proceso' => $proceso])
+            ->call('editDocumento', $documento->id)
+            ->set('archivo', UploadedFile::fake()->create('reemplazo.pdf', 120, 'application/pdf'))
+            ->call('saveDocumento')
+            ->assertHasNoErrors();
+
+        $version = DocumentoVersion::query()->sole();
+        $this->assertSame($documento->id, $version->documento_id);
+        $this->assertSame('documentos/'.$proceso->id.'/original.pdf', $version->archivo_path);
+        $this->assertNotSame($version->archivo_path, $documento->fresh()->archivo_path);
+        Storage::disk('local')->assertExists($version->archivo_path);
+        Storage::disk('local')->assertExists($documento->fresh()->archivo_path);
+
+        $this->actingAs($secretario)
+            ->get(route('procesos.documentos.versiones.show', [$proceso, $documento, $version]))
+            ->assertOk();
+        $this->actingAs($secretario)
+            ->get(route('procesos.documentos.versiones.download', [$proceso, $documento, $version]))
+            ->assertForbidden();
+        $this->actingAs($coordinador)
+            ->get(route('procesos.documentos.versiones.download', [$proceso, $documento, $version]))
+            ->assertOk();
+        $this->actingAs($directivo)
+            ->get(route('procesos.documentos.versiones.show', [$proceso, $documento, $version]))
+            ->assertForbidden();
     }
 
     public function test_livewire_elimina_con_baja_logica_y_conserva_archivo(): void

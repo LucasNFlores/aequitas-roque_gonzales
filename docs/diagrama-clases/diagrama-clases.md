@@ -37,6 +37,7 @@ direction LR
             +HasMany notificaciones()
             +HasMany turnos()
         }
+
     }
 
     namespace Gestion_Juridica {
@@ -87,12 +88,36 @@ direction LR
     }
 
     namespace Documentacion_y_Seguimiento {
+        class CategoriaDocumento {
+            -String nombre
+            -String descripcion
+            -Boolean activo
+            +HasMany documentos()
+        }
+
         class Documento {
             -BigInt proceso_id
+            -BigInt categoria_id
             -String archivo_path
             -String tipo_documento
             -String nombre
             +BelongsTo proceso()
+            +BelongsTo categoria()
+            +HasMany versiones()
+        }
+
+        class DocumentoVersion {
+            -BigInt documento_id
+            -BigInt usuario_id
+            -String archivo_path
+            -BigInt categoria_id
+            -String categoria_nombre
+            -String tipo_documento
+            -String nombre
+            -DateTime fecha_reemplazo
+            +BelongsTo documento()
+            +BelongsTo usuario()
+            +BelongsTo categoria()
         }
 
         class Reporte {
@@ -170,6 +195,10 @@ direction LR
     Turno "N" --> "1" Proceso : proceso
 
     Documento "N" --> "1" Proceso : proceso
+    Documento "N" --> "1" CategoriaDocumento : categoria
+    Documento "1" --> "N" DocumentoVersion : versiones
+    DocumentoVersion "N" --> "1" User : usuario
+    DocumentoVersion "N" --> "0..1" CategoriaDocumento : categoria
 
     Reporte "N" --> "1" Proceso : proceso
     Reporte "N" --> "1" User : profesional

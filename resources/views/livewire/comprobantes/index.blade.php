@@ -116,6 +116,7 @@
                         <th scope="col" class="px-5 py-3">DNI</th>
                         <th scope="col" class="px-5 py-3">Fecha</th>
                         <th scope="col" class="px-5 py-3">Descripción</th>
+                        <th scope="col" class="px-5 py-3 text-right">Archivo</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 bg-white">
@@ -125,10 +126,15 @@
                             <td class="px-5 py-4">{{ $comprobante->cliente?->dni }}</td>
                             <td class="px-5 py-4">{{ $comprobante->fecha_subida?->format('d/m/Y') }}</td>
                             <td class="max-w-xs truncate px-5 py-4">{{ $comprobante->descripcion ?: 'Sin descripción' }}</td>
+                            <td class="px-5 py-4 text-right">
+                                @can('view', $comprobante)
+                                    <a href="{{ route('comprobantes.show', $comprobante) }}" target="_blank" rel="noopener" class="inline-flex rounded-md bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700 hover:bg-indigo-100">Ver comprobante</a>
+                                @endcan
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-5 py-8 text-center text-gray-500">Todavía no hay comprobantes registrados.</td>
+                            <td colspan="5" class="px-5 py-8 text-center text-gray-500">Todavía no hay comprobantes registrados.</td>
                         </tr>
                     @endforelse
                 </tbody>

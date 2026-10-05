@@ -48,6 +48,9 @@
                         <td class="px-6 py-4">
                             <div class="flex flex-wrap justify-center gap-2">
                                 @can('view', $documento)
+                                    <a href="{{ route('procesos.documentos.show', [$proceso, $documento]) }}" target="_blank" rel="noopener" class="rounded-md bg-indigo-50 px-3 py-2 font-medium text-indigo-700 hover:bg-indigo-100">Ver PDF</a>
+                                @endcan
+                                @can('download', $documento)
                                     <a href="{{ route('procesos.documentos.download', [$proceso, $documento]) }}" class="rounded-md bg-gray-50 px-3 py-2 font-medium text-gray-700 hover:bg-gray-100">Descargar</a>
                                 @endcan
                                 @can('update', $documento)
@@ -59,6 +62,33 @@
                             </div>
                         </td>
                     </tr>
+                    @if($documento->versiones->isNotEmpty())
+                        <tr wire:key="doc-versions-{{ $documento->id }}" class="border-b bg-gray-50">
+                            <td colspan="5" class="px-6 py-3">
+                                <details>
+                                    <summary class="cursor-pointer text-sm font-medium text-indigo-700">Historial · {{ $documento->versiones->count() }} {{ $documento->versiones->count() === 1 ? 'versión anterior' : 'versiones anteriores' }}</summary>
+                                    <ul class="mt-3 space-y-2">
+                                        @foreach($documento->versiones as $version)
+                                            <li class="flex flex-col gap-2 rounded-md bg-white p-3 sm:flex-row sm:items-center sm:justify-between" wire:key="doc-version-{{ $version->id }}">
+                                                <div>
+                                                    <p class="text-sm font-medium text-gray-800">{{ $version->nombre }} · {{ $version->categoria_nombre ?: $version->categoria?->nombre ?: 'Sin categoría' }}</p>
+                                                    <p class="mt-1 text-xs text-gray-500">{{ $version->tipo_documento }} · {{ $version->fecha_reemplazo?->format('d/m/Y H:i') ?? '—' }} · {{ $version->usuario?->name ?? 'Usuario eliminado' }}</p>
+                                                </div>
+                                                <div class="flex flex-wrap gap-2">
+                                                    @can('view', $documento)
+                                                        <a href="{{ route('procesos.documentos.versiones.show', [$proceso, $documento, $version]) }}" target="_blank" rel="noopener" class="rounded-md bg-indigo-50 px-3 py-2 text-xs font-medium text-indigo-700 hover:bg-indigo-100">Ver versión</a>
+                                                    @endcan
+                                                    @can('download', $documento)
+                                                        <a href="{{ route('procesos.documentos.versiones.download', [$proceso, $documento, $version]) }}" class="rounded-md bg-gray-50 px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-100">Descargar versión</a>
+                                                    @endcan
+                                                </div>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </details>
+                            </td>
+                        </tr>
+                    @endif
                 @empty
                     <tr class="bg-white"><td colspan="5" class="px-6 py-10 text-center italic text-gray-500">No hay documentos para este proceso.</td></tr>
                 @endforelse

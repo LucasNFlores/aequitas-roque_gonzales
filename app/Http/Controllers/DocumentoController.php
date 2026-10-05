@@ -6,8 +6,10 @@ use App\Http\Requests\StoreDocumentoRequest;
 use App\Http\Requests\UpdateDocumentoRequest;
 use App\Models\CategoriaDocumento;
 use App\Models\Documento;
+use App\Models\DocumentoVersion;
 use App\Models\Proceso;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -68,13 +70,40 @@ class DocumentoController extends Controller
             $data['nombre'] = $validated['nombre'];
         }
 
+        $replacementPath = null;
+
         if ($request->hasFile('archivo')) {
-            $path = $request->file('archivo')->storeAs('documentos/'.$proceso->id, Str::uuid().'.pdf', 'local');
-            $data['archivo_path'] = $path;
+            $replacementPath = $request->file('archivo')->storeAs('documentos/'.$proceso->id, Str::uuid().'.pdf', 'local');
+            $data['archivo_path'] = $replacementPath;
         }
 
-        if ($data !== []) {
-            $documento->update($data);
+        $documento->loadMissing('categoria');
+
+        try {
+            DB::transaction(function () use ($documento, $data, $replacementPath): void {
+                if ($replacementPath !== null) {
+                    DocumentoVersion::query()->create([
+                        'documento_id' => $documento->id,
+                        'usuario_id' => auth()->id(),
+                        'archivo_path' => $documento->archivo_path,
+                        'categoria_id' => $documento->categoria_id,
+                        'categoria_nombre' => $documento->categoria?->nombre,
+                        'tipo_documento' => $documento->tipo_documento,
+                        'nombre' => $documento->nombre,
+                        'fecha_reemplazo' => now(),
+                    ]);
+                }
+
+                if ($data !== []) {
+                    $documento->update($data);
+                }
+            });
+        } catch (\Throwable $exception) {
+            if ($replacementPath !== null) {
+                Storage::disk('local')->delete($replacementPath);
+            }
+
+            throw $exception;
         }
 
         return redirect()->route('procesos.documentos.index', $proceso)->with('success', 'Documento actualizado.');
@@ -97,14 +126,54 @@ class DocumentoController extends Controller
 
         abort_unless(Storage::disk('local')->exists($documento->archivo_path), 404, 'Archivo no encontrado.');
 
-        return Storage::disk('local')->download($documento->archivo_path, $documento->nombre.'.pdf');
+        return Storage::disk('local')->download($documento->archivo_path, 'documento-'.$documento->id.'.pdf');
     }
 
-    public function show(Proceso $proceso, Documento $documento)
+    public function show(Proceso $proceso, Documento $documento): StreamedResponse
     {
         abort_unless($documento->proceso_id === $proceso->id, 404);
         Gate::authorize('view', $documento);
+        abort_unless(Storage::disk('local')->exists($documento->archivo_path), 404, 'Archivo no encontrado.');
 
-        return redirect()->route('procesos.documentos.index', $proceso);
+        return Storage::disk('local')->response(
+            $documento->archivo_path,
+            'documento-'.$documento->id.'.pdf',
+            ['Content-Type' => 'application/pdf'],
+            'inline',
+        );
+    }
+
+    public function showVersion(Proceso $proceso, Documento $documento, DocumentoVersion $version): StreamedResponse
+    {
+        $this->authorizeVersion($proceso, $documento, $version, 'view');
+
+        return Storage::disk('local')->response(
+            $version->archivo_path,
+            'documento-'.$documento->id.'-version-'.$version->id.'.pdf',
+            ['Content-Type' => 'application/pdf'],
+            'inline',
+        );
+    }
+
+    public function downloadVersion(Proceso $proceso, Documento $documento, DocumentoVersion $version): StreamedResponse
+    {
+        $this->authorizeVersion($proceso, $documento, $version, 'download');
+
+        return Storage::disk('local')->download(
+            $version->archivo_path,
+            'documento-'.$documento->id.'-version-'.$version->id.'.pdf',
+        );
+    }
+
+    private function authorizeVersion(
+        Proceso $proceso,
+        Documento $documento,
+        DocumentoVersion $version,
+        string $ability,
+    ): void {
+        abort_unless($documento->proceso_id === $proceso->id, 404);
+        abort_unless($version->documento_id === $documento->id, 404);
+        Gate::authorize($ability, $documento);
+        abort_unless(Storage::disk('local')->exists($version->archivo_path), 404, 'Archivo no encontrado.');
     }
 }

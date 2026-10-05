@@ -4,63 +4,41 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreReporteRequest;
 use App\Http\Requests\UpdateReporteRequest;
+use App\Models\Proceso;
 use App\Models\Reporte;
+use Illuminate\Http\RedirectResponse;
 
 class ReporteController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function store(StoreReporteRequest $request, Proceso $proceso): RedirectResponse
     {
-        //
+        $validated = $request->validated();
+        abort_unless((int) $validated['proceso_id'] === $proceso->id, 404);
+
+        $proceso->reportes()->create([
+            'profesional_id' => $request->user()->id,
+            'contenido' => $validated['contenido'],
+            'fecha' => $validated['fecha'],
+        ]);
+
+        return back()->with('success', 'Reporte registrado correctamente.');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function update(UpdateReporteRequest $request, Proceso $proceso, Reporte $reporte): RedirectResponse
     {
-        //
+        abort_unless($reporte->proceso_id === $proceso->id, 404);
+
+        $reporte->update($request->validated());
+
+        return back()->with('success', 'Reporte actualizado correctamente.');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreReporteRequest $request)
+    public function destroy(Proceso $proceso, Reporte $reporte): RedirectResponse
     {
-        //
-    }
+        abort_unless($reporte->proceso_id === $proceso->id, 404);
+        $this->authorize('delete', $reporte);
+        $reporte->delete();
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Reporte $reporte)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Reporte $reporte)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateReporteRequest $request, Reporte $reporte)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Reporte $reporte)
-    {
-        //
+        return back()->with('success', 'Reporte dado de baja correctamente.');
     }
 }

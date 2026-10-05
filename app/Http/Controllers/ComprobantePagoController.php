@@ -2,65 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreComprobantePagoRequest;
-use App\Http\Requests\UpdateComprobantePagoRequest;
 use App\Models\ComprobantePago;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ComprobantePagoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function show(string $comprobantePagoId): StreamedResponse
     {
-        //
-    }
+        $comprobantePago = ComprobantePago::query()->findOrFail($comprobantePagoId);
+        Gate::authorize('view', $comprobantePago);
+        abort_unless(Storage::disk('local')->exists($comprobantePago->archivo_path), 404, 'Archivo no encontrado.');
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreComprobantePagoRequest $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(ComprobantePago $comprobantePago)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(ComprobantePago $comprobantePago)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateComprobantePagoRequest $request, ComprobantePago $comprobantePago)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(ComprobantePago $comprobantePago)
-    {
-        //
+        return Storage::disk('local')->response(
+            $comprobantePago->archivo_path,
+            'comprobante-'.$comprobantePago->id.'.pdf',
+            ['Content-Type' => 'application/pdf'],
+            'inline',
+        );
     }
 }
