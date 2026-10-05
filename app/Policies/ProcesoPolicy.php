@@ -27,6 +27,16 @@ class ProcesoPolicy
         return $user->can('crear_procesos_adicionales');
     }
 
+    public function createFor(User $user, Proceso $proceso): bool
+    {
+        if ($user->hasRole('Profesional')) {
+            return $user->can('registrar_reportes')
+                && $proceso->profesional_id === $user->id;
+        }
+
+        return $user->can('registrar_reportes');
+    }
+
     public function update(User $user, Proceso $proceso): bool
     {
         return $this->updateState($user, $proceso);

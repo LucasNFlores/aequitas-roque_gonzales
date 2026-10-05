@@ -85,6 +85,15 @@
                         </x-navigation.nav-link>
                     @endcan
 
+                    @can('consultar_legajos')
+                        <x-navigation.nav-link :href="route('legajos.index')" :active="request()->routeIs('legajos.*')">
+                            <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5 3.75h9.5L19 8.25v12A1.75 1.75 0 0 1 17.25 22h-12A1.75 1.75 0 0 1 3.5 20.25V5.5A1.75 1.75 0 0 1 5.25 3.75ZM14 4v5h5M7.5 13h7m-7 3.5h9" />
+                            </svg>
+                            <span>{{ __('Legajos') }}</span>
+                        </x-navigation.nav-link>
+                    @endcan
+
                     @can('listar_filtrar_procesos')
                         <x-navigation.nav-link :href="route('procesos.index')" :active="request()->routeIs('procesos.*')">
                             <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">

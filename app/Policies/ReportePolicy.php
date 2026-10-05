@@ -2,7 +2,6 @@
 
 namespace App\Policies;
 
-use App\Models\Proceso;
 use App\Models\Reporte;
 use App\Models\User;
 
@@ -26,16 +25,6 @@ class ReportePolicy
 
     public function create(User $user): bool
     {
-        return $user->can('registrar_reportes');
-    }
-
-    public function createFor(User $user, Proceso $proceso): bool
-    {
-        if ($user->hasRole('Profesional')) {
-            return $user->can('registrar_reportes')
-                && $proceso->profesional_id === $user->id;
-        }
-
         return $user->can('registrar_reportes');
     }
 

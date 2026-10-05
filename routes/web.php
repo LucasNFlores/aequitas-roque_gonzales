@@ -1,9 +1,12 @@
 <?php
 
 use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\ComprobantePagoController;
 use App\Http\Controllers\DocumentoController;
+use App\Http\Controllers\LegajoController;
 use App\Http\Controllers\ProcesoController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\UserController;
 use App\Models\Proceso;
@@ -79,6 +82,11 @@ Route::middleware(['auth', 'permission:listar_filtrar_procesos'])->group(functio
     Route::get('/procesos', fn () => view('procesos.index'))->name('procesos.index');
 });
 
+Route::middleware(['auth', 'permission:consultar_legajos'])->group(function () {
+    Route::get('/legajos', fn () => view('legajos.index'))->name('legajos.index');
+    Route::get('/clientes/{cliente}/legajo', [LegajoController::class, 'show'])->name('legajos.show');
+});
+
 // HU-23: proceso adicional para un cliente existente (Secretario y Administrador vía Policy create).
 Route::middleware(['auth'])->group(function () {
     Route::get('/clientes/{cliente}/procesos/create', [ProcesoController::class, 'createForCliente'])->name('clientes.procesos.create');
@@ -116,12 +124,34 @@ Route::middleware(['auth'])->group(function () {
         ->name('procesos.documentos.destroy');
     Route::get('/procesos/{proceso}/documentos/{documento}/descargar', [DocumentoController::class, 'download'])
         ->name('procesos.documentos.download');
+    Route::get('/procesos/{proceso}/documentos/{documento}/versiones/{version}/descargar', [DocumentoController::class, 'downloadVersion'])
+        ->name('procesos.documentos.versiones.download');
+    Route::get('/procesos/{proceso}/documentos/{documento}/versiones/{version}', [DocumentoController::class, 'showVersion'])
+        ->name('procesos.documentos.versiones.show');
     Route::get('/procesos/{proceso}/documentos/{documento}', [DocumentoController::class, 'show'])
         ->name('procesos.documentos.show');
 });
 
+Route::middleware(['auth'])->scopeBindings()->group(function () {
+    Route::post('/procesos/{proceso}/reportes', [ReporteController::class, 'store'])
+        ->middleware('permission:registrar_reportes')
+        ->name('procesos.reportes.store');
+    Route::put('/procesos/{proceso}/reportes/{reporte}', [ReporteController::class, 'update'])
+        ->middleware('permission:editar_reportes_propios')
+        ->name('procesos.reportes.update');
+    Route::delete('/procesos/{proceso}/reportes/{reporte}', [ReporteController::class, 'destroy'])
+        ->middleware('permission:eliminar_reportes_propios')
+        ->name('procesos.reportes.destroy');
+});
+
 Route::middleware(['auth'])->group(function () {
     Route::resource('clientes', ClienteController::class);
+});
+
+Route::middleware(['auth', 'permission:ver_comprobantes_pago'])->group(function () {
+    Route::get('/comprobantes/{comprobantePagoId}', [ComprobantePagoController::class, 'show'])
+        ->whereNumber('comprobantePagoId')
+        ->name('comprobantes.show');
 });
 
 // -----------------------------------------------------------------------------

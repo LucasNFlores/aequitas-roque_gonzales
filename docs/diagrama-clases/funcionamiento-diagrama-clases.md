@@ -67,9 +67,10 @@ Un turno pertenece a un cliente y a un profesional. Tambien puede pertenecer a u
 Este modulo registra el material asociado al avance de un proceso:
 
 - `Documento`: archivo digital asociado a un proceso.
+- `DocumentoVersion`: conserva los metadatos y la ruta interna de cada archivo anterior cuando se reemplaza un documento.
 - `Reporte`: acta, informe o registro generado por un profesional.
 
-Los documentos permiten mantener el expediente digital ordenado. Los reportes permiten dejar constancia de reuniones, avances o acciones realizadas sobre el proceso.
+Los documentos permiten mantener el expediente digital ordenado. Las versiones anteriores conservan su relación con el documento y deben consultarse mediante las mismas autorizaciones documentales. Los reportes permiten dejar constancia de reuniones, avances o acciones realizadas sobre el proceso.
 
 ### Pagos
 
