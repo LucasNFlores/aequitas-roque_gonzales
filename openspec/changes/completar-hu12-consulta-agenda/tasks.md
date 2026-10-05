@@ -15,4 +15,4 @@
 
 - [x] Ejecutar las pruebas afectadas y Pint.
 - [x] Probar la UI autenticada en navegador en escritorio y móvil.
-- [ ] Revisar `git diff --check`, el diff y criterios de salida; integrar en `dev` al finalizar.
+- [x] Revisar `git diff --check`, el diff y criterios de salida; integrar en `dev` al finalizar.
