@@ -104,8 +104,8 @@ El proceso almacena la clave estable del estado y el nombre visible proviene del
 - Clientes, usuarios, procesos, servicios, estados, categorías y reportes utilizan baja lógica (`SoftDeletes`, `deleted_at`).
 - La baja de un usuario exige verificar que no tenga procesos activos (`estado not in [finalizado, rechazado]` en `procesosComoProfesional`/`procesosComoCoordinador`); la misma regla se aplica al borrado del perfil propio (`ProfileController::destroy` aborta `403`).
 - Los turnos pasan a estado `cancelado` y conservan su historial.
-- Documentos y comprobantes se marcan como eliminados u ocultos, conservando referencia, historial y auditoría.
-- La baja de documentos o comprobantes no elimina automáticamente el archivo físico.
+- Los documentos se marcan como eliminados u ocultos, conservando referencia, historial y auditoría; su baja no elimina automáticamente el archivo físico.
+- Los comprobantes se registran y consultan según CU 13 y CU 14. La matriz no define su baja u ocultación ni un rol autorizado para ejecutarla; esa operación no forma parte del alcance vigente.
 - Las notificaciones se conservan como registro auditable.
 - Las consultas operativas excluyen registros dados de baja (`User::query()` ignora `deleted_at`), salvo vistas de auditoría o restauración (`withTrashed`).
 

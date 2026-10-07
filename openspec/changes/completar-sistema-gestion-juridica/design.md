@@ -151,7 +151,8 @@ Alta de cliente
 - **Baja lógica:** clientes, usuarios, procesos, servicios, estados, categorías y reportes.
 - **Usuarios:** baja lógica condicionada a que no tengan procesos activos.
 - **Turnos:** no se eliminan físicamente; se cancelan y conservan su historial.
-- **Documentos y comprobantes:** se marcan como eliminados u ocultos, pero se conserva su referencia, historial y auditoría; no se elimina automáticamente el archivo físico.
+- **Documentos:** se marcan como eliminados u ocultos, pero se conserva su referencia, historial y auditoría; no se elimina automáticamente el archivo físico.
+- **Comprobantes:** CU 13 y CU 14 solo autorizan registro y consulta. No se implementa baja u ocultación ni se atribuye ese permiso a un rol sin actualizar primero la matriz.
 - **Notificaciones:** el módulo final conservará los envíos como registros auditables; su entrega ocurre después del núcleo funcional.
 - Las consultas operativas excluyen registros dados de baja, salvo vistas explícitas de auditoría o restauración.
 

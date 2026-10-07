@@ -60,6 +60,7 @@
 ## Alineación con el sistema
 
 - La matriz define el alcance funcional y la autorización por rol.
+- En pagos, CU 13 y CU 14 solo contemplan registro y consulta de comprobantes; no existe un caso de uso ni permiso por rol para su baja u ocultación. Cualquier ampliación requiere primero actualizar la matriz online.
 - `database/seeders/RoleSeeder.php` contiene los permisos técnicos de Spatie y debe mantenerse alineado con esta tabla.
 - CU 31 y CU 32 son capacidades transversales de autenticación y perfil; se aplican a los usuarios internos según la matriz.
 - Cuando se agregue o modifique un caso de uso, primero debe actualizarse la matriz fuente, luego este archivo y finalmente la implementación, OpenSpec y las pruebas relacionadas.

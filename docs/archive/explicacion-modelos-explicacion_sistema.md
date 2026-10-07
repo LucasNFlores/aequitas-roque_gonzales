@@ -1,5 +1,7 @@
 # Explicación del Sistema de Gestión Jurídica
 
+> Documento histórico. La regla de baja de comprobantes descrita más abajo quedó superada: la matriz vigente solo contempla CU 13 (registrar) y CU 14 (consultar). Para el alcance actual, consultar `docs/aequitas-matriz-modulos-funciones-permisos-v2.md` y `openspec/specs/gestion-juridica/spec.md`.
+
 ## Introducción
 
 Este sistema es una aplicación web diseñada para administrar un estudio jurídico que ofrece servicios profesionales en las áreas Civil, Comercial y de Familia. Su propósito es centralizar y digitalizar todas las operaciones del estudio: desde el registro de clientes hasta el seguimiento de procesos legales, la gestión de turnos y la documentación asociada.

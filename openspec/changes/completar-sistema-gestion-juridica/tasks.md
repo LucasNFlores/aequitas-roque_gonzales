@@ -11,6 +11,7 @@
 - [x] Mantener CRUD de estados y categorías documentales.
 - [x] Actualizar la matriz online con CU 28 a CU 37 y los permisos corregidos.
 - [x] Revisar que OpenSpec y `docs/` no conserven permisos contradictorios.
+- [x] Alinear CU 13 y CU 14 en OpenSpec y `docs/`: no atribuir baja u ocultación de comprobantes sin un caso de uso aprobado en la matriz.
 
 ## Base y seguridad
 

@@ -61,6 +61,7 @@ La matriz online **“Aequitas - Matriz de Módulos, Funciones y Permisos por Ro
 - Secretario y Administrador deben poder registrar comprobantes PDF descargados desde ARCA.
 - El sistema no debe integrar automáticamente con ARCA.
 - Secretario, Coordinador, Directivo y Administrador deben poder consultar comprobantes autorizados.
+- La matriz vigente solo define CU 13 (registrar) y CU 14 (consultar) para comprobantes. No se debe ofrecer una operación de eliminación u ocultación ni asignar un permiso para ella sin aprobar primero un caso de uso y sus roles en la matriz.
 - El sistema debe registrar canal, mensaje, destinatario, fecha, estado y resultado de cada notificación.
 - El módulo final debe contemplar notificaciones internas y canales externos de correo y WhatsApp. Brevo queda como proveedor candidato, sujeto a revisar sus costos y condiciones vigentes antes de contratarlo o configurarlo.
 
@@ -99,8 +100,8 @@ La matriz online **“Aequitas - Matriz de Módulos, Funciones y Permisos por Ro
 
 - Clientes, usuarios, procesos, servicios, estados, categorías y reportes deben admitir baja lógica.
 - Los turnos no deben eliminarse físicamente; deben cancelarse conservando su historial.
-- Documentos y comprobantes deben marcarse como eliminados u ocultos, conservando referencia, historial y auditoría.
-- La eliminación lógica de documentos o comprobantes no debe borrar automáticamente el archivo físico.
+- Los documentos deben marcarse como eliminados u ocultos, conservando referencia, historial y auditoría; esa baja no debe borrar automáticamente el archivo físico.
+- Los comprobantes registrados se conservan asociados al cliente o proceso. Su baja u ocultación no forma parte de CU 13 ni CU 14 y requiere una actualización previa de la matriz para incorporarse al alcance.
 - Las notificaciones deben conservarse como registro auditable.
 - Las consultas operativas deben excluir registros dados de baja, salvo vistas explícitas de auditoría o restauración.
 

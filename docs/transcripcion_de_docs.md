@@ -150,8 +150,8 @@ El módulo final registrará canal, mensaje, destinatario, fecha, estado y resul
 
 - Clientes, usuarios, procesos, servicios, estados, categorías y reportes utilizan baja lógica.
 - Los turnos no se eliminan físicamente: pasan a estado `cancelado` y conservan su historial.
-- Documentos y comprobantes se marcan como eliminados u ocultos, pero conservan referencia, historial y auditoría.
-- La baja de documentos o comprobantes no elimina automáticamente el archivo físico.
+- Los documentos se marcan como eliminados u ocultos, pero conservan referencia, historial y auditoría; su baja no elimina automáticamente el archivo físico.
+- Para comprobantes, CU 13 permite registrar y CU 14 consultar. La matriz no define una baja u ocultación ni quién podría efectuarla; no se implementa esa operación sin actualizar primero la matriz.
 - Las notificaciones se conservan como registros auditables.
 - Las consultas operativas excluyen registros dados de baja, salvo vistas de auditoría o restauración.
 

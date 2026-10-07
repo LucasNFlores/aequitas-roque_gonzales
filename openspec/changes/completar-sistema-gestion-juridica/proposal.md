@@ -31,6 +31,7 @@ La documentación de OpenSpec describe cuatro roles y varios permisos de forma g
 - El Profesional solo opera sobre procesos que tiene asignados.
 - Solo Secretario y Administrador pueden crear, modificar y cancelar turnos.
 - El sistema almacena el PDF descargado desde ARCA; no integra automáticamente con ARCA.
+- Para comprobantes, la matriz vigente solo contempla CU 13 (registrar) y CU 14 (consultar); la baja u ocultación no forma parte del alcance hasta que la matriz defina el caso de uso y los roles autorizados.
 - El alcance final incluye notificaciones internas y canales externos; Brevo es candidato y solo se confirmará después de revisar sus costos y condiciones al iniciar el módulo de última fase.
 
 ## Restricciones
