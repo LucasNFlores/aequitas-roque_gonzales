@@ -1,8 +1,8 @@
-# Habilitar la creación de procesos adicionales
+# Crear procesos adicionales para clientes existentes (CU 38)
 
 ## Objetivo
 
-Planificar CU 38 para que un cliente ya registrado pueda recibir un nuevo proceso sin volver a registrarlo. La capacidad corresponde a Secretario y Administrador; Administrador conserva su alcance de superadministrador.
+Permitir que Secretario o Administrador creen un proceso nuevo para un cliente ya registrado, sin duplicar el cliente ni generar un turno inicial. El proceso adicional continúa por el flujo de admisión vigente.
 
 ## Autoridad funcional
 
@@ -21,14 +21,13 @@ El alta de cliente sólo cubre el primer proceso: crea una Consultoría pendient
 - Crear el proceso en estado `pendiente`, para que continúe por el flujo existente de admisión o rechazo.
 - Requerir los datos propios de un proceso y referencias activas válidas para cliente, servicio y coordinador.
 - Mantener intacto el registro del cliente y no generar un turno automático.
-- Definir autorización técnica, interfaz, validación y pruebas antes de implementar código.
+- Implementar autorización, interfaz, validación y pruebas para el flujo separado de CU 38.
 
 ## Fuera de alcance
 
 - Registrar un nuevo cliente o modificar sus datos desde este flujo.
 - Crear, reservar o modificar turnos automáticamente.
 - Cambiar los permisos existentes de asignación, admisión, agenda o gestión de servicios.
-- Implementar código, migraciones, rutas o vistas como parte de este cambio de planificación.
 
 ## Decisiones confirmadas
 
@@ -50,7 +49,7 @@ El alta de cliente sólo cubre el primer proceso: crea una Consultoría pendient
 
 ## Criterio de salida
 
-El cambio estará listo para aplicar cuando un diseño y tareas verificables garanticen que Secretario o Administrador pueden crear un proceso pendiente para un cliente existente, sin duplicarlo ni crear un turno automático, y que los demás roles no pueden hacerlo.
+Secretario y Administrador pueden crear un proceso pendiente para un cliente existente, sin duplicarlo ni crear un turno automático; los demás roles reciben denegación. Las tareas de autorización, persistencia, interfaz y pruebas están completadas.
 
 ## Riesgos
 

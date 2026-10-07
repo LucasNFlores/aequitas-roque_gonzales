@@ -1,165 +1,102 @@
-# Diseño funcional de referencia
+# Diseño de la formalización documental
 
-> **Entrega de Notificaciones:** los requisitos de CU-35 y HU-18 a HU-20 describen el estado final del producto, no una fase simultánea con el núcleo. El módulo se construirá por separado al final; se revisarán los costos de Brevo antes de confirmar el proveedor para los canales vigentes. La propuesta está en [separar-modulo-notificaciones](../separar-modulo-notificaciones/proposal.md).
+## Jerarquía de fuentes
 
-## Fuente de verdad
+1. La hoja online Aequitas V2, pestaña Aequitas - Matriz de Módulos, Funciones y Permisos por Rol V2, define los casos de uso y permisos.
+2. La especificación base expresa esos comportamientos mediante Requirements y Scenarios.
+3. Las decisiones complementarias existentes en OpenSpec y docs/ se conservan solo cuando no contradicen la matriz.
+4. Las rutas, policies y código sirven para detectar pérdidas de comportamiento, pero no prevalecen sobre la matriz.
 
-La fuente definitiva de alcance y permisos es el documento online **“Aequitas - Matriz de Módulos, Funciones y Permisos por Rol V2”**. OpenSpec y la documentación de `docs/` deben mantenerse sincronizados con esa matriz.
+La transcripción vigente está en [docs/aequitas-matriz-modulos-funciones-permisos-v2.md](../../../docs/aequitas-matriz-modulos-funciones-permisos-v2.md), ampliada por [docs/transcripcion_de_docs.md](../../../docs/transcripcion_de_docs.md) y [docs/explicacion_sistema.md](../../../docs/explicacion_sistema.md).
 
-## Actores y límites
+## Decisiones de modelado
 
-| Rol | Alcance |
-|---|---|
-| Secretario | Opera clientes, comprobantes, documentación y agenda según la matriz; también puede asignar o reasignar profesionales y consultar listados autorizados. |
-| Profesional | Consulta y descarga información de procesos asignados, actualiza sus estados y crea, edita, elimina y consulta sus propios reportes. |
-| Coordinador | Admite o rechaza procesos, registra motivos, supervisa legajos, consulta documentación, agenda autorizada, reportes y administra estados y especialidades. |
-| Directivo | Consulta la operación autorizada y administra usuarios y servicios. |
-| Administrador | Superadministrador del sistema; puede realizar todas las operaciones y administrar la configuración operativa. |
-| Cliente | Registro administrativo y destinatario eventual de comunicaciones externas; no posee credenciales, permisos ni acceso al sistema. |
+- La hoja contiene 41 casos de uso y cinco roles: Secretario, Profesional, Coordinador, Directivo y Administrador. Los tres códigos fraccionarios y CU 38 cuentan como casos separados.
+- El Administrador es superadministrador y está autorizado en los 41 CU. Los otros permisos se toman literalmente de las casillas de la hoja.
+- La especificación usa un escenario rotulado con su CU por cada caso. Las restricciones transversales del Profesional se repiten donde afectan listados, legajos, historial, agenda y reportes.
+- Para CU 29, la hoja confirma filtros por estado, cliente y profesional asignado. Se conservan también los filtros adicionales por servicio, coordinador y rango de fecha de inicio, ya aprobados en el cambio de HU-07.
+- CU 13 permite registrar comprobantes y CU 14 consultarlos. No se incorpora baja, ocultación ni permiso asociado.
+- CU 35 conserva el registro de notificaciones y el alcance de HU-18 a HU-20; el módulo queda para la última fase, después de completar y aceptar el núcleo. Se mantienen canales internos, correo y WhatsApp. Brevo es un candidato sujeto a revisión de costos, no una selección vigente.
+- La restauración de categorías se mantiene como decisión complementaria de HU-14 bajo la autorización existente de CU 37; no crea un rol ni un permiso nuevo.
+- El alta de cliente mantiene el proceso de Consultoría y turno inicial con el Coordinador. El registro interno mínimo asociado a HU-09 no representa la entrega completa de CU 35 ni del módulo final.
 
-## Estándar transversal de vistas
+## Cambios OpenSpec relacionados
 
-- Tailwind CSS es el estándar visual para las vistas de la aplicación.
-- Alpine.js debe manejar en el navegador las interacciones locales, como modales, desplegables, pestañas, confirmaciones y estados visuales.
-- Livewire debe utilizarse en las vistas que necesiten consultar o modificar datos sin recargar la página, manteniendo autorización y validación en el servidor.
-- Blade + Tailwind es suficiente para vistas estáticas o formularios simples que no necesiten interacción reactiva.
-- La aplicación conserva su arquitectura MVC; no se requiere una API separada para adoptar este estándar.
+La especificación base es el catálogo vigente, no una segunda matriz. Los cambios especializados expresan únicamente su propia evolución:
 
-## Decisión de interfaz para la gestión de servicios
+- implementar-hu09-alta-cliente formaliza la creación inicial de cliente, proceso, turno y registro interno mínimo.
+- implementar-hu07-gestion-procesos formaliza admisión, rechazo, asignaciones, cambio de estado y filtros aprobados.
+- gestionar-estados-historial-procesos formaliza CU 30 y CU 36.
+- completar-hu12-consulta-agenda formaliza los límites de la consulta de agenda CU 8.
+- completar-hu10-legajo-juridico separa la consulta de legajo de la visualización y descarga documental.
+- gestionar-compromisos-externos formaliza CU 5 y CU 6.1 y sus conflictos de disponibilidad.
+- implementar-hu14-baja-restauracion formaliza baja lógica, restauración y conservación de categorías.
+- habilitar-procesos-adicionales especifica CU 38 para un cliente existente.
+- El módulo de Notificaciones conserva su requisito independiente de última fase.
+- formalizar-turnos-agenda-categorias es una propuesta de planificación de CU 37 y CU 4–8; no modifica por sí sola el comportamiento del producto.
 
-- La ruta `/servicios` utiliza una interfaz híbrida con Blade, Livewire, Alpine.js y Tailwind CSS.
-- Alpine.js controla localmente la apertura, el cierre, las transiciones y el comportamiento responsive de los modales, evitando una petición al servidor sólo para mostrar u ocultar la interfaz.
-- Livewire conserva la lógica de servidor: autorización mediante `gestionar_servicios`, carga de datos, validación, creación, actualización y baja lógica.
-- La vista mantiene el CRUD clásico en `/servicios-viejo` como referencia para el equipo.
-- No se introduce una API separada para este módulo; la interacción local no modifica las reglas de autorización ni la persistencia del backend.
+La tabla completa de permisos se mantiene en la matriz y su copia Markdown, no se duplica aquí. La especificación base contiene escenarios para CU 1, 2, 3, 4, 4.1, 5, 6, 6.1, 7, 8, 9, 10, 11, 12, 13, 14, 15, 15.1, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37 y 38.
 
-## Flujo principal
+## Seguimiento funcional conservado fuera de este cambio
 
-```text
-Alta de cliente
-  -> proceso automático de Consultoría en estado pendiente
-  -> turno inicial con Coordinador
-  -> admisión o rechazo con motivo
-  -> asignación o reasignación de profesional y honorarios
-  -> solicitud, carga y consulta de documentación
-  -> turnos de seguimiento
-  -> actualización de estados y reportes
-  -> pagos y auditoría
-  -> módulo independiente de Notificaciones (última fase, luego de aceptar el núcleo)
-```
+El checklist anterior mezclaba alineación documental con implementación de producto. Su trabajo funcional pendiente se conserva aquí como referencia, sin marcarlo como completado ni incluirlo en esta tarea documental:
 
-## Matriz de permisos
+### Base y seguridad
 
-`Administrador` puede ejecutar todos los casos de uso. En la tabla se indican los demás roles autorizados.
+- [ ] Definir la matriz de permisos en Spatie y aplicarla a rutas, acciones, políticas y consultas.
+- [ ] Confirmar que el cliente no tenga autenticación, credenciales ni permisos.
+- [ ] Implementar baja lógica y exclusión de eliminados en consultas operativas.
+- [ ] Implementar estados de cancelación para turnos y conservación de auditoría.
+- [ ] Completar pruebas de permisos por rol y alcance del Profesional.
 
-| Código | Caso de uso | Roles autorizados además de Administrador |
-|---|---|---|
-| CU 1 | Registrar Cliente | Secretario |
-| CU 2 | Modificar Cliente | Secretario |
-| CU 3 | Eliminar Cliente | Secretario |
-| CU 4 | Agendar Turno Interno | Secretario |
-| CU 4.1 | Agendar Turno de Seguimiento | Secretario |
-| CU 5 | Agendar Turno Externo | Secretario |
-| CU 6 | Modificar Turno | Secretario |
-| CU 6.1 | Modificar Turno Externo | Secretario |
-| CU 7 | Eliminar Turno | Secretario |
-| CU 8 | Ver Agenda de un Profesional | Secretario, Profesional, Coordinador |
-| CU 9 | Cargar Documentación | Secretario |
-| CU 10 | Reemplazar Documentación | Secretario |
-| CU 11 | Eliminar Documentación | Secretario |
-| CU 12 | Visualizar Documentación | Secretario, Profesional, Coordinador |
-| CU 13 | Registrar Comprobante de Pago | Secretario |
-| CU 14 | Ver Comprobante de Pago | Secretario, Coordinador, Directivo |
-| CU 15 | Admisión de Cliente | Coordinador |
-| CU 15.1 | Registrar Motivo de Rechazo | Coordinador |
-| CU 16 | Asignar Profesional | Secretario, Coordinador |
-| CU 17 | Reasignar Profesional | Secretario, Coordinador |
-| CU 18 | Consultar Legajo | Profesional asignado, Coordinador, Directivo |
-| CU 19 | Descargar Documentación | Profesional asignado, Coordinador |
-| CU 20 | Actualizar Estado de Proceso | Profesional asignado, Coordinador |
-| CU 21 | Registrar Reporte | Profesional asignado |
-| CU 22 | Editar Reporte | Profesional autor |
-| CU 23 | Eliminar Reporte | Profesional autor |
-| CU 24 | Consultar Reportes de Proceso | Profesional sobre sus reportes, Coordinador, Directivo |
-| CU 25 | Agregar Nuevo Usuario | Directivo |
-| CU 26 | Modificar Usuario | Directivo |
-| CU 27 | Eliminar Usuario | Directivo |
-| CU 28 | Listar y Filtrar Clientes | Secretario, Coordinador, Directivo |
-| CU 29 | Listar y Filtrar Procesos | Secretario, Profesional, Coordinador, Directivo |
-| CU 30 | Consultar Historial de Estados | Secretario, Profesional, Coordinador, Directivo |
-| CU 31 | Iniciar y Cerrar Sesión | Secretario, Profesional, Coordinador, Directivo |
-| CU 32 | Cambiar Contraseña / Perfil | Secretario, Profesional, Coordinador, Directivo |
-| CU 33 | Gestionar Servicios | Directivo |
-| CU 34 | Asignar Especialidad/Servicio a Profesional | Coordinador, Directivo |
-| CU 35 | Consultar Registro de Notificaciones | Secretario, Coordinador, Directivo |
-| CU 36 | Gestionar Estados de Proceso | Coordinador |
-| CU 37 | Gestionar Categorías de Documentos | Coordinador |
+### Backend
 
-## Reglas funcionales por módulo
+- [ ] Implementar ClienteController y sus validaciones.
+- [ ] Implementar la creación automática de proceso de Consultoría y turno inicial.
+- [ ] Implementar ProcesoController, admisión, rechazo, estados, historial y asignaciones.
+- [ ] Implementar CRUD de estados para Coordinador y Administrador.
+- [ ] Implementar TurnoController, disponibilidad, externos, reprogramación y cancelación.
+- [ ] Implementar carga, reemplazo, visualización, descarga y baja de documentos PDF de hasta 20 MB.
+- [ ] Implementar CRUD de categorías de documentos.
+- [ ] Implementar reportes con autoría, consulta propia y administración del Administrador.
+- [ ] Implementar comprobantes PDF descargados desde ARCA.
+- [ ] Implementar administración de usuarios para Directivo y Administrador.
+- [x] Implementar el CRUD de servicios con Livewire, Alpine.js y Tailwind CSS.
+- [ ] Implementar asignación de especialidades y servicios a profesionales.
+- [ ] En la última fase, implementar el registro y consulta autorizada de notificaciones (CU 35 / HU-18).
+- [ ] En la última fase, implementar HU-19 y los canales aprobados de HU-20; revisar costos vigentes y decidir proveedor antes de cualquier integración externa.
 
-### Clientes y procesos
+### Frontend
 
-- Registrar un cliente crea un proceso inicial de Consultoría en estado `pendiente` y un turno inicial con el Coordinador.
-- El Coordinador admite o rechaza el proceso y debe registrar el motivo cuando corresponda.
-- Secretario, Coordinador y Administrador pueden asignar o reasignar profesionales según servicio o especialidad; la reasignación actualiza honorarios.
-- Los listados deben permitir búsqueda, filtros por estado, cliente y profesional asignado, y paginación.
-- El historial de estados conserva estado anterior, estado nuevo, fecha, usuario y motivo.
-- El Profesional solo puede operar sobre procesos asignados.
+- [x] Definir Tailwind CSS como estándar visual y Alpine.js + Livewire para vistas interactivas.
+- [ ] Definir navegación y acciones visibles por rol.
+- [ ] Crear listados paginados y filtros de clientes y procesos.
+- [ ] Crear historial visual de estados.
+- [ ] Crear agenda y vista de disponibilidad.
+- [ ] Crear pantallas de documentos, reportes y comprobantes del núcleo.
+- [ ] En la última fase, crear la bandeja de Notificaciones después de validar el módulo de forma aislada.
+- [ ] Crear administración de usuarios, estados y categorías.
+- [x] Mantener la versión clásica de servicios en /servicios-viejo como referencia.
 
-### Estados y categorías configurables
+El elemento anterior de dashboards por rol no se convierte en requisito: no está respaldado por un caso de uso de la matriz.
 
-- Coordinador y Administrador pueden crear, editar, ordenar, activar y desactivar estados de proceso.
-- Coordinador y Administrador pueden crear, editar, activar y eliminar categorías o tipos de documentos.
-- No se puede desactivar un estado o categoría que deje datos activos sin una regla de migración o reemplazo.
+### Calidad y entrega
 
-### Turnos
+- [x] Incorporar Laravel Pint al flujo de desarrollo para formatear archivos PHP antes de cada commit.
+- [ ] Verificar los 41 casos de uso contra la matriz online.
+- [ ] Probar restricciones de archivos y accesos no autorizados.
+- [ ] Probar conservación de historial, bajas lógicas y cancelaciones.
+- [ ] Probar el flujo completo desde el alta de cliente hasta el seguimiento profesional.
+- [ ] Preparar datos iniciales de roles, permisos, estados, categorías y servicios.
+- [ ] Actualizar la documentación operativa y de despliegue cuando se implemente cada módulo.
 
-- Solo Secretario y Administrador crean, modifican y cancelan turnos.
-- Secretario, Profesional, Coordinador y Administrador pueden consultar la agenda de un profesional.
-- Los turnos externos bloquean la jornada completa y almacenan su detalle.
-- La reprogramación libera la disponibilidad anterior y la cancelación deja el turno en estado `cancelado`.
-- Los cambios notifican a los involucrados según el evento.
+## Clasificación documental
 
-### Documentos
+Este cambio solo corrige estructura, trazabilidad y conteos de la documentación. El comportamiento funcional ya estaba documentado en la especificación base. Por eso usa skip_specs: true en el metadato del cambio y no contiene una carpeta specs/. Los cambios que agregan o refinan comportamiento conservan sus propias deltas.
 
-- Secretario y Administrador cargan, reemplazan y eliminan documentación.
-- Secretario, Profesional, Coordinador y Administrador pueden visualizarla.
-- Profesional asignado, Coordinador y Administrador pueden descargarla.
-- Solo se aceptan archivos PDF de hasta 20 MB.
+## Criterios de verificación
 
-### Reportes
-
-- El Profesional asignado registra reportes con contenido y fecha.
-- El autor puede editar o eliminar lógicamente sus reportes; el Administrador puede administrarlos.
-- El Profesional consulta sus propios reportes; Coordinador, Directivo y Administrador consultan los reportes autorizados del proceso.
-
-### Pagos y comunicaciones
-
-- Secretario y Administrador registran comprobantes PDF descargados desde ARCA.
-- Secretario, Coordinador, Directivo y Administrador pueden consultar comprobantes autorizados.
-- El módulo final registrará canal, mensaje, destinatario, fecha, estado y resultado de notificaciones.
-- El alcance contempla notificaciones internas, correo y WhatsApp; el proveedor se confirmará al revisar los costos vigentes de Brevo. ARCA no se integra automáticamente.
-
-### Administración y autenticación
-
-- Directivo y Administrador pueden crear, modificar y eliminar lógicamente usuarios.
-- La eliminación de un usuario verifica que no tenga procesos activos.
-- Todos los roles internos pueden iniciar y cerrar sesión y modificar su contraseña o perfil.
-
-## Política de conservación y baja
-
-- **Baja lógica:** clientes, usuarios, procesos, servicios, estados, categorías y reportes.
-- **Usuarios:** baja lógica condicionada a que no tengan procesos activos.
-- **Turnos:** no se eliminan físicamente; se cancelan y conservan su historial.
-- **Documentos:** se marcan como eliminados u ocultos, pero se conserva su referencia, historial y auditoría; no se elimina automáticamente el archivo físico.
-- **Comprobantes:** CU 13 y CU 14 solo autorizan registro y consulta. No se implementa baja u ocultación ni se atribuye ese permiso a un rol sin actualizar primero la matriz.
-- **Notificaciones:** el módulo final conservará los envíos como registros auditables; su entrega ocurre después del núcleo funcional.
-- Las consultas operativas excluyen registros dados de baja, salvo vistas explícitas de auditoría o restauración.
-
-## Requisitos no funcionales
-
-- Autenticación obligatoria para usuarios internos.
-- Autorización comprobada en interfaz y servidor.
-- Auditoría de cambios sensibles y transiciones de estado.
-- Validación de tipo y tamaño de archivos.
-- Persistencia consistente de operaciones relacionadas.
+- Comparar cada escenario CU y sus roles contra los valores de la pestaña online.
+- Confirmar que la copia local y los documentos ampliados no contradigan esos casos.
+- Validar por separado la especificación, este cambio y el repositorio completo con OpenSpec estricto.
+- Revisar el diff y ejecutar git diff --check.

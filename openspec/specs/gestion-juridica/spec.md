@@ -1,110 +1,315 @@
-# Especificación del sistema de gestión jurídica
+# Gestión jurídica
 
-## Fuente de verdad
+## Purpose
 
-La matriz online **“Aequitas - Matriz de Módulos, Funciones y Permisos por Rol V2”** es la fuente definitiva de alcance, casos de uso y permisos. Esta especificación documenta sus reglas confirmadas y las decisiones complementarias aprobadas.
+Definir el comportamiento funcional vigente del sistema jurídico, con la matriz online Aequitas V2 como autoridad de casos de uso y permisos. Esta especificación formaliza los 41 casos de uso actuales y conserva las decisiones complementarias aprobadas que no amplían ni contradicen sus roles.
 
-## Usuarios autenticables
+## Requirements
 
-- El sistema debe ser utilizado únicamente por empleados del estudio jurídico.
-- Los roles autenticables son Secretario, Profesional, Coordinador, Directivo y Administrador.
-- El Administrador es un superadministrador con capacidad para realizar todas las operaciones.
-- El Directivo puede administrar usuarios y servicios, además de consultar la información autorizada.
-- El cliente es un dato administrativo sin credenciales, permisos, login ni acceso al sistema.
+### Requirement: Limitar el acceso a empleados autenticables y sus roles
 
-## Clientes y procesos
+El sistema MUST permitir el acceso únicamente a empleados autenticados con los roles Secretario, Profesional, Coordinador, Directivo o Administrador. El Administrador MUST estar autorizado en los 41 casos de uso. El cliente MUST ser solo un dato administrativo y MUST NOT tener credenciales ni acceso al sistema.
 
-- El sistema debe permitir registrar, modificar y dar de baja lógicamente clientes.
-- Al registrar un cliente debe crear un proceso inicial de Consultoría en estado `pendiente` y un turno inicial con el Coordinador.
-- Secretario y Administrador deben poder crear un proceso adicional para un cliente ya registrado, sin crear otro cliente ni un turno inicial automáticamente.
-- El proceso debe conservar cliente, servicio, coordinador, profesional, fechas, tipo, descripción, honorarios y motivo de rechazo.
-- Coordinador y Administrador pueden admitir o rechazar procesos pendientes; todo rechazo requiere motivo.
-- Secretario, Coordinador y Administrador pueden asignar o reasignar profesionales activos compatibles con el servicio o especialidad; los honorarios toman el costo de referencia vigente del servicio al realizar la asignación.
-- Los listados de clientes y procesos deben permitir búsqueda, filtros y paginación. El listado de procesos debe filtrar por cliente, servicio, estado, coordinador, profesional y rango de fecha de inicio.
-- Secretario, Profesional, Coordinador, Directivo y Administrador pueden listar y filtrar procesos; el Profesional solo ve los asignados. El cambio de estado corresponde al Profesional asignado, Coordinador o Administrador.
-- El historial de estados debe conservar estado anterior, estado nuevo, fecha, usuario y motivo.
-- El Profesional solo debe consultar y operar procesos que tenga asignados.
+#### Scenario: CU 31 - Iniciar y cerrar sesión
 
-## Estados y categorías
+- **WHEN** un empleado con cualquiera de los cinco roles inicia o cierra sesión
+- **THEN** el sistema autentica la cuenta interna y permite terminar la sesión; un cliente no puede autenticarse
 
-- Coordinador y Administrador deben poder crear, editar, ordenar, activar y desactivar estados de procesos.
-- Coordinador y Administrador deben poder administrar categorías o tipos de documentos.
-- El sistema debe impedir desactivar estados o categorías que dejen datos activos sin una transición válida.
+#### Scenario: El Administrador conserva el alcance de superadministrador
 
-## Turnos
+- **WHEN** el Administrador ejecuta cualquiera de los casos de uso de la matriz
+- **THEN** el sistema lo autoriza conforme a su condición de superadministrador
 
-- Solo Secretario y Administrador pueden crear, modificar y cancelar turnos.
-- Secretario, Profesional, Coordinador y Administrador pueden consultar la agenda de un profesional.
-- El sistema debe impedir conflictos de agenda.
-- Un turno externo debe bloquear la jornada completa y guardar su detalle.
-- La reprogramación debe liberar la disponibilidad anterior.
-- La cancelación debe conservar el turno con estado `cancelado` y liberar la disponibilidad.
-- Los cambios de turno deben generar notificaciones a los involucrados cuando se integre el módulo final de notificaciones.
+### Requirement: Permitir que cada empleado actualice su propia contraseña y perfil
 
-## Documentos
+El sistema MUST permitir que Secretario, Profesional, Coordinador, Directivo y Administrador actualicen su propia contraseña o perfil. La operación MUST aplicarse a la cuenta autenticada.
 
-- Secretario y Administrador pueden cargar, reemplazar y eliminar documentación.
-- Secretario, Profesional, Coordinador y Administrador pueden visualizar documentación.
-- Profesional asignado, Coordinador y Administrador pueden descargar documentación.
-- Solo se deben aceptar archivos PDF de hasta 20 MB.
+#### Scenario: CU 32 - Cambiar contraseña o perfil
 
-## Reportes
+- **WHEN** un empleado autenticado actualiza su contraseña o perfil
+- **THEN** el cambio se aplica a su propia cuenta y no concede acceso al perfil de otro usuario
 
-- El Profesional asignado debe poder registrar reportes con contenido y fecha.
-- El Profesional autor puede editar o eliminar lógicamente sus reportes.
-- El Profesional debe poder consultar sus propios reportes.
-- Coordinador, Directivo y Administrador deben poder consultar reportes autorizados del proceso.
-- El Administrador debe poder administrar reportes.
+### Requirement: Gestionar clientes y el alta inicial
 
-## Pagos y notificaciones
+El sistema MUST permitir al Secretario y al Administrador registrar, modificar y dar de baja lógicamente clientes. El registro MUST crear un proceso inicial de Consultoría en estado pendiente y un turno inicial con el Coordinador. La baja MUST conservar los datos históricos y MUST rechazarse si el cliente tiene procesos activos.
 
-- Secretario y Administrador deben poder registrar comprobantes PDF descargados desde ARCA.
-- El sistema no debe integrar automáticamente con ARCA.
-- Secretario, Coordinador, Directivo y Administrador deben poder consultar comprobantes autorizados.
-- La matriz vigente solo define CU 13 (registrar) y CU 14 (consultar) para comprobantes. No se debe ofrecer una operación de eliminación u ocultación ni asignar un permiso para ella sin aprobar primero un caso de uso y sus roles en la matriz.
-- El sistema debe registrar canal, mensaje, destinatario, fecha, estado y resultado de cada notificación.
-- El módulo final debe contemplar notificaciones internas y canales externos de correo y WhatsApp. Brevo queda como proveedor candidato, sujeto a revisar sus costos y condiciones vigentes antes de contratarlo o configurarlo.
+#### Scenario: CU 1 - Registrar Cliente
 
-## Estrategia de entrega del módulo de notificaciones
+- **WHEN** Secretario o Administrador registra un cliente con datos válidos y existe la configuración inicial requerida
+- **THEN** el sistema crea el cliente, un proceso de Consultoría pendiente y un turno inicial con un Coordinador en una operación consistente
+- **AND** crea el registro interno mínimo dirigido al Coordinador, que no constituye la entrega de CU 35 ni del módulo final de Notificaciones
 
-- Las notificaciones siguen formando parte del alcance final de los 41 casos de uso, pero se implementarán como un módulo independiente en la última fase, después de completar y aceptar el resto del núcleo funcional.
-- Las operaciones de clientes, procesos y turnos no deben depender de Brevo ni de otro proveedor externo durante las fases actuales.
-- El módulo se implementará y validará de forma aislada; su integración con los eventos de los demás módulos se realizará después.
-- El alcance vigente contempla notificaciones internas, correo y WhatsApp. Al iniciar esa fase se revisarán los costos y condiciones vigentes de Brevo antes de confirmar el proveedor o combinación de proveedores. No se asume hoy una contratación ni una integración externa.
-- El registro interno mínimo que se genera al dar de alta un cliente no constituye la entrega del módulo; se revisará durante la integración final.
+#### Scenario: CU 2 - Modificar Cliente
 
-## Administración y autenticación
+- **WHEN** Secretario o Administrador modifica los datos personales o de contacto de un cliente
+- **THEN** el sistema conserva el mismo cliente y guarda los datos actualizados
 
-- Directivo y Administrador deben poder agregar, modificar y eliminar lógicamente usuarios.
-- La baja lógica de un usuario debe verificar que no tenga procesos activos.
-- Todos los roles internos deben poder iniciar y cerrar sesión y cambiar su contraseña o perfil.
-- Los permisos deben validarse tanto en la interfaz como en el servidor.
+#### Scenario: CU 3 - Eliminar Cliente
 
-## Estándar de interfaz
+- **WHEN** Secretario o Administrador solicita la baja lógica de un cliente sin procesos activos
+- **THEN** el sistema conserva el registro con baja lógica y lo excluye de las consultas operativas
+- **AND** si quedan procesos activos, el sistema rechaza la baja
 
-- Las vistas deben utilizar Tailwind CSS para estilos, layout y comportamiento responsive.
-- Las interacciones locales que no requieren servidor deben resolverse con Alpine.js.
-- Las vistas interactivas que consultan o modifican información deben utilizar Livewire, conservando autorización y validación en el servidor.
-- Las vistas estáticas o simples pueden utilizar Blade + Tailwind sin Livewire.
-- El estándar no exige convertir la aplicación MVC en una arquitectura basada en API.
+#### Scenario: CU 28 - Listar y Filtrar Clientes
 
-## Interfaz de gestión de servicios
+- **WHEN** Secretario, Coordinador, Directivo o Administrador consulta clientes
+- **THEN** el sistema permite buscar, filtrar por estado de admisión y paginar resultados
 
-- La gestión de servicios debe estar disponible en `/servicios` mediante una interfaz híbrida de Blade, Livewire, Alpine.js y Tailwind CSS.
-- Alpine.js debe controlar localmente la visibilidad y las transiciones de los modales de alta, edición y confirmación de baja.
-- Livewire debe ejecutar en el servidor la autorización, validación, creación, actualización y baja lógica de servicios.
-- La aplicación debe conservar la versión tradicional del CRUD en `/servicios-viejo` como referencia para el equipo.
-- La adopción de esta interfaz no requiere separar el módulo en una API ni modificar las reglas de permisos existentes.
+### Requirement: Gestionar procesos, admisión, asignaciones y consulta autorizada
 
-## Conservación y eliminación
+El proceso MUST conservar su cliente, servicio, coordinador, profesional, fechas, tipo, descripción, honorarios y motivo de rechazo. El Profesional MUST consultar y operar únicamente procesos que tenga asignados. Las mutaciones MUST aplicar los permisos por caso de uso y conservar las transiciones de estado.
 
-- Clientes, usuarios, procesos, servicios, estados, categorías y reportes deben admitir baja lógica.
-- Los turnos no deben eliminarse físicamente; deben cancelarse conservando su historial.
-- Los documentos deben marcarse como eliminados u ocultos, conservando referencia, historial y auditoría; esa baja no debe borrar automáticamente el archivo físico.
-- Los comprobantes registrados se conservan asociados al cliente o proceso. Su baja u ocultación no forma parte de CU 13 ni CU 14 y requiere una actualización previa de la matriz para incorporarse al alcance.
-- Las notificaciones deben conservarse como registro auditable.
-- Las consultas operativas deben excluir registros dados de baja, salvo vistas explícitas de auditoría o restauración.
+#### Scenario: CU 15 - Admitir un proceso
 
-## Criterio de completitud
+- **WHEN** Coordinador o Administrador resuelve la admisión de un proceso pendiente
+- **THEN** el sistema registra la decisión y actualiza el proceso según el flujo de admisión
 
-La aplicación se considerará alineada cuando los 41 casos de uso de la matriz puedan ejecutarse desde la interfaz con autorización por rol, alcance del Profesional, persistencia consistente, estados y categorías configurables, archivos validados, conservación histórica, notificaciones y pruebas automatizadas de los casos principales.
+#### Scenario: CU 15.1 - Registrar motivo de rechazo
+
+- **WHEN** Coordinador o Administrador rechaza un proceso pendiente
+- **THEN** el sistema exige un motivo no vacío, conserva la causal y actualiza el estado a rechazado
+
+#### Scenario: CU 16 - Asignar Profesional
+
+- **WHEN** Secretario, Coordinador o Administrador asigna un profesional a un proceso
+- **THEN** el sistema valida que el profesional esté activo y sea compatible con el servicio o especialidad del proceso, y fija los honorarios con el costo de referencia vigente del servicio
+
+#### Scenario: CU 17 - Reasignar Profesional
+
+- **WHEN** Secretario, Coordinador o Administrador reasigna el profesional de un proceso
+- **THEN** el sistema valida la compatibilidad del nuevo profesional y actualiza los honorarios con el costo de referencia vigente del servicio
+
+#### Scenario: CU 18 - Consultar Legajo
+
+- **WHEN** un Profesional asignado, Coordinador, Directivo o Administrador consulta el legajo
+- **THEN** el sistema muestra la información autorizada por rol y asignación
+- **AND** el Profesional solo recibe los procesos que tiene asignados
+- **AND** la consulta del legajo no concede al Directivo visualización CU 12 ni descarga CU 19 de documentos
+
+#### Scenario: CU 20 - Actualizar Estado de Proceso
+
+- **WHEN** el Profesional asignado, Coordinador o Administrador actualiza un estado permitido
+- **THEN** el sistema guarda la transición y conserva su historial
+
+#### Scenario: CU 29 - Listar y Filtrar Procesos
+
+- **WHEN** Secretario, Profesional, Coordinador, Directivo o Administrador consulta la bandeja de procesos
+- **THEN** el sistema permite buscar y filtrar por estado, cliente y profesional asignado, y paginar resultados
+- **AND** el Profesional solo recibe procesos asignados
+- **AND** se conservan los filtros adicionales ya aprobados para servicio, coordinador y rango de fecha de inicio
+
+#### Scenario: CU 30 - Consultar Historial de Estados del Proceso
+
+- **WHEN** Secretario, Profesional, Coordinador, Directivo o Administrador consulta el historial de estados
+- **THEN** el sistema muestra el estado anterior, estado nuevo, fecha, usuario interviniente y motivo
+- **AND** el Profesional solo consulta el historial de procesos que tiene asignados
+
+#### Scenario: CU 38 - Crear Proceso Adicional
+
+- **WHEN** Secretario o Administrador crea un proceso para un cliente ya registrado
+- **THEN** el sistema crea un nuevo proceso asociado al cliente existente, sin duplicar el cliente y sin generar un turno inicial automático
+- **AND** el proceso comienza pendiente y continúa por el flujo de admisión vigente
+
+### Requirement: Administrar turnos y consultar la agenda
+
+Solo Secretario y Administrador MUST poder crear, modificar o cancelar turnos. El sistema MUST impedir conflictos de disponibilidad, conservar los turnos cancelados como historial y liberar la disponibilidad anterior al reprogramar.
+
+#### Scenario: CU 4 - Agendar Turno Interno
+
+- **WHEN** Secretario o Administrador agenda un turno interno válido
+- **THEN** el sistema conserva la cita entre cliente y profesional o Coordinador
+- **AND** la integración de avisos queda para el módulo independiente de Notificaciones de última fase
+
+#### Scenario: CU 4.1 - Agendar Turno de Seguimiento
+
+- **WHEN** Secretario o Administrador agenda un turno de seguimiento
+- **THEN** el sistema vincula el turno a un legajo o proceso activo
+
+#### Scenario: CU 5 - Agendar Turno Externo
+
+- **WHEN** Secretario o Administrador registra un compromiso externo con su detalle
+- **THEN** el sistema guarda el detalle y bloquea la jornada completa del profesional para esa fecha
+
+#### Scenario: CU 6 - Modificar Turno
+
+- **WHEN** Secretario o Administrador reprograma un turno interno a una disponibilidad válida
+- **THEN** el sistema guarda la nueva fecha y hora y libera la disponibilidad anterior
+
+#### Scenario: CU 6.1 - Modificar Turno Externo
+
+- **WHEN** Secretario o Administrador reprograma un turno externo
+- **THEN** el sistema actualiza la fecha y libera el bloqueo anterior o asigna el bloqueo a la nueva jornada
+
+#### Scenario: CU 7 - Eliminar Turno mediante cancelación
+
+- **WHEN** Secretario o Administrador cancela un turno
+- **THEN** el sistema conserva el registro con estado cancelado, mantiene su historial y libera la disponibilidad
+
+#### Scenario: CU 8 - Ver Agenda de un Profesional
+
+- **WHEN** Secretario, Profesional, Coordinador o Administrador consulta la agenda
+- **THEN** el sistema muestra los turnos y bloqueos definidos para el profesional y período autorizados; Directivo no recibe CU 8
+- **AND** el Profesional queda limitado a su propia agenda incluso si manipula filtros
+- **AND** los rangos consultables son inclusivos y no exceden 90 días; no se infieren horas libres ni duraciones no definidas
+- **AND** los turnos cancelados pueden mostrarse como historial, pero no ocupan disponibilidad
+
+### Requirement: Conservar y autorizar los documentos del legajo
+
+El sistema MUST aceptar únicamente archivos PDF de hasta 20 MB. La carga, reemplazo y eliminación lógica corresponden a Secretario y Administrador; la visualización corresponde a Secretario, Profesional, Coordinador y Administrador; la descarga corresponde al Profesional asignado, Coordinador y Administrador.
+
+#### Scenario: CU 9 - Cargar Documentación
+
+- **WHEN** Secretario o Administrador carga un archivo PDF de hasta 20 MB en el legajo
+- **THEN** el sistema valida tipo y tamaño y conserva la referencia al archivo
+
+#### Scenario: CU 10 - Reemplazar Documentación
+
+- **WHEN** Secretario o Administrador reemplaza un documento por un PDF válido
+- **THEN** el documento conserva su identidad, referencia e historial de versiones
+
+#### Scenario: CU 11 - Eliminar Documentación
+
+- **WHEN** Secretario o Administrador elimina u oculta un documento
+- **THEN** el sistema conserva su referencia, historial y auditoría, y no elimina automáticamente el archivo físico
+
+#### Scenario: CU 12 - Visualizar Documentación
+
+- **WHEN** Secretario, Profesional, Coordinador o Administrador visualiza documentación autorizada
+- **THEN** el sistema permite visualizar el contenido según el alcance del rol y del proceso
+- **AND** Directivo no recibe CU 12 por el hecho de consultar un legajo mediante CU 18
+
+#### Scenario: CU 19 - Descargar Documentación
+
+- **WHEN** el Profesional asignado, Coordinador o Administrador descarga documentación autorizada
+- **THEN** el sistema entrega el archivo solo después de verificar el permiso y el alcance del proceso
+
+### Requirement: Registrar y consultar comprobantes sin ampliar CU 13 y CU 14
+
+El sistema MUST permitir registrar comprobantes PDF descargados manualmente desde ARCA y consultarlos según la matriz. MUST NOT integrar automáticamente con ARCA ni ofrecer baja u ocultación de comprobantes porque CU 13 y CU 14 no autorizan esa operación.
+
+#### Scenario: CU 13 - Registrar Comprobante de Pago
+
+- **WHEN** Secretario o Administrador registra un comprobante PDF descargado desde ARCA
+- **THEN** el sistema conserva el comprobante vinculado sin realizar una integración automática con ARCA
+
+#### Scenario: CU 14 - Ver Comprobante de Pago
+
+- **WHEN** Secretario, Coordinador, Directivo o Administrador consulta un comprobante vinculado
+- **THEN** el sistema permite su consulta y visualización autorizadas
+- **AND** el sistema no ofrece baja u ocultación de comprobantes ni asigna un permiso para ello
+
+### Requirement: Gestionar reportes con autoría y alcance
+
+El sistema MUST asociar cada reporte al proceso y conservar su autoría. El Profesional MUST limitarse a procesos asignados y a consultar sus propios reportes; Coordinador, Directivo y Administrador MUST consultar los reportes autorizados del proceso.
+
+#### Scenario: CU 21 - Registrar Reporte
+
+- **WHEN** el Profesional asignado o Administrador registra un reporte con contenido y fecha
+- **THEN** el sistema conserva el reporte asociado al proceso y al autor
+
+#### Scenario: CU 22 - Editar Reporte
+
+- **WHEN** el Profesional autor o Administrador edita un reporte
+- **THEN** el sistema conserva la autoría y el historial del cambio
+
+#### Scenario: CU 23 - Eliminar Reporte
+
+- **WHEN** el Profesional autor o Administrador elimina un reporte
+- **THEN** el sistema aplica baja lógica y conserva auditoría
+
+#### Scenario: CU 24 - Consultar Reportes de Proceso
+
+- **WHEN** el Profesional, Coordinador, Directivo o Administrador consulta reportes del proceso
+- **THEN** el Profesional ve sus propios reportes y los demás roles autorizados ven los reportes permitidos para el proceso
+
+### Requirement: Administrar usuarios según CU 25 a CU 27
+
+El sistema MUST permitir a Directivo y Administrador agregar, modificar y dar de baja lógicamente usuarios. La baja MUST rechazarse mientras el usuario tenga procesos activos y MUST conservar trazabilidad.
+
+#### Scenario: CU 25 - Agregar Nuevo Usuario
+
+- **WHEN** Directivo o Administrador agrega un usuario interno y asigna su rol
+- **THEN** el sistema crea la cuenta autenticable con los datos y rol admitidos
+
+#### Scenario: CU 26 - Modificar Usuario
+
+- **WHEN** Directivo o Administrador modifica los datos o rol de un usuario
+- **THEN** el sistema guarda los cambios autorizados
+
+#### Scenario: CU 27 - Eliminar Usuario
+
+- **WHEN** Directivo o Administrador solicita la baja lógica de un usuario sin procesos activos
+- **THEN** el sistema conserva la cuenta como baja lógica y la excluye de consultas operativas
+- **AND** si tiene procesos activos, el sistema rechaza la baja
+
+### Requirement: Gestionar servicios y asignaciones de especialidad
+
+Directivo y Administrador MUST poder gestionar servicios. Coordinador, Directivo y Administrador MUST poder vincular a profesionales con los servicios que pueden atender.
+
+#### Scenario: CU 33 - Gestionar Servicios
+
+- **WHEN** Directivo o Administrador crea, modifica o da de baja lógicamente un servicio
+- **THEN** el sistema conserva sus datos y costo de referencia para las operaciones autorizadas
+
+#### Scenario: CU 34 - Asignar Especialidad o Servicio a Profesional
+
+- **WHEN** Coordinador, Directivo o Administrador asigna servicios o especialidades a un profesional
+- **THEN** el sistema conserva la relación que determina qué servicios puede atender el profesional
+
+### Requirement: Consultar el registro del módulo final de Notificaciones
+
+El módulo final MUST conservar registros auditables con canal, mensaje, destinatario, fecha, estado y resultado. MUST contemplar notificaciones internas, correo y WhatsApp. El módulo MUST entregarse como componente independiente en la última fase y MUST NOT volver dependientes de un proveedor externo los flujos de clientes, procesos o turnos. Brevo es candidato y sus costos y condiciones vigentes MUST revisarse antes de confirmar proveedor.
+
+#### Scenario: CU 35 - Consultar Registro de Notificaciones
+
+- **WHEN** Secretario, Coordinador, Directivo o Administrador consulta el registro de notificaciones en la fase final
+- **THEN** el sistema presenta los registros auditables autorizados y sus datos de canal, mensaje, destinatario, fecha, estado y resultado
+- **AND** la integración de eventos del núcleo ocurre después de validar el módulo por separado
+
+### Requirement: Administrar estados de proceso y categorías documentales
+
+Coordinador y Administrador MUST poder administrar estados de proceso y categorías documentales. El sistema MUST impedir desactivar un estado o categoría si la operación deja datos activos sin una transición válida.
+
+#### Scenario: CU 36 - Gestionar Estados de Proceso
+
+- **WHEN** Coordinador o Administrador crea, edita, ordena, activa o desactiva un estado
+- **THEN** el sistema conserva la configuración y no permite una desactivación que deje procesos activos sin transición válida
+
+#### Scenario: CU 37 - Gestionar Categorías de Documentos
+
+- **WHEN** Coordinador o Administrador crea, edita, activa, desactiva o da de baja lógicamente una categoría
+- **THEN** el sistema conserva su asociación histórica y los documentos y archivos relacionados, sin dejar datos activos sin transición válida
+- **AND** la restauración complementaria conserva el valor activo o inactivo previo y usa la autorización existente de CU 37
+
+### Requirement: Conservar las bajas y excluirlas de la operación vigente
+
+Clientes, usuarios, procesos, servicios, estados, categorías y reportes MUST admitir baja lógica y MUST conservar su trazabilidad. Los turnos MUST conservarse con estado cancelado y los documentos MUST conservar su referencia, historial y auditoría sin eliminar automáticamente el archivo físico. Las consultas operativas MUST excluir los registros dados de baja, salvo vistas explícitas de auditoría o restauración. CU 13 y CU 14 MUST NOT habilitar la baja de comprobantes.
+
+#### Scenario: Registro con baja lógica
+
+- **WHEN** una entidad con baja lógica se consulta desde una vista operativa
+- **THEN** el sistema la excluye de los resultados operativos y la conserva para auditoría o restauración autorizada
+
+#### Scenario: Baja de proceso, servicio, estado, categoría o reporte
+
+- **WHEN** un usuario autorizado da de baja lógicamente un proceso, servicio, estado, categoría o reporte
+- **THEN** el sistema conserva sus relaciones y datos históricos y aplica las restricciones de seguridad específicas de esa entidad
+
+#### Scenario: Consulta de un turno cancelado o documento eliminado
+
+- **WHEN** un usuario autorizado consulta el historial de turnos o documentos
+- **THEN** el sistema conserva la evidencia del turno cancelado o del documento eliminado, incluido el archivo físico documental cuando corresponda
+
+### Requirement: Mantener las decisiones aprobadas de interfaz y consistencia
+
+La aplicación MUST ser accesible desde un navegador y las vistas MUST seguir el estándar aprobado de Tailwind CSS, Alpine.js y Livewire dentro de la arquitectura MVC existente. Este estándar MUST NOT requerir una API separada. Las operaciones relacionadas MUST conservar persistencia consistente, las autorizaciones MUST comprobarse en interfaz y servidor, y los cambios sensibles y transiciones MUST quedar auditados.
+
+#### Scenario: Interfaz de gestión de servicios
+
+- **WHEN** un usuario autorizado administra servicios
+- **THEN** la interfaz principal está disponible en /servicios con Blade, Livewire, Alpine.js y Tailwind CSS, y conserva /servicios-viejo como referencia
+
+#### Scenario: Operación protegida y consistente
+
+- **WHEN** un usuario solicita una operación sensible desde la interfaz o una ruta directa
+- **THEN** el servidor vuelve a comprobar autorización, valida los datos y conserva auditoría y consistencia de las escrituras relacionadas
