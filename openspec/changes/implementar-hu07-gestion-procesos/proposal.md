@@ -24,7 +24,7 @@ La matriz confirma: CU15/CU15.1 para Coordinador y Administrador; CU16/CU17 para
 ## Fuera de alcance
 
 - Modificar la hoja de Google Drive o mover/editar la tarjeta Trello.
-- Notificaciones, cambios de agenda y cambios a la administración del catálogo de estados.
+- Notificaciones, cambios de agenda y cambios a la administración del catálogo de estados. Notificaciones se implementa como módulo independiente de última fase, con proveedor por decidir tras revisar costos de Brevo.
 - Cambiar la creación de clientes o procesos adicionales.
 
 ## Criterios de salida

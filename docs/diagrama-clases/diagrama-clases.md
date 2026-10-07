@@ -2,6 +2,8 @@
 
 ## Sistema de Gestión de Turnos y Procesos
 
+> **Secuencia de entrega:** Notificacion aparece aquí como entidad del dominio y de persistencia. El módulo funcional (bandeja, reglas, canales y conexión con los eventos) se implementará como módulo independiente en la fase final; Brevo sigue sujeto a revisión de costos. Este diagrama describe el alcance final, no el orden de entrega.
+
 ```mermaid
 classDiagram
 direction LR
@@ -216,7 +218,7 @@ direction LR
 - **Agenda**: contiene los turnos internos, seguimientos y eventos externos.
 - **Documentación y Seguimiento**: reúne documentos del expediente y reportes profesionales.
 - **Pagos**: registra comprobantes asociados a clientes.
-- **Comunicaciones**: modela las notificaciones enviadas a usuarios y clientes.
+- **Comunicaciones**: representa la entidad de notificaciones; su módulo de bandeja, reglas y envío queda para la fase final.
 
 ## Descripción de Relaciones
 

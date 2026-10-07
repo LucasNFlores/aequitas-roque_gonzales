@@ -4,6 +4,8 @@
 
 La fuente definitiva de casos de uso y permisos es la matriz online **“Aequitas - Matriz de Módulos, Funciones y Permisos por Rol V2”**. OpenSpec y esta documentación deben mantenerse alineados con ella.
 
+> **Decisión de entrega (2026-10-07):** Notificaciones conserva su alcance funcional, pero se construirá como módulo independiente en la última fase, luego de completar y aceptar el núcleo. El registro interno mínimo del alta de cliente es una capacidad existente y transitoria, no la entrega del módulo. El alcance vigente contempla avisos internos, correo y WhatsApp; Brevo queda sujeto a revisar costos y condiciones antes de decidir proveedor.
+
 ## Actores del sistema
 
 - **Secretario:** registra y modifica clientes, gestiona documentación y comprobantes, administra la agenda autorizada y puede asignar o reasignar profesionales.
@@ -61,7 +63,7 @@ PDF descargado desde ARCA y cargado manualmente al sistema. El sistema no realiz
 
 ### Notificación
 
-Registro de una comunicación interna o externa. Los canales externos son correo y WhatsApp mediante Brevo. Se conservan canal, mensaje, destinatario, fecha, estado y resultado.
+Entidad prevista para registrar una comunicación interna o externa, con canal, mensaje, destinatario, fecha, estado y resultado. La bandeja, las reglas y los envíos se implementarán en el módulo de fase final. El alcance vigente contempla avisos internos, correo y WhatsApp; Brevo es candidato sujeto a revisión de costos.
 
 ## Flujo principal
 
@@ -74,7 +76,7 @@ Registro de una comunicación interna o externa. Los canales externos son correo
 7. Se solicitan y cargan los documentos necesarios.
 8. Se agendan turnos de seguimiento.
 9. El Profesional actualiza estados y registra reportes.
-10. Se cargan comprobantes de pago y se envían notificaciones.
+10. Se cargan comprobantes de pago. Las notificaciones de los eventos se conectarán en la fase final, después de validar el módulo por separado.
 11. Los cambios sensibles quedan auditados.
 
 ## Reglas de permisos
@@ -111,4 +113,4 @@ El proceso almacena la clave estable del estado y el nombre visible proviene del
 
 ## Notificaciones automáticas
 
-Se notifican, según el evento y los destinatarios autorizados, el alta de cliente, admisión, rechazo, asignación o reasignación de profesional, creación, modificación y cancelación de turnos, y otros cambios relevantes del proceso.
+El alcance final contempla avisos por alta de cliente, admisión, rechazo, asignación o reasignación de profesional, creación, modificación y cancelación de turnos y otros cambios relevantes. Esos eventos no deben depender de un proveedor externo durante las fases del núcleo; su integración queda para el módulo independiente final.

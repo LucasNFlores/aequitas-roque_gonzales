@@ -1,4 +1,5 @@
 sequenceDiagram
+    %% Diagrama de alcance final; Notificaciones se implementa como módulo independiente en la última fase.
     autonumber
     actor Operador as Secretario / Administrador
     participant Sistema as TurnoController
@@ -78,4 +79,4 @@ sequenceDiagram
     end
 
     Note over User,Request: Diferencia detectada: Drive admite profesional o coordinador&#59; StoreTurnoRequest actual solo acepta un usuario con rol Profesional.
-    Note over Turno,Notificacion: La disponibilidad, la persistencia del turno y el envío de notificaciones son parte del CU, pero aún no tienen flujo ejecutable en TurnoController::store().
+    Note over Turno,Notificacion: El envío y la integración de eventos se conectarán en la fase final; no son dependencia de la entrega actual de agenda.

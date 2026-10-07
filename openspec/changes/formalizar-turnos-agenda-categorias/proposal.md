@@ -20,14 +20,14 @@ La especificación base ya describe las reglas funcionales, pero el cambio globa
 
 - Planificar CU4, CU4.1, CU5, CU6, CU6.1, CU7 y CU8: turnos internos, seguimiento, externos, reprogramación, cancelación y consulta de agenda.
 - Planificar CU37: gestión de categorías documentales.
-- Precisar autorización, persistencia, consultas, interfaz, auditoría de notificaciones, pruebas y migraciones reversibles.
+- Precisar autorización, persistencia, consultas, interfaz, criterios de integración futura de notificaciones, pruebas y migraciones reversibles.
 - Mantener la información histórica de turnos y documentos.
 
 ## Fuera de alcance
 
 - Modificar la matriz de Google Drive, la especificación base o los permisos funcionales ya aprobados.
 - Implementar código, migraciones, rutas o vistas como parte de este cambio de planificación.
-- Implementar directamente proveedores externos como Brevo; el módulo debe emitir el registro/evento auditable que consume el flujo de notificaciones.
+- Implementar la bandeja, los canales o proveedores de notificaciones dentro de este cambio. La agenda debe poder operar sin ellos; la integración de eventos queda para el módulo independiente de última fase.
 - Reemplazar o reescribir el cambio histórico `completar-sistema-gestion-juridica`.
 
 ## Decisiones confirmadas
@@ -49,7 +49,7 @@ La especificación base ya describe las reglas funcionales, pero el cambio globa
 - `app/Models/Turno.php`, `app/Policies/TurnoPolicy.php`, `app/Http/Requests/*TurnoRequest.php` y `TurnoController`.
 - Rutas, interfaz de agenda y pruebas de turnos.
 - `Documento`, su controlador y el nuevo modelo/relación de categoría documental.
-- Migraciones, seeders, policies, Form Requests, notificaciones y pruebas relacionadas.
+- Migraciones, seeders, policies, Form Requests y pruebas de agenda/categorías. Los eventos que consumirá Notificaciones se conectan en su módulo independiente de última fase.
 
 ## Criterio de salida
 

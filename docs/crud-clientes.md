@@ -4,6 +4,8 @@
 
 Permitir registrar, consultar, editar y dar de baja lógica a clientes. El acceso completo está habilitado para los roles **Administrador** (superadministrador vía `Gate::before`) y **Secretario**. Al registrar un cliente se crea de forma atómica el proceso inicial, el turno con el Coordinador y la notificación interna. Cumple el estándar mínimo del commit `crud` (modelo, migración, factory/seeder, requests, policy, controller resource, vistas Blade, rutas protegidas y pruebas).
 
+El registro interno creado por este flujo es una capacidad acotada ya existente. No equivale a la bandeja ni al módulo de notificaciones completo: ese módulo se entrega en la última fase y revisará este punto al integrar los eventos. Brevo y los canales externos quedan pendientes de la revisión de costos vigente.
+
 ## Componentes implementados
 
 ### 1. Modelo y migración

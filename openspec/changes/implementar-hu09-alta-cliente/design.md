@@ -1,5 +1,7 @@
 # Diseño de HU-09: alta transaccional de cliente
 
+> El flujo y su registro interno son una capacidad acotada de HU-09; no equivalen al módulo de notificaciones. CU-35 y HU-18 a HU-20 se completan en un módulo independiente de última fase, que revisará esta integración. Brevo y los canales externos quedan sujetos a revisión de costos.
+
 ## Flujo
 
 1. El usuario autorizado envía los datos del cliente y `fecha_hora_inicial`.

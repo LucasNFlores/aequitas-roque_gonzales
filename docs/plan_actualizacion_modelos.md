@@ -1,5 +1,7 @@
 # Plan: Actualización de Modelos Eloquent
 
+> **Estado:** este plan es una guía histórica y no refleja por sí solo el estado actual del repositorio. Notificaciones se conserva como módulo independiente de última fase; antes de seguir cualquier paso viejo sobre su modelo o proveedor, consultar [Módulo de Notificaciones — fase final](modulo-notificaciones-fase-final.md).
+
 ## Objetivo
 
 Completar los modelos en `app/Models/` según el schema definido en `docs/db/modelo_db_io.md`.

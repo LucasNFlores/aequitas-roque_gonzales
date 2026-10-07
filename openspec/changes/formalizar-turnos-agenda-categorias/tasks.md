@@ -13,7 +13,7 @@
 - [x] Validar cliente, proceso activo, profesional y tipo para alta/reprogramación de turnos internos y de seguimiento; los compromisos externos se mantienen fuera de HU-11.
 - [x] Implementar conflictos por fecha/hora exacta y bloqueo de jornada completa por compromisos externos activos, dentro de una transacción.
 - [x] Implementar reprogramación segura y cancelación sin borrado, conservando el historial.
-- [x] Notificaciones de alta, reprogramación y cancelación: fuera del alcance actual por decisión de producto; seguimiento en [HU-11 — Notificaciones auditables de turnos](https://trello.com/c/Iv2kJ7WQ/74-hu-11-notificaciones-auditables-de-turnos).
+- [x] Notificaciones de alta, reprogramación y cancelación: fuera de esta entrega; integrar los eventos en el [módulo independiente de fase final](https://trello.com/c/voW5TBHi/75-m%C3%B3dulo-de-notificaciones-integraci%C3%B3n-final), después de validar dicho módulo por separado.
 
 ## Agenda
 

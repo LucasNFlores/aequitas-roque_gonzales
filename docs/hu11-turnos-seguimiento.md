@@ -4,7 +4,7 @@
 
 Implementa consulta inicial, seguimiento de proceso activo, reprogramación, cancelación histórica y consulta de agenda (CU4, CU4.1, CU6, CU7 y CU8). Secretario y Administrador gestionan turnos internos; Profesional y Coordinador consultan la agenda conforme a sus permisos. Directivo no tiene acceso. Los compromisos externos son de HU-13 y aquí solo bloquean el día del profesional.
 
-Las notificaciones no forman parte de esta entrega. La tarjeta para retomarlas está en [HU-11 — Notificaciones auditables de turnos](https://trello.com/c/Iv2kJ7WQ/74-hu-11-notificaciones-auditables-de-turnos).
+Las notificaciones no forman parte de esta entrega de agenda. Los eventos de turnos se conectarán en el [módulo independiente de Notificaciones de fase final en Trello](https://trello.com/c/voW5TBHi/75-m%C3%B3dulo-de-notificaciones-integraci%C3%B3n-final), después de validar el módulo por separado y revisar los costos de Brevo. Ver también [el detalle de alcance](modulo-notificaciones-fase-final.md).
 
 ## Comportamiento
 

@@ -12,6 +12,8 @@
 
 La matriz online **“Aequitas - Matriz de Módulos, Funciones y Permisos por Rol V2”** es la fuente definitiva de casos de uso, alcance y permisos. Este documento transcribe sus reglas funcionales y registra las decisiones complementarias aprobadas en OpenSpec.
 
+> **Decisión de entrega (2026-10-07):** el alcance de notificaciones se conserva, pero CU-35 y HU-18 a HU-20 se implementarán como módulo independiente en la última fase. Primero se completará y aceptará el núcleo; luego se validará Notificaciones por separado y se integrarán sus eventos. Brevo queda sujeto a revisión de costos y condiciones vigentes.
+
 El sistema es una aplicación web interna para centralizar clientes, procesos jurídicos, turnos, documentación, reportes, comprobantes, usuarios, servicios y notificaciones del estudio.
 
 La copia tabular exacta y sincronizada de la matriz está en [aequitas-matriz-modulos-funciones-permisos-v2.md](aequitas-matriz-modulos-funciones-permisos-v2.md). Este documento conserva la transcripción funcional ampliada.
@@ -39,7 +41,7 @@ El cliente se registra como dato administrativo. No inicia sesión, no tiene cre
 8. Se agendan turnos de seguimiento.
 9. El Profesional actualiza el estado y registra reportes.
 10. Se cargan comprobantes PDF descargados desde ARCA.
-11. El sistema registra y envía notificaciones según el evento y el destinatario.
+11. En la última fase, el módulo independiente de Notificaciones registrará y enviará avisos según el evento y el destinatario.
 
 ## 4. Requisitos funcionales
 
@@ -83,7 +85,7 @@ El cliente se registra como dato administrativo. No inicia sesión, no tiene cre
 | CU 32 | Administración y Seguridad | Cambiar Contraseña / Perfil | Secretario, Profesional, Coordinador, Directivo |
 | CU 33 | Parámetros del Sistema | Gestionar Servicios | Directivo |
 | CU 34 | Parámetros del Sistema | Asignar Especialidad/Servicio a Profesional | Coordinador, Directivo |
-| CU 35 | Comunicaciones y Notificaciones | Consultar Registro de Notificaciones | Secretario, Coordinador, Directivo |
+| CU 35 | Comunicaciones y Notificaciones | Consultar Registro de Notificaciones | Secretario, Coordinador, Directivo (se entrega en la fase final) |
 | CU 36 | Parámetros del Sistema | Gestionar Estados de Proceso | Coordinador |
 | CU 37 | Parámetros del Sistema | Gestionar Categorías de Documentos | Coordinador |
 
@@ -135,7 +137,7 @@ El comprobante es un PDF descargado manualmente desde ARCA y almacenado en el si
 
 ### Notificaciones
 
-El sistema registra canal, mensaje, destinatario, fecha, estado y resultado. Los canales son internos, correo y WhatsApp mediante Brevo.
+El módulo final registrará canal, mensaje, destinatario, fecha, estado y resultado. Contempla notificaciones internas y canales externos de correo y WhatsApp; el proveedor se decidirá al revisar los costos vigentes de Brevo antes de iniciar esa fase.
 
 ## 6. Administración y autenticación
 

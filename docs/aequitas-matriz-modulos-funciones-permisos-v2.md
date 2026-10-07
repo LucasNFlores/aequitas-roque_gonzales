@@ -1,13 +1,15 @@
 +# Aequitas — Matriz de Módulos, Funciones y Permisos por Rol V2
 
-> Copia Markdown de la pestaña **Aequitas - Matriz de Módulos, Funciones y Permisos por Rol V2** de la [matriz funcional en Google Sheets](https://docs.google.com/spreadsheets/d/13L_GwiJ1DvFIU2CaaXYfjaDDXHQEhSmcOST4z9bl1Oc/edit).
+> Transcripción local en Markdown de la pestaña **Aequitas - Matriz de Módulos, Funciones y Permisos por Rol V2** de la [matriz funcional en Google Sheets](https://docs.google.com/spreadsheets/d/13L_GwiJ1DvFIU2CaaXYfjaDDXHQEhSmcOST4z9bl1Oc/edit), complementada con la decisión local de secuencia de entrega. La hoja online no se modificó.
 
 - **Fuente de verdad:** Google Sheets.
 - **Pestaña:** Aequitas - Matriz de Módulos, Funciones y Permisos por Rol V2.
-- **Última sincronización local:** 2026-09-23.
+- **Última copia de datos funcionales desde la hoja:** 2026-09-23.
 - **Casos de uso:** 41.
 - **Roles:** Secretario, Profesional, Coordinador, Directivo y Administrador.
 - **Convención:** Sí indica autorización explícita en la matriz; No indica que el rol no está autorizado. El Administrador es superadministrador y queda autorizado en todos los casos de uso.
+
+> **Secuencia de implementación local (2026-10-07):** la matriz online define el alcance funcional; esta decisión complementaria define el orden de entrega. CU-35 y las historias HU-18 a HU-20 se agrupan como módulo independiente de última fase. El alcance vigente conserva avisos internos, correo y WhatsApp; se revisarán los costos y condiciones de Brevo antes de decidir el proveedor. Esta nota local no afirma que la hoja online haya sido modificada.
 
 ## Matriz
 
@@ -17,7 +19,7 @@
 | Gestión de Clientes | CU 2 | Modificar Cliente | Sí | No | No | No | Sí | Actualiza datos personales y de contacto del cliente |
 | Gestión de Clientes | CU 3 | Eliminar Cliente | Sí | No | No | No | Sí | Baja lógica; se verifica que no tenga procesos activos |
 | Gestión de Clientes | CU 28 | Listar y Filtrar Clientes | Sí | No | Sí | Sí | Sí | Vista con filtros por estado de admisión, búsqueda y paginación |
-| Gestión de Turnos y Agenda | CU 4 | Agendar Turno Interno | Sí | No | No | No | Sí | Cita entre cliente y profesional/coordinador; notifica a las partes |
+| Gestión de Turnos y Agenda | CU 4 | Agendar Turno Interno | Sí | No | No | No | Sí | Cita entre cliente y profesional/coordinador; sus avisos se integran en la fase final de Notificaciones |
 | Gestión de Turnos y Agenda | CU 4.1 | Agendar Turno de Seguimiento | Sí | No | No | No | Sí | Turno vinculado a legajo o caso activo |
 | Gestión de Turnos y Agenda | CU 5 | Agendar Turno Externo | Sí | No | No | No | Sí | Compromiso externo; bloquea la jornada del profesional |
 | Gestión de Turnos y Agenda | CU 6 | Modificar Turno | Sí | No | No | No | Sí | Reprogramación de fecha y hora; libera la disponibilidad anterior |
@@ -51,7 +53,7 @@
 | Administración y Seguridad | CU 32 | Cambiar Contraseña / Perfil | Sí | Sí | Sí | Sí | Sí | Actualización de credenciales o perfil por el propio usuario |
 | Parámetros del Sistema | CU 33 | Gestionar Servicios (CRUD) | No | No | No | Sí | Sí | Alta, edición y baja lógica de servicios y costos de referencia |
 | Parámetros del Sistema | CU 34 | Asignar Especialidad/Servicio a Profesional | No | No | Sí | Sí | Sí | Vincula profesionales con los servicios que pueden atender |
-| Comunicaciones y Notificaciones | CU 35 | Consultar Registro de Notificaciones | Sí | No | Sí | Sí | Sí | Auditoría de envíos internos, Email y WhatsApp mediante Brevo |
+| Comunicaciones y Notificaciones | CU 35 | Consultar Registro de Notificaciones | Sí | No | Sí | Sí | Sí | Registro auditable; módulo independiente de última fase. Proveedor sujeto a revisión de costos |
 | Parámetros del Sistema | CU 36 | Gestionar Estados de Proceso | No | No | Sí | No | Sí | CRUD, ordenamiento, activación y desactivación segura de estados |
 | Parámetros del Sistema | CU 37 | Gestionar Categorías de Documentos | No | No | Sí | No | Sí | CRUD, activación y baja lógica de categorías o tipos documentales |
 

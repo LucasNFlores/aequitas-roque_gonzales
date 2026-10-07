@@ -1,5 +1,7 @@
 # Implementar HU-09: alta de cliente con proceso y turno inicial
 
+> **Aclaración de alcance:** esta HU conserva el registro interno mínimo que ya crea el alta. No entrega CU-35 ni HU-18 a HU-20: la bandeja, las reglas y los canales se implementan en el módulo independiente de última fase, que revisará este registro al integrar los eventos. No se confirma Brevo sin revisar costos vigentes.
+
 ## Objetivo
 
 Completar el alta de cliente para que un Secretario o Administrador cree, en una sola operación, el cliente, su proceso inicial y un turno inicial asignado al Coordinador, con registro de notificación interna.
@@ -19,7 +21,7 @@ Completar el alta de cliente para que un Secretario o Administrador cree, en una
 
 - Agenda, detección de conflictos, reprogramación y cancelación de turnos.
 - Creación de procesos adicionales para clientes existentes.
-- Integración de entrega por Brevo; esta HU deja el registro interno auditable.
+- Integración de entrega por proveedor externo; esta HU deja solo el registro interno auditable y no decide proveedor. La revisión de Brevo se hará al comenzar el módulo de última fase.
 
 ## Criterio de salida
 

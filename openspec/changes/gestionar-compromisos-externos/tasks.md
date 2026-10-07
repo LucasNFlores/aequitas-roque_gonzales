@@ -11,7 +11,7 @@
 - [x] Añadir operaciones del scheduler externo con validación transaccional de jornada completa.
 - [x] Implementar formulario y acciones Livewire para los tres flujos, con detalle obligatorio y relaciones consistentes.
 - [x] Mostrar compromisos externos e historial en agenda/listado y ocultar escritura a roles no autorizados.
-- [x] No implementar notificaciones ni recordatorios.
+- [x] No implementar notificaciones ni recordatorios en HU-13; su integración queda en el módulo independiente de fase final.
 
 ## Validación y cierre
 

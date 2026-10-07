@@ -1,5 +1,7 @@
 # Explicación del modelo User.php
 
+> **Alcance de Notificaciones:** las referencias a `Notifiable` describen una capacidad técnica de Laravel, no la entrega del módulo funcional de negocio. La bandeja, las reglas y los canales quedan para el módulo independiente de última fase; el proveedor externo se decidirá tras revisar costos y condiciones vigentes.
+
 > **Archivo:** `app/Models/User.php`
 > **Tabla asociada:** `users`
 

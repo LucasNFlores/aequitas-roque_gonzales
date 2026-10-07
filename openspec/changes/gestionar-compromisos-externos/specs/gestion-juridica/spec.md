@@ -32,4 +32,4 @@ El sistema SHALL permitir a Secretario y Administrador registrar, reprogramar y 
 #### Scenario: Notificaciones diferidas
 
 - **WHEN** se registra, reprograma o cancela un compromiso dentro de HU-13
-- **THEN** no se envía ni registra una notificación; el flujo queda diferido a una tarjeta futura de backlog
+- **THEN** no se envía ni registra una notificación en HU-13; el evento queda para integrarse en el módulo independiente de fase final, después de validar ese módulo

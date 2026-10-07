@@ -2,6 +2,8 @@
 
 Este documento explica como interpretar el diagrama de clases del sistema de gestion juridica. El diagrama esta separado por modulos para que sea mas facil entender que responsabilidad tiene cada parte del dominio y como se conectan las entidades principales.
 
+> **Secuencia de entrega:** el diagrama muestra el dominio final. La implementación de Notificaciones se mantiene como módulo independiente de última fase; se revisarán los costos de Brevo antes de confirmar proveedor para los canales contemplados en el alcance (interno, correo y WhatsApp).
+
 Archivos relacionados:
 
 - `diagrama-clases.mermaid`: version Mermaid del diagrama.
@@ -80,9 +82,9 @@ Este modulo registra comprobantes economicos asociados a clientes:
 
 El comprobante guarda la ruta del archivo, la fecha de subida y una descripcion opcional. A diferencia de la mayoria de los modelos del diagrama, no aparece con `SoftDeletes`.
 
-### Comunicaciones
+### Comunicaciones (módulo de fase final)
 
-Este modulo representa los mensajes enviados por el sistema:
+El diagrama representa el modelo previsto para los mensajes del sistema; la bandeja, las reglas y los envíos se implementarán en la última fase:
 
 - `Notificacion`: mensaje dirigido a un usuario interno o a un cliente.
 
@@ -149,7 +151,7 @@ Esto permite registrar mensajes para eventos como confirmacion de turnos, asigna
 6. Se cargan `Documento` vinculados al proceso.
 7. El profesional registra `Reporte` con avances o reuniones.
 8. Se cargan `ComprobantePago` asociados al cliente.
-9. El sistema genera `Notificacion` para usuarios internos o clientes segun corresponda.
+9. En el alcance final, el módulo de Notificaciones generará registros para usuarios internos o clientes según corresponda. Esa integración se realizará después de completar y aceptar el núcleo funcional.
 
 ## Estados y tipos importantes
 
@@ -175,7 +177,7 @@ Esto permite registrar mensajes para eventos como confirmacion de turnos, asigna
 - `seguimiento`
 - `externo`
 
-`Notificacion.canal` indica el medio:
+`Notificacion.canal` representa el medio previsto. Los canales externos se confirmarán en la fase final, después de revisar los costos vigentes:
 
 - `email`
 - `whatsapp`

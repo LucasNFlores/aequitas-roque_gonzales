@@ -22,7 +22,7 @@ Secretario y Administrador pueden escribir. Profesional, Coordinador y Directivo
 
 ## Notificaciones
 
-No se envían, registran ni programan notificaciones o recordatorios en HU-13; quedan para la tarjeta futura indicada por el usuario.
+No se envían, registran ni programan notificaciones o recordatorios en HU-13. El módulo independiente se realizará en la última fase, después del núcleo; los eventos de compromisos externos se conectarán después de validar ese módulo de forma aislada. El proveedor externo se decidirá tras revisar los costos vigentes de Brevo.
 
 ## Verificación
 

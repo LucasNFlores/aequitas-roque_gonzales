@@ -1,5 +1,7 @@
 # Gestionar compromisos externos del profesional (HU-13)
 
+> **Secuencia de entrega:** las notificaciones de HU-13 no forman parte de este cambio; sus eventos se conectarán en el módulo independiente de fase final definido en [Trello](https://trello.com/c/voW5TBHi/75-m%C3%B3dulo-de-notificaciones-integraci%C3%B3n-final) y [OpenSpec](../separar-modulo-notificaciones/proposal.md). Brevo queda sujeto a revisión de costos antes de elegir proveedor.
+
 ## Objetivo
 
 Implementar CU5, CU6.1 y CU7 para registrar, reprogramar y cancelar compromisos externos de profesionales, conservando los datos históricos y protegiendo la disponibilidad diaria.
@@ -17,7 +19,7 @@ Implementar CU5, CU6.1 y CU7 para registrar, reprogramar y cancelar compromisos 
 ## Fuera de alcance
 
 - Turnos internos y de seguimiento, cubiertos por HU-11.
-- Envío, auditoría y recordatorios de notificaciones, diferidos a una tarjeta futura de backlog por decisión del usuario.
+- Envío, auditoría y recordatorios de notificaciones, diferidos al módulo independiente de fase final.
 - Cambios en la matriz Aequitas o en Trello.
 
 ## Criterio de salida

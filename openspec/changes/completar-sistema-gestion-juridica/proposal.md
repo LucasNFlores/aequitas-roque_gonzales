@@ -1,5 +1,7 @@
 # Alinear la gestión jurídica con la matriz funcional y de permisos
 
+> **Secuencia de entrega vigente (2026-10-07):** este cambio conserva el alcance funcional de notificaciones, pero CU-35 y HU-18 a HU-20 se implementarán en un módulo independiente de última fase, después de completar y aceptar el núcleo. El alcance vigente contempla avisos internos, correo y WhatsApp; se revisarán los costos vigentes de Brevo antes de confirmar proveedor(es). Ver [propuesta OpenSpec del módulo](../separar-modulo-notificaciones/proposal.md) y [tarjeta paraguas de Trello](https://trello.com/c/voW5TBHi/75-m%C3%B3dulo-de-notificaciones-integraci%C3%B3n-final).
+
 ## Objetivo
 
 Actualizar la especificación del sistema para que coincida con la matriz de casos de uso y permisos del documento principal **“Aequitas - Matriz de Módulos, Funciones y Permisos por Rol V2”**. La matriz pasa a ser la fuente definitiva de alcance funcional y autorización.
@@ -15,7 +17,7 @@ La documentación de OpenSpec describe cuatro roles y varios permisos de forma g
 - Incorporar `Administrador` como rol autenticable propio, con alcance de superadministrador.
 - Permitir que `Directivo` administre usuarios y servicios además de consultar la operación autorizada.
 - Alinear los permisos de los 38 casos de uso actuales con la matriz y agregar dos casos de uso aprobados.
-- Formalizar CU 28 a CU 37: listados y filtros, historial de estados, autenticación, perfil, servicios, especialidades, registro de notificaciones, estados y categorías documentales.
+- Formalizar CU 28 a CU 37: listados y filtros, historial de estados, autenticación, perfil, servicios, especialidades, registro de notificaciones, estados y categorías documentales. El alcance de notificaciones se mantiene, pero su implementación se separa en el cambio OpenSpec de fase final.
 - Mantener como requisitos el CRUD de estados de procesos y el CRUD de categorías de documentos.
 - Registrar el flujo de alta de cliente, proceso inicial de Consultoría y turno inicial con Coordinador.
 - Establecer la política mixta de baja lógica, cancelación y conservación de evidencias.
@@ -29,7 +31,7 @@ La documentación de OpenSpec describe cuatro roles y varios permisos de forma g
 - El Profesional solo opera sobre procesos que tiene asignados.
 - Solo Secretario y Administrador pueden crear, modificar y cancelar turnos.
 - El sistema almacena el PDF descargado desde ARCA; no integra automáticamente con ARCA.
-- Las notificaciones se envían internamente, por correo y por WhatsApp mediante Brevo.
+- El alcance final incluye notificaciones internas y canales externos; Brevo es candidato y solo se confirmará después de revisar sus costos y condiciones al iniciar el módulo de última fase.
 
 ## Restricciones
 

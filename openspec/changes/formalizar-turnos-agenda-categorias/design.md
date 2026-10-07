@@ -41,7 +41,7 @@ La cancelación no ejecutará `delete()` ni `softDelete()`. El turno seguirá di
 
 ### Notificaciones
 
-Las notificaciones de alta, reprogramación y cancelación quedan fuera de esta entrega por decisión de producto. Se registrarán como trabajo futuro en la tarjeta [HU-11 — Notificaciones auditables de turnos](https://trello.com/c/Iv2kJ7WQ/74-hu-11-notificaciones-auditables-de-turnos); este cambio no envía mensajes ni crea registros de notificación. La especificación general de notificaciones del sistema sigue vigente.
+Las notificaciones de alta, reprogramación y cancelación quedan fuera de esta entrega. El alcance se agrupa en el [módulo independiente de fase final de Trello](https://trello.com/c/voW5TBHi/75-m%C3%B3dulo-de-notificaciones-integraci%C3%B3n-final) y se define en [Módulo de Notificaciones — fase final](../../../docs/modulo-notificaciones-fase-final.md). Este cambio no envía mensajes ni crea registros de notificación. La integración de eventos se hará después de validar el módulo; Brevo requiere revisión de costos antes de decidir proveedor.
 
 ## Categorías documentales
 
@@ -69,7 +69,7 @@ Las pruebas deben incluir:
 - Matriz completa de roles para CU4–CU8 y CU37, incluso por URL o petición directa.
 - Alcance del Profesional para la agenda.
 - Coherencia tipo/flag/detalle, consistencia cliente-proceso-profesional y conflictos de turnos.
-- Reprogramación, cancelación, conservación de historial y ausencia de registros de notificación durante HU-11; la integración de notificaciones queda en la tarjeta futura vinculada arriba.
+- Reprogramación, cancelación, conservación de historial y ausencia de registros de notificación durante HU-11; la integración de eventos corresponde al módulo independiente de fase final vinculado arriba.
 - Ciclo activo/inactivo/baja de categorías, nombre vacío o duplicado, selección en nuevas cargas y preservación de documentos históricos.
 
 ## Riesgos y controles

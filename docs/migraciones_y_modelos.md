@@ -28,7 +28,7 @@ Ya existen (implementado y probado, 82 tests):
 - `user_servicios` — tabla intermedia N:M `user_id, servicio_id` PK compuesta, `constrained cascade` (permite múltiples servicios por profesional, evita duplicados, disponible para `Proceso.servicio_id`)
 - `permissions`, `roles`, `model_has_permissions`, `model_has_roles`, `role_has_permissions` — creados por Spatie
 - `audits` — tabla de auditoría
-- `clientes`, `servicios`, `procesos`, `turnos`, `categorias_documento`, `documentos`, `documento_versiones`, `reportes`, `comprobante_pagos`, `notificaciones`, `estados_proceso`, `historial_estados_proceso` — ver secciones Fase 1-3
+- `clientes`, `servicios`, `procesos`, `turnos`, `categorias_documento`, `documentos`, `documento_versiones`, `reportes`, `comprobante_pagos`, `notificaciones`, `estados_proceso`, `historial_estados_proceso` — ver secciones Fase 1-3; Notificaciones cuenta aquí como base de persistencia, no como módulo funcional completo (última fase)
 
 > **Documentación CRUD usuarios:** ver `docs/gestion-usuarios-roles-servicios.md` para `StoreUserRequest/UpdateUserRequest`, `UserPolicy`, `UserController`, `Livewire/Usuarios/Index`, rutas `users.*`, vistas `resources/views/users/*` y `livewire/usuarios/*`, registro `/register` deshabilitado, búsqueda por `name/email/dni`.
 
@@ -431,41 +431,13 @@ git commit -m "feat: add comprobantes_pago table and model"
 git push
 ```
 
-### notificaciones
+### notificaciones (módulo diferido a la fase final)
 
-**1. Crear archivos:**
-```bash
-php artisan make:model Notificacione -a
-```
+La tabla, el modelo y parte de la estructura técnica ya existen en el repositorio; eso no representa que el módulo funcional esté terminado. La bandeja, la generación de avisos, los canales de envío y la integración con los eventos del resto del sistema quedan agrupados como un módulo independiente para la última fase.
 
-**2. Editar la migración** (`database/migrations/xxxx_create_notificaciones_table.php`):
-```php
-public function up(): void
-{
-    Schema::create('notificaciones', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
-        $table->foreignId('cliente_id')->nullable()->constrained()->onDelete('set null');
-        $table->enum('canal', ['email', 'whatsapp']);
-        $table->text('mensaje');
-        $table->timestamp('fecha_envio');
-        $table->enum('estado', ['enviado', 'fallido'])->default('enviado');
-        $table->timestamps();
-    });
-}
-```
+No ejecutar la receta histórica de creación que aparecía en esta sección: utiliza el nombre incorrecto `Notificacione` y presupone un diseño de persistencia anterior. Al comenzar la fase final se revisará el esquema existente y los costos/condiciones de Brevo antes de decidir el proveedor. El alcance vigente contempla avisos internos, correo y WhatsApp.
 
-**3. Probar:**
-```bash
-php artisan migrate
-```
-
-**4. Commit y push:**
-```bash
-git add app/Models/Notificacione.php app/Factories/NotificacioneFactory.php database/seeders/NotificacioneSeeder.php app/Http/Controllers/NotificacioneController.php app/Http/Requests/StoreNotificacioneRequest.php app/Http/Requests/UpdateNotificacioneRequest.php app/Policies/NotificacionePolicy.php app/Http/Resources/NotificacioneResource.php database/migrations/xxxx_create_notificaciones_table.php
-git commit -m "feat: add notificaciones table and model"
-git push
-```
+El estado y los límites de entrega están en [Módulo de Notificaciones — fase final](modulo-notificaciones-fase-final.md) y en [la propuesta OpenSpec](../openspec/changes/separar-modulo-notificaciones/proposal.md).
 
 ---
 

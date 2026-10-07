@@ -1,5 +1,7 @@
 # Tareas de alineación e implementación
 
+> Las tareas de CU-35/HU-18–HU-20 siguen pendientes y pertenecen al módulo independiente de última fase; revisar costos de Brevo y decidir proveedor antes de comenzar. El alcance actual conserva canales internos, correo y WhatsApp. No marcarlas como parte de las entregas del núcleo.
+
 ## Alineación documental
 
 - [x] Confirmar la matriz online como fuente definitiva.
@@ -32,8 +34,8 @@
 - [ ] Implementar administración de usuarios para Directivo y Administrador.
 - [x] Implementar el CRUD de servicios con Livewire, Alpine.js y Tailwind CSS.
 - [ ] Implementar asignación de especialidades y servicios a profesionales.
-- [ ] Implementar registro y consulta autorizada de notificaciones.
-- [ ] Implementar canales internos, correo y WhatsApp mediante Brevo.
+- [ ] En la última fase, implementar el registro y consulta autorizada de notificaciones (CU-35 / HU-18).
+- [ ] En la última fase, implementar HU-19 y los canales aprobados de HU-20; revisar costos vigentes y decidir proveedor antes de cualquier integración externa.
 
 ## Frontend
 
@@ -42,7 +44,8 @@
 - [ ] Crear listados paginados y filtros de clientes y procesos.
 - [ ] Crear historial visual de estados.
 - [ ] Crear agenda y vista de disponibilidad.
-- [ ] Crear pantallas de documentos, reportes, comprobantes y notificaciones.
+- [ ] Crear pantallas de documentos, reportes y comprobantes del núcleo.
+- [ ] En la última fase, crear la bandeja de Notificaciones después de validar el módulo de forma aislada.
 - [ ] Crear administración de usuarios, estados y categorías.
 - [x] Mantener la versión clásica de servicios en `/servicios-viejo` como referencia.
 - [ ] Definir dashboards por rol.

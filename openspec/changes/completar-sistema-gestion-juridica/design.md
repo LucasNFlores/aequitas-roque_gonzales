@@ -1,5 +1,7 @@
 # Diseño funcional de referencia
 
+> **Entrega de Notificaciones:** los requisitos de CU-35 y HU-18 a HU-20 describen el estado final del producto, no una fase simultánea con el núcleo. El módulo se construirá por separado al final; se revisarán los costos de Brevo antes de confirmar el proveedor para los canales vigentes. La propuesta está en [separar-modulo-notificaciones](../separar-modulo-notificaciones/proposal.md).
+
 ## Fuente de verdad
 
 La fuente definitiva de alcance y permisos es el documento online **“Aequitas - Matriz de Módulos, Funciones y Permisos por Rol V2”**. OpenSpec y la documentación de `docs/` deben mantenerse sincronizados con esa matriz.
@@ -42,7 +44,8 @@ Alta de cliente
   -> solicitud, carga y consulta de documentación
   -> turnos de seguimiento
   -> actualización de estados y reportes
-  -> pagos, notificaciones y auditoría
+  -> pagos y auditoría
+  -> módulo independiente de Notificaciones (última fase, luego de aceptar el núcleo)
 ```
 
 ## Matriz de permisos
@@ -134,8 +137,8 @@ Alta de cliente
 
 - Secretario y Administrador registran comprobantes PDF descargados desde ARCA.
 - Secretario, Coordinador, Directivo y Administrador pueden consultar comprobantes autorizados.
-- El sistema registra canal, mensaje, destinatario, fecha, estado y resultado de notificaciones.
-- Los canales son internos, correo y WhatsApp mediante Brevo. Brevo es una integración de salida; ARCA no se integra automáticamente.
+- El módulo final registrará canal, mensaje, destinatario, fecha, estado y resultado de notificaciones.
+- El alcance contempla notificaciones internas, correo y WhatsApp; el proveedor se confirmará al revisar los costos vigentes de Brevo. ARCA no se integra automáticamente.
 
 ### Administración y autenticación
 
@@ -149,7 +152,7 @@ Alta de cliente
 - **Usuarios:** baja lógica condicionada a que no tengan procesos activos.
 - **Turnos:** no se eliminan físicamente; se cancelan y conservan su historial.
 - **Documentos y comprobantes:** se marcan como eliminados u ocultos, pero se conserva su referencia, historial y auditoría; no se elimina automáticamente el archivo físico.
-- **Notificaciones:** se conservan como registro auditable y no se eliminan de la operación histórica.
+- **Notificaciones:** el módulo final conservará los envíos como registros auditables; su entrega ocurre después del núcleo funcional.
 - Las consultas operativas excluyen registros dados de baja, salvo vistas explícitas de auditoría o restauración.
 
 ## Requisitos no funcionales

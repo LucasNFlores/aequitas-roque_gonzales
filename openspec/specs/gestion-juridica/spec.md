@@ -39,7 +39,7 @@ La matriz online **“Aequitas - Matriz de Módulos, Funciones y Permisos por Ro
 - Un turno externo debe bloquear la jornada completa y guardar su detalle.
 - La reprogramación debe liberar la disponibilidad anterior.
 - La cancelación debe conservar el turno con estado `cancelado` y liberar la disponibilidad.
-- Los cambios de turno deben generar notificaciones a los involucrados.
+- Los cambios de turno deben generar notificaciones a los involucrados cuando se integre el módulo final de notificaciones.
 
 ## Documentos
 
@@ -62,7 +62,15 @@ La matriz online **“Aequitas - Matriz de Módulos, Funciones y Permisos por Ro
 - El sistema no debe integrar automáticamente con ARCA.
 - Secretario, Coordinador, Directivo y Administrador deben poder consultar comprobantes autorizados.
 - El sistema debe registrar canal, mensaje, destinatario, fecha, estado y resultado de cada notificación.
-- Las notificaciones deben poder enviarse internamente, por correo y por WhatsApp mediante Brevo.
+- El módulo final debe contemplar notificaciones internas y canales externos de correo y WhatsApp. Brevo queda como proveedor candidato, sujeto a revisar sus costos y condiciones vigentes antes de contratarlo o configurarlo.
+
+## Estrategia de entrega del módulo de notificaciones
+
+- Las notificaciones siguen formando parte del alcance final de los 41 casos de uso, pero se implementarán como un módulo independiente en la última fase, después de completar y aceptar el resto del núcleo funcional.
+- Las operaciones de clientes, procesos y turnos no deben depender de Brevo ni de otro proveedor externo durante las fases actuales.
+- El módulo se implementará y validará de forma aislada; su integración con los eventos de los demás módulos se realizará después.
+- El alcance vigente contempla notificaciones internas, correo y WhatsApp. Al iniciar esa fase se revisarán los costos y condiciones vigentes de Brevo antes de confirmar el proveedor o combinación de proveedores. No se asume hoy una contratación ni una integración externa.
+- El registro interno mínimo que se genera al dar de alta un cliente no constituye la entrega del módulo; se revisará durante la integración final.
 
 ## Administración y autenticación
 
