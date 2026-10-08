@@ -18,7 +18,7 @@ class ClientePolicy
             return false;
         }
 
-        if ($user->hasRole('Profesional')) {
+        if ($user->requiresProfessionalAssignmentScope()) {
             return $cliente->procesos()->where('profesional_id', $user->id)->exists();
         }
 
@@ -32,7 +32,7 @@ class ClientePolicy
 
     public function view(User $user, Cliente $cliente): bool
     {
-        if ($user->hasRole('Profesional')) {
+        if ($user->requiresProfessionalAssignmentScope()) {
             return $user->can('consultar_legajos')
                 && $cliente->procesos()->where('profesional_id', $user->id)->exists();
         }

@@ -17,7 +17,7 @@ class Documento extends Model
 
     public function scopeVisibleTo(Builder $query, User $user): Builder
     {
-        if ($user->hasRole('Profesional')) {
+        if ($user->requiresProfessionalAssignmentScope()) {
             return $user->can('visualizar_documentacion')
                 ? $query->whereHas('proceso', fn (Builder $processQuery): Builder => $processQuery->where('profesional_id', $user->id))
                 : $query->whereKey(0);

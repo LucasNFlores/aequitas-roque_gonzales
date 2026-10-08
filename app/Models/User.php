@@ -61,6 +61,11 @@ class User extends Authenticatable implements Auditable
         ];
     }
 
+    public function requiresProfessionalAssignmentScope(): bool
+    {
+        return $this->hasRole('Profesional') && ! $this->hasRole('Administrador');
+    }
+
     public function turnos(): HasMany
     {
         return $this->hasMany(Turno::class);

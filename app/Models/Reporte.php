@@ -16,7 +16,7 @@ class Reporte extends Model
 
     public function scopeVisibleTo(Builder $query, User $user): Builder
     {
-        if ($user->hasRole('Profesional')) {
+        if ($user->requiresProfessionalAssignmentScope()) {
             return $user->can('consultar_reportes')
                 ? $query->where('profesional_id', $user->id)
                 : $query->whereKey(0);

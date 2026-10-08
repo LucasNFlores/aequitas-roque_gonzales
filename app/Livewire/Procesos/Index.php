@@ -295,7 +295,7 @@ class Index extends Component
         $coordinadores = User::query()->role('Coordinador')->orderBy('name')->get(['id', 'name']);
         $profesionales = User::query()
             ->role('Profesional')
-            ->when($user->hasRole('Profesional'), fn (Builder $query): Builder => $query->whereKey($user->id))
+            ->when($user->requiresProfessionalAssignmentScope(), fn (Builder $query): Builder => $query->whereKey($user->id))
             ->orderBy('name')
             ->get(['id', 'name']);
         $profesionalesElegibles = $this->eligibleProfessionals();

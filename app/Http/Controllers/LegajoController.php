@@ -72,7 +72,7 @@ class LegajoController extends Controller
 
         $turnosSinProceso = $cliente->turnos()
             ->whereNull('proceso_id')
-            ->when($user->hasRole('Profesional'), fn (Builder $query): Builder => $query->where('profesional_id', $user->id))
+            ->when($user->requiresProfessionalAssignmentScope(), fn (Builder $query): Builder => $query->where('profesional_id', $user->id))
             ->with(['profesional:id,name', 'coordinador:id,name'])
             ->orderByDesc('fecha_hora')
             ->orderByDesc('id')

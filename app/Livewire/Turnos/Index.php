@@ -63,7 +63,7 @@ class Index extends Component
         $user = auth()->user();
         abort_unless($user instanceof User, 403);
 
-        $profesionalId = $user->hasRole('Profesional')
+        $profesionalId = $user->requiresProfessionalAssignmentScope()
             ? (string) $user->id
             : $this->profesionalId;
         $estadoFiltro = in_array($this->estadoFiltro, Turno::ESTADOS, true) ? $this->estadoFiltro : '';
@@ -78,7 +78,7 @@ class Index extends Component
             ->orderBy('fecha_hora')
             ->paginate(15);
 
-        $profesionales = $user->hasRole('Profesional')
+        $profesionales = $user->requiresProfessionalAssignmentScope()
             ? collect()
             : User::query()->role('Profesional')->orderBy('name')->get(['id', 'name']);
 

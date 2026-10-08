@@ -14,7 +14,7 @@ class DocumentoPolicy
 
     public function view(User $user, Documento $documento): bool
     {
-        if ($user->hasRole('Profesional')) {
+        if ($user->requiresProfessionalAssignmentScope()) {
             return $user->can('visualizar_documentacion')
                 && $documento->proceso?->profesional_id === $user->id;
         }
@@ -49,7 +49,7 @@ class DocumentoPolicy
 
     public function download(User $user, Documento $documento): bool
     {
-        if ($user->hasRole('Profesional')) {
+        if ($user->requiresProfessionalAssignmentScope()) {
             return $user->can('descargar_documentacion')
                 && $documento->proceso?->profesional_id === $user->id;
         }

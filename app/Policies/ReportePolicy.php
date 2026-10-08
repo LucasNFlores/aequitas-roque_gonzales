@@ -14,7 +14,7 @@ class ReportePolicy
 
     public function view(User $user, Reporte $reporte): bool
     {
-        if ($user->hasRole('Profesional')) {
+        if ($user->requiresProfessionalAssignmentScope()) {
             return $user->can('consultar_reportes')
                 && $reporte->profesional_id === $user->id
                 && $reporte->proceso?->profesional_id === $user->id;

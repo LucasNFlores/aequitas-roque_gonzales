@@ -14,7 +14,7 @@ class TurnoPolicy
 
     public function view(User $user, Turno $turno): bool
     {
-        if ($user->hasRole('Profesional')) {
+        if ($user->requiresProfessionalAssignmentScope()) {
             return $user->can('ver_agenda_profesional')
                 && $turno->profesional_id === $user->id;
         }

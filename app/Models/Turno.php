@@ -107,7 +107,7 @@ class Turno extends Model
 
     public function scopeVisibleTo(Builder $query, User $user): Builder
     {
-        if ($user->hasRole('Profesional')) {
+        if ($user->requiresProfessionalAssignmentScope()) {
             return $user->can('ver_agenda_profesional')
                 ? $query->where('profesional_id', $user->id)
                 : $query->whereKey(0);

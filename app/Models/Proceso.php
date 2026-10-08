@@ -97,7 +97,7 @@ class Proceso extends Model
 
     public function scopeVisibleTo(Builder $query, User $user): Builder
     {
-        if ($user->hasRole('Profesional')) {
+        if ($user->requiresProfessionalAssignmentScope()) {
             return $user->can('listar_filtrar_procesos')
                 ? $query->where('profesional_id', $user->id)
                 : $query->whereKey(0);

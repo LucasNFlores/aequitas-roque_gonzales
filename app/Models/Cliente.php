@@ -33,7 +33,7 @@ class Cliente extends Model
 
     public function scopeVisibleTo(Builder $query, User $user): Builder
     {
-        if ($user->hasRole('Profesional')) {
+        if ($user->requiresProfessionalAssignmentScope()) {
             return $user->can('consultar_legajos')
                 ? $query->whereHas('procesos', fn (Builder $processQuery): Builder => $processQuery->where('profesional_id', $user->id))
                 : $query->whereKey(0);

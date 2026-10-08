@@ -14,7 +14,7 @@ class ProcesoPolicy
 
     public function view(User $user, Proceso $proceso): bool
     {
-        if ($user->hasRole('Profesional')) {
+        if ($user->requiresProfessionalAssignmentScope()) {
             return $user->can('listar_filtrar_procesos')
                 && $proceso->profesional_id === $user->id;
         }
@@ -29,7 +29,7 @@ class ProcesoPolicy
 
     public function createFor(User $user, Proceso $proceso): bool
     {
-        if ($user->hasRole('Profesional')) {
+        if ($user->requiresProfessionalAssignmentScope()) {
             return $user->can('registrar_reportes')
                 && $proceso->profesional_id === $user->id;
         }
@@ -79,7 +79,7 @@ class ProcesoPolicy
 
     public function updateState(User $user, Proceso $proceso): bool
     {
-        if ($user->hasRole('Profesional')) {
+        if ($user->requiresProfessionalAssignmentScope()) {
             return $user->can('actualizar_estados_proceso')
                 && $proceso->profesional_id === $user->id;
         }
@@ -89,7 +89,7 @@ class ProcesoPolicy
 
     public function viewHistory(User $user, Proceso $proceso): bool
     {
-        if ($user->hasRole('Profesional')) {
+        if ($user->requiresProfessionalAssignmentScope()) {
             return $user->can('consultar_historial_estados')
                 && $proceso->profesional_id === $user->id;
         }

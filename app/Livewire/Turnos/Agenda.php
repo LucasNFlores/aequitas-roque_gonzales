@@ -41,7 +41,7 @@ class Agenda extends Component
         $user = auth()->user();
         abort_unless($user instanceof User, 403);
 
-        if ($user->hasRole('Profesional')) {
+        if ($user->requiresProfessionalAssignmentScope()) {
             $this->profesionalId = (string) $user->id;
         }
 
@@ -49,7 +49,7 @@ class Agenda extends Component
         $this->hasta = now()->addDays(30)->toDateString();
         $this->desdeAplicado = $this->desde;
         $this->hastaAplicado = $this->hasta;
-        $this->profesionalAplicado = $user->hasRole('Profesional') ? (string) $user->id : '';
+        $this->profesionalAplicado = $user->requiresProfessionalAssignmentScope() ? (string) $user->id : '';
     }
 
     public function applyFilters(): void
@@ -83,7 +83,7 @@ class Agenda extends Component
 
         $profesionalId = (string) ($validated['profesionalId'] ?? '');
 
-        if (! $user->hasRole('Profesional') && $profesionalId !== '') {
+        if (! $user->requiresProfessionalAssignmentScope() && $profesionalId !== '') {
             $isActiveProfessional = User::query()
                 ->role('Profesional')
                 ->whereNull('deleted_at')
@@ -97,7 +97,7 @@ class Agenda extends Component
             }
         }
 
-        $this->profesionalAplicado = $user->hasRole('Profesional')
+        $this->profesionalAplicado = $user->requiresProfessionalAssignmentScope()
             ? (string) $user->id
             : $profesionalId;
         $this->desdeAplicado = (string) $validated['desde'];
@@ -119,7 +119,7 @@ class Agenda extends Component
             ->orderBy('fecha_hora')
             ->paginate(15);
 
-        $profesionales = $user->hasRole('Profesional')
+        $profesionales = $user->requiresProfessionalAssignmentScope()
             ? collect()
             : User::query()->role('Profesional')->orderBy('name')->get(['id', 'name']);
 
