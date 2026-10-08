@@ -18,5 +18,5 @@
 - [x] Ejecutar la prueba PHPUnit focalizada y Pint para los archivos PHP modificados; ejecutar también los tests relacionados de autorización, legajos, turnos y reportes.
 - [x] Validar todos los cambios OpenSpec en modo estricto y revisar `git diff --check`.
 - [x] Revisar diff, crear commit convencional atómico y dejar limpia la rama dedicada.
-- [ ] Integrar la rama terminada en `dev` sin publicar commits al remoto.
-- [ ] Verificar la tarjeta Trello y moverla a Done sólo tras completar todos los criterios.
+- [x] Integrar la rama terminada en `dev` sin publicar commits al remoto.
+- [x] Verificar la tarjeta Trello y moverla a Done sólo tras completar todos los criterios.
