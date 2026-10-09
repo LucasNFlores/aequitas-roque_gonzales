@@ -18,7 +18,7 @@ class StoreDocumentoRequest extends FormRequest
         return [
             'proceso_id' => ['required', 'integer', Rule::exists('procesos', 'id')->whereNull('deleted_at')],
             'categoria_id' => ['required', 'integer', Rule::exists('categorias_documento', 'id')->where('activo', true)->whereNull('deleted_at')],
-            'archivo' => ['required', 'file', 'mimes:pdf', 'max:20480'],
+            'archivo' => ['required', 'file', 'mimes:pdf', 'mimetypes:application/pdf', 'max:20480'],
             'tipo_documento' => ['nullable', 'string', 'max:100'],
             'nombre' => ['required', 'string', 'max:255'],
         ];

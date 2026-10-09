@@ -24,6 +24,7 @@ class DocumentoCategoriaFlowTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        config(['audit.console' => true]);
         $this->seed(RoleSeeder::class);
         Storage::fake('local');
     }
@@ -141,6 +142,39 @@ class DocumentoCategoriaFlowTest extends TestCase
             ->assertHasErrors(['categoriaId']);
     }
 
+    public function test_livewire_acepta_solo_pdf_real_de_hasta_20_mb(): void
+    {
+        $proceso = $this->procesoWithCliente();
+        $secretario = $this->userWithRole('Secretario');
+        $categoria = CategoriaDocumento::factory()->create(['activo' => true]);
+
+        Livewire::actingAs($secretario)
+            ->test(Index::class, ['proceso' => $proceso])
+            ->set('nombre', 'Archivo con MIME falso')
+            ->set('categoriaId', $categoria->id)
+            ->set('archivo', UploadedFile::fake()->create('documento.pdf', 100, 'text/plain'))
+            ->call('saveDocumento')
+            ->assertHasErrors(['archivo']);
+
+        Livewire::actingAs($secretario)
+            ->test(Index::class, ['proceso' => $proceso])
+            ->set('nombre', 'Archivo demasiado grande')
+            ->set('categoriaId', $categoria->id)
+            ->set('archivo', UploadedFile::fake()->create('documento.pdf', 20481, 'application/pdf'))
+            ->call('saveDocumento')
+            ->assertHasErrors(['archivo']);
+
+        Livewire::actingAs($secretario)
+            ->test(Index::class, ['proceso' => $proceso])
+            ->set('nombre', 'Archivo en el límite')
+            ->set('categoriaId', $categoria->id)
+            ->set('archivo', UploadedFile::fake()->create('documento.pdf', 20480, 'application/pdf'))
+            ->call('saveDocumento')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseCount('documentos', 1);
+    }
+
     public function test_livewire_edita_categoria_actualiza_tipo(): void
     {
         $proceso = $this->procesoWithCliente();
@@ -219,6 +253,173 @@ class DocumentoCategoriaFlowTest extends TestCase
 
         $this->assertSoftDeleted($doc);
         Storage::disk('local')->assertExists($doc->archivo_path);
+        $this->assertDatabaseHas('audits', [
+            'event' => 'deleted',
+            'user_id' => $secretario->id,
+            'auditable_type' => $doc->getMorphClass(),
+            'auditable_id' => $doc->id,
+        ]);
+    }
+
+    public function test_direct_document_urls_follow_separate_view_and_download_permissions(): void
+    {
+        $proceso = $this->procesoWithCliente();
+        $documento = Documento::factory()->create(['proceso_id' => $proceso->id]);
+        Storage::disk('local')->put($documento->archivo_path, '%PDF contenido');
+
+        $secretario = $this->userWithRole('Secretario');
+        $profesional = User::findOrFail($proceso->profesional_id);
+        $otroProfesional = $this->userWithRole('Profesional');
+        $coordinador = User::findOrFail($proceso->coordinador_id);
+        $administrador = $this->userWithRole('Administrador');
+        $directivo = $this->userWithRole('Directivo');
+
+        $this->actingAs($secretario)
+            ->get(route('procesos.documentos.show', [$proceso, $documento]))
+            ->assertOk()
+            ->assertHeader('Content-Disposition', 'inline; filename=documento-'.$documento->id.'.pdf');
+        $this->actingAs($secretario)
+            ->get(route('procesos.documentos.download', [$proceso, $documento]))
+            ->assertForbidden();
+
+        foreach ([$profesional, $coordinador, $administrador] as $user) {
+            $this->actingAs($user)
+                ->get(route('procesos.documentos.show', [$proceso, $documento]))
+                ->assertOk();
+            $this->actingAs($user)
+                ->get(route('procesos.documentos.download', [$proceso, $documento]))
+                ->assertOk()
+                ->assertHeader('Content-Disposition', 'attachment; filename=documento-'.$documento->id.'.pdf');
+        }
+
+        $this->actingAs($directivo)
+            ->get(route('procesos.documentos.show', [$proceso, $documento]))
+            ->assertForbidden();
+        $this->actingAs($directivo)
+            ->get(route('procesos.documentos.download', [$proceso, $documento]))
+            ->assertForbidden();
+        $this->actingAs($otroProfesional)
+            ->get(route('procesos.documentos.show', [$proceso, $documento]))
+            ->assertForbidden();
+        $this->actingAs($otroProfesional)
+            ->get(route('procesos.documentos.download', [$proceso, $documento]))
+            ->assertForbidden();
+
+        Livewire::actingAs($secretario)
+            ->test(Index::class, ['proceso' => $proceso])
+            ->assertSee(route('procesos.documentos.show', [$proceso, $documento]))
+            ->assertDontSee(route('procesos.documentos.download', [$proceso, $documento]));
+        Livewire::actingAs($profesional)
+            ->test(Index::class, ['proceso' => $proceso])
+            ->assertSee(route('procesos.documentos.download', [$proceso, $documento]));
+    }
+
+    public function test_non_manager_roles_cannot_load_replace_or_hide_documents_by_direct_url(): void
+    {
+        $proceso = $this->procesoWithCliente();
+        $categoria = CategoriaDocumento::factory()->create(['activo' => true]);
+        $documento = Documento::factory()->create(['proceso_id' => $proceso->id]);
+        $users = [
+            User::findOrFail($proceso->profesional_id),
+            User::findOrFail($proceso->coordinador_id),
+            $this->userWithRole('Directivo'),
+        ];
+
+        foreach ($users as $user) {
+            $this->actingAs($user)
+                ->post(route('procesos.documentos.store', $proceso), [
+                    'proceso_id' => $proceso->id,
+                    'categoria_id' => $categoria->id,
+                    'nombre' => 'Intento de carga',
+                    'archivo' => UploadedFile::fake()->create('documento.pdf', 100, 'application/pdf'),
+                ])
+                ->assertForbidden();
+
+            $this->actingAs($user)
+                ->put(route('procesos.documentos.update', [$proceso, $documento]), ['nombre' => 'Intento de reemplazo'])
+                ->assertForbidden();
+
+            $this->actingAs($user)
+                ->delete(route('procesos.documentos.destroy', [$proceso, $documento]))
+                ->assertForbidden();
+        }
+
+        $this->assertDatabaseCount('documentos', 1);
+        $this->assertNull($documento->fresh()->deleted_at);
+    }
+
+    public function test_professional_cannot_retarget_livewire_document_actions_to_another_process(): void
+    {
+        $procesoAsignado = $this->procesoWithCliente();
+        $otroProceso = $this->procesoWithCliente();
+        $profesionalAsignado = User::findOrFail($procesoAsignado->profesional_id);
+        $categoria = CategoriaDocumento::factory()->create(['activo' => true]);
+
+        Livewire::actingAs($profesionalAsignado)
+            ->test(Index::class, ['proceso' => $procesoAsignado])
+            ->set('proceso', $otroProceso)
+            ->set('nombre', 'Intento fuera de alcance')
+            ->set('categoriaId', $categoria->id)
+            ->set('archivo', UploadedFile::fake()->create('documento.pdf', 100, 'application/pdf'))
+            ->call('saveDocumento')
+            ->assertForbidden();
+
+        $this->assertDatabaseCount('documentos', 0);
+    }
+
+    public function test_direct_document_and_version_urls_reject_missing_files_and_cross_process_ids(): void
+    {
+        $proceso = $this->procesoWithCliente();
+        $otroProceso = $this->procesoWithCliente();
+        $documento = Documento::factory()->create(['proceso_id' => $proceso->id]);
+        $otroDocumento = Documento::factory()->create(['proceso_id' => $otroProceso->id]);
+        $version = DocumentoVersion::query()->create([
+            'documento_id' => $documento->id,
+            'usuario_id' => null,
+            'archivo_path' => 'documentos/'.$proceso->id.'/anterior.pdf',
+            'categoria_id' => null,
+            'categoria_nombre' => null,
+            'tipo_documento' => $documento->tipo_documento,
+            'nombre' => $documento->nombre,
+            'fecha_reemplazo' => now(),
+        ]);
+        $otraVersion = DocumentoVersion::query()->create([
+            'documento_id' => $otroDocumento->id,
+            'usuario_id' => null,
+            'archivo_path' => 'documentos/'.$otroProceso->id.'/anterior.pdf',
+            'categoria_id' => null,
+            'categoria_nombre' => null,
+            'tipo_documento' => $otroDocumento->tipo_documento,
+            'nombre' => $otroDocumento->nombre,
+            'fecha_reemplazo' => now(),
+        ]);
+        $administrador = $this->userWithRole('Administrador');
+
+        $this->actingAs($administrador)
+            ->get(route('procesos.documentos.show', [$proceso, $otroDocumento]))
+            ->assertNotFound();
+        $this->actingAs($administrador)
+            ->get(route('procesos.documentos.download', [$proceso, $otroDocumento]))
+            ->assertNotFound();
+        $this->actingAs($administrador)
+            ->get(route('procesos.documentos.versiones.show', [$proceso, $documento, $otraVersion]))
+            ->assertNotFound();
+        $this->actingAs($administrador)
+            ->get(route('procesos.documentos.versiones.download', [$proceso, $documento, $otraVersion]))
+            ->assertNotFound();
+
+        $this->actingAs($administrador)
+            ->get(route('procesos.documentos.show', [$proceso, $documento]))
+            ->assertNotFound();
+        $this->actingAs($administrador)
+            ->get(route('procesos.documentos.download', [$proceso, $documento]))
+            ->assertNotFound();
+        $this->actingAs($administrador)
+            ->get(route('procesos.documentos.versiones.show', [$proceso, $documento, $version]))
+            ->assertNotFound();
+        $this->actingAs($administrador)
+            ->get(route('procesos.documentos.versiones.download', [$proceso, $documento, $version]))
+            ->assertNotFound();
     }
 
     public function test_documentos_historicos_muestran_categoria_dada_de_baja_y_conservan_archivo(): void

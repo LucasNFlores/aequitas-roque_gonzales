@@ -9,11 +9,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class Documento extends Model
+class Documento extends Model implements Auditable
 {
     /** @use HasFactory<DocumentoFactory> */
     use HasFactory, SoftDeletes;
+
+    use \OwenIt\Auditing\Auditable;
 
     public function scopeVisibleTo(Builder $query, User $user): Builder
     {
