@@ -46,16 +46,6 @@
             <x-forms.input-error :messages="$errors->get('coordinador_id')" class="mt-2" />
         </div>
 
-        <div>
-            <x-forms.input-label for="profesional_id" :value="__('Profesional (opcional)')" />
-            <select id="profesional_id" name="profesional_id" class="block mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                <option value="">Sin asignar</option>
-                @foreach ($profesionales as $profesional)
-                    <option value="{{ $profesional->id }}" @selected((string) old('profesional_id') === (string) $profesional->id)>{{ $profesional->name }}</option>
-                @endforeach
-            </select>
-            <x-forms.input-error :messages="$errors->get('profesional_id')" class="mt-2" />
-        </div>
     </div>
 
     <div>
@@ -76,7 +66,7 @@
         <x-forms.input-error :messages="$errors->get('fecha_inicio')" class="mt-2" />
     </div>
 
-    <p class="text-xs text-gray-500">El proceso se crea en estado pendiente y sigue el flujo de admisión o rechazo. No se crea ningún turno automáticamente.</p>
+    <p class="text-xs text-gray-500">El proceso se crea sin profesional asignado, en estado pendiente, y sigue el flujo de admisión o rechazo. La asignación se realiza luego desde CU 16. No se crea ningún turno automáticamente.</p>
 
     @if ($errors->has('estado'))
         <p class="text-sm text-red-600">{{ $errors->first('estado') }}</p>

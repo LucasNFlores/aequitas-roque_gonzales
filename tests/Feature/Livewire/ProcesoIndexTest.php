@@ -262,7 +262,11 @@ class ProcesoIndexTest extends TestCase
         $service = Servicio::factory()->create();
         $currentProfessional->servicios()->attach($service);
         $process = $this->processFor($currentProfessional, $coordinator);
-        $process->forceFill(['servicio_id' => $service->id])->save();
+        $process->forceFill([
+            'servicio_id' => $service->id,
+            'profesional_id' => null,
+            'honorarios' => null,
+        ])->save();
         $inactiveProfessional->delete();
 
         Livewire::actingAs($directivo)
@@ -289,7 +293,8 @@ class ProcesoIndexTest extends TestCase
             ->call('saveProfessionalAssignment')
             ->assertHasErrors(['selectedProfesionalId']);
 
-        $this->assertSame($currentProfessional->id, $process->fresh()->profesional_id);
+        $this->assertNull($process->fresh()->profesional_id);
+        $this->assertNull($process->fresh()->honorarios);
     }
 
     public function test_coordinator_can_reassign_and_refresh_honorarios_from_the_service(): void

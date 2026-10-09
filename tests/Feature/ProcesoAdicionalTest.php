@@ -34,13 +34,12 @@ class ProcesoAdicionalTest extends TestCase
     /**
      * @return array<string, mixed>
      */
-    private function validPayload(Cliente $cliente, Servicio $servicio, User $coordinador, ?User $profesional = null): array
+    private function validPayload(Cliente $cliente, Servicio $servicio, User $coordinador): array
     {
         return [
             'submission_token' => (string) Str::uuid(),
             'servicio_id' => $servicio->id,
             'coordinador_id' => $coordinador->id,
-            'profesional_id' => $profesional?->id,
             'nombre' => 'Proceso adicional de prueba',
             'descripcion' => 'Nueva necesidad jurídica sin duplicar datos administrativos.',
             'fecha_inicio' => now()->format('Y-m-d'),
@@ -61,7 +60,8 @@ class ProcesoAdicionalTest extends TestCase
             ->get(route('clientes.procesos.create', $cliente))
             ->assertOk()
             ->assertSee('Nuevo proceso adicional', false)
-            ->assertSee($cliente->nombre, false);
+            ->assertSee($cliente->nombre, false)
+            ->assertDontSee('name="profesional_id"', false);
 
         $response = $this->actingAs($secretario)->post(
             route('clientes.procesos.store', $cliente),
@@ -73,6 +73,8 @@ class ProcesoAdicionalTest extends TestCase
         $proceso = Proceso::where('cliente_id', $cliente->id)->firstOrFail();
         $this->assertSame('pendiente', $proceso->estado);
         $this->assertNull($proceso->motivo_rechazo);
+        $this->assertNull($proceso->profesional_id);
+        $this->assertNull($proceso->honorarios);
         $this->assertSame($servicio->id, $proceso->servicio_id);
         $this->assertSame($coordinador->id, $proceso->coordinador_id);
 
@@ -93,7 +95,6 @@ class ProcesoAdicionalTest extends TestCase
         $this->seedBase();
         $admin = $this->userWithRole('Administrador');
         $coordinador = $this->userWithRole('Coordinador');
-        $profesional = $this->userWithRole('Profesional');
         $cliente = Cliente::factory()->create();
         $servicio = Servicio::factory()->create();
 
@@ -105,12 +106,13 @@ class ProcesoAdicionalTest extends TestCase
 
         $this->actingAs($admin)->post(
             route('clientes.procesos.store', $cliente),
-            $this->validPayload($cliente, $servicio, $coordinador, $profesional)
+            $this->validPayload($cliente, $servicio, $coordinador)
         )->assertRedirect(route('clientes.show', $cliente));
 
         $proceso = Proceso::where('cliente_id', $cliente->id)->firstOrFail();
         $this->assertSame('pendiente', $proceso->estado);
-        $this->assertSame($profesional->id, $proceso->profesional_id);
+        $this->assertNull($proceso->profesional_id);
+        $this->assertNull($proceso->honorarios);
         $this->assertSame(0, $proceso->turnos()->count());
         $this->assertSame(1, Cliente::count());
     }
@@ -170,10 +172,15 @@ class ProcesoAdicionalTest extends TestCase
             [...$this->validPayload($cliente, $servicio, $coordinador), 'coordinador_id' => $profesional->id]
         )->assertSessionHasErrors('coordinador_id');
 
-        // Profesional sin rol Profesional.
+        // CU 38 no acepta asignar profesional; debe hacerse luego por CU 16.
         $this->actingAs($secretario)->post(
             route('clientes.procesos.store', $cliente),
-            [...$this->validPayload($cliente, $servicio, $coordinador, $profesional), 'profesional_id' => $coordinador->id]
+            [...$this->validPayload($cliente, $servicio, $coordinador), 'profesional_id' => $profesional->id]
+        )->assertSessionHasErrors('profesional_id');
+
+        $this->actingAs($secretario)->post(
+            route('clientes.procesos.store', $cliente),
+            [...$this->validPayload($cliente, $servicio, $coordinador), 'profesional_id' => null]
         )->assertSessionHasErrors('profesional_id');
 
         // Estado inicial y motivo no son asignables por el solicitante.

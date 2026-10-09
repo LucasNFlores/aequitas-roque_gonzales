@@ -48,7 +48,6 @@ class CrearProcesoAdicional
 
             return $cliente->procesos()->create([
                 'submission_token' => $attributes['submission_token'],
-                'profesional_id' => $attributes['profesional_id'] ?? null,
                 'servicio_id' => $attributes['servicio_id'],
                 'coordinador_id' => $attributes['coordinador_id'],
                 'nombre' => $attributes['nombre'],

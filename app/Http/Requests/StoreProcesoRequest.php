@@ -20,7 +20,7 @@ class StoreProcesoRequest extends FormRequest
         return [
             'cliente_id' => ['prohibited'],
             'submission_token' => ['required', 'uuid'],
-            'profesional_id' => ['nullable', 'integer', Rule::exists('users', 'id')->whereNull('deleted_at')],
+            'profesional_id' => ['missing'],
             'servicio_id' => ['required', 'integer', Rule::exists('servicios', 'id')->whereNull('deleted_at')],
             'coordinador_id' => ['required', 'integer', Rule::exists('users', 'id')->whereNull('deleted_at')],
             'nombre' => ['required', 'string', 'max:255'],
@@ -44,12 +44,6 @@ class StoreProcesoRequest extends FormRequest
 
             if ($coordinadorId !== null && ! User::role('Coordinador')->whereKey($coordinadorId)->exists()) {
                 $validator->errors()->add('coordinador_id', 'El usuario seleccionado debe tener el rol Coordinador.');
-            }
-
-            $profesionalId = $this->input('profesional_id');
-
-            if ($profesionalId !== null && ! User::role('Profesional')->whereKey($profesionalId)->exists()) {
-                $validator->errors()->add('profesional_id', 'El usuario seleccionado debe tener el rol Profesional.');
             }
         }];
     }

@@ -52,14 +52,13 @@ class ProcesoController extends Controller
     /**
      * Catálogos activos para el formulario (servicio y coordinador activos).
      *
-     * @return array{servicios: Collection<int, Servicio>, coordinadores: Collection<int, User>, profesionales: Collection<int, User>}
+     * @return array{servicios: Collection<int, Servicio>, coordinadores: Collection<int, User>}
      */
     private function catalogs(): array
     {
         return [
             'servicios' => Servicio::query()->orderBy('nombre')->get(),
             'coordinadores' => User::role('Coordinador')->orderBy('name')->get(),
-            'profesionales' => User::role('Profesional')->orderBy('name')->get(),
         ];
     }
 

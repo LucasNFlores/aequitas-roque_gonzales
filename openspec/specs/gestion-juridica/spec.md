@@ -108,7 +108,15 @@ El proceso MUST conservar su cliente, servicio, coordinador, profesional, fechas
 
 - **WHEN** Secretario o Administrador crea un proceso para un cliente ya registrado
 - **THEN** el sistema crea un nuevo proceso asociado al cliente existente, sin duplicar el cliente y sin generar un turno inicial automático
+- **AND** el proceso se crea sin profesional asignado; cualquier `profesional_id` recibido en la petición se rechaza
 - **AND** el proceso comienza pendiente y continúa por el flujo de admisión vigente
+
+#### Scenario: Asignar al proceso adicional mediante CU 16
+
+- **WHEN** Secretario, Coordinador o Administrador asigna posteriormente un profesional al proceso adicional
+- **THEN** el sistema valida que el profesional esté activo, tenga rol Profesional y esté habilitado para el servicio del proceso
+- **AND** el sistema fija los honorarios con el costo de referencia vigente del servicio en la misma operación
+- **AND** una asignación inválida no modifica el proceso
 
 ### Requirement: Administrar turnos y consultar la agenda
 
