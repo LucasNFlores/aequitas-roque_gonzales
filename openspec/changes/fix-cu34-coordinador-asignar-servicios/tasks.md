@@ -18,4 +18,4 @@
 - [x] Ejecutar pruebas afectadas y Pint.
 - [x] Validar los cinco roles en navegador y retirar selectivamente los datos temporales creados.
 - [x] Revisar diff y ejecutar `git diff --check`.
-- [ ] Integrar en `dev` local cuando no queden validaciones pendientes; no hacer push.
+- [x] Integrar en `dev` local cuando no queden validaciones pendientes; no hacer push.
