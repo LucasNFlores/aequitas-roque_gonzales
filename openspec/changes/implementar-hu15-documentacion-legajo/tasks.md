@@ -8,4 +8,4 @@
 - [x] Añadir pruebas PHPUnit de carga, reemplazo, baja auditada, archivo inexistente, otro proceso, roles denegados y versiones históricas.
 - [x] Ejecutar pruebas focalizadas en Docker, Pint y `git diff --check`.
 - [x] Construir frontend, apartar temporalmente `public/hot`, verificar UI en navegador para carga/reemplazo/ver/descargar y roles, y restaurar `public/hot`.
-- [ ] Revisar diff, crear commits atómicos y fusionar la rama completada en `dev` local; no hacer push.
+- [x] Revisar diff, crear commits atómicos y fusionar la rama completada en `dev` local; no hacer push.
