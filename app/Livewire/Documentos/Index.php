@@ -52,6 +52,7 @@ class Index extends Component
 
     public function createDocumento(): void
     {
+        Gate::authorize('view', $this->proceso);
         Gate::authorize('create', Documento::class);
         $this->resetForm();
         $this->showModal = true;
@@ -59,6 +60,7 @@ class Index extends Component
 
     public function editDocumento(int $documentoId): void
     {
+        Gate::authorize('view', $this->proceso);
         $documento = $this->findDocumento($documentoId);
         Gate::authorize('update', $documento);
 
@@ -72,6 +74,7 @@ class Index extends Component
 
     public function confirmDelete(int $documentoId): void
     {
+        Gate::authorize('view', $this->proceso);
         $documento = $this->findDocumento($documentoId);
         Gate::authorize('delete', $documento);
 
@@ -81,6 +84,7 @@ class Index extends Component
 
     public function saveDocumento(): void
     {
+        Gate::authorize('view', $this->proceso);
         $isEditing = $this->editingDocumentoId !== null;
         $documento = $isEditing ? $this->findDocumento($this->editingDocumentoId) : null;
 
@@ -90,8 +94,8 @@ class Index extends Component
             'nombre' => ['required', 'string', 'max:255'],
             'categoriaId' => ['required', 'integer', Rule::exists('categorias_documento', 'id')->where('activo', true)->whereNull('deleted_at')],
             'archivo' => $isEditing
-                ? ['nullable', 'file', 'mimes:pdf', 'max:20480']
-                : ['required', 'file', 'mimes:pdf', 'max:20480'],
+                ? ['nullable', 'file', 'mimes:pdf', 'mimetypes:application/pdf', 'max:20480']
+                : ['required', 'file', 'mimes:pdf', 'mimetypes:application/pdf', 'max:20480'],
         ];
 
         $messages = [
@@ -185,6 +189,7 @@ class Index extends Component
 
     public function deleteDocumento(): void
     {
+        Gate::authorize('view', $this->proceso);
         abort_unless($this->deletingDocumentoId !== null, 404);
         $documento = $this->findDocumento($this->deletingDocumentoId);
         Gate::authorize('delete', $documento);

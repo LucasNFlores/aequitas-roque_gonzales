@@ -353,7 +353,7 @@ public function up(): void
 php artisan migrate
 ```
 
-Las categorías documentales se relacionan mediante `categoria_id`. Al reemplazar un archivo, `documento_versiones` conserva el archivo, nombre, tipo, categoría, usuario y fecha de la versión anterior. La consulta de esas versiones debe pasar por las mismas policies de visualización y descarga del documento.
+Las categorías documentales se relacionan mediante `categoria_id`. Al reemplazar un archivo, `documento_versiones` conserva el archivo, nombre, tipo, categoría, usuario y fecha de la versión anterior. La consulta de esas versiones debe pasar por las mismas policies de visualización y descarga del documento. `Documento` implementa OwenIt Auditing para conservar actor y fecha de alta, cambios y baja lógica; la baja no elimina el archivo ni las versiones. Carga, reemplazo y eliminación corresponden a Secretario y Administrador; visualización a Secretario, Profesional asignado, Coordinador y Administrador; descarga a Profesional asignado, Coordinador y Administrador. Las rutas verifican proceso, documento, versión y existencia del archivo incluso ante acceso directo.
 
 **4. Commit y push:**
 ```bash

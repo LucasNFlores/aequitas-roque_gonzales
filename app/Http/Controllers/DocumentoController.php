@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Throwable;
 
 class DocumentoController extends Controller
 {
@@ -33,13 +34,21 @@ class DocumentoController extends Controller
 
         $path = $file->storeAs('documentos/'.$proceso->id, Str::uuid().'.pdf', 'local');
 
-        Documento::query()->create([
-            'proceso_id' => $proceso->id,
-            'categoria_id' => $categoria->id,
-            'archivo_path' => $path,
-            'tipo_documento' => $tipoDocumento,
-            'nombre' => $nombre,
-        ]);
+        try {
+            DB::transaction(function () use ($proceso, $categoria, $path, $tipoDocumento, $nombre): void {
+                Documento::query()->create([
+                    'proceso_id' => $proceso->id,
+                    'categoria_id' => $categoria->id,
+                    'archivo_path' => $path,
+                    'tipo_documento' => $tipoDocumento,
+                    'nombre' => $nombre,
+                ]);
+            });
+        } catch (Throwable $exception) {
+            Storage::disk('local')->delete($path);
+
+            throw $exception;
+        }
 
         return redirect()->route('procesos.documentos.index', $proceso)->with('success', 'Documento cargado correctamente.');
     }
@@ -98,7 +107,7 @@ class DocumentoController extends Controller
                     $documento->update($data);
                 }
             });
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             if ($replacementPath !== null) {
                 Storage::disk('local')->delete($replacementPath);
             }
