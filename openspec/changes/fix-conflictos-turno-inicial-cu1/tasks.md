@@ -1,0 +1,5 @@
+- [x] Revisar permisos CU1 y la regla de disponibilidad de turnos vigente.
+- [x] Comprobar conflicto exacto y bloqueo externo antes de persistir el alta.
+- [x] Añadir pruebas focalizadas de conflicto exacto, bloqueo externo, turno cancelado y alta disponible.
+- [x] Validar la interfaz real de alta de cliente en navegador.
+- [x] Ejecutar Pint, pruebas afectadas y `git diff --check`.

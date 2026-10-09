@@ -13,6 +13,7 @@ use Carbon\CarbonImmutable;
 use DomainException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class RegistrarClienteInicial
 {
@@ -51,7 +52,14 @@ class RegistrarClienteInicial
                 throw new DomainException('No está configurado el servicio inicial "Consultoría".');
             }
 
-            $fechaHoraInicial = CarbonImmutable::parse($attributes['fecha_hora_inicial']);
+            $fechaHoraInicial = CarbonImmutable::parse($attributes['fecha_hora_inicial'])->second(0);
+
+            if (Turno::existeConflicto($coordinador->id, $fechaHoraInicial)) {
+                throw ValidationException::withMessages([
+                    'fecha_hora_inicial' => 'El Coordinador ya tiene un turno a esa hora o un compromiso externo ese día.',
+                ]);
+            }
+
             $cliente = Cliente::query()->create(Arr::except($attributes, 'fecha_hora_inicial'));
             $proceso = Proceso::query()->create([
                 'cliente_id' => $cliente->id,

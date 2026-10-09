@@ -77,6 +77,77 @@ class ClienteInitialProcessTest extends TestCase
         $this->assertSame(1, Notificacion::count());
     }
 
+    public function test_registration_rejects_a_coincident_initial_turn_without_creating_records(): void
+    {
+        $secretario = $this->userWithRole('Secretario');
+        $coordinador = $this->createInitialConfiguration();
+        $clienteExistente = Cliente::factory()->create();
+        Turno::factory()->create([
+            'cliente_id' => $clienteExistente->id,
+            'profesional_id' => $coordinador->id,
+            'coordinador_id' => $coordinador->id,
+            'fecha_hora' => '2030-05-20 10:30:00',
+        ]);
+
+        $this->actingAs($secretario)
+            ->post(route('clientes.store'), $this->validData(['fecha_hora_inicial' => '2030-05-20 10:30:59']))
+            ->assertSessionHasErrors([
+                'fecha_hora_inicial' => 'El Coordinador ya tiene un turno a esa hora o un compromiso externo ese día.',
+            ]);
+
+        $this->assertDatabaseCount('clientes', 1);
+        $this->assertDatabaseCount('procesos', 0);
+        $this->assertDatabaseCount('turnos', 1);
+        $this->assertSame(0, Notificacion::count());
+    }
+
+    public function test_registration_rejects_an_initial_turn_during_an_external_block(): void
+    {
+        $secretario = $this->userWithRole('Secretario');
+        $coordinador = $this->createInitialConfiguration();
+        $clienteExistente = Cliente::factory()->create();
+        Turno::factory()->create([
+            'cliente_id' => $clienteExistente->id,
+            'profesional_id' => $coordinador->id,
+            'coordinador_id' => $coordinador->id,
+            'fecha_hora' => '2030-05-20 16:00:00',
+            'tipo' => 'externo',
+            'es_externo' => true,
+        ]);
+
+        $this->actingAs($secretario)
+            ->post(route('clientes.store'), $this->validData())
+            ->assertSessionHasErrors('fecha_hora_inicial');
+
+        $this->assertDatabaseCount('clientes', 1);
+        $this->assertDatabaseCount('procesos', 0);
+        $this->assertDatabaseCount('turnos', 1);
+        $this->assertSame(0, Notificacion::count());
+    }
+
+    public function test_registration_allows_a_slot_released_by_a_cancelled_turn(): void
+    {
+        $secretario = $this->userWithRole('Secretario');
+        $coordinador = $this->createInitialConfiguration();
+        $clienteExistente = Cliente::factory()->create();
+        Turno::factory()->create([
+            'cliente_id' => $clienteExistente->id,
+            'profesional_id' => $coordinador->id,
+            'coordinador_id' => $coordinador->id,
+            'fecha_hora' => '2030-05-20 10:30:00',
+            'estado' => 'cancelado',
+        ]);
+
+        $this->actingAs($secretario)
+            ->post(route('clientes.store'), $this->validData())
+            ->assertRedirect(route('clientes.index'));
+
+        $this->assertDatabaseCount('clientes', 2);
+        $this->assertDatabaseCount('procesos', 1);
+        $this->assertDatabaseCount('turnos', 2);
+        $this->assertSame(1, Notificacion::count());
+    }
+
     public function test_duplicate_registration_does_not_create_derived_records(): void
     {
         $secretario = $this->userWithRole('Secretario');

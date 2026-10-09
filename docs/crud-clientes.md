@@ -73,7 +73,7 @@ delete/restore  -> can('eliminar_clientes')
 
 * `index(): authorize viewAny, Cliente::latest()->paginate(10) -> view('clientes.index')`
 * `create(): authorize create -> view('clientes.create')`
-* `store(StoreClienteRequest): authorize create, RegistrarClienteInicial -> transacción cliente + proceso de Consultoría pendiente + turno inicial + notificación interna -> redirect clientes.index with('success')`
+* `store(StoreClienteRequest): authorize create, RegistrarClienteInicial -> transacción bloquea al Coordinador y verifica disponibilidad antes de crear cliente + proceso de Consultoría pendiente + turno inicial + notificación interna -> redirect clientes.index with('success')`
 * `show(Cliente): authorize view -> view('clientes.show')`
 * `edit(Cliente): authorize update -> view('clientes.edit')`
 * `update(UpdateClienteRequest, Cliente): authorize update, $cliente->update($validated)`
@@ -117,7 +117,7 @@ Navegación `resources/views/layouts/navigation.blade.php:28`:
 * `test_factory_and_seeder_create_data` - `Cliente::factory()->create()` + `ClienteSeeder`
 * `test_migration_is_reversible` - `Schema::hasTable('clientes')` + rollback/re-migrate
 
-`tests/Feature/ClienteInitialProcessTest.php` cubre la creación de cliente, proceso de Consultoría `pendiente`, turno inicial y notificación interna; autorización de Secretario/Administrador, validación de fecha/hora, unicidad de DNI/correo, estado inicial inactivo o eliminado, configuración incompleta y rollback si falla la persistencia de la notificación.
+`tests/Feature/ClienteInitialProcessTest.php` cubre la creación de cliente, proceso de Consultoría `pendiente`, turno inicial y notificación interna; autorización de Secretario/Administrador, validación de fecha/hora, conflicto por turno coincidente o bloqueo externo, disponibilidad liberada por cancelación, unicidad de DNI/correo, estado inicial inactivo o eliminado, configuración incompleta y rollback si falla la persistencia de la notificación.
 
 Ejecución:
 ```bash
