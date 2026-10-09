@@ -67,6 +67,7 @@ Route::middleware(['auth', 'permission:editar_roles'])->group(function () {
 });
 
 Route::middleware(['auth', 'permission:asignar_especialidad_servicio'])->group(function () {
+    Route::get('/profesionales/servicios', fn () => view('profesionales.servicios'))->name('profesionales.servicios.index');
     Route::put('/usuarios/{user}/servicios', [UserController::class, 'updateServicios'])->name('users.servicios.update');
 });
 

@@ -68,6 +68,15 @@
                         </x-navigation.nav-link>
                     @endcan
 
+                    @can('asignar_especialidad_servicio')
+                        <x-navigation.nav-link :href="route('profesionales.servicios.index')" :active="request()->routeIs('profesionales.servicios.*')">
+                            <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m6-10a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm12 2h-6m3-3v6" />
+                            </svg>
+                            <span>{{ __('Servicios por profesional') }}</span>
+                        </x-navigation.nav-link>
+                    @endcan
+
                     @can('gestionar_servicios')
                         <x-navigation.nav-link :href="route('servicios.index')" :active="request()->routeIs('servicios.*')">
                             <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">

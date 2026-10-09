@@ -15,6 +15,10 @@
                     <a href="{{ route('users.index') }}" class="text-gray-700 hover:text-indigo-600">{{ __('Usuarios y Roles') }}</a>
                 @endcan
 
+                @can('asignar_especialidad_servicio')
+                    <a href="{{ route('profesionales.servicios.index') }}" class="text-gray-700 hover:text-indigo-600">{{ __('Servicios por profesional') }}</a>
+                @endcan
+
                 @can('gestionar_servicios')
                     <a href="{{ route('servicios.index') }}" class="text-gray-700 hover:text-indigo-600">{{ __('Servicios') }}</a>
                 @endcan

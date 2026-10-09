@@ -258,7 +258,7 @@ A diferencia de `HasMany`, **no hay una FK directa** en ninguna de las dos tabla
 - Un `User` (Profesional) puede tener **múltiples servicios** (`$user->servicios()->sync([1,2])`).
 - Un `Servicio` puede pertenecer a **múltiples profesionales** (`$servicio->usuarios`).
 
-**Por qué intermedia:** permite asignar especialidades sin duplicar filas ni limitar a un solo servicio por usuario. Se gestiona desde `UserController::updateServicios` y `Livewire/Usuarios/Index::saveServicios` con `permission:asignar_especialidad_servicio` (Coordinador/Directivo/Admin) y validación `hasRole('Profesional')`. Ver `docs/gestion-usuarios-roles-servicios.md:4`.
+**Por qué intermedia:** permite asignar especialidades sin duplicar filas ni limitar a un solo servicio por usuario. Se gestiona desde la página CU34 `Livewire/Profesionales/Servicios` (`/profesionales/servicios`) y también desde `UserController::updateServicios` y `Livewire/Usuarios/Index::saveServicios`, con `permission:asignar_especialidad_servicio` (Coordinador/Directivo/Administrador) y validación del rol Profesional activo. Ver `docs/gestion-usuarios-roles-servicios.md:4`.
 
 ```php
 $profesional = User::find(1); // hasRole Profesional

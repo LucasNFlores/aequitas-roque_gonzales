@@ -84,7 +84,7 @@ El cliente se registra como dato administrativo. No inicia sesión, no tiene cre
 | CU 31 | Administración y Seguridad | Iniciar y Cerrar Sesión | Secretario, Profesional, Coordinador, Directivo |
 | CU 32 | Administración y Seguridad | Cambiar Contraseña / Perfil | Secretario, Profesional, Coordinador, Directivo |
 | CU 33 | Parámetros del Sistema | Gestionar Servicios | Directivo |
-| CU 34 | Parámetros del Sistema | Asignar Especialidad/Servicio a Profesional | Coordinador, Directivo |
+| CU 34 | Parámetros del Sistema | Asignar Especialidad/Servicio a Profesional | Coordinador, Directivo, Administrador |
 | CU 35 | Comunicaciones y Notificaciones | Consultar Registro de Notificaciones | Secretario, Coordinador, Directivo (se entrega en la fase final) |
 | CU 36 | Parámetros del Sistema | Gestionar Estados de Proceso | Coordinador |
 | CU 37 | Parámetros del Sistema | Gestionar Categorías de Documentos | Coordinador |

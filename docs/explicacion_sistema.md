@@ -21,7 +21,7 @@ La fuente definitiva de casos de uso y permisos es la matriz online **“Aequita
 
 Representa a un empleado autenticable. Sus permisos dependen del rol asignado. Los roles son Secretario, Profesional, Coordinador, Directivo y Administrador.
 
-> **Implementación completa CU25-27, CU34:** ver `docs/gestion-usuarios-roles-servicios.md` para detalle de altas/modificaciones/baja lógica, validación `email único`, roles desde BD, password inicial `1234`, búsqueda por `nombre/email/DNI`, relación N:M `user_servicios` (múltiples servicios por profesional), `UserPolicy` con bloqueo por procesos activos, `StoreUserRequest`/`UpdateUserRequest`, `UserController` + `Livewire/Usuarios/Index` (Blade+Alpine+Tailwind), rutas `users.*` protegidas, registro público `/register` deshabilitado (solo CU25), y pruebas `UserManagementTest`/`UsuarioIndexTest` (82 tests).
+> **Implementación completa CU25-27, CU34:** ver `docs/gestion-usuarios-roles-servicios.md` para detalle de altas/modificaciones/baja lógica, validación `email único`, roles desde BD, password inicial `1234`, búsqueda por `nombre/email/DNI`, relación N:M `user_servicios` (múltiples servicios por profesional), `UserPolicy` con bloqueo por procesos activos, `StoreUserRequest`/`UpdateUserRequest`, `UserController` + `Livewire/Usuarios/Index` (Blade+Alpine+Tailwind), pantalla CU34 independiente `Livewire/Profesionales/Servicios` en `/profesionales/servicios`, rutas protegidas por permiso, registro público `/register` deshabilitado (solo CU25), y pruebas de usuarios y servicios por profesional.
 
 El alta la realizan exclusivamente Directivo/Administrador vía `POST /usuarios` (CU25) con roles traídos de `roles` (Spatie). La modificación valida unicidad con `Rule::unique->ignore` sin duplicar. La baja es lógica (`SoftDeletes`, `deleted_at`) y verifica que el usuario no tenga procesos en `pendiente/admitido/iniciado/en_proceso/en_espera`; sólo `finalizado/rechazado` permite desactivar, conservando trazabilidad (`withTrashed`). El perfil propio (`DELETE /profile`) reutiliza la misma regla de negocio y aborta `403` si tiene procesos activos.
 
@@ -35,7 +35,7 @@ Persona cuyos datos se administran en el sistema. Su alta crea un proceso inicia
 
 ### Servicio
 
-Área o servicio ofrecido por el estudio, con un costo de referencia. Directivo y Administrador pueden gestionarlo (CRUD en `app/Livewire/Servicios/Index.php` y `ServicioController` con `gestionar_servicios`). Las especialidades o servicios atendibles por cada profesional son administradas por Coordinador, Directivo y Administrador vía relación N:M `user_servicios` (`User::servicios()` / `Servicio::usuarios()`), con UI híbrida `livewire/usuarios/index.blade.php` + `UserController::updateServicios` y validación `exists:servicios,id`.
+Área o servicio ofrecido por el estudio, con un costo de referencia. Directivo y Administrador pueden gestionarlo (CRUD en `app/Livewire/Servicios/Index.php` y `ServicioController` con `gestionar_servicios`). Las especialidades o servicios atendibles por cada profesional son administradas por Coordinador, Directivo y Administrador vía relación N:M `user_servicios` (`User::servicios()` / `Servicio::usuarios()`). CU34 usa una pantalla dedicada `livewire/profesionales/servicios.blade.php` en `/profesionales/servicios`; el modal adicional de `livewire/usuarios/index.blade.php` sigue disponible para quienes acceden a CU25–27. `UserController::updateServicios` y Livewire validan servicios no eliminados y el rol Profesional.
 
 ### Proceso
 
