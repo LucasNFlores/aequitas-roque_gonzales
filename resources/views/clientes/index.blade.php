@@ -17,7 +17,7 @@
                 <div class="flex justify-between items-center mb-6">
                     <div>
                         <h3 class="text-lg font-medium text-gray-900">Listado de Clientes</h3>
-                        <p class="text-sm text-gray-500 mt-1">Administra los clientes del estudio.</p>
+                        <p class="mt-1 text-sm text-gray-500">Busca por nombre, apellido o DNI y filtra por estado de admisión.</p>
                     </div>
                     @can('create', App\Models\Cliente::class)
                         <a href="{{ route('clientes.create') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
@@ -25,6 +25,43 @@
                         </a>
                     @endcan
                 </div>
+
+                <form method="GET" action="{{ route('clientes.index') }}" class="mb-6 grid grid-cols-1 items-end gap-4 md:grid-cols-3">
+                    <div>
+                        <label for="search" class="block text-sm font-medium text-gray-700">Buscar cliente</label>
+                        <input
+                            id="search"
+                            name="search"
+                            type="search"
+                            value="{{ $search }}"
+                            placeholder="Nombre, apellido o DNI"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        >
+                    </div>
+
+                    <div>
+                        <label for="estado" class="block text-sm font-medium text-gray-700">Estado de admisión</label>
+                        <select id="estado" name="estado" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <option value="">Todos los estados</option>
+                            @foreach($estados as $opcionEstado)
+                                <option value="{{ $opcionEstado->slug }}" @selected($estado === $opcionEstado->slug)>
+                                    {{ $opcionEstado->nombre }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button type="submit" class="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                            Aplicar filtros
+                        </button>
+                        @if($search !== '' || $estado !== '')
+                            <a href="{{ route('clientes.index') }}" class="text-sm font-medium text-indigo-700 underline hover:text-indigo-900">
+                                Limpiar filtros
+                            </a>
+                        @endif
+                    </div>
+                </form>
 
                 <div class="overflow-x-auto shadow-md sm:rounded-lg">
                     <table class="w-full text-sm text-left text-gray-500">
@@ -79,7 +116,11 @@
                             @empty
                                 <tr class="bg-white">
                                     <td colspan="5" class="px-6 py-4 text-center text-gray-500 italic">
-                                        No hay clientes cargados.
+                                        @if($search !== '' || $estado !== '')
+                                            No encontramos clientes con esos filtros. Revisá los criterios o limpialos para ver todos los clientes.
+                                        @else
+                                            No hay clientes cargados.
+                                        @endif
                                     </td>
                                 </tr>
                             @endforelse
@@ -87,7 +128,7 @@
                     </table>
                 </div>
 
-                <div class="mt-6">
+                <div class="mt-6" aria-label="Paginación de clientes">
                     {{ $clientes->links() }}
                 </div>
             </div>

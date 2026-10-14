@@ -6,23 +6,55 @@ use App\Actions\RegistrarClienteInicial;
 use App\Http\Requests\StoreClienteRequest;
 use App\Http\Requests\UpdateClienteRequest;
 use App\Models\Cliente;
+use App\Models\EstadoProceso;
 use App\Models\User;
 use DomainException;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class ClienteController extends Controller
 {
     public function __construct(private readonly RegistrarClienteInicial $registrarClienteInicial) {}
 
-    public function index(): View
+    public function index(Request $request): View
     {
         $this->authorize('viewAny', Cliente::class);
 
-        $clientes = Cliente::latest()->paginate(10);
+        $filters = $request->validate([
+            'search' => ['nullable', 'string', 'max:100'],
+            'estado' => ['nullable', 'string', 'max:50'],
+        ]);
+        $search = trim($filters['search'] ?? '');
+        $estado = $filters['estado'] ?? '';
 
-        return view('clientes.index', compact('clientes'));
+        $clientes = Cliente::query()
+            ->when($search !== '', function (Builder $query) use ($search): void {
+                $like = '%'.$search.'%';
+
+                $query->where(function (Builder $query) use ($like): void {
+                    $query->where('nombre', 'like', $like)
+                        ->orWhere('apellido', 'like', $like)
+                        ->orWhere('dni', 'like', $like);
+                });
+            })
+            ->when($estado !== '', fn (Builder $query): Builder => $query->whereHas(
+                'procesos',
+                fn (Builder $processQuery): Builder => $processQuery->where('estado', $estado),
+            ))
+            ->latest()
+            ->orderByDesc('id')
+            ->paginate(10)
+            ->appends(array_filter([
+                'search' => $search,
+                'estado' => $estado,
+            ], fn (string $value): bool => $value !== ''));
+
+        $estados = EstadoProceso::query()->ordered()->get(['nombre', 'slug']);
+
+        return view('clientes.index', compact('clientes', 'estados', 'search', 'estado'));
     }
 
     public function create(): View
