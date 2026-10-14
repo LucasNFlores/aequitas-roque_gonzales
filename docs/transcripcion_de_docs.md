@@ -74,10 +74,10 @@ El cliente se registra como dato administrativo. No inicia sesión, no tiene cre
 | CU 29 | Gestión de Procesos / Admisión | Listar y Filtrar Procesos | Secretario, Profesional, Coordinador, Directivo |
 | CU 30 | Gestión de Procesos / Admisión | Consultar Historial de Estados | Secretario, Profesional, Coordinador, Directivo |
 | CU 38 | Gestión de Procesos / Admisión | Crear Proceso Adicional | Secretario |
-| CU 21 | Seguimiento y Reportes | Registrar Reporte | Profesional asignado |
-| CU 22 | Seguimiento y Reportes | Editar Reporte | Profesional autor |
-| CU 23 | Seguimiento y Reportes | Eliminar Reporte | Profesional autor |
-| CU 24 | Seguimiento y Reportes | Consultar Reportes de Proceso | Profesional sobre sus reportes, Coordinador, Directivo |
+| CU 21 | Seguimiento y Reportes | Registrar Reporte | Profesional asignado, Administrador (registra en nombre del profesional) |
+| CU 22 | Seguimiento y Reportes | Editar Reporte | Profesional autor, Administrador |
+| CU 23 | Seguimiento y Reportes | Eliminar Reporte | Profesional autor, Administrador (baja lógica) |
+| CU 24 | Seguimiento y Reportes | Consultar Reportes de Proceso | Profesional sobre sus reportes en procesos asignados, Coordinador, Directivo, Administrador |
 | CU 25 | Administración y Seguridad | Agregar Nuevo Usuario | Directivo |
 | CU 26 | Administración y Seguridad | Modificar Usuario | Directivo |
 | CU 27 | Administración y Seguridad | Eliminar Usuario | Directivo |

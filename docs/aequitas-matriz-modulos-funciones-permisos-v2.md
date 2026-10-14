@@ -42,7 +42,7 @@
 | Gestión de Procesos / Admisión | CU 29 | Listar y Filtrar Procesos | Sí | Sí | Sí | Sí | Sí | Bandeja filtrable por estado, cliente o profesional asignado |
 | Gestión de Procesos / Admisión | CU 30 | Consultar Historial de Estados del Proceso | Sí | Sí | Sí | Sí | Sí | Auditoría de cambios, fechas, motivos y usuario interviniente |
 | Gestión de Procesos / Admisión | CU 38 | Crear Proceso Adicional | Sí | No | No | No | Sí | Permite crear un nuevo proceso para un cliente existente; no registra un cliente ni genera un turno inicial. |
-| Seguimiento y Reportes | CU 21 | Registrar Reporte | No | Sí | No | No | Sí | Reporte creado por el profesional asignado |
+| Seguimiento y Reportes | CU 21 | Registrar Reporte | No | Sí | Sí | No | No | Reporte creado por el profesional asignado |
 | Seguimiento y Reportes | CU 22 | Editar Reporte | No | Sí | No | No | Sí | Profesional autor o Administrador. Cada cambio conserva contenido y fecha anteriores, actor y fecha-hora; guardar sin cambios no agrega versión. El historial se consulta por CU24 y su alcance. |
 | Seguimiento y Reportes | CU 23 | Eliminar Reporte | No | Sí | No | No | Sí | Baja lógica por el autor o Administrador; conserva auditoría |
 | Seguimiento y Reportes | CU 24 | Consultar Reportes de Proceso | No | Sí | Sí | Sí | Sí | El Profesional consulta sus propios reportes; los demás roles según autorización |
