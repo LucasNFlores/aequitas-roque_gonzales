@@ -55,7 +55,7 @@ Archivo PDF de hasta 20 MB asociado a un proceso. Se puede visualizar, descargar
 
 ### Reporte
 
-Registro de avance, reunión o actuación asociado a un proceso. El profesional autor puede crearlo, editarlo, eliminarlo lógicamente y consultar sus propios reportes.
+Registro de avance, reunión o actuación asociado a un proceso. El Profesional asignado lo registra; el autor o Administrador puede editarlo y eliminarlo lógicamente. Cada edición que modifica contenido o fecha conserva esos valores anteriores junto con el actor y la fecha-hora. Guardar sin cambios no crea una versión. El historial se consulta por CU24: el Profesional accede a sus reportes dentro de procesos asignados; Coordinador, Directivo y Administrador acceden según su autorización. Secretario no consulta reportes ni su historial.
 
 ### Comprobante de pago
 

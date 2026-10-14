@@ -137,6 +137,9 @@ Route::middleware(['auth'])->scopeBindings()->group(function () {
     Route::post('/procesos/{proceso}/reportes', [ReporteController::class, 'store'])
         ->middleware('permission:registrar_reportes')
         ->name('procesos.reportes.store');
+    Route::get('/procesos/{proceso}/reportes/{reporte}/historial', [ReporteController::class, 'history'])
+        ->middleware('permission:consultar_reportes')
+        ->name('procesos.reportes.historial');
     Route::put('/procesos/{proceso}/reportes/{reporte}', [ReporteController::class, 'update'])
         ->middleware('permission:editar_reportes_propios')
         ->name('procesos.reportes.update');

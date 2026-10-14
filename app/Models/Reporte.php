@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Reporte extends Model
@@ -49,5 +50,10 @@ class Reporte extends Model
     public function profesional(): BelongsTo
     {
         return $this->belongsTo(User::class, 'profesional_id');
+    }
+
+    public function versiones(): HasMany
+    {
+        return $this->hasMany(ReporteVersion::class)->orderByDesc('fecha_cambio')->orderByDesc('id');
     }
 }

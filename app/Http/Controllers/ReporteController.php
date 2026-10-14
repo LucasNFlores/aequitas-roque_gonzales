@@ -6,7 +6,10 @@ use App\Http\Requests\StoreReporteRequest;
 use App\Http\Requests\UpdateReporteRequest;
 use App\Models\Proceso;
 use App\Models\Reporte;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class ReporteController extends Controller
 {
@@ -28,9 +31,43 @@ class ReporteController extends Controller
     {
         abort_unless($reporte->proceso_id === $proceso->id, 404);
 
-        $reporte->update($request->validated());
+        $validated = $request->validated();
+        $contenido = $validated['contenido'] ?? $reporte->contenido;
+        $fecha = $validated['fecha'] ?? $reporte->fecha?->toDateString();
+
+        DB::transaction(function () use ($request, $proceso, $reporte, $contenido, $fecha): void {
+            $reporte = $proceso->reportes()->lockForUpdate()->findOrFail($reporte->id);
+
+            if ($reporte->contenido !== $contenido || $reporte->fecha?->toDateString() !== $fecha) {
+                $actor = $request->user();
+                abort_unless($actor instanceof User, 403);
+
+                $reporte->versiones()->create([
+                    'contenido_anterior' => $reporte->contenido,
+                    'fecha_anterior' => $reporte->fecha,
+                    'usuario_id' => $actor->id,
+                    'usuario_nombre' => $actor->name,
+                    'fecha_cambio' => now(),
+                ]);
+
+                $reporte->update([
+                    'contenido' => $contenido,
+                    'fecha' => $fecha,
+                ]);
+            }
+        });
 
         return back()->with('success', 'Reporte actualizado correctamente.');
+    }
+
+    public function history(Proceso $proceso, Reporte $reporte): View
+    {
+        abort_unless($reporte->proceso_id === $proceso->id, 404);
+        $this->authorize('view', $reporte);
+
+        $reporte->load('versiones');
+
+        return view('reportes.historial', compact('proceso', 'reporte'));
     }
 
     public function destroy(Proceso $proceso, Reporte $reporte): RedirectResponse

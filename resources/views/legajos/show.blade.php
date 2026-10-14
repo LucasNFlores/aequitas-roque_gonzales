@@ -204,6 +204,9 @@
                                                 <p class="mt-1 text-xs text-gray-500">Registrado por {{ $reporte->profesional?->name ?? 'Usuario eliminado' }}</p>
                                             </div>
                                             <div class="flex flex-wrap gap-2">
+                                                @can('view', $reporte)
+                                                    <a href="{{ route('procesos.reportes.historial', [$proceso, $reporte]) }}" class="rounded-md bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700 hover:bg-indigo-100">Ver historial</a>
+                                                @endcan
                                                 @can('update', $reporte)
                                                     <details class="rounded-md bg-gray-100 px-3 py-2 text-xs font-semibold text-gray-700">
                                                         <summary class="cursor-pointer">Editar</summary>
