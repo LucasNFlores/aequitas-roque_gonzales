@@ -7,11 +7,15 @@
 <meta charset="utf-8">
 <title>Documentos por Categoría — {{ $codigo }}</title>
 <style>
-  body { font-family: DejaVu Sans, sans-serif; font-size: 11px; color: #222; margin: 100px 30px 55px 30px; }
-  /* ENCABEZADO: fijo, se repite en cada página */
-  header { position: fixed; top: -85px; left: 0; right: 0; border-bottom: 2px solid #1f2a44; padding-bottom: 6px; }
-  .logo { float: left; width: 44px; height: 44px; background: #1f2a44; color: #fff;
-          font-size: 26px; font-weight: bold; text-align: center; line-height: 44px; margin-right: 10px; }
+  @page { margin: 105px 30px 60px 30px; }
+  body { font-family: DejaVu Sans, sans-serif; font-size: 11px; color: #222; margin: 0; }
+  /* ENCABEZADO: fijo, se repite en cada página. Tabla (sin floats) para que DomPDF no lo recorte. */
+  header { position: fixed; top: -90px; left: 0; right: 0; border-bottom: 2px solid #1f2a44; padding-bottom: 5px; }
+  table.cab { width: 100%; border-collapse: collapse; }
+  table.cab td { vertical-align: middle; padding: 0; }
+  td.logo-cell { width: 52px; }
+  .logo { width: 40px; height: 40px; background: #1f2a44; color: #fff;
+          font-size: 24px; font-weight: bold; text-align: center; line-height: 40px; }
   .empresa { font-size: 15px; font-weight: bold; }
   .empresa small { font-size: 10px; font-weight: normal; }
   .datos-empresa { font-size: 9px; color: #444; }
@@ -38,9 +42,13 @@
 
 {{-- 1 IDENTIDAD --}}
 <header>
-  <div class="logo">A</div>
-  <div class="empresa">AEQUITAS GESTIÓN<br><small>Estudio jurídico — Sistemas de gestión</small></div>
-  <div class="datos-empresa">Av. del Parque 1250, Posadas, Misiones · Tel. (0376) 400-0000 · informes@aequitas.example</div>
+  <table class="cab"><tr>
+    <td class="logo-cell"><div class="logo">A</div></td>
+    <td>
+      <div class="empresa">AEQUITAS GESTIÓN<br><small>Estudio jurídico — Sistemas de gestión</small></div>
+      <div class="datos-empresa">Av. del Parque 1250, Posadas, Misiones · Tel. (0376) 400-0000 · informes@aequitas.example</div>
+    </td>
+  </tr></table>
 </header>
 
 {{-- 5 NAVEGACIÓN --}}
