@@ -201,7 +201,7 @@
                                         <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                                             <div>
                                                 <p class="text-sm font-semibold text-gray-900">{{ $reporte->fecha?->format('d/m/Y') ?? 'Sin fecha' }}</p>
-                                                <p class="mt-1 text-xs text-gray-500">Registrado por {{ $reporte->profesional?->name ?? 'Usuario eliminado' }}</p>
+                                                <p class="mt-1 text-xs text-gray-500">Autor: {{ $reporte->profesional?->name ?? 'Usuario eliminado' }}@if($reporte->registrado_por_id && $reporte->registrado_por_id !== $reporte->profesional_id) · Registrado por {{ $reporte->registradoPor?->name ?? 'Usuario eliminado' }}@endif</p>
                                             </div>
                                             <div class="flex flex-wrap gap-2">
                                                 @can('view', $reporte)

@@ -43,10 +43,11 @@ class LegajoController extends Controller
                 'documentos.versiones.categoria:id,nombre',
                 'reportes' => fn ($query) => $query
                     ->visibleTo($user)
-                    ->select(['id', 'proceso_id', 'profesional_id', 'contenido', 'fecha'])
+                    ->select(['id', 'proceso_id', 'profesional_id', 'registrado_por_id', 'contenido', 'fecha'])
                     ->orderByDesc('fecha')
                     ->orderByDesc('id'),
                 'reportes.profesional:id,name',
+                'reportes.registradoPor:id,name',
                 'historialEstados' => fn ($query) => $query
                     ->select(['id', 'proceso_id', 'usuario_id', 'estado_anterior', 'estado_nuevo', 'motivo', 'fecha_cambio'])
                     ->orderByDesc('fecha_cambio')

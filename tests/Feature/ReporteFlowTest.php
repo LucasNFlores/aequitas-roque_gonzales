@@ -133,6 +133,80 @@ class ReporteFlowTest extends TestCase
         ]);
     }
 
+    public function test_administrator_can_register_for_the_assigned_professional_and_both_can_see_the_report(): void
+    {
+        $professional = $this->userWithRole('Profesional');
+        $administrator = $this->userWithRole('Administrador');
+        $process = $this->processFor($professional);
+
+        $this->actingAs($administrator)
+            ->post(route('procesos.reportes.store', $process), [
+                'proceso_id' => $process->id,
+                'contenido' => 'Registro administrativo para el profesional asignado.',
+                'fecha' => now()->toDateString(),
+            ])
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $report = Reporte::query()->sole();
+
+        $this->assertSame($professional->id, $report->profesional_id);
+        $this->assertSame($administrator->id, $report->registrado_por_id);
+        $this->assertSame([$report->id], Reporte::query()->visibleTo($professional)->pluck('id')->all());
+        $this->assertSame([$report->id], Reporte::query()->visibleTo($administrator)->pluck('id')->all());
+
+        $this->actingAs($administrator)
+            ->get(route('legajos.show', $process->cliente))
+            ->assertOk()
+            ->assertSee('Autor: '.$professional->name.' · Registrado por '.$administrator->name);
+    }
+
+    public function test_administrator_cannot_register_a_report_without_an_assigned_professional(): void
+    {
+        $administrator = $this->userWithRole('Administrador');
+        $professional = $this->userWithRole('Profesional');
+        $process = $this->processFor($professional);
+        $process->update(['profesional_id' => null]);
+
+        $this->actingAs($administrator)
+            ->from(route('legajos.index'))
+            ->post(route('procesos.reportes.store', $process), [
+                'proceso_id' => $process->id,
+                'contenido' => 'Sin autor profesional.',
+                'fecha' => now()->toDateString(),
+            ])
+            ->assertRedirect(route('legajos.index'))
+            ->assertSessionHasErrors('proceso_id');
+
+        $this->assertDatabaseCount('reportes', 0);
+    }
+
+    public function test_only_report_author_and_administrator_can_soft_delete_directly(): void
+    {
+        $author = $this->userWithRole('Profesional');
+        $otherProfessional = $this->userWithRole('Profesional');
+        $process = $this->processFor($author);
+        $report = Reporte::factory()->create([
+            'proceso_id' => $process->id,
+            'profesional_id' => $author->id,
+        ]);
+        $url = route('procesos.reportes.destroy', [$process, $report]);
+
+        $this->actingAs($otherProfessional)
+            ->delete($url)
+            ->assertForbidden();
+
+        $this->actingAs($this->userWithRole('Administrador'))
+            ->delete($url)
+            ->assertRedirect();
+
+        $this->assertSoftDeleted($report);
+        $this->assertSame([], Reporte::query()->visibleTo($author)->pluck('id')->all());
+        $this->actingAs($author)
+            ->get(route('procesos.reportes.historial', [$process, $report]))
+            ->assertNotFound();
+    }
+
     public function test_direct_update_rejects_non_author_professionals_and_roles_without_cu22(): void
     {
         $author = $this->userWithRole('Profesional');
@@ -254,13 +328,17 @@ class ReporteFlowTest extends TestCase
         $coordinator = $this->userWithRole('Coordinador');
         $process = $this->processFor($this->userWithRole('Profesional'));
 
-        $this->actingAs($coordinator)
-            ->post(route('procesos.reportes.store', $process), [
-                'proceso_id' => $process->id,
-                'contenido' => 'Sin permiso.',
-                'fecha' => now()->toDateString(),
-            ])
-            ->assertForbidden();
+        foreach ([$coordinator, $this->userWithRole('Secretario'), $this->userWithRole('Directivo')] as $unauthorizedUser) {
+            $this->actingAs($unauthorizedUser)
+                ->post(route('procesos.reportes.store', $process), [
+                    'proceso_id' => $process->id,
+                    'contenido' => 'Sin permiso.',
+                    'fecha' => now()->toDateString(),
+                ])
+                ->assertForbidden();
+        }
+
+        $this->assertDatabaseCount('reportes', 0);
     }
 
     private function userWithRole(string $role): User

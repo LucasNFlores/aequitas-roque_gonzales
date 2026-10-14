@@ -31,6 +31,7 @@ class Reporte extends Model
     protected $fillable = [
         'proceso_id',
         'profesional_id',
+        'registrado_por_id',
         'contenido',
         'fecha',
     ];
@@ -50,6 +51,11 @@ class Reporte extends Model
     public function profesional(): BelongsTo
     {
         return $this->belongsTo(User::class, 'profesional_id');
+    }
+
+    public function registradoPor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'registrado_por_id');
     }
 
     public function versiones(): HasMany

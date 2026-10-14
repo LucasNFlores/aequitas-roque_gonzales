@@ -37,6 +37,10 @@ class StoreReporteRequest extends FormRequest
             $actor = $this->user();
             $proceso = Proceso::query()->find($this->input('proceso_id'));
 
+            if ($proceso instanceof Proceso && $proceso->profesional_id === null) {
+                $validator->errors()->add('proceso_id', 'El proceso debe tener un Profesional asignado para registrar reportes.');
+            }
+
             if ($actor instanceof User && $proceso instanceof Proceso && ! $actor->can('createFor', $proceso)) {
                 $validator->errors()->add('proceso_id', 'El Profesional solo puede registrar reportes en procesos asignados.');
             }

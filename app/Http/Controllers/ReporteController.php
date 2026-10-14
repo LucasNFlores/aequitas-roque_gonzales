@@ -17,9 +17,12 @@ class ReporteController extends Controller
     {
         $validated = $request->validated();
         abort_unless((int) $validated['proceso_id'] === $proceso->id, 404);
+        $actor = $request->user();
+        abort_unless($actor instanceof User, 403);
 
         $proceso->reportes()->create([
-            'profesional_id' => $request->user()->id,
+            'profesional_id' => $proceso->profesional_id,
+            'registrado_por_id' => $actor->id,
             'contenido' => $validated['contenido'],
             'fecha' => $validated['fecha'],
         ]);
