@@ -6,4 +6,4 @@
 - [x] Añadir pruebas PHPUnit para registro administrativo, alcance y roles.
 - [x] Ejecutar pruebas focalizadas, Pint, build y `git diff --check` en Docker.
 - [x] Probar flujos reales por rol en navegador y registrar resultados.
-- [ ] Revisar diff, crear commits Conventional Commits atómicos y fusionar en `dev` local sin push.
+- [x] Revisar diff, crear commits Conventional Commits atómicos y fusionar en `dev` local sin push.
