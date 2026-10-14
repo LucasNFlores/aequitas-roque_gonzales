@@ -134,6 +134,7 @@ class ReporteDocumentoController extends Controller
         $categorias = $this->queryReporte($f)->get();
         $totales = $this->totales($categorias);
 
+        // enable_php: permite el <script type="text/php"> de la vista que escribe "Página X de Y".
         $pdf = Pdf::loadView('reportes.documentos-pdf', [
             'categorias'  => $categorias,
             'f'           => $f,
@@ -141,7 +142,7 @@ class ReporteDocumentoController extends Controller
             'codigo'      => self::CODIGO,
             'emitidoPor'  => $request->user()->name ?? $request->user()->email,
             'fechaHora'   => now()->format('d/m/Y H:i'),
-        ])->setPaper('a4', 'portrait');
+        ])->setOption('enable_php', true)->setPaper('a4', 'portrait');
 
         $nombre = 'aequitas-' . strtolower(self::CODIGO) . '-' . $f['fecha_desde'] . '_' . $f['fecha_hasta'] . '.pdf';
 
