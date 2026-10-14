@@ -22,6 +22,12 @@ El sistema MUST permitir a usuarios autenticados con CU18 buscar clientes por DN
 - WHEN solicita la bandeja, la ficha o una relación por URL directa
 - THEN recibe denegación y no obtiene datos del legajo
 
+#### Scenario: Búsqueda sin coincidencias dentro del alcance autorizado
+
+- GIVEN un usuario autorizado por CU18 que busca un DNI o nombre sin coincidencias dentro de su alcance
+- WHEN aplica el filtro de búsqueda
+- THEN el sistema informa que no encontró clientes y no muestra resultados ajenos al alcance
+
 ### Requirement: Mantener separados el legajo y los archivos documentales
 
 La consulta CU18 MUST mantenerse separada de CU12 y CU19. El Directivo puede consultar metadatos documentales del legajo, pero MUST NOT recibir contenido de archivos, rutas, vistas previas ni enlaces de archivo. La visualización en línea MUST autorizar CU12 y la descarga MUST autorizar CU19, con alcance del Profesional asignado aplicado también a versiones históricas.

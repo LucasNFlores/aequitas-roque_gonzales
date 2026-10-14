@@ -11,6 +11,7 @@
 
 - [x] Implementar búsqueda y ficha de legajo con eager loading y estados vacíos.
 - [x] Asegurar el alcance de Profesional y denegar acceso a Secretario/usuarios sin CU18.
+- [x] Verificar que la búsqueda sin coincidencias informa el estado vacío sin revelar otros clientes.
 - [x] Registrar versiones al reemplazar documentos y proteger la lectura/descarga histórica.
 - [x] Implementar alta, edición, consulta y baja lógica de reportes según CU21–CU24.
 - [x] Implementar la vista autenticada del PDF de comprobantes según CU14.

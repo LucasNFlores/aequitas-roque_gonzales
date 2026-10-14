@@ -127,6 +127,23 @@ class LegajoTest extends TestCase
             ->assertSee('No hay procesos visibles');
     }
 
+    public function test_search_shows_a_clear_empty_state_when_no_client_matches(): void
+    {
+        $coordinator = $this->userWithRole('Coordinador');
+        $client = Cliente::factory()->create([
+            'nombre' => 'Cliente Encontrable',
+            'dni' => '28123456',
+        ]);
+        $this->processFor($client, $this->userWithRole('Profesional'), $coordinator);
+
+        Livewire::actingAs($coordinator)
+            ->test(Index::class)
+            ->set('search', '99999999')
+            ->assertSee('No encontramos clientes con esos datos.')
+            ->assertDontSee('Cliente Encontrable')
+            ->assertDontSee('28123456');
+    }
+
     public function test_related_tables_are_loaded_in_batches_for_multiple_processes(): void
     {
         $executive = $this->userWithRole('Directivo');
