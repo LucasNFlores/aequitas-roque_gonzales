@@ -23,6 +23,34 @@
                     <a href="{{ route('servicios.index') }}" class="text-gray-700 hover:text-indigo-600">{{ __('Servicios') }}</a>
                 @endcan
 
+                @can('listar_filtrar_clientes')
+                    <a href="{{ route('clientes.index') }}" class="text-gray-700 hover:text-indigo-600">{{ __('Clientes') }}</a>
+                @endcan
+
+                @can('consultar_legajos')
+                    <a href="{{ route('legajos.index') }}" class="text-gray-700 hover:text-indigo-600">{{ __('Legajos') }}</a>
+                @endcan
+
+                @can('listar_filtrar_procesos')
+                    <a href="{{ route('procesos.index') }}" class="text-gray-700 hover:text-indigo-600">{{ __('Procesos') }}</a>
+                @endcan
+
+                @can('ver_comprobantes_pago')
+                    <a href="{{ route('comprobantes.index') }}" class="text-gray-700 hover:text-indigo-600">{{ __('Comprobantes') }}</a>
+                @endcan
+
+                @can('gestionar_estados_proceso')
+                    <a href="{{ route('estados-proceso.index') }}" class="text-gray-700 hover:text-indigo-600">{{ __('Estados de proceso') }}</a>
+                @endcan
+
+                @can('gestionar_categorias_documentos')
+                    <a href="{{ route('categorias.index') }}" class="text-gray-700 hover:text-indigo-600">{{ __('Categorías') }}</a>
+                @endcan
+
+                @can('ver_agenda_profesional')
+                    <a href="{{ route('turnos.index') }}" class="text-gray-700 hover:text-indigo-600">{{ __('Turnos') }}</a>
+                @endcan
+
                 <a href="{{ route('tutorial') }}" class="text-gray-700 hover:text-indigo-600">{{ __('Guía Técnica') }}</a>
             </div>
         </div>

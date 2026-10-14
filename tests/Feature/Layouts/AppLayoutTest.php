@@ -5,6 +5,7 @@ namespace Tests\Feature\Layouts;
 use App\Models\User;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Blade;
 use Tests\TestCase;
 
 class AppLayoutTest extends TestCase
@@ -30,5 +31,71 @@ class AppLayoutTest extends TestCase
         $response->assertDontSee($user->email);
         $response->assertSee(route('profile.edit'), false);
         $response->assertSee(route('logout'), false);
+    }
+
+    public function test_both_navigations_show_only_the_destinations_authorized_by_the_matrix(): void
+    {
+        $this->seed(RoleSeeder::class);
+
+        $destinations = [
+            ['label' => 'Usuarios y Roles', 'route' => 'users.index', 'roles' => ['Directivo', 'Administrador']],
+            ['label' => 'Servicios por profesional', 'route' => 'profesionales.servicios.index', 'roles' => ['Coordinador', 'Directivo', 'Administrador']],
+            ['label' => 'Servicios', 'route' => 'servicios.index', 'roles' => ['Directivo', 'Administrador']],
+            ['label' => 'Clientes', 'route' => 'clientes.index', 'roles' => ['Secretario', 'Coordinador', 'Directivo', 'Administrador']],
+            ['label' => 'Legajos', 'route' => 'legajos.index', 'roles' => ['Profesional', 'Coordinador', 'Directivo', 'Administrador']],
+            ['label' => 'Procesos', 'route' => 'procesos.index', 'roles' => ['Secretario', 'Profesional', 'Coordinador', 'Directivo', 'Administrador']],
+            ['label' => 'Comprobantes', 'route' => 'comprobantes.index', 'roles' => ['Secretario', 'Coordinador', 'Directivo', 'Administrador']],
+            ['label' => 'Estados de proceso', 'route' => 'estados-proceso.index', 'roles' => ['Coordinador', 'Administrador']],
+            ['label' => 'Categorías', 'route' => 'categorias.index', 'roles' => ['Coordinador', 'Administrador']],
+            ['label' => 'Turnos', 'route' => 'turnos.index', 'roles' => ['Secretario', 'Profesional', 'Coordinador', 'Administrador']],
+        ];
+
+        foreach (['Secretario', 'Profesional', 'Coordinador', 'Directivo', 'Administrador'] as $role) {
+            $user = User::factory()->create();
+            $user->assignRole($role);
+            $this->actingAs($user);
+
+            $response = $this->get(route('dashboard'));
+            $response->assertOk();
+            $staticNavigation = Blade::render("@include('layouts.static-navigation')");
+
+            foreach ($destinations as $destination) {
+                $isAuthorized = in_array($role, $destination['roles'], true);
+                if ($isAuthorized) {
+                    $response->assertSee(route($destination['route']), false);
+                    $response->assertSee($destination['label']);
+                    $this->assertStringContainsString(route($destination['route']), $staticNavigation);
+                } else {
+                    $response->assertDontSee(route($destination['route']), false);
+                    $this->assertStringNotContainsString(route($destination['route']), $staticNavigation);
+                }
+            }
+
+            $response->assertSee(route('dashboard'), false);
+            $response->assertSee(route('profile.edit'), false);
+            $response->assertSee(route('tutorial'), false);
+            $response->assertSee(route('logout'), false);
+            $this->assertStringContainsString(route('profile.edit'), $staticNavigation);
+            $this->assertStringContainsString(route('tutorial'), $staticNavigation);
+        }
+    }
+
+    public function test_navigation_destinations_remain_denied_to_roles_without_matrix_access(): void
+    {
+        $this->seed(RoleSeeder::class);
+
+        $attempts = [
+            ['role' => 'Secretario', 'route' => 'users.index'],
+            ['role' => 'Profesional', 'route' => 'clientes.index'],
+            ['role' => 'Coordinador', 'route' => 'servicios.index'],
+            ['role' => 'Directivo', 'route' => 'turnos.index'],
+        ];
+
+        foreach ($attempts as $attempt) {
+            $user = User::factory()->create();
+            $user->assignRole($attempt['role']);
+
+            $this->actingAs($user)->get(route($attempt['route']))->assertForbidden();
+        }
     }
 }

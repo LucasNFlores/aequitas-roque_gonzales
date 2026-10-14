@@ -29,6 +29,21 @@ El sistema MUST permitir que Secretario, Profesional, Coordinador, Directivo y A
 - **WHEN** un empleado autenticado actualiza su contraseña o perfil
 - **THEN** el cambio se aplica a su propia cuenta y no concede acceso al perfil de otro usuario
 
+### Requirement: Presentar navegación acorde a rol y permisos
+
+Las navegaciones autenticadas MUST ofrecer los destinos operativos implementados que correspondan a los permisos del usuario según la matriz Aequitas V2. Cada enlace operativo MUST ocultarse cuando el usuario no tenga el permiso exigido por la ruta. Las variantes de navegación MUST conservar el mismo conjunto de destinos autorizados. Los accesos comunes de inicio, perfil, guía técnica y cierre de sesión MUST seguir disponibles para los usuarios internos autenticados. Ocultar un enlace MUST NOT reemplazar la autorización del servidor para solicitudes directas.
+
+#### Scenario: Empleado navega funciones autorizadas
+
+- **WHEN** Secretario, Profesional, Coordinador, Directivo o Administrador inicia sesión
+- **THEN** la navegación presenta los destinos implementados que corresponden a sus permisos en la matriz
+- **AND** todas las variantes de navegación muestran los mismos destinos operativos autorizados
+
+#### Scenario: Empleado no autorizado solicita una función
+
+- **WHEN** un empleado sigue una URL directa a una función que su rol no tiene autorizada
+- **THEN** el servidor deniega la solicitud aunque el usuario haya construido la URL sin usar la navegación
+
 ### Requirement: Gestionar clientes y el alta inicial
 
 El sistema MUST permitir al Secretario y al Administrador registrar, modificar y dar de baja lógicamente clientes. El registro MUST crear un proceso inicial de Consultoría en estado pendiente y un turno inicial con el Coordinador. La baja MUST conservar los datos históricos y MUST rechazarse si el cliente tiene procesos activos.
