@@ -93,6 +93,11 @@ Entidad prevista para registrar una comunicación interna o externa, con canal, 
 
 > Detalle de matriz: `RoleSeeder.php:15` y `docs/gestion-usuarios-roles-servicios.md:3`.
 
+## Funcionalidades especificadas pendientes
+
+- **CU 39 — Informe PDF de documentos por categoría:** propuesta para Coordinador y Administrador, con filtros por período, estado y categoría y un resumen de cantidades y última carga. El PDF no incluye los archivos individuales. La funcionalidad aún no está implementada en dev.
+- **CU 40 — Dashboard del Directivo:** el Directivo tendrá una vista propia; los indicadores están pendientes de definición. El Administrador también está autorizado por su alcance de superadministrador. El dashboard debe respetar los permisos existentes y no concede acceso a visualizar o descargar documentación. La funcionalidad aún no está implementada en dev.
+
 ## Estados de proceso
 
 Los estados iniciales contemplan `pendiente`, `admitido`, `iniciado`, `en_proceso`, `finalizado`, `en_espera` y `rechazado`. Coordinador y Administrador pueden crear, editar, ordenar, activar y desactivar estados, siempre que no queden datos activos sin una transición válida.

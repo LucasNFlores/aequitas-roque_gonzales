@@ -1,11 +1,11 @@
 +# Aequitas — Matriz de Módulos, Funciones y Permisos por Rol V2
 
-> Transcripción local en Markdown de la pestaña **Aequitas - Matriz de Módulos, Funciones y Permisos por Rol V2** de la [matriz funcional en Google Sheets](https://docs.google.com/spreadsheets/d/13L_GwiJ1DvFIU2CaaXYfjaDDXHQEhSmcOST4z9bl1Oc/edit), complementada con la decisión local de secuencia de entrega. La hoja online no se modificó.
+> Transcripción local en Markdown de la pestaña **Aequitas - Matriz de Módulos, Funciones y Permisos por Rol V2** de la [matriz funcional en Google Sheets](https://docs.google.com/spreadsheets/d/13L_GwiJ1DvFIU2CaaXYfjaDDXHQEhSmcOST4z9bl1Oc/edit), complementada con la decisión local de secuencia de entrega. La hoja online se actualizó el 2026-10-14 para incorporar CU 39 y CU 40.
 
 - **Fuente de verdad:** Google Sheets.
 - **Pestaña:** Aequitas - Matriz de Módulos, Funciones y Permisos por Rol V2.
 - **Última copia de datos funcionales desde la hoja:** 2026-10-14.
-- **Casos de uso:** 41.
+- **Casos de uso:** 43.
 - **Roles:** Secretario, Profesional, Coordinador, Directivo y Administrador.
 - **Convención:** Sí indica autorización explícita en la matriz; No indica que el rol no está autorizado. El Administrador es superadministrador y queda autorizado en todos los casos de uso.
 
@@ -19,7 +19,7 @@
 | Gestión de Clientes | CU 2 | Modificar Cliente | Sí | No | No | No | Sí | Actualiza datos personales y de contacto del cliente |
 | Gestión de Clientes | CU 3 | Eliminar Cliente | Sí | No | No | No | Sí | Baja lógica; se verifica que no tenga procesos activos |
 | Gestión de Clientes | CU 28 | Listar y Filtrar Clientes | Sí | No | Sí | Sí | Sí | Vista con filtros por estado de admisión, búsqueda y paginación |
-| Gestión de Turnos y Agenda | CU 4 | Agendar Turno Interno | Sí | No | No | No | Sí | Cita entre cliente y profesional/coordinador; sus avisos se integran en la fase final de Notificaciones |
+| Gestión de Turnos y Agenda | CU 4 | Agendar Turno Interno | Sí | No | No | No | Sí | Cita entre cliente y profesional/coordinador; notifica a las partes |
 | Gestión de Turnos y Agenda | CU 4.1 | Agendar Turno de Seguimiento | Sí | No | No | No | Sí | Turno vinculado a legajo o caso activo |
 | Gestión de Turnos y Agenda | CU 5 | Agendar Turno Externo | Sí | No | No | No | Sí | Compromiso externo; bloquea la jornada del profesional |
 | Gestión de Turnos y Agenda | CU 6 | Modificar Turno | Sí | No | No | No | Sí | Reprogramación de fecha y hora; libera la disponibilidad anterior |
@@ -42,8 +42,8 @@
 | Gestión de Procesos / Admisión | CU 29 | Listar y Filtrar Procesos | Sí | Sí | Sí | Sí | Sí | Bandeja filtrable por estado, cliente o profesional asignado |
 | Gestión de Procesos / Admisión | CU 30 | Consultar Historial de Estados del Proceso | Sí | Sí | Sí | Sí | Sí | Auditoría de cambios, fechas, motivos y usuario interviniente |
 | Gestión de Procesos / Admisión | CU 38 | Crear Proceso Adicional | Sí | No | No | No | Sí | Permite crear un nuevo proceso para un cliente existente; no registra un cliente ni genera un turno inicial. |
-| Seguimiento y Reportes | CU 21 | Registrar Reporte | No | Sí | Sí | No | No | Reporte creado por el profesional asignado |
-| Seguimiento y Reportes | CU 22 | Editar Reporte | No | Sí | No | No | Sí | Profesional autor o Administrador. Cada cambio conserva contenido y fecha anteriores, actor y fecha-hora; guardar sin cambios no agrega versión. El historial se consulta por CU24 y su alcance. |
+| Seguimiento y Reportes | CU 21 | Registrar Reporte | No | Sí | No | No | Sí | Reporte creado por el profesional asignado |
+| Seguimiento y Reportes | CU 22 | Editar Reporte | No | Sí | No | No | Sí | Solo el autor o Administrador; conserva historial |
 | Seguimiento y Reportes | CU 23 | Eliminar Reporte | No | Sí | No | No | Sí | Baja lógica por el autor o Administrador; conserva auditoría |
 | Seguimiento y Reportes | CU 24 | Consultar Reportes de Proceso | No | Sí | Sí | Sí | Sí | El Profesional consulta sus propios reportes; los demás roles según autorización |
 | Administración y Seguridad | CU 25 | Agregar Nuevo Usuario | No | No | No | Sí | Sí | Alta de usuarios y asignación de rol |
@@ -53,9 +53,11 @@
 | Administración y Seguridad | CU 32 | Cambiar Contraseña / Perfil | Sí | Sí | Sí | Sí | Sí | Actualización de credenciales o perfil por el propio usuario |
 | Parámetros del Sistema | CU 33 | Gestionar Servicios (CRUD) | No | No | No | Sí | Sí | Alta, edición y baja lógica de servicios y costos de referencia |
 | Parámetros del Sistema | CU 34 | Asignar Especialidad/Servicio a Profesional | No | No | Sí | Sí | Sí | Vincula profesionales con los servicios que pueden atender |
-| Comunicaciones y Notificaciones | CU 35 | Consultar Registro de Notificaciones | Sí | No | Sí | Sí | Sí | Registro auditable; módulo independiente de última fase. Proveedor sujeto a revisión de costos |
+| Comunicaciones y Notificaciones | CU 35 | Consultar Registro de Notificaciones | Sí | No | Sí | Sí | Sí | Auditoría de envíos internos, Email y WhatsApp mediante Brevo |
 | Parámetros del Sistema | CU 36 | Gestionar Estados de Proceso | No | No | Sí | No | Sí | CRUD, ordenamiento, activación y desactivación segura de estados |
 | Parámetros del Sistema | CU 37 | Gestionar Categorías de Documentos | No | No | Sí | No | Sí | CRUD, activación y baja lógica de categorías o tipos documentales |
+| Gestión Documental | CU 39 | Generar Informe PDF de Documentos por Categoría | No | No | Sí | No | Sí | Resumen por categoría y período, con filtros por estado de categoría y categoría; incluye cantidades y última carga, sin adjuntar archivos individuales |
+| Gestión Directiva | CU 40 | Consultar Dashboard del Directivo | No | No | No | Sí | Sí | Dashboard propio del Directivo; métricas pendientes de definición. Administrador autorizado por su condición de superadministrador |
 
 ## Alineación con el sistema
 

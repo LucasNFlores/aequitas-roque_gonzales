@@ -88,8 +88,11 @@ El cliente se registra como dato administrativo. No inicia sesión, no tiene cre
 | CU 35 | Comunicaciones y Notificaciones | Consultar Registro de Notificaciones | Secretario, Coordinador, Directivo (se entrega en la fase final) |
 | CU 36 | Parámetros del Sistema | Gestionar Estados de Proceso | Coordinador |
 | CU 37 | Parámetros del Sistema | Gestionar Categorías de Documentos | Coordinador |
+| CU 39 | Gestión Documental | Generar Informe PDF de Documentos por Categoría | Coordinador |
+| CU 40 | Gestión Directiva | Consultar Dashboard del Directivo (métricas pendientes de definición) | Directivo |
 
 El Administrador está autorizado en todos los casos de uso, por su carácter de superadministrador.
+CU 39 y CU 40 se incorporan al alcance funcional y a la matriz; ambos están documentados en la matriz y en OpenSpec, pero su implementación sigue pendiente en dev. Las métricas de CU 40 también quedan pendientes de definición.
 
 ## 5. Reglas funcionales complementarias
 
@@ -130,6 +133,14 @@ Coordinador y Administrador pueden crear, editar, activar, desactivar, dar de ba
 - El autor puede editar o eliminar lógicamente sus reportes.
 - El Profesional consulta sus propios reportes.
 - Coordinador, Directivo y Administrador consultan los reportes autorizados del proceso.
+
+### Informe PDF de documentos por categoría (CU 39)
+
+El Coordinador y el Administrador pueden generar un resumen PDF por categoría para un período, con filtros de estado y categoría. El informe presenta cantidades y última fecha de carga; no contiene ni adjunta los archivos individuales. El Directivo no recibe acceso a documentación ni a este informe por consultar el legajo. La funcionalidad aún no está implementada en dev.
+
+### Dashboard del Directivo (CU 40)
+
+El Directivo tendrá un dashboard propio. Sus indicadores están pendientes de definición. El Administrador accede por su condición de superadministrador. El dashboard debe respetar los permisos de cada dato y no concede por sí mismo CU 12 ni CU 19. La funcionalidad aún no está implementada en dev.
 
 ### Pagos
 
