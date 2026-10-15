@@ -59,3 +59,13 @@ Secretario, Profesional, Coordinador, Directivo y Administrador MUST poder consu
 
 - **WHEN** una persona sin sesión solicita `/dashboard`
 - **THEN** el sistema la deriva al inicio de sesión y no revela indicadores ni pendientes
+
+#### Scenario: Secretario consulta altas recientes y distribución de procesos
+
+- **WHEN** Secretario consulta el dashboard
+- **THEN** la tarjeta de altas recientes cuenta clientes visibles creados desde el comienzo del día de hace 29 días hasta el momento actual, inclusive en el límite inferior
+- **AND** los clientes dados de baja lógicamente no se cuentan
+- **AND** la cola de procesos admitidos sin Profesional asignado continúa siendo la única representación del pendiente accionable de asignación
+- **AND** la distribución por estado usa barras horizontales solo cuando existen al menos dos estados activos con casos, junto con una lista accesible de valores
+- **AND** con cero o un estado activo, el dashboard presenta solo la lista o su estado vacío y no muestra un canvas de gráfico
+- **AND** roles distintos de Secretario no reciben esta métrica nueva ni el gráfico nuevo

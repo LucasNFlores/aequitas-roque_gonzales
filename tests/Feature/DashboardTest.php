@@ -47,6 +47,11 @@ class DashboardTest extends TestCase
                 $response->assertSee('Turnos próximos')
                     ->assertSee(route('turnos.agenda'), false);
             }
+
+            if ($role !== 'Secretario') {
+                $response->assertDontSee('Clientes registrados (30 días)')
+                    ->assertDontSee('data-process-state-chart');
+            }
         }
     }
 
@@ -149,6 +154,67 @@ class DashboardTest extends TestCase
 
         auth()->logout();
         $this->get(route('dashboard'))->assertRedirect(route('login'));
+    }
+
+    public function test_secretary_dashboard_counts_only_clients_registered_during_the_last_thirty_calendar_days(): void
+    {
+        $secretary = $this->userWithRole('Secretario');
+
+        Cliente::factory()->create([
+            'created_at' => now()->subDays(29)->startOfDay(),
+        ]);
+        Cliente::factory()->create([
+            'created_at' => now()->subDays(30)->subSecond(),
+        ]);
+        $deletedClient = Cliente::factory()->create([
+            'created_at' => now()->subDays(2),
+        ]);
+        $deletedClient->delete();
+
+        $this->actingAs($secretary)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('Clientes registrados (30 días)')
+            ->assertSee(route('clientes.index'), false)
+            ->assertViewHas('metrics', function (array $metrics): bool {
+                $recentClientsMetric = collect($metrics)->firstWhere('label', 'Clientes registrados (30 días)');
+
+                return $recentClientsMetric['value'] === 1;
+            });
+    }
+
+    public function test_secretary_dashboard_shows_a_process_chart_for_multiple_states_and_list_fallbacks(): void
+    {
+        $secretary = $this->userWithRole('Secretario');
+        $professional = $this->userWithRole('Profesional');
+        $coordinator = $this->userWithRole('Coordinador');
+        $this->processFor($professional, $coordinator, 'Proceso en gestión', 'en_proceso');
+
+        $singleStateResponse = $this->actingAs($secretary)->get(route('dashboard'));
+        $singleStateResponse->assertOk()
+            ->assertDontSee('data-process-state-chart')
+            ->assertSee('En Proceso');
+
+        $this->processFor($professional, $coordinator, 'Proceso admitido', 'admitido');
+        $multipleStatesResponse = $this->actingAs($secretary)->get(route('dashboard'));
+        $multipleStatesResponse->assertOk()
+            ->assertSee('data-process-state-chart', false)
+            ->assertSee('Admitido')
+            ->assertSee('En Proceso');
+
+        $this->actingAs($coordinator)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertDontSee('data-process-state-chart');
+    }
+
+    public function test_secretary_dashboard_explains_empty_process_states(): void
+    {
+        $this->actingAs($this->userWithRole('Secretario'))
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertDontSee('data-process-state-chart')
+            ->assertSee('No hay procesos activos para mostrar.');
     }
 
     private function userWithRole(string $role): User

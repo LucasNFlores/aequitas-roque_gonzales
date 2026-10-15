@@ -31,7 +31,9 @@
                 </div>
             </section>
 
-            @if (count($processStates) > 0)
+            @if ($isSecretaryDashboard)
+                <x-dashboard.process-state-chart :states="$processStates" />
+            @elseif (count($processStates) > 0)
                 <section aria-labelledby="dashboard-states-title" class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
                     <div class="flex flex-col gap-1">
                         <h2 id="dashboard-states-title" class="text-lg font-semibold text-gray-900">Procesos activos por estado</h2>

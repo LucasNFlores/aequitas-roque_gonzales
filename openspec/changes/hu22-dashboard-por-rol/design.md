@@ -24,3 +24,10 @@
 - Fuga por conteos agregados: aplicar los scopes antes de `count`, `groupBy`, `limit` y `with` y comprobar con fixtures ajenos.
 - Enlaces no autorizados: generar cada tarjeta y enlace desde capacidades verificadas; mantener middleware y policies existentes como autoridad.
 - Cambios de layout entre roles: pruebas de render por los cinco roles y recorrido real en el navegador.
+
+## Ampliación aprobada: métricas del Secretario
+
+- En el dashboard del Secretario, la tarjeta de clientes representa las altas dentro de los últimos 30 días calendario: desde `startOfDay(now()->subDays(29))` hasta el momento actual. La consulta usa `Cliente::visibleTo($user)` antes del conteo y el scope SoftDeletes excluye bajas lógicas.
+- El conteo de procesos pendientes de asignación sigue siendo la cola existente (`admitido` sin `profesional_id`); no se duplica como otra tarjeta.
+- La distribución de procesos activos del Secretario se representa con barras horizontales cuando hay al menos dos estados con casos. La lista de valores permanece visible como alternativa accesible y fallback si Chart.js no carga; con cero o un estado se omite el canvas.
+- La mejora no modifica la vista de los demás roles ni resuelve la definición aún pendiente de CU 40 para Directivo.

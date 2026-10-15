@@ -20,6 +20,7 @@ class BuildRoleDashboardData
     /**
      * @return array{
      *     roleName: string,
+     *     isSecretaryDashboard: bool,
      *     metrics: list<array{label: string, value: int, description: string, href: string}>,
      *     processStates: list<array{label: string, value: int}>,
      *     queues: list<array{title: string, description: string, count: int, items: Collection, href: string}>,
@@ -33,6 +34,7 @@ class BuildRoleDashboardData
 
         return [
             'roleName' => $user->getRoleNames()->implode(', '),
+            'isSecretaryDashboard' => $this->isSecretaryDashboard($user),
             'metrics' => $this->metrics($user, $appointments),
             'processStates' => $this->processStateCounts($user),
             'queues' => $this->queues($user),
@@ -51,7 +53,9 @@ class BuildRoleDashboardData
         }
 
         if ($user->can('listar_filtrar_clientes') || $user->can('consultar_legajos')) {
-            $metrics[] = $this->clientsMetric($user);
+            $metrics[] = $this->isSecretaryDashboard($user)
+                ? $this->recentClientsMetric($user)
+                : $this->clientsMetric($user);
         }
 
         if ($user->can('ver_agenda_profesional')) {
@@ -94,6 +98,20 @@ class BuildRoleDashboardData
             'value' => Cliente::query()->visibleTo($user)->count(),
             'description' => 'Personas visibles según el alcance de tu rol.',
             'href' => $href,
+        ];
+    }
+
+    /** @return array{label: string, value: int, description: string, href: string} */
+    private function recentClientsMetric(User $user): array
+    {
+        return [
+            'label' => 'Clientes registrados (30 días)',
+            'value' => Cliente::query()
+                ->visibleTo($user)
+                ->whereBetween('created_at', [now()->subDays(29)->startOfDay(), now()])
+                ->count(),
+            'description' => 'Altas registradas en los últimos 30 días.',
+            'href' => route('clientes.index'),
         ];
     }
 
@@ -253,6 +271,11 @@ class BuildRoleDashboardData
     private function canConsultProcesses(User $user): bool
     {
         return $user->can('listar_filtrar_procesos') || $user->can('consultar_legajos');
+    }
+
+    private function isSecretaryDashboard(User $user): bool
+    {
+        return $user->hasRole('Secretario') && ! $user->hasRole('Administrador');
     }
 
     private function visibleProcesses(User $user): Builder

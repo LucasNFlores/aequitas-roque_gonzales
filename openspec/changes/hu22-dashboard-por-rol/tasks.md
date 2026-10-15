@@ -20,3 +20,11 @@
 - [x] Recorrer dashboard real en navegador con Secretario, Profesional, Coordinador, Directivo y Administrador; verificar links, estados vacíos y denegaciones/acotamiento, y validar el reflujo móvil a 375 px.
 - [x] Limpiar los registros QA identificados y confirmar que no quede ninguno.
 - [x] Revisar `git diff --check`, diff y stage de rutas explícitas; commit Conventional Commit y merge local a `dev` cuando el árbol quede limpio.
+
+## Ampliación aprobada: indicadores y gráfico exclusivos del Secretario
+
+- [x] Reemplazar el total de clientes del Secretario por altas visibles de los últimos 30 días calendario.
+- [x] Activar Chart.js solo cuando el dashboard del Secretario muestre al menos dos estados activos con casos; conservar lista accesible y fallback.
+- [x] Cubrir límites de período, bajas lógicas, estados vacíos, colas existentes y ausencia de novedades para los otros roles.
+- [x] Validar con PHPUnit y Pint, compilar Vite y recorrer en navegador Secretario y un rol sin el gráfico; revisar reflujo responsive y limpiar datos QA.
+- [ ] Revisar diff, crear commits atómicos y fusionar en `dev` sin publicar la rama.
