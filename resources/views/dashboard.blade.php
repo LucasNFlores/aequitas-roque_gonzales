@@ -31,8 +31,13 @@
                 </div>
             </section>
 
-            @if ($isSecretaryDashboard)
-                <x-dashboard.process-state-chart :states="$processStates" />
+            @if ($isSecretaryDashboard || $isProfessionalDashboard)
+                <x-dashboard.process-state-chart
+                    :states="$processStates"
+                    :scope-description="$isProfessionalDashboard
+                        ? 'Solo procesos asignados actualmente a tu usuario; los finalizados y rechazados quedan fuera.'
+                        : 'Los estados finalizados y rechazados quedan fuera de este resumen.'"
+                />
             @elseif (count($processStates) > 0)
                 <section aria-labelledby="dashboard-states-title" class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
                     <div class="flex flex-col gap-1">

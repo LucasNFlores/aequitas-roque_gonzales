@@ -48,7 +48,10 @@ class DashboardTest extends TestCase
                     ->assertSee(route('turnos.agenda'), false);
             }
 
-            if ($role !== 'Secretario') {
+            if ($role === 'Profesional') {
+                $response->assertDontSee('data-process-state-chart')
+                    ->assertSee('No hay procesos activos para mostrar.');
+            } elseif ($role !== 'Secretario') {
                 $response->assertDontSee('Clientes registrados (30 días)')
                     ->assertDontSee('data-process-state-chart');
             }
@@ -61,7 +64,8 @@ class DashboardTest extends TestCase
         $otherProfessional = $this->userWithRole('Profesional');
         $coordinator = $this->userWithRole('Coordinador');
         $assigned = $this->processFor($professional, $coordinator, 'Caso profesional visible', 'en_proceso');
-        $other = $this->processFor($otherProfessional, $coordinator, 'Caso de otro profesional', 'en_proceso');
+        $assignedSecondState = $this->processFor($professional, $coordinator, 'Caso propio en espera', 'en_espera');
+        $other = $this->processFor($otherProfessional, $coordinator, 'Caso de otro profesional', 'admitido');
         Reporte::factory()->create([
             'proceso_id' => $assigned->id,
             'profesional_id' => $professional->id,
@@ -89,11 +93,34 @@ class DashboardTest extends TestCase
 
         $response->assertOk()
             ->assertSee('Caso profesional visible')
+            ->assertSee('Caso propio en espera')
             ->assertDontSee('Caso de otro profesional')
             ->assertSee('Clientes en mis legajos')
-            ->assertSee('Reportes recientes')
-            ->assertSee('Turnos próximos');
-        $this->assertSame([$assigned->id], Proceso::query()->visibleTo($professional)->pluck('id')->all());
+            ->assertDontSee('Reportes recientes')
+            ->assertSee('Turnos próximos')
+            ->assertSee('data-process-state-chart')
+            ->assertSee('Solo procesos asignados actualmente a tu usuario')
+            ->assertSee('En Proceso')
+            ->assertSee('En Espera')
+            ->assertDontSee('Admitido');
+        $this->assertSame(
+            [$assigned->id, $assignedSecondState->id],
+            Proceso::query()->visibleTo($professional)->orderBy('id')->pluck('id')->all(),
+        );
+    }
+
+    public function test_professional_with_one_active_state_gets_accessible_values_without_a_chart(): void
+    {
+        $professional = $this->userWithRole('Profesional');
+        $process = $this->processFor($professional, $this->userWithRole('Coordinador'), 'Único estado propio', 'iniciado');
+
+        $this->actingAs($professional)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertDontSee('data-process-state-chart')
+            ->assertSee('Iniciado')
+            ->assertSee('Único estado propio')
+            ->assertSee(route('procesos.index'), false);
     }
 
     public function test_admission_and_assignment_queues_follow_action_permissions(): void

@@ -21,6 +21,7 @@ class BuildRoleDashboardData
      * @return array{
      *     roleName: string,
      *     isSecretaryDashboard: bool,
+     *     isProfessionalDashboard: bool,
      *     metrics: list<array{label: string, value: int, description: string, href: string}>,
      *     processStates: list<array{label: string, value: int}>,
      *     queues: list<array{title: string, description: string, count: int, items: Collection, href: string}>,
@@ -35,6 +36,7 @@ class BuildRoleDashboardData
         return [
             'roleName' => $user->getRoleNames()->implode(', '),
             'isSecretaryDashboard' => $this->isSecretaryDashboard($user),
+            'isProfessionalDashboard' => $user->requiresProfessionalAssignmentScope(),
             'metrics' => $this->metrics($user, $appointments),
             'processStates' => $this->processStateCounts($user),
             'queues' => $this->queues($user),
@@ -62,7 +64,7 @@ class BuildRoleDashboardData
             $metrics[] = $this->appointmentsMetric($appointments);
         }
 
-        if ($user->can('consultar_reportes')) {
+        if ($user->can('consultar_reportes') && ! $user->requiresProfessionalAssignmentScope()) {
             $metrics[] = $this->reportsMetric($user);
         }
 

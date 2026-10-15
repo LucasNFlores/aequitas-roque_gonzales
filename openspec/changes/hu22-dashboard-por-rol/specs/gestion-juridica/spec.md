@@ -33,9 +33,10 @@ Secretario, Profesional, Coordinador, Directivo y Administrador MUST poder consu
 
 #### Scenario: Métricas adicionales según capacidad
 
-- **WHEN** un rol autorizado consulta CU 24 o CU 25–27
+- **WHEN** Coordinador, Directivo o Administrador consulta CU 24, o Directivo o Administrador consulta CU 25–27
 - **THEN** el dashboard puede contar reportes visibles de los últimos 30 días o usuarios activos respectivamente
 - **AND** cada conteo usa la consulta y permisos existentes, sin presentar contenido de reportes ni datos individuales de usuarios
+- **AND** el Profesional no recibe una tarjeta de reportes en su dashboard
 
 #### Scenario: Profesional consulta su trabajo de seguimiento
 

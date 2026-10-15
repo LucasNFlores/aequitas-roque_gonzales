@@ -20,6 +20,7 @@ class Reporte extends Model
         if ($user->requiresProfessionalAssignmentScope()) {
             return $user->can('consultar_reportes')
                 ? $query->where('profesional_id', $user->id)
+                    ->whereHas('proceso', fn (Builder $processQuery): Builder => $processQuery->where('profesional_id', $user->id))
                 : $query->whereKey(0);
         }
 
