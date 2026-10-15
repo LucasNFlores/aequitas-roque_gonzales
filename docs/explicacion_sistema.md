@@ -93,10 +93,13 @@ Entidad prevista para registrar una comunicación interna o externa, con canal, 
 
 > Detalle de matriz: `RoleSeeder.php:15` y `docs/gestion-usuarios-roles-servicios.md:3`.
 
-## Funcionalidades especificadas pendientes
+## Funcionalidad especificada pendiente
 
 - **CU 39 — Informe PDF de documentos por categoría:** propuesta para Coordinador y Administrador, con filtros por período, estado y categoría y un resumen de cantidades y última carga. El PDF no incluye los archivos individuales. La funcionalidad aún no está implementada en dev.
-- **CU 40 — Dashboard del Directivo:** el Directivo tendrá una vista propia; los indicadores están pendientes de definición. El Administrador también está autorizado por su alcance de superadministrador. El dashboard debe respetar los permisos existentes y no concede acceso a visualizar o descargar documentación. La funcionalidad aún no está implementada en dev.
+
+## Dashboard operativo (HU-22 / CU 40)
+
+La ruta común muestra procesos activos por estado y, según las capacidades del rol, clientes visibles, turnos de los próximos siete días, reportes fechados en los últimos 30 días y usuarios activos. Las colas de admisión y asignación se muestran solo a quienes pueden resolverlas; el Profesional consulta seguimiento de procesos asignados. El Directivo recibe procesos, clientes, reportes y usuarios conforme a CU 29, CU 28, CU 24 y CU 25–27, sin agenda, documentos, archivos ni pendientes jurídicos fuera de sus acciones. Administrador conserva acceso global. Esta funcionalidad corresponde al cambio HU-22.
 
 ## Estados de proceso
 

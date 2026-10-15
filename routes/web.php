@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ComprobantePagoController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\LegajoController;
 use App\Http\Controllers\ProcesoController;
@@ -23,9 +24,9 @@ Route::get('/', function () {
 // -----------------------------------------------------------------------------
 // RUTAS BÁSICAS DE AUTENTICACIÓN (Cualquiera que inicie sesión)
 // -----------------------------------------------------------------------------
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', DashboardController::class)
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     // Rutas del perfil nativas de Laravel Breeze
