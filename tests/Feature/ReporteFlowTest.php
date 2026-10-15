@@ -161,6 +161,25 @@ class ReporteFlowTest extends TestCase
             ->assertSee('Autor: '.$professional->name.' · Registrado por '.$administrator->name);
     }
 
+    public function test_professional_report_scope_excludes_reports_from_processes_reassigned_to_someone_else(): void
+    {
+        $author = $this->userWithRole('Profesional');
+        $currentProfessional = $this->userWithRole('Profesional');
+        $process = $this->processFor($author);
+        $report = Reporte::factory()->create([
+            'proceso_id' => $process->id,
+            'profesional_id' => $author->id,
+            'fecha' => now()->toDateString(),
+        ]);
+
+        $process->update(['profesional_id' => $currentProfessional->id]);
+
+        $this->assertFalse($author->can('view', $report));
+        $this->assertSame([], Reporte::query()->visibleTo($author)->pluck('id')->all());
+        $this->assertSame([], Reporte::query()->visibleTo($currentProfessional)->pluck('id')->all());
+        $this->assertSame([$report->id], Reporte::query()->visibleTo($this->userWithRole('Administrador'))->pluck('id')->all());
+    }
+
     public function test_administrator_cannot_register_a_report_without_an_assigned_professional(): void
     {
         $administrator = $this->userWithRole('Administrador');
