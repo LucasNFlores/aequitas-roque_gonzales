@@ -29,16 +29,18 @@ class AuthenticationTest extends TestCase
     {
         $this->seed(RoleSeeder::class);
 
-        $user = User::factory()->create(['email_verified_at' => now()]);
-        $user->assignRole('Profesional');
+        foreach (['Secretario', 'Profesional', 'Coordinador', 'Directivo', 'Administrador'] as $role) {
+            $user = User::factory()->create(['email_verified_at' => now()]);
+            $user->assignRole($role);
 
-        $response = $this->actingAs($user)->get('/');
+            $response = $this->actingAs($user)->get('/');
 
-        $response->assertRedirect(route('dashboard', absolute: false));
+            $response->assertRedirect(route('dashboard', absolute: false));
 
-        $this->get(route('dashboard'))
-            ->assertOk()
-            ->assertSee('Panel de Profesional');
+            $this->get(route('dashboard'))
+                ->assertOk()
+                ->assertSee("Panel de {$role}");
+        }
     }
 
     public function test_users_can_authenticate_using_the_login_screen(): void
