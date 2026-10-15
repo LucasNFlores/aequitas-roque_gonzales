@@ -3,6 +3,7 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\User;
+use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -15,6 +16,29 @@ class AuthenticationTest extends TestCase
         $response = $this->get('/login');
 
         $response->assertStatus(200);
+    }
+
+    public function test_root_redirects_guests_to_login(): void
+    {
+        $response = $this->get('/');
+
+        $response->assertRedirect(route('login', absolute: false));
+    }
+
+    public function test_root_redirects_authenticated_users_to_their_role_dashboard(): void
+    {
+        $this->seed(RoleSeeder::class);
+
+        $user = User::factory()->create(['email_verified_at' => now()]);
+        $user->assignRole('Profesional');
+
+        $response = $this->actingAs($user)->get('/');
+
+        $response->assertRedirect(route('dashboard', absolute: false));
+
+        $this->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('Panel de Profesional');
     }
 
     public function test_users_can_authenticate_using_the_login_screen(): void

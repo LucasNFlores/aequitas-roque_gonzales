@@ -15,6 +15,17 @@ El sistema MUST permitir el acceso únicamente a empleados autenticados con los 
 - **WHEN** un empleado con cualquiera de los cinco roles inicia o cierra sesión
 - **THEN** el sistema autentica la cuenta interna y permite terminar la sesión; un cliente no puede autenticarse
 
+#### Scenario: Visitante abre la raíz del portal
+
+- **WHEN** una persona no autenticada solicita `/`
+- **THEN** el sistema la redirige al inicio de sesión en `/login`
+
+#### Scenario: Empleado autenticado abre la raíz del portal
+
+- **WHEN** un empleado autenticado solicita `/`
+- **THEN** el sistema lo redirige al dashboard operativo en `/dashboard`
+- **AND** el dashboard muestra datos y destinos correspondientes a sus permisos efectivos
+
 #### Scenario: El Administrador conserva el alcance de superadministrador
 
 - **WHEN** el Administrador ejecuta cualquiera de los casos de uso de la matriz

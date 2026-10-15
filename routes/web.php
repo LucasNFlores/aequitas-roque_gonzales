@@ -12,13 +12,17 @@ use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\UserController;
 use App\Models\Proceso;
 use App\Models\Turno;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 // -----------------------------------------------------------------------------
 // RUTAS PÚBLICAS
 // -----------------------------------------------------------------------------
-Route::get('/', function () {
-    return view('welcome');
+Route::get('/', function (Request $request): RedirectResponse {
+    $destination = $request->user() === null ? 'login' : 'dashboard';
+
+    return redirect()->route($destination);
 });
 
 // -----------------------------------------------------------------------------
