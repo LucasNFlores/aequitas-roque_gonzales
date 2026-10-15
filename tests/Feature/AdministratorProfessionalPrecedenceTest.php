@@ -332,7 +332,8 @@ class AdministratorProfessionalPrecedenceTest extends TestCase
             ->where('contenido', 'Reporte creado por administrador combinado')
             ->sole();
 
-        $this->assertSame($combined->id, $createdReport->profesional_id);
+        $this->assertSame($foreignProcess->profesional_id, $createdReport->profesional_id);
+        $this->assertSame($combined->id, $createdReport->registrado_por_id);
         $this->assertSame($foreignProcess->id, $createdReport->proceso_id);
 
         $this->actingAs($combined)
