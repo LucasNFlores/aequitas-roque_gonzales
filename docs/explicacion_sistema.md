@@ -99,7 +99,7 @@ Entidad prevista para registrar una comunicación interna o externa, con canal, 
 
 ## Dashboard operativo (HU-22 / CU 40)
 
-La ruta común muestra procesos activos por estado y, según las capacidades del rol, clientes visibles, turnos de los próximos siete días, reportes fechados en los últimos 30 días y usuarios activos. Las colas de admisión y asignación se muestran solo a quienes pueden resolverlas; el Profesional consulta seguimiento de procesos asignados. El Directivo recibe procesos, clientes, reportes y usuarios conforme a CU 29, CU 28, CU 24 y CU 25–27, sin agenda, documentos, archivos ni pendientes jurídicos fuera de sus acciones. Administrador conserva acceso global. Esta funcionalidad corresponde al cambio HU-22.
+La ruta común muestra procesos activos por estado y, según las capacidades del rol, clientes visibles, turnos de los próximos siete días, reportes fechados en los últimos 30 días y usuarios activos. El dashboard del Profesional muestra su cartera asignada, la cola de seguimiento, turnos propios y clientes de sus legajos; no incluye una tarjeta de reportes. Los conteos y consultas de reportes excluyen los procesos que ya no están asignados a su autor. Las colas de admisión y asignación se muestran solo a quienes pueden resolverlas. La definición de indicadores del Directivo permanece pendiente según CU 40 y no se modifica aquí. Administrador conserva acceso global. Esta funcionalidad corresponde a HU-22 y su ajuste del panel Profesional.
 
 ## Estados de proceso
 

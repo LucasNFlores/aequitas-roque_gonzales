@@ -1,9 +1,9 @@
-@props(['states'])
+@props(['states', 'scopeDescription' => 'Los estados finalizados y rechazados quedan fuera de este resumen.'])
 
 <section aria-labelledby="dashboard-states-title" class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
     <div class="flex flex-col gap-1">
         <h2 id="dashboard-states-title" class="text-lg font-semibold text-gray-900">Procesos activos por estado</h2>
-        <p class="text-sm leading-6 text-gray-600">Los estados finalizados y rechazados quedan fuera de este resumen.</p>
+        <p class="text-sm leading-6 text-gray-600">{{ $scopeDescription }}</p>
     </div>
 
     @if (count($states) >= 2)

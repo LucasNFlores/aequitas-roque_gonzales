@@ -31,6 +31,24 @@ El sistema MUST permitir el acceso únicamente a empleados autenticados con los 
 - **WHEN** el Administrador ejecuta cualquiera de los casos de uso de la matriz
 - **THEN** el sistema lo autoriza conforme a su condición de superadministrador
 
+### Requirement: Resumir el dashboard del Profesional con su cartera actual
+
+El dashboard del Profesional MUST resumir únicamente los procesos asignados actualmente, su cola de seguimiento, sus turnos programados de los próximos siete días y los clientes visibles en sus legajos. MUST NOT mostrar una métrica de reportes. Los reportes consultables por el Profesional MUST pertenecer a procesos que sigan asignados a ese mismo Profesional. La distribución de estados MUST conservar valores accesibles y MUST mostrar el gráfico solo cuando existan al menos dos estados con casos.
+
+#### Scenario: El Profesional revisa su cartera en el dashboard
+
+- **WHEN** un Profesional consulta `/dashboard`
+- **THEN** cada conteo, lista y gráfico de procesos usa sus asignaciones actuales
+- **AND** la agenda muestra solo sus turnos programados dentro de los próximos siete días
+- **AND** el indicador de clientes usa clientes de legajos actualmente visibles
+- **AND** no se presenta «Reportes recientes»
+
+#### Scenario: El Profesional revisa estados con un gráfico accesible
+
+- **WHEN** el Profesional tiene procesos activos en dos o más estados
+- **THEN** el dashboard muestra un gráfico de barras horizontales y una lista con los mismos rótulos y cantidades
+- **AND** si hay cero o un estado, conserva la lista o el estado vacío sin crear el gráfico
+
 ### Requirement: Permitir que cada empleado actualice su propia contraseña y perfil
 
 El sistema MUST permitir que Secretario, Profesional, Coordinador, Directivo y Administrador actualicen su propia contraseña o perfil. La operación MUST aplicarse a la cuenta autenticada.
