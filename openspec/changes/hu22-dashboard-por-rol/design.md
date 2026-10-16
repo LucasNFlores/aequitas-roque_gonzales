@@ -38,3 +38,12 @@
 - Las colas accionables existentes permanecen: pendientes de admisión (`pendiente`), admitidos sin Profesional y procesos en seguimiento (`iniciado`, `en_proceso`, `en_espera`). Cada consulta aplica primero el scope visible y luego el estado; no se agregan vencimientos ni productividad.
 - La distribución reutiliza `x-dashboard.process-state-chart` y la importación diferida ya existente. El gráfico se representa horizontalmente solo con dos o más estados con casos; la lista numérica permanece siempre como alternativa accesible y fallback si Chart.js no carga.
 - Clientes y reportes recientes salen de las tarjetas principales del Coordinador. Se conservan los accesos de navegación protegidos por sus permisos actuales; no se alteran rutas ni autorizaciones.
+
+## Ampliación aprobada: panel operativo del Administrador
+
+- El total de procesos activos y su agrupación por estado se construyen desde `Proceso::visibleTo($user)` antes de contar o agrupar. Excluyen estados `finalizado` y `rechazado` y bajas lógicas. El gráfico horizontal reutiliza `x-dashboard.process-state-chart` y Chart.js diferido; la lista numérica se mantiene como alternativa accesible. Con cero estados con casos se muestra un mensaje vacío; con un estado se muestra también el gráfico.
+- El Administrador ve únicamente las colas operativas aprobadas: procesos visibles `pendiente` para admisión y `admitido` sin `profesional_id` para asignación. Cada cola mantiene su conteo total y una vista previa de hasta cinco casos. No se presenta la cola de seguimiento.
+- Los turnos próximos usan `Turno::visibleTo($user)`, estado `programado` y un rango inclusivo desde `now()` hasta `now()->addDays(7)`. Se muestra el conteo y hasta cinco turnos con enlace a la agenda.
+- Las cuentas internas vigentes se cuentan mediante `User::query()`, que excluye las bajas lógicas, y enlazan a la gestión de usuarios.
+- Las tarjetas principales son procesos activos globales, turnos próximos y cuentas vigentes; las colas presentan los conteos de admisión y asignación. No se agregan tarjetas de clientes o reportes ni se usa el gráfico por servicio reservado a la variante estratégica del Directivo.
+- El contenido se adapta a móvil y escritorio. Los estados vacíos conservan el contexto y los destinos autorizados; la gráfica incluye texto equivalente y no comunica valores solo por color.

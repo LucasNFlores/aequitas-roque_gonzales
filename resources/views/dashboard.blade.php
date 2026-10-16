@@ -4,7 +4,9 @@
             <p class="text-sm font-medium text-indigo-700">Panel de {{ $roleName ?: 'usuario interno' }}</p>
             <h1 class="text-2xl font-semibold leading-tight text-gray-900">Hola, {{ $user->name }}</h1>
             <p class="text-sm leading-6 text-gray-600">
-                {{ $isDirectivoDashboard ? 'Resumen estratégico de datos autorizados para CU 40.' : 'Indicadores y tareas disponibles según tus permisos.' }}
+                {{ $isAdministratorDashboard
+                    ? 'Panorama global y tareas operativas disponibles para la administración.'
+                    : ($isDirectivoDashboard ? 'Resumen estratégico de datos autorizados para CU 40.' : 'Indicadores y tareas disponibles según tus permisos.') }}
             </p>
         </div>
     </x-slot>
@@ -14,12 +16,14 @@
             <section aria-labelledby="dashboard-indicators-title" class="flex flex-col gap-4">
                 <div class="flex flex-col gap-1">
                     <h2 id="dashboard-indicators-title" class="text-lg font-semibold text-gray-900">
-                        {{ $isDirectivoDashboard ? 'Resumen de gestión' : ($isCoordinatorDashboard ? 'Indicadores de gestión' : 'Indicadores') }}
+                        {{ $isAdministratorDashboard
+                            ? 'Panorama operativo global'
+                            : ($isDirectivoDashboard ? 'Resumen de gestión' : ($isCoordinatorDashboard ? 'Indicadores de gestión' : 'Indicadores')) }}
                     </h2>
                     <p class="text-sm leading-6 text-gray-600">Cada cifra respeta el alcance de datos de tu rol.</p>
                 </div>
 
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 {{ $isCoordinatorDashboard ? 'xl:grid-cols-2' : 'xl:grid-cols-4' }}">
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 {{ $isAdministratorDashboard ? 'xl:grid-cols-3' : ($isCoordinatorDashboard ? 'xl:grid-cols-2' : 'xl:grid-cols-4') }}">
                     @foreach ($metrics as $metric)
                         <article class="flex min-h-40 flex-col justify-between gap-5 rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
                             <div class="flex flex-col gap-2">
@@ -42,6 +46,15 @@
                     scope-description="Distribución al corte actual; se excluyen procesos finalizados y rechazados."
                     empty-message="No hay procesos activos vigentes para mostrar por servicio."
                     values-label="Valores de procesos activos por servicio"
+                    :minimum-chart-items="1"
+                />
+            @elseif ($isAdministratorDashboard)
+                <x-dashboard.process-state-chart
+                    title="Procesos activos globales por estado"
+                    :states="$processStates"
+                    scope-description="Al corte actual en todo el sistema; se excluyen procesos finalizados y rechazados."
+                    empty-message="No hay procesos activos globales para mostrar."
+                    values-label="Valores globales de procesos activos por estado"
                     :minimum-chart-items="1"
                 />
             @elseif ($isSecretaryDashboard || $isProfessionalDashboard || $isCoordinatorDashboard)
@@ -71,8 +84,12 @@
             @if (! $isDirectivoDashboard)
                 <section aria-labelledby="dashboard-work-title" class="flex flex-col gap-4">
                 <div class="flex flex-col gap-1">
-                    <h2 id="dashboard-work-title" class="text-lg font-semibold text-gray-900">Pendientes y seguimiento</h2>
-                    <p class="text-sm leading-6 text-gray-600">Las tareas se muestran solo cuando puedes actuar sobre ellas.</p>
+                    <h2 id="dashboard-work-title" class="text-lg font-semibold text-gray-900">{{ $isAdministratorDashboard ? 'Gestión operativa' : 'Pendientes y seguimiento' }}</h2>
+                    <p class="text-sm leading-6 text-gray-600">
+                        {{ $isAdministratorDashboard
+                            ? 'Colas de admisión y asignación, junto con los turnos próximos.'
+                            : 'Las tareas se muestran solo cuando puedes actuar sobre ellas.' }}
+                    </p>
                 </div>
 
                 <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">

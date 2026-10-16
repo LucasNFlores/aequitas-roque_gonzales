@@ -92,7 +92,7 @@ El cliente se registra como dato administrativo. No inicia sesión, no tiene cre
 | CU 40 | Gestión Directiva | Consultar Dashboard del Directivo (métricas pendientes de definición) | Directivo |
 
 El Administrador está autorizado en todos los casos de uso, por su carácter de superadministrador.
-CU 39 y CU 40 están incorporados al alcance funcional y a la matriz. CU 39 sigue pendiente de implementación. El dashboard operativo HU-22 ya está implementado; para CU 40, el usuario aprobó el 2026-10-15 cuatro métricas estratégicas y un gráfico por servicio, documentados en OpenSpec y en la explicación del sistema. La matriz online conserva su nota de métricas pendientes y no se modifica en esta tarea.
+CU 39 sigue pendiente de implementación. El dashboard operativo HU-22 ya está implementado. El 2026-10-15 se aprobaron las métricas estratégicas de Directivo para CU 40 y, por separado, el panel operativo de Administrador descrito en OpenSpec. La matriz online conserva su nota de métricas pendientes y no se modifica en esta tarea.
 
 ## 5. Reglas funcionales complementarias
 
@@ -141,6 +141,10 @@ El Coordinador y el Administrador pueden generar un resumen PDF por categoría p
 ### Dashboard del Directivo (CU 40)
 
 La variante estratégica CU 40 muestra procesos activos vigentes, clientes vigentes, reportes fechados en los últimos 30 días visibles para el Directivo y cuentas vigentes sin baja lógica. Incluye una distribución horizontal de procesos activos por servicio, agregada después de aplicar `Proceso::visibleTo($user)`. Conserva el acceso de Administrador por superadministrador y no concede CU 8, CU 12 ni CU 19, ni presenta colas operativas. La ruta `/dashboard` y sus paneles por rol corresponden a HU-22.
+
+### Panel operativo del Administrador
+
+El Administrador conserva el acceso global de superusuario. Su panel muestra procesos activos globales por estado en un gráfico horizontal con una lista equivalente; excluye procesos finalizados, rechazados y dados de baja. Incluye las colas de admisión (`pendiente`) y asignación (`admitido` sin profesional), los turnos programados de los próximos siete días inclusive y las cuentas internas vigentes (sin baja lógica). Los procesos y turnos aplican sus scopes antes de agregar; la lista de cada cola muestra una vista previa de hasta cinco casos. No presenta la cola de seguimiento ni el gráfico por servicio de Directivo.
 
 ### Pagos
 

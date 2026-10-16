@@ -25,6 +25,7 @@ class BuildRoleDashboardData
      *     isProfessionalDashboard: bool,
      *     isCoordinatorDashboard: bool,
      *     isDirectivoDashboard: bool,
+     *     isAdministratorDashboard: bool,
      *     metrics: list<array{label: string, value: int, description: string, href: string}>,
      *     processStates: list<array{label: string, value: int}>,
      *     activeProcessesByService: list<array{label: string, value: int}>,
@@ -37,6 +38,7 @@ class BuildRoleDashboardData
     {
         $appointments = $this->appointments($user);
         $isDirectivoDashboard = $this->isDirectivoDashboard($user);
+        $isAdministratorDashboard = $this->isAdministratorDashboard($user);
 
         return [
             'roleName' => $user->getRoleNames()->implode(', '),
@@ -44,6 +46,7 @@ class BuildRoleDashboardData
             'isProfessionalDashboard' => $user->requiresProfessionalAssignmentScope(),
             'isCoordinatorDashboard' => $this->isCoordinatorDashboard($user),
             'isDirectivoDashboard' => $isDirectivoDashboard,
+            'isAdministratorDashboard' => $isAdministratorDashboard,
             'metrics' => $this->metrics($user, $appointments),
             'processStates' => $isDirectivoDashboard ? [] : $this->processStateCounts($user),
             'activeProcessesByService' => $isDirectivoDashboard ? $this->activeProcessesByService($user) : [],
@@ -62,7 +65,7 @@ class BuildRoleDashboardData
             $metrics[] = $this->activeProcessesMetric($user);
         }
 
-        if (! $this->isCoordinatorDashboard($user) && ($user->can('listar_filtrar_clientes') || $user->can('consultar_legajos'))) {
+        if (! $this->isAdministratorDashboard($user) && ! $this->isCoordinatorDashboard($user) && ($user->can('listar_filtrar_clientes') || $user->can('consultar_legajos'))) {
             $metrics[] = $this->isSecretaryDashboard($user)
                 ? $this->recentClientsMetric($user)
                 : $this->clientsMetric($user);
@@ -72,7 +75,7 @@ class BuildRoleDashboardData
             $metrics[] = $this->appointmentsMetric($appointments);
         }
 
-        if ($user->can('consultar_reportes') && ! $user->requiresProfessionalAssignmentScope() && ! $this->isCoordinatorDashboard($user)) {
+        if (! $this->isAdministratorDashboard($user) && $user->can('consultar_reportes') && ! $user->requiresProfessionalAssignmentScope() && ! $this->isCoordinatorDashboard($user)) {
             $metrics[] = $this->reportsMetric($user);
         }
 
@@ -91,11 +94,17 @@ class BuildRoleDashboardData
             ->count();
 
         return [
-            'label' => $this->isDirectivoDashboard($user) ? 'Procesos activos vigentes' : 'Procesos activos',
+            'label' => match (true) {
+                $this->isDirectivoDashboard($user) => 'Procesos activos vigentes',
+                $this->isAdministratorDashboard($user) => 'Procesos activos globales',
+                default => 'Procesos activos',
+            },
             'value' => $activeCount,
-            'description' => $this->isDirectivoDashboard($user)
-                ? 'Casos que todavía están en gestión, al corte actual.'
-                : 'Casos que todavía están en gestión.',
+            'description' => match (true) {
+                $this->isDirectivoDashboard($user) => 'Casos que todavía están en gestión, al corte actual.',
+                $this->isAdministratorDashboard($user) => 'Procesos en gestión en todo el sistema, al corte actual.',
+                default => 'Casos que todavía están en gestión.',
+            },
             'href' => route('procesos.index'),
         ];
     }
@@ -161,10 +170,14 @@ class BuildRoleDashboardData
     private function usersMetric(User $user): array
     {
         return [
-            'label' => $this->isDirectivoDashboard($user) ? 'Cuentas vigentes' : 'Usuarios activos',
+            'label' => match (true) {
+                $this->isDirectivoDashboard($user) => 'Cuentas vigentes',
+                $this->isAdministratorDashboard($user) => 'Cuentas internas vigentes',
+                default => 'Usuarios activos',
+            },
             'value' => User::query()->count(),
-            'description' => $this->isDirectivoDashboard($user)
-                ? 'Cuentas internas no dadas de baja lógica, al corte actual.'
+            'description' => ($this->isDirectivoDashboard($user) || $this->isAdministratorDashboard($user))
+                ? 'Cuentas internas sin baja lógica, al corte actual.'
                 : 'Cuentas internas sin baja lógica.',
             'href' => route('users.index'),
         ];
@@ -229,7 +242,7 @@ class BuildRoleDashboardData
             $queues[] = $this->assignmentQueue($user);
         }
 
-        if ($user->can('actualizar_estados_proceso')) {
+        if ($user->can('actualizar_estados_proceso') && ! $this->isAdministratorDashboard($user)) {
             $queues[] = $this->processQueue($user, 'En seguimiento', 'Casos operativos que pueden requerir una actualización.', self::FOLLOW_UP_PROCESS_STATES);
         }
 
@@ -330,6 +343,11 @@ class BuildRoleDashboardData
     private function isDirectivoDashboard(User $user): bool
     {
         return $user->hasRole('Directivo') && ! $user->hasRole('Administrador');
+    }
+
+    private function isAdministratorDashboard(User $user): bool
+    {
+        return $user->hasRole('Administrador');
     }
 
     private function visibleProcesses(User $user): Builder

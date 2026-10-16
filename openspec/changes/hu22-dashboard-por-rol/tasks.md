@@ -38,3 +38,12 @@
 - [x] Actualizar OpenSpec y la explicación funcional del dashboard.
 - [x] Recorrer la UI real en IAB con Coordinador, rol comparativo y viewport móvil de 375 px; limpiar datos QA.
 - [x] Revisar el diff, validar, crear commits atómicos y fusionar la rama local en `dev` sin publicar.
+
+## Ampliación aprobada: panel operativo del Administrador
+
+- [x] Acordar procesos activos globales por estado, colas de admisión/asignación, turnos próximos de siete días y cuentas internas vigentes; mantener separado el gráfico por servicio del Directivo.
+- [x] Implementar el panel Admin manteniendo los scopes y las vistas de los otros cuatro roles.
+- [x] Añadir PHPUnit para cifras globales, estados terminales, bajas lógicas, colas, límites de agenda, cuentas vigentes y estados vacíos.
+- [x] Ejecutar PHPUnit focalizado, Pint, build de Vite y validación OpenSpec de HU-22.
+- [x] Verificar Admin y rol comparativo en IAB, incluida vista a 375 px, enlaces, gráfico y estados vacíos; eliminar y comprobar solo los datos QA propios.
+- [x] Revisar diff y árbol limpio, crear commits atómicos y fusionar la rama local terminada en `dev` sin publicar.
