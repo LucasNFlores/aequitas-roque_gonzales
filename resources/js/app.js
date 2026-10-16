@@ -6,7 +6,7 @@ window.Alpine = Alpine;
 
 Livewire.start();
 
-const processStateCanvas = document.querySelector('[data-process-state-chart]');
+const processStateCanvas = document.querySelector('[data-horizontal-bar-chart]');
 
 if (processStateCanvas instanceof HTMLCanvasElement) {
     import('./process-state-chart').then(({ renderProcessStateChart }) => {

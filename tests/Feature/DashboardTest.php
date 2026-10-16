@@ -33,19 +33,22 @@ class DashboardTest extends TestCase
             $response = $this->actingAs($user)->get(route('dashboard'));
 
             $response->assertOk()
-                ->assertSee('Indicadores')
+                ->assertSee($role === 'Directivo' ? 'Resumen de gestión' : 'Indicadores')
                 ->assertSee('Procesos activos')
                 ->assertSee(route('procesos.index'), false);
 
             if ($role === 'Directivo') {
-                $response->assertSee('Usuarios activos')
+                $response->assertSee('Cuentas vigentes')
                     ->assertSee(route('users.index'), false)
                     ->assertDontSee('Turnos próximos')
                     ->assertDontSee(route('turnos.agenda'), false)
-                    ->assertSee('No hay pendientes operativos para este rol');
+                    ->assertSee('Procesos activos por servicio')
+                    ->assertDontSee('Pendientes y seguimiento')
+                    ->assertDontSee('No hay pendientes operativos para este rol');
             } else {
                 $response->assertSee('Turnos próximos')
-                    ->assertSee(route('turnos.agenda'), false);
+                    ->assertSee(route('turnos.agenda'), false)
+                    ->assertDontSee('Procesos activos por servicio');
             }
 
             if ($role === 'Profesional') {
@@ -56,6 +59,76 @@ class DashboardTest extends TestCase
                     ->assertDontSee('data-process-state-chart');
             }
         }
+    }
+
+    public function test_directivo_metrics_and_service_chart_use_approved_visible_data_and_exact_periods(): void
+    {
+        $directivo = $this->userWithRole('Directivo');
+        $professional = $this->userWithRole('Profesional');
+        $coordinator = $this->userWithRole('Coordinador');
+        $consultoria = Servicio::factory()->create(['nombre' => 'Consultoría']);
+        $familia = Servicio::factory()->create(['nombre' => 'Familia']);
+
+        $activeConsultoria = $this->processFor($professional, $coordinator, 'Caso activo uno', 'en_proceso');
+        $activeConsultoria->update(['servicio_id' => $consultoria->id]);
+        $activeConsultoriaTwo = $this->processFor($professional, $coordinator, 'Caso activo dos', 'en_espera');
+        $activeConsultoriaTwo->update(['servicio_id' => $consultoria->id]);
+        $activeFamilia = $this->processFor($professional, $coordinator, 'Caso activo tres', 'pendiente');
+        $activeFamilia->update(['servicio_id' => $familia->id]);
+
+        $finalizedProcess = $this->processFor($professional, $coordinator, 'Caso finalizado', 'finalizado');
+        $finalizedProcess->update(['servicio_id' => $familia->id]);
+        $rejectedProcess = $this->processFor($professional, $coordinator, 'Caso rechazado', 'rechazado');
+        $rejectedProcess->update(['servicio_id' => $familia->id]);
+        $deletedProcess = $this->processFor($professional, $coordinator, 'Caso eliminado', 'en_proceso');
+        $deletedProcess->update(['servicio_id' => $familia->id]);
+        $deletedProcess->delete();
+
+        Reporte::factory()->create(['proceso_id' => $activeConsultoria->id, 'profesional_id' => $professional->id, 'fecha' => '2026-09-16']);
+        Reporte::factory()->create(['proceso_id' => $activeConsultoria->id, 'profesional_id' => $professional->id, 'fecha' => '2026-10-15']);
+        Reporte::factory()->create(['proceso_id' => $activeConsultoria->id, 'profesional_id' => $professional->id, 'fecha' => '2026-09-15']);
+        Reporte::factory()->create(['proceso_id' => $activeConsultoria->id, 'profesional_id' => $professional->id, 'fecha' => '2026-10-16']);
+        Reporte::factory()->create(['proceso_id' => $activeConsultoria->id, 'profesional_id' => $professional->id, 'fecha' => '2026-10-10'])->delete();
+
+        $deletedClient = Cliente::factory()->create();
+        $deletedClient->delete();
+        $deletedUser = User::factory()->create();
+        $deletedUser->delete();
+
+        $response = $this->actingAs($directivo)->get(route('dashboard'));
+
+        $response->assertOk()
+            ->assertSee('Resumen estratégico de datos autorizados para CU 40.')
+            ->assertSee('Procesos activos por servicio')
+            ->assertSee('Consultoría')
+            ->assertSee('Familia')
+            ->assertSee('data-horizontal-bar-chart', false)
+            ->assertSee('data-values="[2,1]"', false)
+            ->assertDontSee('Procesos activos por estado')
+            ->assertDontSee('Pendientes y seguimiento');
+
+        $metrics = collect($response->viewData('metrics'))->keyBy('label');
+        $recentReportDates = Reporte::query()
+            ->visibleTo($directivo)
+            ->whereDate('fecha', '>=', '2026-09-16')
+            ->whereDate('fecha', '<=', '2026-10-15')
+            ->orderBy('fecha')
+            ->get()
+            ->map(fn (Reporte $report): string => $report->fecha->toDateString())
+            ->all();
+
+        $this->assertSame(3, $metrics->get('Procesos activos vigentes')['value']);
+        $this->assertSame(Cliente::query()->visibleTo($directivo)->count(), $metrics->get('Clientes vigentes')['value']);
+        $this->assertSame(['2026-09-16', '2026-10-15'], $recentReportDates);
+        $this->assertSame(2, $metrics->get('Reportes (últimos 30 días)')['value']);
+        $this->assertSame(User::query()->count(), $metrics->get('Cuentas vigentes')['value']);
+        $this->assertSame([
+            ['label' => 'Consultoría', 'value' => 2],
+            ['label' => 'Familia', 'value' => 1],
+        ], $response->viewData('activeProcessesByService'));
+        $this->assertSame([], $response->viewData('processStates'));
+        $this->assertSame([], $response->viewData('queues'));
+        $this->assertNull($response->viewData('appointments'));
     }
 
     public function test_professional_metrics_and_follow_up_list_exclude_unassigned_process_data(): void
@@ -162,11 +235,12 @@ class DashboardTest extends TestCase
         $response->assertOk()
             ->assertSee('Procesos activos')
             ->assertDontSee('Caso directivo visible')
-            ->assertSee('Reportes recientes')
+            ->assertSee('Reportes (últimos 30 días)')
             ->assertDontSee('Próximos turnos')
             ->assertDontSee(route('turnos.agenda'), false)
             ->assertDontSee(route('procesos.documentos.index', ['proceso' => $process]), false);
         $this->get(route('turnos.agenda'))->assertForbidden();
+        $this->get(route('procesos.documentos.index', ['proceso' => $process]))->assertForbidden();
     }
 
     public function test_dashboard_shows_empty_states_and_guest_cannot_read_metrics(): void

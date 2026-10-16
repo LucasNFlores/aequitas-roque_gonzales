@@ -8,6 +8,7 @@ use App\Models\Reporte;
 use App\Models\Turno;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
@@ -23,8 +24,10 @@ class BuildRoleDashboardData
      *     isSecretaryDashboard: bool,
      *     isProfessionalDashboard: bool,
      *     isCoordinatorDashboard: bool,
+     *     isDirectivoDashboard: bool,
      *     metrics: list<array{label: string, value: int, description: string, href: string}>,
      *     processStates: list<array{label: string, value: int}>,
+     *     activeProcessesByService: list<array{label: string, value: int}>,
      *     queues: list<array{title: string, description: string, count: int, items: Collection, href: string}>,
      *     appointments: array{count: int, items: Collection, href: string}|null,
      *     managementLinks: list<array{label: string, href: string}>
@@ -33,14 +36,17 @@ class BuildRoleDashboardData
     public function __invoke(User $user): array
     {
         $appointments = $this->appointments($user);
+        $isDirectivoDashboard = $this->isDirectivoDashboard($user);
 
         return [
             'roleName' => $user->getRoleNames()->implode(', '),
             'isSecretaryDashboard' => $this->isSecretaryDashboard($user),
             'isProfessionalDashboard' => $user->requiresProfessionalAssignmentScope(),
             'isCoordinatorDashboard' => $this->isCoordinatorDashboard($user),
+            'isDirectivoDashboard' => $isDirectivoDashboard,
             'metrics' => $this->metrics($user, $appointments),
-            'processStates' => $this->processStateCounts($user),
+            'processStates' => $isDirectivoDashboard ? [] : $this->processStateCounts($user),
+            'activeProcessesByService' => $isDirectivoDashboard ? $this->activeProcessesByService($user) : [],
             'queues' => $this->queues($user),
             'appointments' => $appointments,
             'managementLinks' => $this->managementLinks($user),
@@ -71,7 +77,7 @@ class BuildRoleDashboardData
         }
 
         if ($user->can('listar_usuarios')) {
-            $metrics[] = $this->usersMetric();
+            $metrics[] = $this->usersMetric($user);
         }
 
         return $metrics;
@@ -85,9 +91,11 @@ class BuildRoleDashboardData
             ->count();
 
         return [
-            'label' => 'Procesos activos',
+            'label' => $this->isDirectivoDashboard($user) ? 'Procesos activos vigentes' : 'Procesos activos',
             'value' => $activeCount,
-            'description' => 'Casos que todavía están en gestión.',
+            'description' => $this->isDirectivoDashboard($user)
+                ? 'Casos que todavía están en gestión, al corte actual.'
+                : 'Casos que todavía están en gestión.',
             'href' => route('procesos.index'),
         ];
     }
@@ -98,9 +106,13 @@ class BuildRoleDashboardData
         $href = $user->can('listar_filtrar_clientes') ? route('clientes.index') : route('legajos.index');
 
         return [
-            'label' => $user->can('listar_filtrar_clientes') ? 'Clientes' : 'Clientes en mis legajos',
+            'label' => $this->isDirectivoDashboard($user)
+                ? 'Clientes vigentes'
+                : ($user->can('listar_filtrar_clientes') ? 'Clientes' : 'Clientes en mis legajos'),
             'value' => Cliente::query()->visibleTo($user)->count(),
-            'description' => 'Personas visibles según el alcance de tu rol.',
+            'description' => $this->isDirectivoDashboard($user)
+                ? 'Clientes no dados de baja lógica, al corte actual.'
+                : 'Personas visibles según el alcance de tu rol.',
             'href' => $href,
         ];
     }
@@ -134,10 +146,11 @@ class BuildRoleDashboardData
     private function reportsMetric(User $user): array
     {
         return [
-            'label' => 'Reportes recientes',
+            'label' => $this->isDirectivoDashboard($user) ? 'Reportes (últimos 30 días)' : 'Reportes recientes',
             'value' => Reporte::query()
                 ->visibleTo($user)
-                ->whereBetween('fecha', [now()->subDays(29)->toDateString(), now()->toDateString()])
+                ->whereDate('fecha', '>=', now()->subDays(29)->toDateString())
+                ->whereDate('fecha', '<=', now()->toDateString())
                 ->count(),
             'description' => 'Reportes fechados en los últimos 30 días.',
             'href' => route('procesos.index'),
@@ -145,12 +158,14 @@ class BuildRoleDashboardData
     }
 
     /** @return array{label: string, value: int, description: string, href: string} */
-    private function usersMetric(): array
+    private function usersMetric(User $user): array
     {
         return [
-            'label' => 'Usuarios activos',
+            'label' => $this->isDirectivoDashboard($user) ? 'Cuentas vigentes' : 'Usuarios activos',
             'value' => User::query()->count(),
-            'description' => 'Cuentas internas sin baja lógica.',
+            'description' => $this->isDirectivoDashboard($user)
+                ? 'Cuentas internas no dadas de baja lógica, al corte actual.'
+                : 'Cuentas internas sin baja lógica.',
             'href' => route('users.index'),
         ];
     }
@@ -171,6 +186,31 @@ class BuildRoleDashboardData
             ->get()
             ->map(fn (Proceso $process): array => [
                 'label' => Str::headline($process->estado),
+                'value' => (int) $process->total,
+            ])
+            ->all();
+    }
+
+    /** @return list<array{label: string, value: int}> */
+    private function activeProcessesByService(User $user): array
+    {
+        if (! $this->canConsultProcesses($user)) {
+            return [];
+        }
+
+        return $this->visibleProcesses($user)
+            ->whereNotIn('estado', self::TERMINAL_PROCESS_STATES)
+            ->select('servicio_id')
+            ->selectRaw('COUNT(*) as total')
+            ->groupBy('servicio_id')
+            ->orderByDesc('total')
+            ->orderBy('servicio_id')
+            ->with(['servicio' => fn (BelongsTo $serviceRelation): BelongsTo => $serviceRelation->withTrashed()])
+            ->get()
+            ->map(fn (Proceso $process): array => [
+                'label' => $process->servicio?->trashed()
+                    ? $process->servicio->nombre.' (dado de baja)'
+                    : ($process->servicio?->nombre ?? 'Servicio no disponible'),
                 'value' => (int) $process->total,
             ])
             ->all();
@@ -285,6 +325,11 @@ class BuildRoleDashboardData
     private function isCoordinatorDashboard(User $user): bool
     {
         return $user->hasRole('Coordinador') && ! $user->hasRole('Administrador');
+    }
+
+    private function isDirectivoDashboard(User $user): bool
+    {
+        return $user->hasRole('Directivo') && ! $user->hasRole('Administrador');
     }
 
     private function visibleProcesses(User $user): Builder

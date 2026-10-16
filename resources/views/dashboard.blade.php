@@ -3,7 +3,9 @@
         <div class="flex flex-col gap-1">
             <p class="text-sm font-medium text-indigo-700">Panel de {{ $roleName ?: 'usuario interno' }}</p>
             <h1 class="text-2xl font-semibold leading-tight text-gray-900">Hola, {{ $user->name }}</h1>
-            <p class="text-sm leading-6 text-gray-600">Indicadores y tareas disponibles según tus permisos.</p>
+            <p class="text-sm leading-6 text-gray-600">
+                {{ $isDirectivoDashboard ? 'Resumen estratégico de datos autorizados para CU 40.' : 'Indicadores y tareas disponibles según tus permisos.' }}
+            </p>
         </div>
     </x-slot>
 
@@ -11,7 +13,9 @@
         <div class="mx-auto flex max-w-7xl flex-col gap-8 px-4 sm:px-6 lg:px-8">
             <section aria-labelledby="dashboard-indicators-title" class="flex flex-col gap-4">
                 <div class="flex flex-col gap-1">
-                    <h2 id="dashboard-indicators-title" class="text-lg font-semibold text-gray-900">{{ $isCoordinatorDashboard ? 'Indicadores de gestión' : 'Indicadores' }}</h2>
+                    <h2 id="dashboard-indicators-title" class="text-lg font-semibold text-gray-900">
+                        {{ $isDirectivoDashboard ? 'Resumen de gestión' : ($isCoordinatorDashboard ? 'Indicadores de gestión' : 'Indicadores') }}
+                    </h2>
                     <p class="text-sm leading-6 text-gray-600">Cada cifra respeta el alcance de datos de tu rol.</p>
                 </div>
 
@@ -31,7 +35,16 @@
                 </div>
             </section>
 
-            @if ($isSecretaryDashboard || $isProfessionalDashboard || $isCoordinatorDashboard)
+            @if ($isDirectivoDashboard)
+                <x-dashboard.process-state-chart
+                    title="Procesos activos por servicio"
+                    :states="$activeProcessesByService"
+                    scope-description="Distribución al corte actual; se excluyen procesos finalizados y rechazados."
+                    empty-message="No hay procesos activos vigentes para mostrar por servicio."
+                    values-label="Valores de procesos activos por servicio"
+                    :minimum-chart-items="1"
+                />
+            @elseif ($isSecretaryDashboard || $isProfessionalDashboard || $isCoordinatorDashboard)
                 <x-dashboard.process-state-chart
                     :states="$processStates"
                     :scope-description="$isProfessionalDashboard
@@ -55,7 +68,8 @@
                 </section>
             @endif
 
-            <section aria-labelledby="dashboard-work-title" class="flex flex-col gap-4">
+            @if (! $isDirectivoDashboard)
+                <section aria-labelledby="dashboard-work-title" class="flex flex-col gap-4">
                 <div class="flex flex-col gap-1">
                     <h2 id="dashboard-work-title" class="text-lg font-semibold text-gray-900">Pendientes y seguimiento</h2>
                     <p class="text-sm leading-6 text-gray-600">Las tareas se muestran solo cuando puedes actuar sobre ellas.</p>
@@ -134,7 +148,8 @@
                         </article>
                     @endif
                 </div>
-            </section>
+                </section>
+            @endif
         </div>
     </main>
 </x-app-layout>
