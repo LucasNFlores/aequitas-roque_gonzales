@@ -29,11 +29,16 @@ class DashboardTest extends TestCase
     {
         foreach (['Secretario', 'Profesional', 'Coordinador', 'Directivo', 'Administrador'] as $role) {
             $user = $this->userWithRole($role);
+            $expectedHeading = match ($role) {
+                'Directivo' => 'Resumen de gestión',
+                'Administrador' => 'Panorama operativo global',
+                default => 'Indicadores',
+            };
 
             $response = $this->actingAs($user)->get(route('dashboard'));
 
             $response->assertOk()
-                ->assertSee($role === 'Directivo' ? 'Resumen de gestión' : 'Indicadores')
+                ->assertSee($expectedHeading)
                 ->assertSee('Procesos activos')
                 ->assertSee(route('procesos.index'), false);
 
@@ -54,11 +59,116 @@ class DashboardTest extends TestCase
             if ($role === 'Profesional') {
                 $response->assertDontSee('data-process-state-chart')
                     ->assertSee('No hay procesos activos para mostrar.');
-            } elseif (! in_array($role, ['Secretario', 'Coordinador'], true)) {
+            } elseif ($role === 'Directivo') {
                 $response->assertDontSee('Clientes registrados (30 días)')
                     ->assertDontSee('data-process-state-chart');
+            } elseif ($role === 'Administrador') {
+                $response->assertSee('Cuentas internas vigentes')
+                    ->assertSee('Gestión operativa')
+                    ->assertDontSee('Procesos activos por servicio')
+                    ->assertDontSee('Clientes vigentes')
+                    ->assertDontSee('Reportes (últimos 30 días)');
             }
         }
+    }
+
+    public function test_administrator_dashboard_uses_global_process_state_counts_approved_queues_and_exact_periods(): void
+    {
+        $administrator = $this->userWithRole('Administrador');
+        $professional = $this->userWithRole('Profesional');
+        $otherProfessional = $this->userWithRole('Profesional');
+        $coordinator = $this->userWithRole('Coordinador');
+
+        $pendingProcess = $this->processFor($professional, $coordinator, 'Caso global pendiente', 'pendiente');
+        $awaitingAssignment = $this->processFor($otherProfessional, $coordinator, 'Caso global para asignar', 'admitido');
+        $awaitingAssignment->forceFill(['profesional_id' => null])->save();
+        $activeProcess = $this->processFor($otherProfessional, $coordinator, 'Caso global en proceso', 'en_proceso');
+        $this->processFor($professional, $coordinator, 'Caso global finalizado', 'finalizado');
+        $this->processFor($professional, $coordinator, 'Caso global rechazado', 'rechazado');
+        $deletedProcess = $this->processFor($professional, $coordinator, 'Caso global dado de baja', 'pendiente');
+        $deletedProcess->delete();
+
+        Turno::factory()->create([
+            'cliente_id' => $activeProcess->cliente_id,
+            'proceso_id' => $activeProcess->id,
+            'profesional_id' => $otherProfessional->id,
+            'fecha_hora' => now(),
+        ]);
+        Turno::factory()->create([
+            'cliente_id' => $pendingProcess->cliente_id,
+            'proceso_id' => $pendingProcess->id,
+            'profesional_id' => $professional->id,
+            'fecha_hora' => now()->addDays(7),
+        ]);
+        Turno::factory()->create([
+            'cliente_id' => $activeProcess->cliente_id,
+            'proceso_id' => $activeProcess->id,
+            'profesional_id' => $otherProfessional->id,
+            'fecha_hora' => now()->addDays(7)->addSecond(),
+        ]);
+        Turno::factory()->create([
+            'cliente_id' => $activeProcess->cliente_id,
+            'proceso_id' => $activeProcess->id,
+            'profesional_id' => $otherProfessional->id,
+            'fecha_hora' => now()->addDay(),
+            'estado' => 'cancelado',
+        ]);
+
+        $deletedUser = User::factory()->create();
+        $deletedUser->delete();
+
+        $response = $this->actingAs($administrator)->get(route('dashboard'));
+
+        $response->assertOk()
+            ->assertSee('Panorama operativo global')
+            ->assertSee('Procesos activos globales por estado')
+            ->assertSee('data-process-state-chart', false)
+            ->assertSee('data-values="[1,1,1]"', false)
+            ->assertSee('Valores globales de procesos activos por estado')
+            ->assertSee('Para admitir')
+            ->assertSee('Caso global pendiente')
+            ->assertSee('Para asignar profesional')
+            ->assertSee('Caso global para asignar')
+            ->assertSee('Turnos próximos')
+            ->assertSee('Cuentas internas vigentes')
+            ->assertDontSee('Procesos activos por servicio')
+            ->assertDontSee('En seguimiento')
+            ->assertDontSee('Clientes vigentes')
+            ->assertDontSee('Reportes (últimos 30 días)')
+            ->assertViewHas('metrics', function (array $metrics): bool {
+                $metricsByLabel = collect($metrics)->keyBy('label');
+
+                return $metricsByLabel->get('Procesos activos globales')['value'] === 3
+                    && $metricsByLabel->get('Turnos próximos')['value'] === 2
+                    && $metricsByLabel->get('Cuentas internas vigentes')['value'] === User::query()->count();
+            })
+            ->assertViewHas('processStates', [
+                ['label' => 'Admitido', 'value' => 1],
+                ['label' => 'En Proceso', 'value' => 1],
+                ['label' => 'Pendiente', 'value' => 1],
+            ])
+            ->assertViewHas('queues', function (array $queues): bool {
+                $queuesByTitle = collect($queues)->keyBy('title');
+
+                return $queuesByTitle->keys()->all() === ['Para admitir', 'Para asignar profesional']
+                    && $queuesByTitle->get('Para admitir')['count'] === 1
+                    && $queuesByTitle->get('Para asignar profesional')['count'] === 1;
+            })
+            ->assertViewHas('activeProcessesByService', []);
+    }
+
+    public function test_administrator_dashboard_explains_empty_global_process_and_appointment_states(): void
+    {
+        $administrator = $this->userWithRole('Administrador');
+
+        $this->actingAs($administrator)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertDontSee('data-process-state-chart')
+            ->assertSee('No hay procesos activos globales para mostrar.')
+            ->assertSee('No hay casos en esta lista.')
+            ->assertSee('No tienes turnos programados en los próximos siete días.')
+            ->assertSee('Cuentas internas vigentes');
     }
 
     public function test_directivo_metrics_and_service_chart_use_approved_visible_data_and_exact_periods(): void
