@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Actions\Dashboard\BuildHistoryStateOptions;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -21,7 +22,7 @@ class DashboardHistoryRequest extends FormRequest
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
-    public function rules(): array
+    public function rules(BuildHistoryStateOptions $buildHistoryStateOptions): array
     {
         if (! $this->user()->hasAnyRole(['Directivo', 'Administrador'])) {
             return [];
@@ -44,8 +45,9 @@ class DashboardHistoryRequest extends FormRequest
                 'before_or_equal:today',
                 'after_or_equal:from',
             ],
-            'include_finalizado' => ['sometimes', 'boolean'],
-            'include_rechazado' => ['sometimes', 'boolean'],
+            'states_filter_present' => ['sometimes', Rule::in(['1'])],
+            'states' => ['required_if:states_filter_present,1', 'array', 'min:1'],
+            'states.*' => ['required', 'string', 'distinct', Rule::in(array_column($buildHistoryStateOptions(), 'slug'))],
         ];
     }
 
@@ -61,8 +63,12 @@ class DashboardHistoryRequest extends FormRequest
             'to.date_format' => 'La fecha Hasta no es válida.',
             'to.before_or_equal' => 'La fecha Hasta no puede ser futura.',
             'to.after_or_equal' => 'La fecha Hasta debe ser igual o posterior a Desde.',
-            'include_finalizado.boolean' => 'El filtro para incluir finalizados no es válido.',
-            'include_rechazado.boolean' => 'El filtro para incluir rechazados no es válido.',
+            'states.required_if' => 'Selecciona al menos un estado.',
+            'states.array' => 'La selección de estados no es válida.',
+            'states.min' => 'Selecciona al menos un estado.',
+            'states.*.in' => 'Uno de los estados seleccionados no es válido.',
+            'states.*.distinct' => 'No repitas estados en la selección.',
+            'states_filter_present.in' => 'El filtro de estados no es válido.',
         ];
     }
 }

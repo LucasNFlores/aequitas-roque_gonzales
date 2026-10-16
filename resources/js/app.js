@@ -45,6 +45,25 @@ if (historyForm instanceof HTMLFormElement) {
     const fromInput = historyForm.querySelector('[data-history-from]');
     const toInput = historyForm.querySelector('[data-history-to]');
     const clientError = historyForm.querySelector('[data-history-client-error]');
+    const stateCheckboxes = Array.from(historyForm.querySelectorAll('[data-history-state]'));
+    const selectAllStatesButton = historyForm.querySelector('[data-select-all-history-states]');
+    const clearStatesButton = historyForm.querySelector('[data-clear-history-states]');
+
+    selectAllStatesButton?.addEventListener('click', () => {
+        stateCheckboxes.forEach((checkbox) => {
+            if (checkbox instanceof HTMLInputElement) {
+                checkbox.checked = true;
+            }
+        });
+    });
+
+    clearStatesButton?.addEventListener('click', () => {
+        stateCheckboxes.forEach((checkbox) => {
+            if (checkbox instanceof HTMLInputElement) {
+                checkbox.checked = false;
+            }
+        });
+    });
 
     const updateHistoryRange = () => {
         const isCustom = periodInput instanceof HTMLSelectElement && periodInput.value === 'custom';

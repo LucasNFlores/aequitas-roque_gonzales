@@ -20,6 +20,8 @@ class BuildRoleDashboardData
 
     private const FOLLOW_UP_PROCESS_STATES = ['iniciado', 'en_proceso', 'en_espera'];
 
+    public function __construct(private BuildHistoryStateOptions $buildHistoryStateOptions) {}
+
     /**
      * @return array{
      *     roleName: string,
@@ -36,8 +38,8 @@ class BuildRoleDashboardData
      *     historyPeriodLabel: string,
      *     historyFrom: string,
      *     historyTo: string,
-     *     historyIncludesFinalized: bool,
-     *     historyIncludesRejected: bool,
+     *     historyStateOptions: list<array{slug: string, label: string}>,
+     *     historySelectedStates: list<string>,
      *     queues: list<array{title: string, description: string, count: int, items: Collection, href: string}>,
      *     appointments: array{count: int, items: Collection, href: string}|null,
      *     managementLinks: list<array{label: string, href: string}>
@@ -75,8 +77,8 @@ class BuildRoleDashboardData
      *     historyPeriodLabel: string,
      *     historyFrom: string,
      *     historyTo: string,
-     *     historyIncludesFinalized: bool,
-     *     historyIncludesRejected: bool
+     *     historyStateOptions: list<array{slug: string, label: string}>,
+     *     historySelectedStates: list<string>
      * }
      */
     private function historicalProcessStates(User $user, array $filters): array
@@ -88,14 +90,17 @@ class BuildRoleDashboardData
                 'historyPeriodLabel' => '',
                 'historyFrom' => '',
                 'historyTo' => '',
-                'historyIncludesFinalized' => false,
-                'historyIncludesRejected' => false,
+                'historyStateOptions' => [],
+                'historySelectedStates' => [],
             ];
         }
 
         $period = $filters['period'] ?? '3_months';
-        $includesFinalized = filter_var($filters['include_finalizado'] ?? false, FILTER_VALIDATE_BOOLEAN);
-        $includesRejected = filter_var($filters['include_rechazado'] ?? false, FILTER_VALIDATE_BOOLEAN);
+        $stateOptions = ($this->buildHistoryStateOptions)();
+        $availableStates = array_column($stateOptions, 'slug');
+        $selectedStates = array_key_exists('states', $filters)
+            ? array_values(array_intersect($availableStates, $filters['states']))
+            : $availableStates;
         $today = now()->startOfDay();
 
         if ($period === 'custom') {
@@ -107,28 +112,23 @@ class BuildRoleDashboardData
             $to = $today->copy()->endOfDay();
         }
 
-        $query = HistorialEstadoProceso::query()
+        $groupedStates = HistorialEstadoProceso::query()
             ->whereBetween('fecha_cambio', [$from, $to])
+            ->whereIn('estado_nuevo', $selectedStates)
             ->whereHas('proceso', fn (Builder $processQuery): Builder => $processQuery->visibleTo($user));
-
-        if (! $includesFinalized) {
-            $query->where('estado_nuevo', '!=', 'finalizado');
-        }
-
-        if (! $includesRejected) {
-            $query->where('estado_nuevo', '!=', Proceso::ESTADO_RECHAZADO);
-        }
-
-        $states = $query
+        $groupedStates = $groupedStates
             ->select('estado_nuevo')
             ->selectRaw('COUNT(DISTINCT proceso_id) as total')
             ->groupBy('estado_nuevo')
-            ->orderBy('estado_nuevo')
             ->get()
-            ->map(fn (HistorialEstadoProceso $history): array => [
-                'label' => Str::headline($history->estado_nuevo),
-                'value' => (int) $history->total,
+            ->keyBy('estado_nuevo');
+        $states = collect($stateOptions)
+            ->filter(fn (array $state): bool => in_array($state['slug'], $selectedStates, true) && $groupedStates->has($state['slug']))
+            ->map(fn (array $state): array => [
+                'label' => $state['label'],
+                'value' => (int) $groupedStates->get($state['slug'])->total,
             ])
+            ->values()
             ->all();
 
         $periodLabel = match ($period) {
@@ -143,8 +143,8 @@ class BuildRoleDashboardData
             'historyPeriodLabel' => $periodLabel,
             'historyFrom' => $from->toDateString(),
             'historyTo' => $to->toDateString(),
-            'historyIncludesFinalized' => $includesFinalized,
-            'historyIncludesRejected' => $includesRejected,
+            'historyStateOptions' => $stateOptions,
+            'historySelectedStates' => $selectedStates,
         ];
     }
 

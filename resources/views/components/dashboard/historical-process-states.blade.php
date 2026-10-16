@@ -3,6 +3,8 @@
     $selectedPeriod = old('period', $historyPeriod);
     $selectedFrom = old('from', $historyFrom);
     $selectedTo = old('to', $historyTo);
+    $selectedStateSlugs = old('states', old('states_filter_present') === '1' ? [] : $historySelectedStates);
+    $selectedStateSlugs = is_array($selectedStateSlugs) ? $selectedStateSlugs : [];
 @endphp
 
 <section aria-labelledby="dashboard-history-title" class="flex flex-col gap-5 rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
@@ -12,6 +14,7 @@
     </div>
 
     <form method="GET" action="{{ route('dashboard') }}" class="flex flex-col gap-4" data-history-filter-form>
+        <input type="hidden" name="states_filter_present" value="1">
         <div class="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2">
             <div class="flex min-w-0 flex-col gap-1.5">
                 <label for="history-period" class="text-sm font-medium text-gray-800">Período</label>
@@ -22,19 +25,22 @@
                 </select>
             </div>
 
-            <fieldset class="flex min-w-0 flex-col gap-2">
-                <legend class="text-sm font-medium text-gray-800">Estados terminales</legend>
-                <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-x-5">
-                    <label class="inline-flex min-h-11 items-center gap-2 text-sm text-gray-800">
-                        <input type="checkbox" name="include_finalizado" value="1" @checked(old('include_finalizado', $historyIncludesFinalized)) class="h-5 w-5 rounded border-gray-300 text-indigo-700 focus:ring-indigo-600">
-                        <span>Incluir finalizados</span>
-                    </label>
-                    <label class="inline-flex min-h-11 items-center gap-2 text-sm text-gray-800">
-                        <input type="checkbox" name="include_rechazado" value="1" @checked(old('include_rechazado', $historyIncludesRejected)) class="h-5 w-5 rounded border-gray-300 text-indigo-700 focus:ring-indigo-600">
-                        <span>Incluir rechazados</span>
-                    </label>
+            <fieldset class="flex min-w-0 flex-col gap-2 md:col-span-2" aria-describedby="history-states-help history-states-error">
+                <legend class="text-sm font-medium text-gray-800">Estados incluidos</legend>
+                <p id="history-states-help" class="text-sm leading-5 text-gray-600">Por defecto se incluyen todos los estados, también finalizados y rechazados.</p>
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" data-select-all-history-states class="inline-flex min-h-10 items-center rounded-md border border-gray-300 px-3 text-sm font-medium text-gray-700 hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-700">Seleccionar todos</button>
+                    <button type="button" data-clear-history-states class="inline-flex min-h-10 items-center rounded-md border border-gray-300 px-3 text-sm font-medium text-gray-700 hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-700">Quitar todos</button>
                 </div>
-                <p class="text-sm leading-5 text-gray-600">Por defecto se incluyen los demás estados.</p>
+                <div class="grid min-w-0 grid-cols-2 gap-x-2 gap-y-1 sm:grid-cols-3">
+                    @foreach ($historyStateOptions as $state)
+                        <label class="inline-flex min-h-11 min-w-0 items-center gap-2 rounded-md px-2 text-sm text-gray-800 hover:bg-gray-50">
+                            <input type="checkbox" name="states[]" value="{{ $state['slug'] }}" data-history-state @checked(in_array($state['slug'], $selectedStateSlugs, true)) class="h-5 w-5 shrink-0 rounded border-gray-300 text-indigo-700 focus:ring-indigo-600">
+                            <span class="break-words">{{ $state['label'] }}</span>
+                        </label>
+                    @endforeach
+                </div>
+                <p id="history-states-error" class="text-sm text-red-700" @if (! $errors->has('states') && ! $errors->has('states.*')) hidden @endif>{{ $errors->first('states') ?: $errors->first('states.*') }}</p>
             </fieldset>
         </div>
 
@@ -59,8 +65,8 @@
         </div>
     </form>
 
-    @if ($errors->hasAny(['period', 'from', 'to']))
-        <p class="text-sm leading-6 text-amber-800" role="status">Los cambios no se aplicaron. Los resultados mostrados conservan el último rango válido: {{ $historyPeriodLabel }}, {{ \Illuminate\Support\Carbon::parse($historyFrom)->format('d/m/Y') }} al {{ \Illuminate\Support\Carbon::parse($historyTo)->format('d/m/Y') }}. La fecha usada es la fecha de cambio de estado.</p>
+    @if ($errors->hasAny(['period', 'from', 'to', 'states', 'states.*', 'states_filter_present']))
+        <p class="text-sm leading-6 text-amber-800" role="status">Los cambios no se aplicaron. Los resultados mostrados conservan los filtros válidos anteriores: {{ $historyPeriodLabel }}, {{ \Illuminate\Support\Carbon::parse($historyFrom)->format('d/m/Y') }} al {{ \Illuminate\Support\Carbon::parse($historyTo)->format('d/m/Y') }}. La fecha usada es la fecha de cambio de estado.</p>
     @else
         <p class="text-sm leading-6 text-gray-600">
             {{ $historyPeriodLabel }}: {{ \Illuminate\Support\Carbon::parse($historyFrom)->format('d/m/Y') }} al {{ \Illuminate\Support\Carbon::parse($historyTo)->format('d/m/Y') }}.

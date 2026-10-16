@@ -2,7 +2,7 @@
 
 ### Requirement: Agregar cambios históricos por estado en CU 40
 
-El dashboard CU 40 MUST mostrar conteos históricos de procesos por estado, derivados de `HistorialEstadoProceso.fecha_cambio` en los últimos 3 o 6 meses o en un rango personalizado. MUST aplicar `Proceso::visibleTo($user)` antes de agregar y excluir procesos dados de baja. MUST contar procesos distintos por estado e incluir finalizados y rechazados solo cuando se seleccionen.
+El dashboard CU 40 MUST mostrar conteos históricos de procesos por estado, derivados de `HistorialEstadoProceso.fecha_cambio` en los últimos 3 o 6 meses o en un rango personalizado. MUST aplicar `Proceso::visibleTo($user)` antes de agregar y excluir procesos dados de baja. MUST contar procesos distintos por estado e incluir por defecto todos los estados del catálogo o presentes en el historial, también finalizados y rechazados; MUST permitir seleccionar uno o varios estados.
 
 #### Scenario: Un proceso reingresa al mismo estado
 
@@ -10,11 +10,12 @@ El dashboard CU 40 MUST mostrar conteos históricos de procesos por estado, deri
 - **THEN** cuenta una vez en ese estado
 - **AND** puede contar en otro estado al que también ingresó durante el período
 
-#### Scenario: El Directivo incluye estados terminales
+#### Scenario: El Directivo filtra estados individuales o múltiples
 
-- **WHEN** Directivo marca incluir finalizados o rechazados
+- **WHEN** Directivo selecciona uno o varios estados del catálogo o que aparecen en el historial
 - **THEN** los casos visibles que entraron en cada estado seleccionado aparecen en la distribución
 - **AND** las barras se describen como conteos por estado que no se suman como total único
+- **AND** todos los estados están seleccionados inicialmente, incluidos finalizados y rechazados
 
 ### Requirement: Filtrar cambios históricos por período en CU 40
 

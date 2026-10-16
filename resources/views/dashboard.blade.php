@@ -88,8 +88,8 @@
                     :history-period-label="$historyPeriodLabel"
                     :history-from="$historyFrom"
                     :history-to="$historyTo"
-                    :history-includes-finalized="$historyIncludesFinalized"
-                    :history-includes-rejected="$historyIncludesRejected"
+                    :history-state-options="$historyStateOptions"
+                    :history-selected-states="$historySelectedStates"
                 />
             @endif
 

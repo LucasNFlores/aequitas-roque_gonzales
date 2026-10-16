@@ -20,4 +20,4 @@ La consulta histórica se construye para Directivo y Administrador, que ya tiene
 
 ## Verificación
 
-PHPUnit verifica límites inclusivos y exclusiones, cambio de estado distinto a fecha de inicio, deduplicación dentro del mismo estado, conteo en varios estados, aislamiento por `visibleTo`, omisión para otros roles, inclusión/exclusión de terminales, validación y vacío. La revisión UI cubre escritorio y 375 px, controles nativos, errores, presets, filtros, lista/gráfico y accesos prohibidos.
+PHPUnit verifica límites inclusivos y exclusiones, cambio de estado distinto a fecha de inicio, deduplicación dentro del mismo estado, conteo en varios estados, aislamiento por `visibleTo`, omisión para otros roles, selección de estados, validación y vacío. La revisión UI cubre escritorio y 375 px, controles nativos, errores, presets, filtros, lista/gráfico y accesos prohibidos.

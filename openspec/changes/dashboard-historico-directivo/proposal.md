@@ -7,7 +7,7 @@ CU40 presenta las métricas vigentes y los procesos activos actuales por servici
 ## Alcance
 
 - Añadir al dashboard de Directivo una distribución histórica de procesos que entraron en cada estado durante los últimos 3 meses, los últimos 6 meses o un rango personalizado.
-- Permitir incluir finalizados y rechazados; la vista predeterminada muestra los estados no terminales.
+- Incluir todos los estados disponibles por defecto y permitir filtrar cualquier estado del catálogo o del historial, de forma individual o múltiple.
 - Contar procesos distintos por estado, respetar `Proceso::visibleTo($user)` y explicar el período, la fecha usada y la falta de aditividad entre estados.
 - Conservar sin cambios las cuatro métricas actuales y el gráfico de procesos activos por servicio.
 - Mantener el acceso de CU40 para Directivo y Administrador por superadministrador, conforme a la autorización existente; no crear permisos ni ampliar scopes.
@@ -22,7 +22,7 @@ CU40 presenta las métricas vigentes y los procesos activos actuales por servici
 
 ## Criterios de salida
 
-- PHPUnit cubre agregación, scope/permisos, períodos, estados terminales, entradas inválidas y resultados vacíos.
+- PHPUnit cubre agregación, scope/permisos, períodos, selección de estados, entradas inválidas y resultados vacíos.
 - Pint y build Vite pasan; OpenSpec valida.
 - La interfaz se revisa en IAB a escritorio y 375 px, incluidos presets, fechas inválidas, filtros, gráfico, vacío y rutas prohibidas.
 - Cambios integrados localmente en `dev`; sin push.

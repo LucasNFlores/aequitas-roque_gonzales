@@ -1,0 +1,9 @@
+- [x] Exponer opciones de estado del catálogo e historial y validarlas en servidor.
+- [x] Aplicar selección única/múltiple al agregado histórico, con todos los estados por defecto.
+- [x] Añadir casillas accesibles, seleccionar todos, quitar todos y restauración de selección.
+- [x] Cubrir filtros válidos, selección vacía, slug inválido, permisos y scope en PHPUnit.
+- [x] Actualizar OpenSpec y documentación CU 40 que describen solo estados terminales.
+- [x] Ejecutar pruebas afectadas, Pint, build Vite y validación OpenSpec estricta.
+- [x] Verificar interacción en IAB, errores, gráfico/lista y layout de 375 px.
+- [x] Revisar el diff y confirmar en la rama dedicada.
+- [x] Integrar localmente en `dev` y conservar la rama de trabajo.

@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Cliente;
+use App\Models\EstadoProceso;
 use App\Models\HistorialEstadoProceso;
 use App\Models\Proceso;
 use App\Models\Reporte;
@@ -270,31 +271,38 @@ class DashboardTest extends TestCase
             ->assertSee('Un proceso puede aparecer en varios estados')
             ->assertSee('Últimos 3 meses')
             ->assertSee('data-historical-state-chart', false)
-            ->assertSee('data-values="[1]"', false);
-        $this->assertSame([['label' => 'En Proceso', 'value' => 1]], $defaultResponse->viewData('historicalProcessStates'));
-
-        $threeMonthsWithTerminalStates = $this->get(route('dashboard', [
-            'period' => '3_months',
-            'include_finalizado' => '1',
-            'include_rechazado' => '1',
-        ]));
+            ->assertSee('data-values="[1,1,1]"', false)
+            ->assertSee('name="states[]"', false)
+            ->assertSee('Seleccionar todos')
+            ->assertSee('Quitar todos');
         $this->assertSame([
-            ['label' => 'En Proceso', 'value' => 1],
+            ['label' => 'En proceso', 'value' => 1],
             ['label' => 'Finalizado', 'value' => 1],
             ['label' => 'Rechazado', 'value' => 1],
-        ], $threeMonthsWithTerminalStates->viewData('historicalProcessStates'));
+        ], $defaultResponse->viewData('historicalProcessStates'));
+        $this->assertCount(7, $defaultResponse->viewData('historySelectedStates'));
 
-        $sixMonths = $this->get(route('dashboard', ['period' => '6_months']));
-        $this->assertSame([['label' => 'En Proceso', 'value' => 2]], $sixMonths->viewData('historicalProcessStates'));
+        $singleState = $this->get(route('dashboard', [
+            'period' => '3_months',
+            'states_filter_present' => '1',
+            'states' => ['finalizado'],
+        ]));
+        $this->assertSame([['label' => 'Finalizado', 'value' => 1]], $singleState->viewData('historicalProcessStates'));
+
+        $sixMonths = $this->get(route('dashboard', [
+            'period' => '6_months',
+            'states_filter_present' => '1',
+            'states' => ['en_proceso'],
+        ]));
+        $this->assertSame([['label' => 'En proceso', 'value' => 2]], $sixMonths->viewData('historicalProcessStates'));
 
         $customRange = $this->get(route('dashboard', [
             'period' => 'custom',
             'from' => '2026-04-15',
             'to' => '2026-07-15',
-            'include_finalizado' => '1',
         ]));
         $this->assertSame([
-            ['label' => 'En Proceso', 'value' => 2],
+            ['label' => 'En proceso', 'value' => 2],
             ['label' => 'Finalizado', 'value' => 1],
         ], $customRange->viewData('historicalProcessStates'));
         $customRange->assertSee('Rango personalizado: 15/04/2026 al 15/07/2026.');
@@ -302,6 +310,56 @@ class DashboardTest extends TestCase
         $metrics = collect($defaultResponse->viewData('metrics'))->keyBy('label');
         $this->assertCount(4, $metrics);
         $this->assertSame(3, $metrics->get('Procesos activos vigentes')['value']);
+    }
+
+    public function test_directivo_history_requires_a_nonempty_valid_state_selection_and_preserves_input(): void
+    {
+        $directivo = $this->userWithRole('Directivo');
+
+        $this->actingAs($directivo)
+            ->get(route('dashboard', ['states_filter_present' => '1']))
+            ->assertRedirect()
+            ->assertSessionHasErrors('states')
+            ->assertSessionHas('_old_input.states_filter_present', '1');
+
+        $this->get(route('dashboard', [
+            'states_filter_present' => '1',
+            'states' => ['en_proceso', 'estado_inventado'],
+        ]))
+            ->assertRedirect()
+            ->assertSessionHasErrors('states.1')
+            ->assertSessionHas('_old_input.states', ['en_proceso', 'estado_inventado']);
+    }
+
+    public function test_history_filter_includes_catalogue_and_history_only_states_and_allows_multiple_selection(): void
+    {
+        $directivo = $this->userWithRole('Directivo');
+        $process = $this->processFor($this->userWithRole('Profesional'), $this->userWithRole('Coordinador'), 'Proceso legado', 'en_proceso');
+        $this->moveInitialHistoryOutsidePeriods([$process]);
+        EstadoProceso::factory()->create([
+            'nombre' => 'Estado archivado',
+            'slug' => 'estado_archivado',
+            'activo' => false,
+        ]);
+        $this->addStateChange($process, 'estado_archivado', '2026-10-01 10:00:00');
+        $this->addStateChange($process, 'estado_legacy', '2026-10-02 10:00:00');
+
+        $response = $this->actingAs($directivo)->get(route('dashboard'));
+
+        $response->assertOk()
+            ->assertSee('Estado archivado')
+            ->assertSee('Estado Legacy');
+        $this->assertContains('estado_archivado', $response->viewData('historySelectedStates'));
+        $this->assertContains('estado_legacy', $response->viewData('historySelectedStates'));
+
+        $filtered = $this->get(route('dashboard', [
+            'states_filter_present' => '1',
+            'states' => ['estado_archivado', 'estado_legacy'],
+        ]));
+        $this->assertSame([
+            ['label' => 'Estado archivado', 'value' => 1],
+            ['label' => 'Estado Legacy', 'value' => 1],
+        ], $filtered->viewData('historicalProcessStates'));
     }
 
     public function test_administrator_can_consult_history_but_other_roles_cannot(): void
