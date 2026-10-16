@@ -31,3 +31,10 @@
 - El conteo de procesos pendientes de asignación sigue siendo la cola existente (`admitido` sin `profesional_id`); no se duplica como otra tarjeta.
 - La distribución de procesos activos del Secretario se representa con barras horizontales cuando hay al menos dos estados con casos. La lista de valores permanece visible como alternativa accesible y fallback si Chart.js no carga; con cero o un estado se omite el canvas.
 - La mejora no modifica la vista de los demás roles ni resuelve la definición aún pendiente de CU 40 para Directivo.
+
+## Ampliación aprobada: dashboard del Coordinador
+
+- El bloque principal del Coordinador contiene el conteo de procesos activos y los turnos programados de los próximos siete días. El total de procesos y su distribución parten de `Proceso::visibleTo($user)`; la agenda parte de `Turno::visibleTo($user)`.
+- Las colas accionables existentes permanecen: pendientes de admisión (`pendiente`), admitidos sin Profesional y procesos en seguimiento (`iniciado`, `en_proceso`, `en_espera`). Cada consulta aplica primero el scope visible y luego el estado; no se agregan vencimientos ni productividad.
+- La distribución reutiliza `x-dashboard.process-state-chart` y la importación diferida ya existente. El gráfico se representa horizontalmente solo con dos o más estados con casos; la lista numérica permanece siempre como alternativa accesible y fallback si Chart.js no carga.
+- Clientes y reportes recientes salen de las tarjetas principales del Coordinador. Se conservan los accesos de navegación protegidos por sus permisos actuales; no se alteran rutas ni autorizaciones.

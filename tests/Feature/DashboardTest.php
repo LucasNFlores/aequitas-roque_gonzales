@@ -51,7 +51,7 @@ class DashboardTest extends TestCase
             if ($role === 'Profesional') {
                 $response->assertDontSee('data-process-state-chart')
                     ->assertSee('No hay procesos activos para mostrar.');
-            } elseif ($role !== 'Secretario') {
+            } elseif (! in_array($role, ['Secretario', 'Coordinador'], true)) {
                 $response->assertDontSee('Clientes registrados (30 días)')
                     ->assertDontSee('data-process-state-chart');
             }
@@ -177,7 +177,9 @@ class DashboardTest extends TestCase
             ->get(route('dashboard'))
             ->assertOk()
             ->assertSee('No hay casos en esta lista.')
-            ->assertSee('No tienes turnos programados en los próximos siete días.');
+            ->assertSee('No tienes turnos programados en los próximos siete días.')
+            ->assertSee('No hay procesos activos para mostrar.')
+            ->assertDontSee('data-process-state-chart');
 
         auth()->logout();
         $this->get(route('dashboard'))->assertRedirect(route('login'));
@@ -232,7 +234,110 @@ class DashboardTest extends TestCase
         $this->actingAs($coordinator)
             ->get(route('dashboard'))
             ->assertOk()
-            ->assertDontSee('data-process-state-chart');
+            ->assertSee('data-process-state-chart', false);
+    }
+
+    public function test_coordinator_dashboard_prioritizes_operational_metrics_and_preserves_authorized_navigation(): void
+    {
+        $coordinator = $this->userWithRole('Coordinador');
+        $professional = $this->userWithRole('Profesional');
+
+        $this->processFor($professional, $coordinator, 'Caso para admitir', 'pendiente');
+        $awaitingAssignment = $this->processFor($professional, $coordinator, 'Caso para asignar', 'admitido');
+        $awaitingAssignment->forceFill(['profesional_id' => null])->save();
+        $followUpProcess = $this->processFor($professional, $coordinator, 'Caso en seguimiento', 'en_proceso');
+        $this->processFor($professional, $coordinator, 'Caso finalizado', 'finalizado');
+        $deletedProcess = $this->processFor($professional, $coordinator, 'Caso dado de baja', 'pendiente');
+        $deletedProcess->delete();
+
+        Reporte::factory()->create([
+            'proceso_id' => $followUpProcess->id,
+            'profesional_id' => $professional->id,
+            'fecha' => now()->toDateString(),
+        ]);
+
+        Turno::factory()->create([
+            'cliente_id' => $followUpProcess->cliente_id,
+            'proceso_id' => $followUpProcess->id,
+            'profesional_id' => $professional->id,
+            'coordinador_id' => $coordinator->id,
+            'fecha_hora' => now()->addDay(),
+        ]);
+        Turno::factory()->create([
+            'cliente_id' => $followUpProcess->cliente_id,
+            'proceso_id' => $followUpProcess->id,
+            'profesional_id' => $professional->id,
+            'coordinador_id' => $coordinator->id,
+            'fecha_hora' => now()->addDays(7),
+        ]);
+        Turno::factory()->create([
+            'cliente_id' => $followUpProcess->cliente_id,
+            'proceso_id' => $followUpProcess->id,
+            'profesional_id' => $professional->id,
+            'coordinador_id' => $coordinator->id,
+            'fecha_hora' => now()->addDays(8),
+        ]);
+        Turno::factory()->create([
+            'cliente_id' => $followUpProcess->cliente_id,
+            'proceso_id' => $followUpProcess->id,
+            'profesional_id' => $professional->id,
+            'coordinador_id' => $coordinator->id,
+            'fecha_hora' => now()->addDay(),
+            'estado' => 'cancelado',
+        ]);
+
+        $this->actingAs($coordinator)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('Indicadores de gestión')
+            ->assertSee('Procesos activos por estado')
+            ->assertSee('data-process-state-chart', false)
+            ->assertSee('Para admitir')
+            ->assertSee('Caso para admitir')
+            ->assertSee('Para asignar profesional')
+            ->assertSee('Caso para asignar')
+            ->assertSee('En seguimiento')
+            ->assertSee('Caso en seguimiento')
+            ->assertDontSee('Caso finalizado')
+            ->assertDontSee('Caso dado de baja')
+            ->assertDontSee('Reportes recientes')
+            ->assertDontSee('Clientes registrados')
+            ->assertDontSee('Clientes en mis legajos')
+            ->assertSee(route('clientes.index'), false)
+            ->assertSee(route('legajos.index'), false)
+            ->assertViewHas('metrics', function (array $metrics): bool {
+                $labels = collect($metrics)->pluck('label')->all();
+                $activeProcesses = collect($metrics)->firstWhere('label', 'Procesos activos');
+
+                return $labels === ['Procesos activos', 'Turnos próximos']
+                    && $activeProcesses['value'] === 3;
+            })
+            ->assertViewHas('appointments', function (array $appointments): bool {
+                return $appointments['count'] === 2;
+            });
+    }
+
+    public function test_coordinator_chart_requires_two_active_states_and_keeps_accessible_values(): void
+    {
+        $coordinator = $this->userWithRole('Coordinador');
+        $professional = $this->userWithRole('Profesional');
+        $this->processFor($professional, $coordinator, 'Primer proceso activo', 'iniciado');
+
+        $this->actingAs($coordinator)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertDontSee('data-process-state-chart')
+            ->assertSee('Iniciado')
+            ->assertSee('Primer proceso activo');
+
+        $this->processFor($professional, $coordinator, 'Segundo proceso activo', 'en_espera');
+
+        $this->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('data-process-state-chart', false)
+            ->assertSee('Iniciado')
+            ->assertSee('En Espera')
+            ->assertSee('Valores de procesos activos por estado');
     }
 
     public function test_secretary_dashboard_explains_empty_process_states(): void

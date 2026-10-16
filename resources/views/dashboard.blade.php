@@ -11,11 +11,11 @@
         <div class="mx-auto flex max-w-7xl flex-col gap-8 px-4 sm:px-6 lg:px-8">
             <section aria-labelledby="dashboard-indicators-title" class="flex flex-col gap-4">
                 <div class="flex flex-col gap-1">
-                    <h2 id="dashboard-indicators-title" class="text-lg font-semibold text-gray-900">Indicadores</h2>
+                    <h2 id="dashboard-indicators-title" class="text-lg font-semibold text-gray-900">{{ $isCoordinatorDashboard ? 'Indicadores de gestión' : 'Indicadores' }}</h2>
                     <p class="text-sm leading-6 text-gray-600">Cada cifra respeta el alcance de datos de tu rol.</p>
                 </div>
 
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 {{ $isCoordinatorDashboard ? 'xl:grid-cols-2' : 'xl:grid-cols-4' }}">
                     @foreach ($metrics as $metric)
                         <article class="flex min-h-40 flex-col justify-between gap-5 rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
                             <div class="flex flex-col gap-2">
@@ -31,12 +31,12 @@
                 </div>
             </section>
 
-            @if ($isSecretaryDashboard || $isProfessionalDashboard)
+            @if ($isSecretaryDashboard || $isProfessionalDashboard || $isCoordinatorDashboard)
                 <x-dashboard.process-state-chart
                     :states="$processStates"
                     :scope-description="$isProfessionalDashboard
                         ? 'Solo procesos asignados actualmente a tu usuario; los finalizados y rechazados quedan fuera.'
-                        : 'Los estados finalizados y rechazados quedan fuera de este resumen.'"
+                        : 'Todos los procesos visibles para tu rol, excepto los finalizados y rechazados.'"
                 />
             @elseif (count($processStates) > 0)
                 <section aria-labelledby="dashboard-states-title" class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">

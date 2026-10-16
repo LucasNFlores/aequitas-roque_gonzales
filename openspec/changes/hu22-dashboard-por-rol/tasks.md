@@ -28,3 +28,13 @@
 - [x] Cubrir límites de período, bajas lógicas, estados vacíos, colas existentes y ausencia de novedades para los otros roles.
 - [x] Validar con PHPUnit y Pint, compilar Vite y recorrer en navegador Secretario y un rol sin el gráfico; revisar reflujo responsive y limpiar datos QA.
 - [x] Revisar diff, crear commits atómicos y fusionar en `dev` sin publicar la rama.
+
+## Ampliación aprobada: dashboard del Coordinador
+
+- [x] Priorizar el total de procesos activos, las colas autorizadas de admisión, asignación y seguimiento, y turnos de los próximos siete días.
+- [x] Excluir clientes totales y reportes recientes de sus tarjetas principales sin cambiar navegación ni permisos.
+- [x] Reutilizar el gráfico horizontal diferido con dos o más estados y mantener la lista accesible/fallback.
+- [x] Cubrir alcance, colas, tarjetas, gráfico, estados vacíos y comparación con otros roles mediante pruebas PHPUnit.
+- [x] Actualizar OpenSpec y la explicación funcional del dashboard.
+- [x] Recorrer la UI real en IAB con Coordinador, rol comparativo y viewport móvil de 375 px; limpiar datos QA.
+- [x] Revisar el diff, validar, crear commits atómicos y fusionar la rama local en `dev` sin publicar.

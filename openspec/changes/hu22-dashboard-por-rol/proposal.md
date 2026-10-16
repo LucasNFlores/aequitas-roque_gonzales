@@ -34,3 +34,7 @@ La ruta autenticada `/dashboard` solo muestra el mensaje de inicio de sesión. L
 - Una agregación sin scope de modelo podría revelar datos ajenos aunque no muestre enlaces; cada consulta debe iniciar desde su scope autorizado.
 - Los nombres de estados son configurables; las colas usan los slugs estables `pendiente`, `admitido`, `finalizado` y `rechazado` ya establecidos por el dominio.
 - CU 40 deja sus indicadores pendientes en OpenSpec; esta propuesta los define acotados a datos consultables y no cambia la matriz.
+
+## Ampliación aprobada: priorización del Coordinador
+
+El dashboard del Coordinador prioriza los procesos activos por estado, las colas de admisión/asignación/seguimiento y los turnos programados próximos siete días. Clientes totales y reportes recientes dejan de presentarse como tarjetas de decisión, con sus accesos existentes disponibles en la navegación autorizada. La distribución de estados reutiliza el gráfico horizontal con fallback numérico accesible y aparece cuando existen al menos dos estados con datos. No se amplían permisos ni se infieren vencimientos, productividad o antigüedad.

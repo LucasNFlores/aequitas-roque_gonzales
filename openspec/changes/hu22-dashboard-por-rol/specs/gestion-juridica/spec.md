@@ -44,6 +44,16 @@ Secretario, Profesional, Coordinador, Directivo y Administrador MUST poder consu
 - **THEN** la lista de seguimiento muestra procesos operativos asignados en estados `iniciado`, `en_proceso` o `en_espera`
 - **AND** la lista se presenta como carga de seguimiento, sin atribuir vencimientos que el dominio no registra
 
+#### Scenario: Coordinador prioriza decisiones operativas
+
+- **WHEN** Coordinador consulta el dashboard
+- **THEN** el total y la distribución de procesos activos usan `Proceso::visibleTo($user)` antes de excluir los estados `finalizado` y `rechazado` y agregar por estado
+- **AND** las colas muestran procesos visibles `pendiente`, `admitido` sin Profesional y en seguimiento (`iniciado`, `en_proceso`, `en_espera`) únicamente cuando el Coordinador posee el permiso de acción correspondiente
+- **AND** la agenda muestra turnos visibles `programado` entre el momento actual y los próximos siete días mediante `Turno::visibleTo($user)`
+- **AND** el gráfico horizontal aparece únicamente cuando hay dos o más estados con procesos y siempre conserva una lista numérica accesible como alternativa
+- **AND** los totales de clientes y reportes recientes no ocupan el bloque principal del Coordinador, mientras que la navegación conserva sus accesos autorizados
+- **AND** no se infieren vencimientos, productividad ni antigüedad de casos a partir de estos conteos
+
 #### Scenario: No hay pendientes para el rol
 
 - **WHEN** no existen elementos en una métrica o cola disponible para el rol
