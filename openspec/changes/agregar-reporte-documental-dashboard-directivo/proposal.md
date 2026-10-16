@@ -2,17 +2,17 @@
 
 ## Problema
 
-La gestión de categorías y documentos ya forma parte del sistema, pero la rama dev no ofrece un resumen PDF de documentos agrupados por categoría ni un dashboard propio para el rol Directivo. La matriz debe registrar esas capacidades y separar con claridad el alcance de cada rol.
+La gestión de categorías y documentos ya forma parte del sistema, pero la rama dev no ofrece un resumen PDF de documentos agrupados por categoría. CU 40 requiere precisar el alcance del Directivo y separar sus métricas estratégicas de las colas operativas de otros roles.
 
 ## Alcance
 
 - **CU 39 — Generar Informe PDF de Documentos por Categoría:** generar un resumen por categoría para un período, con filtros por estado y categoría. El informe incluye cantidades de documentos y última fecha de carga; no adjunta archivos individuales. Se autoriza al Coordinador, conforme al alcance de CU 37, y al Administrador por su condición de superadministrador.
-- **CU 40 — Consultar Dashboard del Directivo:** disponer de una vista propia para el rol Directivo. Los indicadores están pendientes de definición. El Administrador también puede acceder por su condición de superadministrador.
+- **CU 40 — Consultar Dashboard del Directivo:** presentar una variante estratégica por rol dentro del dashboard operativo común de HU-22. El Directivo y el Administrador pueden consultar las métricas aprobadas de procesos, clientes, reportes y cuentas, más la distribución de procesos activos por servicio.
 - Registrar ambos casos de uso en la matriz de Drive, su copia Markdown y la documentación funcional.
 
 ## Estado actual
 
-La rama de referencia feature/reportes-documentos contiene una vista web de reporte y salidas PDF y CSV, pero no está integrada en la rama dev actual. Esta propuesta formaliza el PDF solicitado; la inclusión de CSV queda pendiente de decisión. La rama dev sí contiene la gestión de categorías de CU 37. No hay un dashboard específico del Directivo.
+La rama de referencia feature/reportes-documentos contiene una vista web de reporte y salidas PDF y CSV, pero no está integrada en la rama dev actual. Esta propuesta formaliza el PDF solicitado; la inclusión de CSV queda pendiente de decisión. La rama dev contiene la gestión de categorías CU 37 y el dashboard HU-22. La matriz online mantiene su nota de métricas CU 40 pendientes; el usuario aprobó para esta implementación las cuatro métricas y el gráfico documentados en el diseño, sin modificar la matriz externa.
 
 ## Restricciones
 
@@ -31,7 +31,7 @@ La rama de referencia feature/reportes-documentos contiene una vista web de repo
 
 ## Enfoque de implementación
 
-Formalizar primero CU 39 y CU 40 en la matriz y en esta propuesta. Integrar después el informe con filtros validados y autorización basada en CU 37. Definir con el usuario los indicadores y su alcance antes de implementar el dashboard. Mantener la autorización del Administrador como superadministrador sin duplicar ni restringir sus permisos.
+Mantener la matriz online como fuente de permisos. Integrar el informe CU 39 con filtros validados y autorización basada en CU 37. Para CU 40, implementar la variante estratégica aprobada sin ampliar permisos; mantener el acceso del Administrador por superadministrador.
 
 ## Criterios de aceptación
 
@@ -43,8 +43,8 @@ Formalizar primero CU 39 y CU 40 en la matriz y en esta propuesta. Integrar desp
 
 ## Riesgos y preguntas abiertas
 
-- **Indicadores:** falta definir métricas, períodos, filtros y nivel de detalle del dashboard. No se debe asumir un catálogo antes de acordarlo.
+- **Indicadores:** alcance aprobado para esta entrega y documentado en el diseño; la matriz online conserva su nota original hasta que el usuario solicite modificarla.
 - **Exposición de datos:** métricas agregadas pueden revelar información fuera del alcance de un rol si las consultas no conservan el filtrado de autorización.
 - **Período predeterminado:** la rama de referencia usa un período fijo temporal; debe sustituirse por una regla acordada.
 - **CSV:** la rama de referencia ofrece CSV además de PDF; el alcance solicitado solo confirma PDF.
-- **Estado de integración:** el reporte y el dashboard aún no forman parte de dev.
+- **Estado de integración:** CU 39 continúa pendiente de integración; el dashboard operativo HU-22 ya está en dev y esta entrega completa la variante CU 40.

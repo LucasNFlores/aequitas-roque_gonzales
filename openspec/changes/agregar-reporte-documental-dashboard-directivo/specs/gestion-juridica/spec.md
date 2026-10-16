@@ -19,13 +19,14 @@ El sistema MUST permitir al Coordinador y al Administrador generar un informe PD
 
 ### Requirement: Consultar dashboard propio del Directivo
 
-El sistema MUST proporcionar al Directivo un dashboard propio. El conjunto de indicadores MUST definirse y aprobarse antes de cerrar la implementación. Cada indicador MUST respetar el alcance de datos autorizado para el Directivo y MUST NOT conceder acceso implícito a documentos, archivos, legajos o reportes. El Administrador MUST poder acceder por su condición de superadministrador.
+El sistema MUST proporcionar al Directivo una variante estratégica del dashboard común HU-22, y el Administrador MUST poder consultarla por su condición de superadministrador. El dashboard MUST presentar procesos activos vigentes, clientes vigentes, reportes de los últimos 30 días y cuentas vigentes según las definiciones aprobadas en el diseño de CU 40. El gráfico horizontal de procesos activos por servicio MUST aplicar `Proceso::visibleTo($user)` antes de agrupar y MUST excluir procesos dados de baja, finalizados o rechazados. Los conteos MUST NOT mostrar filas personales ni conceder acceso implícito a agenda, documentos, archivos o colas operativas.
 
 #### Scenario: CU 40 - Directivo consulta su dashboard
 
 - **WHEN** un Directivo consulta el dashboard
-- **THEN** el sistema presenta únicamente los indicadores acordados para este rol y sus datos autorizados
-- **AND** la pantalla no concede acceso adicional a documentación ni a consultas individuales de legajos
+- **THEN** el sistema presenta las métricas aprobadas y sus datos autorizados
+- **AND** el gráfico por servicio incluye una lista accesible equivalente y un estado vacío cuando no hay resultados
+- **AND** la pantalla no concede acceso adicional a agenda, documentación ni a consultas individuales de legajos
 
 #### Scenario: CU 40 - Administrador consulta el dashboard
 
@@ -35,4 +36,4 @@ El sistema MUST proporcionar al Directivo un dashboard propio. El conjunto de in
 #### Scenario: CU 40 - Rol sin autorización intenta acceder
 
 - **WHEN** un Secretario, Profesional o Coordinador solicita el dashboard por interfaz o ruta directa
-- **THEN** el sistema deniega el acceso
+- **THEN** el rol conserva su dashboard HU-22 autorizado, sin recibir las métricas ni el gráfico propios de CU 40

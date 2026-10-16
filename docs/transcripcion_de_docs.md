@@ -92,7 +92,7 @@ El cliente se registra como dato administrativo. No inicia sesión, no tiene cre
 | CU 40 | Gestión Directiva | Consultar Dashboard del Directivo (métricas pendientes de definición) | Directivo |
 
 El Administrador está autorizado en todos los casos de uso, por su carácter de superadministrador.
-CU 39 y CU 40 se incorporan al alcance funcional y a la matriz; ambos están documentados en la matriz y en OpenSpec, pero su implementación sigue pendiente en dev. Las métricas de CU 40 también quedan pendientes de definición.
+CU 39 y CU 40 están incorporados al alcance funcional y a la matriz. CU 39 sigue pendiente de implementación. El dashboard operativo HU-22 ya está implementado; para CU 40, el usuario aprobó el 2026-10-15 cuatro métricas estratégicas y un gráfico por servicio, documentados en OpenSpec y en la explicación del sistema. La matriz online conserva su nota de métricas pendientes y no se modifica en esta tarea.
 
 ## 5. Reglas funcionales complementarias
 
@@ -140,7 +140,7 @@ El Coordinador y el Administrador pueden generar un resumen PDF por categoría p
 
 ### Dashboard del Directivo (CU 40)
 
-El Directivo tendrá un dashboard propio. Sus indicadores están pendientes de definición. El Administrador accede por su condición de superadministrador. El dashboard debe respetar los permisos de cada dato y no concede por sí mismo CU 12 ni CU 19. La funcionalidad aún no está implementada en dev.
+La variante estratégica CU 40 muestra procesos activos vigentes, clientes vigentes, reportes fechados en los últimos 30 días visibles para el Directivo y cuentas vigentes sin baja lógica. Incluye una distribución horizontal de procesos activos por servicio, agregada después de aplicar `Proceso::visibleTo($user)`. Conserva el acceso de Administrador por superadministrador y no concede CU 8, CU 12 ni CU 19, ni presenta colas operativas. La ruta `/dashboard` y sus paneles por rol corresponden a HU-22.
 
 ### Pagos
 

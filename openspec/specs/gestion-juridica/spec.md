@@ -387,3 +387,25 @@ La aplicación MUST ser accesible desde un navegador y las vistas MUST seguir el
 
 - **WHEN** un usuario solicita una operación sensible desde la interfaz o una ruta directa
 - **THEN** el servidor vuelve a comprobar autorización, valida los datos y conserva auditoría y consistencia de las escrituras relacionadas
+
+### Requirement: Consultar el dashboard estratégico del Directivo (CU 40)
+
+El dashboard común MUST presentar al Directivo la variante estratégica aprobada de CU 40, y el Administrador MUST poder consultarla como superadministrador. La variante MUST mostrar procesos activos vigentes, clientes vigentes, reportes fechados durante los últimos 30 días calendario (hoy y los 29 días anteriores) y cuentas internas sin baja lógica. MUST mostrar también una distribución horizontal de procesos activos por servicio. Cada agregado MUST aplicar su alcance de autorización antes de contar o agrupar; el gráfico MUST usar `Proceso::visibleTo($user)` y excluir procesos dados de baja, finalizados y rechazados. La vista MUST NOT mostrar agenda, documentos, archivos ni colas operativas al Directivo. Los demás roles MUST conservar sus paneles autorizados de HU-22 sin recibir esta variante estratégica.
+
+#### Scenario: Directivo consulta la variante estratégica
+
+- **WHEN** un Directivo consulta `/dashboard`
+- **THEN** ve las cuatro métricas aprobadas y los procesos activos por servicio con una lista equivalente accesible
+- **AND** no ve agenda, documentos, archivos ni colas operativas
+
+#### Scenario: Agregados del Directivo excluyen datos no vigentes
+
+- **WHEN** el sistema calcula las métricas o el gráfico de CU 40
+- **THEN** excluye registros con baja lógica y procesos finalizados o rechazados
+- **AND** cuenta solo reportes cuya fecha se encuentra entre hoy menos 29 días y hoy, inclusive
+
+#### Scenario: Rol sin CU 40 consulta su dashboard
+
+- **WHEN** Secretario, Profesional o Coordinador consulta `/dashboard`
+- **THEN** conserva su panel autorizado de HU-22
+- **AND** no recibe la distribución estratégica por servicio de CU 40
