@@ -3,12 +3,14 @@
 namespace App\Actions\Dashboard;
 
 use App\Models\Cliente;
+use App\Models\HistorialEstadoProceso;
 use App\Models\Proceso;
 use App\Models\Reporte;
 use App\Models\Turno;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
@@ -29,16 +31,24 @@ class BuildRoleDashboardData
      *     metrics: list<array{label: string, value: int, description: string, href: string}>,
      *     processStates: list<array{label: string, value: int}>,
      *     activeProcessesByService: list<array{label: string, value: int}>,
+     *     historicalProcessStates: list<array{label: string, value: int}>,
+     *     historyPeriod: string,
+     *     historyPeriodLabel: string,
+     *     historyFrom: string,
+     *     historyTo: string,
+     *     historyIncludesFinalized: bool,
+     *     historyIncludesRejected: bool,
      *     queues: list<array{title: string, description: string, count: int, items: Collection, href: string}>,
      *     appointments: array{count: int, items: Collection, href: string}|null,
      *     managementLinks: list<array{label: string, href: string}>
      * }
      */
-    public function __invoke(User $user): array
+    public function __invoke(User $user, array $historyFilters = []): array
     {
         $appointments = $this->appointments($user);
         $isDirectivoDashboard = $this->isDirectivoDashboard($user);
         $isAdministratorDashboard = $this->isAdministratorDashboard($user);
+        $history = $this->historicalProcessStates($user, $historyFilters);
 
         return [
             'roleName' => $user->getRoleNames()->implode(', '),
@@ -50,9 +60,91 @@ class BuildRoleDashboardData
             'metrics' => $this->metrics($user, $appointments),
             'processStates' => $isDirectivoDashboard ? [] : $this->processStateCounts($user),
             'activeProcessesByService' => $isDirectivoDashboard ? $this->activeProcessesByService($user) : [],
+            ...$history,
             'queues' => $this->queues($user),
             'appointments' => $appointments,
             'managementLinks' => $this->managementLinks($user),
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $filters
+     * @return array{
+     *     historicalProcessStates: list<array{label: string, value: int}>,
+     *     historyPeriod: string,
+     *     historyPeriodLabel: string,
+     *     historyFrom: string,
+     *     historyTo: string,
+     *     historyIncludesFinalized: bool,
+     *     historyIncludesRejected: bool
+     * }
+     */
+    private function historicalProcessStates(User $user, array $filters): array
+    {
+        if (! $this->isDirectivoDashboard($user) && ! $this->isAdministratorDashboard($user)) {
+            return [
+                'historicalProcessStates' => [],
+                'historyPeriod' => '3_months',
+                'historyPeriodLabel' => '',
+                'historyFrom' => '',
+                'historyTo' => '',
+                'historyIncludesFinalized' => false,
+                'historyIncludesRejected' => false,
+            ];
+        }
+
+        $period = $filters['period'] ?? '3_months';
+        $includesFinalized = filter_var($filters['include_finalizado'] ?? false, FILTER_VALIDATE_BOOLEAN);
+        $includesRejected = filter_var($filters['include_rechazado'] ?? false, FILTER_VALIDATE_BOOLEAN);
+        $today = now()->startOfDay();
+
+        if ($period === 'custom') {
+            $from = Carbon::createFromFormat('Y-m-d', $filters['from'])->startOfDay();
+            $to = Carbon::createFromFormat('Y-m-d', $filters['to'])->endOfDay();
+        } else {
+            $months = $period === '6_months' ? 6 : 3;
+            $from = $today->copy()->subMonthsNoOverflow($months);
+            $to = $today->copy()->endOfDay();
+        }
+
+        $query = HistorialEstadoProceso::query()
+            ->whereBetween('fecha_cambio', [$from, $to])
+            ->whereHas('proceso', fn (Builder $processQuery): Builder => $processQuery->visibleTo($user));
+
+        if (! $includesFinalized) {
+            $query->where('estado_nuevo', '!=', 'finalizado');
+        }
+
+        if (! $includesRejected) {
+            $query->where('estado_nuevo', '!=', Proceso::ESTADO_RECHAZADO);
+        }
+
+        $states = $query
+            ->select('estado_nuevo')
+            ->selectRaw('COUNT(DISTINCT proceso_id) as total')
+            ->groupBy('estado_nuevo')
+            ->orderBy('estado_nuevo')
+            ->get()
+            ->map(fn (HistorialEstadoProceso $history): array => [
+                'label' => Str::headline($history->estado_nuevo),
+                'value' => (int) $history->total,
+            ])
+            ->all();
+
+        $periodLabel = match ($period) {
+            '6_months' => 'Últimos 6 meses',
+            'custom' => 'Rango personalizado',
+            default => 'Últimos 3 meses',
+        };
+
+        return [
+            'historicalProcessStates' => $states,
+            'historyPeriod' => $period,
+            'historyPeriodLabel' => $periodLabel,
+            'historyFrom' => $from->toDateString(),
+            'historyTo' => $to->toDateString(),
+            'historyIncludesFinalized' => $includesFinalized,
+            'historyIncludesRejected' => $includesRejected,
         ];
     }
 

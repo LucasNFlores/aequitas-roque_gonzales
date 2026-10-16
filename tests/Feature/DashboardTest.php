@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Cliente;
+use App\Models\HistorialEstadoProceso;
 use App\Models\Proceso;
 use App\Models\Reporte;
 use App\Models\Servicio;
@@ -11,6 +12,7 @@ use App\Models\User;
 use Database\Seeders\EstadoProcesoSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class DashboardTest extends TestCase
@@ -239,6 +241,138 @@ class DashboardTest extends TestCase
         $this->assertSame([], $response->viewData('processStates'));
         $this->assertSame([], $response->viewData('queues'));
         $this->assertNull($response->viewData('appointments'));
+    }
+
+    public function test_directivo_history_counts_distinct_processes_by_state_and_filters_inclusive_periods(): void
+    {
+        $directivo = $this->userWithRole('Directivo');
+        $professional = $this->userWithRole('Profesional');
+        $coordinator = $this->userWithRole('Coordinador');
+        $firstProcess = $this->processFor($professional, $coordinator, 'Histórico uno', 'en_proceso');
+        $secondProcess = $this->processFor($professional, $coordinator, 'Histórico dos', 'en_proceso');
+        $thirdProcess = $this->processFor($professional, $coordinator, 'Histórico tres', 'en_proceso');
+        $fourthProcess = $this->processFor($professional, $coordinator, 'Histórico eliminado', 'en_proceso');
+        $this->moveInitialHistoryOutsidePeriods([$firstProcess, $secondProcess, $thirdProcess, $fourthProcess]);
+
+        $this->addStateChange($firstProcess, 'en_proceso', '2026-07-15 00:00:00');
+        $this->addStateChange($firstProcess, 'en_proceso', '2026-10-10 09:00:00');
+        $this->addStateChange($firstProcess, 'finalizado', '2026-10-11 09:00:00');
+        $this->addStateChange($firstProcess, 'rechazado', '2026-10-12 09:00:00');
+        $this->addStateChange($secondProcess, 'en_proceso', '2026-07-14 23:59:59');
+        $this->addStateChange($thirdProcess, 'finalizado', '2026-04-15 00:00:00');
+        $this->addStateChange($fourthProcess, 'en_espera', '2026-04-14 23:59:59');
+        $fourthProcess->delete();
+
+        $defaultResponse = $this->actingAs($directivo)->get(route('dashboard'));
+        $defaultResponse->assertOk()
+            ->assertSee('Cambios de estado en procesos')
+            ->assertSee('La fecha usada es la fecha de cambio de estado.')
+            ->assertSee('Un proceso puede aparecer en varios estados')
+            ->assertSee('Últimos 3 meses')
+            ->assertSee('data-historical-state-chart', false)
+            ->assertSee('data-values="[1]"', false);
+        $this->assertSame([['label' => 'En Proceso', 'value' => 1]], $defaultResponse->viewData('historicalProcessStates'));
+
+        $threeMonthsWithTerminalStates = $this->get(route('dashboard', [
+            'period' => '3_months',
+            'include_finalizado' => '1',
+            'include_rechazado' => '1',
+        ]));
+        $this->assertSame([
+            ['label' => 'En Proceso', 'value' => 1],
+            ['label' => 'Finalizado', 'value' => 1],
+            ['label' => 'Rechazado', 'value' => 1],
+        ], $threeMonthsWithTerminalStates->viewData('historicalProcessStates'));
+
+        $sixMonths = $this->get(route('dashboard', ['period' => '6_months']));
+        $this->assertSame([['label' => 'En Proceso', 'value' => 2]], $sixMonths->viewData('historicalProcessStates'));
+
+        $customRange = $this->get(route('dashboard', [
+            'period' => 'custom',
+            'from' => '2026-04-15',
+            'to' => '2026-07-15',
+            'include_finalizado' => '1',
+        ]));
+        $this->assertSame([
+            ['label' => 'En Proceso', 'value' => 2],
+            ['label' => 'Finalizado', 'value' => 1],
+        ], $customRange->viewData('historicalProcessStates'));
+        $customRange->assertSee('Rango personalizado: 15/04/2026 al 15/07/2026.');
+
+        $metrics = collect($defaultResponse->viewData('metrics'))->keyBy('label');
+        $this->assertCount(4, $metrics);
+        $this->assertSame(3, $metrics->get('Procesos activos vigentes')['value']);
+    }
+
+    public function test_administrator_can_consult_history_but_other_roles_cannot(): void
+    {
+        $administrator = $this->userWithRole('Administrador');
+        $process = $this->processFor($this->userWithRole('Profesional'), $this->userWithRole('Coordinador'), 'Proceso interno', 'en_proceso');
+        $this->moveInitialHistoryOutsidePeriods([$process]);
+        $this->addStateChange($process, 'iniciado', '2026-10-01 10:00:00');
+
+        $this->actingAs($administrator)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('Cambios de estado en procesos')
+            ->assertSee('data-historical-state-chart', false);
+
+        foreach (['Secretario', 'Profesional', 'Coordinador'] as $role) {
+            $this->actingAs($this->userWithRole($role))
+                ->get(route('dashboard', ['period' => 'invalid', 'from' => 'future']))
+                ->assertOk()
+                ->assertDontSee('Cambios de estado en procesos')
+                ->assertDontSee('data-historical-state-chart');
+        }
+    }
+
+    public function test_directivo_history_respects_the_process_visibility_scope(): void
+    {
+        $directivo = $this->userWithRole('Directivo');
+        Role::findByName('Directivo')->revokePermissionTo(['listar_filtrar_procesos', 'consultar_legajos']);
+        $process = $this->processFor($this->userWithRole('Profesional'), $this->userWithRole('Coordinador'), 'Caso fuera de scope', 'en_proceso');
+        $this->addStateChange($process, 'iniciado', '2026-10-01 10:00:00');
+
+        $response = $this->actingAs($directivo)->get(route('dashboard'));
+
+        $response->assertOk()
+            ->assertSee('No hay cambios de estado para el período y los filtros seleccionados.')
+            ->assertDontSee('data-historical-state-chart');
+        $this->assertSame([], $response->viewData('historicalProcessStates'));
+    }
+
+    public function test_directivo_history_rejects_invalid_custom_date_ranges(): void
+    {
+        $directivo = $this->userWithRole('Directivo');
+        $invalidRanges = [
+            ['period' => 'invalid'],
+            ['period' => 'custom'],
+            ['period' => 'custom', 'from' => '2026-10-10', 'to' => '2026-10-09'],
+            ['period' => 'custom', 'from' => '2026-10-16', 'to' => '2026-10-16'],
+            ['period' => 'custom', 'from' => 'not-a-date', 'to' => '2026-10-10'],
+        ];
+
+        foreach ($invalidRanges as $range) {
+            $this->actingAs($directivo)
+                ->from(route('dashboard'))
+                ->get(route('dashboard', $range))
+                ->assertRedirect(route('dashboard'))
+                ->assertSessionHasErrors();
+        }
+    }
+
+    public function test_directivo_history_explains_empty_results_and_restores_default_filters(): void
+    {
+        $directivo = $this->userWithRole('Directivo');
+
+        $response = $this->actingAs($directivo)->get(route('dashboard', ['period' => '6_months']));
+
+        $response->assertOk()
+            ->assertSee('No hay cambios de estado para el período y los filtros seleccionados.')
+            ->assertSee('Restablecer filtros')
+            ->assertSee(route('dashboard', ['period' => '3_months']), false)
+            ->assertDontSee('data-historical-state-chart');
+        $this->assertSame([], $response->viewData('historicalProcessStates'));
     }
 
     public function test_professional_metrics_and_follow_up_list_exclude_unassigned_process_data(): void
@@ -539,6 +673,27 @@ class DashboardTest extends TestCase
         $user->assignRole($role);
 
         return $user;
+    }
+
+    /** @param list<Proceso> $processes */
+    private function moveInitialHistoryOutsidePeriods(array $processes): void
+    {
+        foreach ($processes as $process) {
+            HistorialEstadoProceso::query()
+                ->where('proceso_id', $process->id)
+                ->update(['fecha_cambio' => '2026-01-01 00:00:00']);
+        }
+    }
+
+    private function addStateChange(Proceso $process, string $state, string $changedAt): void
+    {
+        HistorialEstadoProceso::factory()->create([
+            'proceso_id' => $process->id,
+            'usuario_id' => null,
+            'estado_anterior' => 'pendiente',
+            'estado_nuevo' => $state,
+            'fecha_cambio' => $changedAt,
+        ]);
     }
 
     private function processFor(User $professional, User $coordinator, string $name, string $state): Proceso

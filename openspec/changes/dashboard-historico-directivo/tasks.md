@@ -1,0 +1,8 @@
+- [x] Implementar filtros validados de período y estado, con valores iniciales/restauración definidos.
+- [x] Añadir la agregación histórica por `fecha_cambio` con procesos distintos por estado y scope CU40.
+- [x] Añadir la sección histórica accesible al dashboard del Directivo sin cambiar sus métricas ni el gráfico vigente.
+- [x] Cubrir en PHPUnit conteos, deduplicación, scopes/permisos, presets, terminales, fechas inválidas y vacío.
+- [x] Actualizar la especificación canónica y la documentación existente que describe CU40.
+- [x] Ejecutar PHPUnit afectado, Pint, build Vite y validación OpenSpec.
+- [x] Revisar en IAB y navegador los estados disponibles, filtros, errores, gráfico/lista, layout a 375 px y 1280 px y rutas prohibidas.
+- [x] Revisar diff/estado y completar commit atómico y merge local en `dev`; conservar la rama.

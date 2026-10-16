@@ -81,6 +81,18 @@
                 </section>
             @endif
 
+            @if ($isDirectivoDashboard || $isAdministratorDashboard)
+                <x-dashboard.historical-process-states
+                    :historical-process-states="$historicalProcessStates"
+                    :history-period="$historyPeriod"
+                    :history-period-label="$historyPeriodLabel"
+                    :history-from="$historyFrom"
+                    :history-to="$historyTo"
+                    :history-includes-finalized="$historyIncludesFinalized"
+                    :history-includes-rejected="$historyIncludesRejected"
+                />
+            @endif
+
             @if (! $isDirectivoDashboard)
                 <section aria-labelledby="dashboard-work-title" class="flex flex-col gap-4">
                 <div class="flex flex-col gap-1">
