@@ -38,3 +38,7 @@ La ruta autenticada `/dashboard` solo muestra el mensaje de inicio de sesión. L
 ## Ampliación aprobada: priorización del Coordinador
 
 El dashboard del Coordinador prioriza los procesos activos por estado, las colas de admisión/asignación/seguimiento y los turnos programados próximos siete días. Clientes totales y reportes recientes dejan de presentarse como tarjetas de decisión, con sus accesos existentes disponibles en la navegación autorizada. La distribución de estados reutiliza el gráfico horizontal con fallback numérico accesible y aparece cuando existen al menos dos estados con datos. No se amplían permisos ni se infieren vencimientos, productividad o antigüedad.
+
+## Ampliación aprobada: panel operativo del Administrador
+
+El Administrador conserva su alcance global de superusuario y presenta procesos activos globales al corte actual, desglosados por estado con gráfico horizontal y lista accesible. Sus colas accionables son pendientes de admisión (`pendiente`) y pendientes de asignación (`admitido` sin profesional); también muestra turnos `programado` entre ahora y los próximos siete días inclusive, y cuentas internas vigentes sin baja lógica. No muestra una tercera cola de seguimiento ni tarjetas principales de clientes o reportes. El gráfico por servicio pertenece a la variante estratégica del Directivo en CU 40 y no se reutiliza en el panel Administrador.

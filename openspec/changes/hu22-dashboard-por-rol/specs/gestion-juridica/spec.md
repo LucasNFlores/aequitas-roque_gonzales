@@ -64,7 +64,24 @@ Secretario, Profesional, Coordinador, Directivo y Administrador MUST poder consu
 - **WHEN** Directivo consulta el dashboard
 - **THEN** el sistema presenta sus indicadores de procesos, clientes, reportes y usuarios activos basados en CU 29, CU 28, CU 24 y CU 25–27
 - **AND** no presenta agendas, documentos, archivos ni una cola jurídica que el rol no pueda resolver
-- **AND** Administrador puede consultar el mismo panel dentro de su alcance de superadministrador
+- **AND** el gráfico horizontal muestra procesos activos por servicio con lista accesible equivalente
+
+#### Scenario: Administrador consulta el panel operativo global
+
+- **WHEN** Administrador consulta `/dashboard`
+- **THEN** el conteo de procesos activos y su gráfico por estado aplican `Proceso::visibleTo($user)` antes de contar o agrupar y omiten estados `finalizado`, `rechazado` y bajas lógicas
+- **AND** las colas incluyen procesos visibles `pendiente` y procesos visibles `admitido` sin profesional asignado, con sus conteos y vistas previas de hasta cinco registros
+- **AND** no se presenta la cola de seguimiento ni el gráfico por servicio del Directivo
+- **AND** los turnos próximos incluyen solo turnos visibles `programado` entre `now()` y `now()->addDays(7)`, inclusive, mediante `Turno::visibleTo($user)`
+- **AND** las cuentas internas vigentes omiten usuarios dados de baja lógica y enlazan a la gestión de usuarios
+- **AND** si no hay procesos activos o turnos próximos, cada bloque disponible comunica su estado vacío; la lista numérica acompaña el gráfico y sus valores no dependen solo del color
+- **AND** el panel conserva enlaces a procesos, agenda y usuarios conforme a los permisos del superadministrador
+
+#### Scenario: El panel Administrador no cambia el alcance de los otros roles
+
+- **WHEN** Secretario, Profesional, Coordinador o Directivo consulta `/dashboard`
+- **THEN** cada rol conserva sus scopes, indicadores, colas y enlaces definidos para HU-22 o CU 40
+- **AND** el gráfico por servicio sigue limitado a la variante estratégica del Directivo
 
 #### Scenario: Usuario no autenticado consulta el dashboard
 
