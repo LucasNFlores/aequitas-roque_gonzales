@@ -4,7 +4,7 @@
 
 - [x] Leer metadatos de la hoja online y confirmar la pestaña de gid 708841836.
 - [x] Inventariar los 41 CU, sus cinco roles, permisos y restricciones.
-- [x] Contrastar las decisiones de comprobantes y Notificaciones con la matriz.
+- [x] Contrastar las decisiones de comprobantes con la matriz.
 - [x] Revisar la especificación base, los cambios OpenSpec relacionados y docs/ vigentes.
 
 ## Especificación y cambio

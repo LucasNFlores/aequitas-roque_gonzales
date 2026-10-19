@@ -25,8 +25,7 @@ La administración de usuarios permite varios roles mediante `syncRoles`, pero a
 ## Fuera de alcance
 
 - Cambiar permisos de Secretario, Profesional, Coordinador o Directivo.
-- Cambiar la matriz online, `RoleSeeder` o el alcance funcional de notificaciones.
-- Integrar Brevo o alterar la secuencia de última fase del módulo de notificaciones.
+- Cambiar la matriz online o `RoleSeeder`.
 
 ## Criterio de salida
 

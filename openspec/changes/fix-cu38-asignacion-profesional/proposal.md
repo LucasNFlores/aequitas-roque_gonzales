@@ -20,7 +20,6 @@ Evitar que el alta de un proceso adicional persista un profesional sin aplicar l
 ## Fuera de alcance
 
 - Cambios de roles o permisos de la matriz.
-- Notificaciones.
 - Modificaciones a turnos, clientes u otros casos de uso.
 
 ## Criterio de salida

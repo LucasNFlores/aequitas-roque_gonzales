@@ -2,7 +2,7 @@
 
 ### Requirement: Registrar cliente con proceso inicial y turno del Coordinador según CU 1
 
-Secretario y Administrador MUST poder registrar un cliente y crear en una operación consistente un proceso inicial de Consultoría pendiente y un turno inicial con un Coordinador activo. El sistema MUST validar la configuración requerida y MUST NOT conservar registros parciales ante un error. Un registro interno mínimo dirigido al Coordinador MUST permanecer acotado y MUST NOT representar la entrega de CU 35 ni HU-18 a HU-20.
+Secretario y Administrador MUST poder registrar un cliente y crear en una operación consistente un proceso inicial de Consultoría pendiente y un turno inicial con un Coordinador activo. El sistema MUST validar la configuración requerida y MUST NOT conservar registros parciales ante un error. El registro interno dirigido al Coordinador MUST limitarse a este flujo.
 
 #### Scenario: Alta inicial completa
 
@@ -27,4 +27,4 @@ Secretario y Administrador MUST poder registrar un cliente y crear en una operac
 #### Scenario: Se registra el aviso interno mínimo
 
 - **WHEN** se crea el registro interno dirigido al Coordinador como parte del alta
-- **THEN** el registro queda asociado al cliente y no envía correo ni WhatsApp ni habilita la bandeja del módulo final
+- **THEN** el registro queda asociado al cliente y no envía correo ni WhatsApp ni habilita una bandeja general

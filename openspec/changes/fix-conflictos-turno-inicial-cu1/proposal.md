@@ -10,7 +10,7 @@ Evitar que el alta inicial reserve al Coordinador en un horario ya ocupado por o
 - Informar el conflicto junto al campo de fecha y hora inicial.
 - Serializar el alta frente al scheduler de turnos mediante el bloqueo existente de la fila del Coordinador.
 - Permitir horarios liberados por turnos cancelados.
-- Mantener el alta completa en horarios disponibles y el alcance de notificaciones existente.
+- Mantener el alta completa en horarios disponibles.
 
 ## Criterios de salida
 
@@ -26,5 +26,4 @@ Evitar que el alta inicial reserve al Coordinador en un horario ya ocupado por o
 
 ## Fuera de alcance
 
-- Envíos externos o cambios al módulo final de notificaciones.
 - Cambios de roles CU1, agenda, turnos de seguimiento u otras tarjetas.

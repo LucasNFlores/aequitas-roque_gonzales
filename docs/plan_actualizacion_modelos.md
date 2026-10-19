@@ -1,6 +1,6 @@
 # Plan: Actualización de Modelos Eloquent
 
-> **Estado:** este plan es una guía histórica y no refleja por sí solo el estado actual del repositorio. Notificaciones se conserva como módulo independiente de última fase; antes de seguir cualquier paso viejo sobre su modelo o proveedor, consultar [Módulo de Notificaciones — fase final](modulo-notificaciones-fase-final.md).
+> **Estado:** este plan es una guía histórica y no refleja por sí solo el estado actual del repositorio.
 
 ## Objetivo
 
@@ -42,11 +42,6 @@ public function procesos(): BelongsToMany
 public function comprobantesPago(): HasMany
 {
     return $this->hasMany(ComprobantePago::class);
-}
-
-public function notificaciones(): HasMany
-{
-    return $this->hasMany(Notificacione::class);
 }
 
 public function turnos(): HasMany
@@ -243,48 +238,7 @@ public function proceso(): BelongsTo
 
 ---
 
-### Paso 12: Migration para SoftDeletes de Notificaciones
-
-**Commit:** `feat(migration): add deleted_at to notificaciones table`
-
-**Migration:** `php artisan make:migration add_deleted_at_to_notificaciones_table`
-
-**En up():**
-```php
-Schema::table('notificaciones', function (Blueprint $table) {
-    $table->softDeletes();
-});
-```
-
-**En down():**
-```php
-Schema::table('notificaciones', function (Blueprint $table) {
-    $table->dropSoftDeletes();
-});
-```
-
-**Run:** `php artisan migrate`
-
----
-
-### Paso 13: Modelo Notificacione
-
-**Commit:** `feat(models): add fillable, SoftDeletes, casts and relationships to Notificacione`
-
-**Archivo:** `app/Models/Notificacione.php`
-
-**Cambios:**
-- Importar `Illuminate\Database\Eloquent\SoftDeletes`
-- Agregar trait `SoftDeletes`
-- Agregar `$fillable`: `user_id`, `cliente_id`, `canal`, `mensaje`, `fecha_envio`, `estado`
-- Agregar `$casts`: `fecha_envio => datetime`
-- Agregar métodos `user()` y `cliente()` (belongsTo)
-
-**Test:** `php artisan tinker --execute="App\Models\Notificacione::factory()->make()->toArray();"`
-
----
-
-### Paso 14: Modelo User - SoftDeletes
+### Paso 12: Modelo User - SoftDeletes
 
 **Commit:** `feat(models): add SoftDeletes to User`
 
@@ -296,7 +250,7 @@ Schema::table('notificaciones', function (Blueprint $table) {
 
 ---
 
-### Paso 15: Relationships en User
+### Paso 13: Relationships en User
 
 **Commit:** `feat(models): add relationships to User`
 
@@ -324,10 +278,6 @@ public function procesosComoCoordinador(): HasMany
     return $this->hasMany(Proceso::class, 'coordinador_id');
 }
 
-public function notificaciones(): HasMany
-{
-    return $this->hasMany(Notificacione::class);
-}
 ```
 
 **Test:** `php artisan tinker --execute="App\Models\User::first()->turnos;"`
@@ -349,10 +299,8 @@ public function notificaciones(): HasMany
 | 9 | feat(models): add fillable, SoftDeletes and relationships to Documento | Documento.php |
 | 10 | feat(models): add fillable, SoftDeletes and relationships to Reporte | Reporte.php |
 | 11 | feat(models): add fillable, casts and relationships to ComprobantePago | ComprobantePago.php |
-| 12 | feat(migration): add deleted_at to notificaciones table | migration |
-| 13 | feat(models): add fillable, SoftDeletes, casts and relationships to Notificacione | Notificacione.php |
-| 14 | feat(models): add SoftDeletes to User | User.php |
-| 15 | feat(models): add relationships to User | User.php |
+| 12 | feat(models): add SoftDeletes to User | User.php |
+| 13 | feat(models): add relationships to User | User.php |
 
 ---
 
@@ -360,7 +308,7 @@ public function notificaciones(): HasMany
 
 ```bash
 php artisan tinker --execute="
-\$models = ['Cliente', 'Servicio', 'Proceso', 'Turno', 'Documento', 'Reporte', 'ComprobantePago', 'Notificacione', 'User'];
+\$models = ['Cliente', 'Servicio', 'Proceso', 'Turno', 'Documento', 'Reporte', 'ComprobantePago', 'User'];
 foreach (\$models as \$m) {
     echo \$m . ': ';
     try {

@@ -16,7 +16,7 @@
 
 - Agregar acceso a versiones anteriores junto al reporte en el legajo cuando la policy de consulta lo permita.
 - Presentar cada snapshot con contenido, fecha del reporte, actor y fecha-hora de edición.
-- Seguir estilos existentes de Blade/Tailwind y no incorporar notificaciones.
+- Seguir estilos existentes de Blade/Tailwind.
 
 ## Verificación
 

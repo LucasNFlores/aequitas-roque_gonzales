@@ -17,7 +17,7 @@ Fuente funcional prioritaria: [Matriz Aequitas V2, pestaña principal](https://d
 
 ## Fuera de alcance
 
-Notificaciones y cambios a permisos que no sean necesarios para alinear CU 28 con la matriz.
+Cambios a permisos que no sean necesarios para alinear CU 28 con la matriz.
 
 ## Criterios de salida
 

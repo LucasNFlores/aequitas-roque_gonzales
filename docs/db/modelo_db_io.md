@@ -190,7 +190,6 @@ Table comprobante_pagos {
   updated_at timestamp
 }
 
-// La persistencia existente es una base técnica; el módulo completo se entrega en la última fase. Proveedor/canales externos sujetos a revisión de costos.
 Table notificaciones {
   id bigint [pk, increment]
   user_id bigint [null, ref: > users.id]

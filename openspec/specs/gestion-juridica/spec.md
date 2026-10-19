@@ -81,7 +81,7 @@ El sistema MUST permitir al Secretario y al Administrador registrar, modificar y
 
 - **WHEN** Secretario o Administrador registra un cliente con datos válidos, existe la configuración inicial requerida y hay disponibilidad para el Coordinador
 - **THEN** el sistema crea el cliente, un proceso de Consultoría pendiente y un turno inicial con un Coordinador en una operación consistente
-- **AND** crea el registro interno mínimo dirigido al Coordinador, que no constituye la entrega de CU 35 ni del módulo final de Notificaciones
+- **AND** crea el registro interno mínimo dirigido al Coordinador
 
 #### Scenario: CU 1 - Conflicto en el turno inicial
 
@@ -180,7 +180,6 @@ Solo Secretario y Administrador MUST poder crear, modificar o cancelar turnos. E
 
 - **WHEN** Secretario o Administrador agenda un turno interno válido
 - **THEN** el sistema conserva la cita entre cliente y profesional o Coordinador
-- **AND** la integración de avisos queda para el módulo independiente de Notificaciones de última fase
 
 #### Scenario: CU 4.1 - Agendar Turno de Seguimiento
 
@@ -330,15 +329,14 @@ Directivo y Administrador MUST poder gestionar servicios. Coordinador, Directivo
 - **WHEN** Coordinador, Directivo o Administrador asigna servicios o especialidades a un profesional
 - **THEN** el sistema conserva la relación que determina qué servicios puede atender el profesional
 
-### Requirement: Consultar el registro del módulo final de Notificaciones
+### Requirement: Consultar el registro de Notificaciones (CU 35)
 
-El módulo final MUST conservar registros auditables con canal, mensaje, destinatario, fecha, estado y resultado. MUST contemplar notificaciones internas, correo y WhatsApp. El módulo MUST entregarse como componente independiente en la última fase y MUST NOT volver dependientes de un proveedor externo los flujos de clientes, procesos o turnos. Brevo es candidato y sus costos y condiciones vigentes MUST revisarse antes de confirmar proveedor.
+El sistema MUST conservar registros auditables con canal, mensaje, destinatario, fecha, estado y resultado, y MUST permitir su consulta a Secretario, Coordinador, Directivo y Administrador. MUST contemplar notificaciones internas, correo y WhatsApp. Los flujos de clientes, procesos y turnos MUST NOT depender de un proveedor externo.
 
 #### Scenario: CU 35 - Consultar Registro de Notificaciones
 
-- **WHEN** Secretario, Coordinador, Directivo o Administrador consulta el registro de notificaciones en la fase final
+- **WHEN** Secretario, Coordinador, Directivo o Administrador consulta el registro de notificaciones
 - **THEN** el sistema presenta los registros auditables autorizados y sus datos de canal, mensaje, destinatario, fecha, estado y resultado
-- **AND** la integración de eventos del núcleo ocurre después de validar el módulo por separado
 
 ### Requirement: Administrar estados de proceso y categorías documentales
 

@@ -9,8 +9,6 @@
 - **Roles:** Secretario, Profesional, Coordinador, Directivo y Administrador.
 - **Convención:** Sí indica autorización explícita en la matriz; No indica que el rol no está autorizado. El Administrador es superadministrador y queda autorizado en todos los casos de uso.
 
-> **Secuencia de implementación local (2026-10-07):** la matriz online define el alcance funcional; esta decisión complementaria define el orden de entrega. CU-35 y las historias HU-18 a HU-20 se agrupan como módulo independiente de última fase. El alcance vigente conserva avisos internos, correo y WhatsApp; se revisarán los costos y condiciones de Brevo antes de decidir el proveedor. Esta nota local no afirma que la hoja online haya sido modificada.
-
 ## Matriz
 
 | Módulo / Caso de Uso | Código CU | Descripción / Acción | Secretario | Profesional | Coordinador | Directivo | Administrador | Alcance / Notas |

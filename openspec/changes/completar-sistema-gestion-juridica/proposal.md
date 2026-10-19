@@ -23,13 +23,13 @@ Ninguna. La especificación base se formaliza sin alterar su alcance funcional v
 
 ## Alcance conservado
 
-La matriz vigente contiene CU 1–38, incluidos los códigos fraccionarios, para Secretario, Profesional, Coordinador, Directivo y Administrador. Administrador tiene todos los CU. CU 13 y CU 14 autorizan registrar y consultar comprobantes, sin baja u ocultación. CU 35 y HU-18 a HU-20 conservan su alcance y se entregan como módulo independiente de última fase; Brevo sigue sujeto a revisión de costos.
+La matriz vigente contiene CU 1–38, incluidos los códigos fraccionarios, para Secretario, Profesional, Coordinador, Directivo y Administrador. Administrador tiene todos los CU. CU 13 y CU 14 autorizan registrar y consultar comprobantes, sin baja u ocultación.
 
 ## Criterios de salida
 
 - La especificación base contiene Purpose, Requirements y escenarios OpenSpec válidos para los 41 CU.
 - Cada rol y restricción concuerda con la hoja online y con docs/aequitas-matriz-modulos-funciones-permisos-v2.md.
-- Las decisiones vigentes de notificaciones, conservación histórica, procesos adicionales, estados, categorías y servicios se preservan sin duplicar la matriz de permisos.
+- Las decisiones vigentes de conservación histórica, procesos adicionales, estados, categorías y servicios se preservan sin duplicar la matriz de permisos.
 - Las dos validaciones estrictas del cambio y de la especificación base terminan correctamente; se ejecuta también la validación global estricta.
 - git diff --check no informa errores.
 

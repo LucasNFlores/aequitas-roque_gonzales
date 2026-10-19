@@ -14,7 +14,7 @@ Alinear CU21–CU24 con Aequitas V2 y completar la autoría cuando un Administra
 
 ## Fuera de alcance
 
-- Notificaciones, cambios a la hoja online, restauración de reportes, eliminación física y reimplementación del historial CU22.
+- Cambios a la hoja online, restauración de reportes, eliminación física y reimplementación del historial CU22.
 
 ## Criterios de salida
 

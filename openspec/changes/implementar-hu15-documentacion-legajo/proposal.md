@@ -15,7 +15,7 @@ Completar CU 9, 10, 11, 12 y 19 para cargar y reemplazar PDFs en procesos, conse
 
 ## Fuera de alcance
 
-- HU-10 de gestión general del legajo, otras tarjetas, cambios a la matriz, avisos/notificaciones, eliminación física y restauración de documentos.
+- HU-10 de gestión general del legajo, otras tarjetas, cambios a la matriz, eliminación física y restauración de documentos.
 - Cambios de permisos para cualquier otro módulo.
 
 ## Criterios de salida

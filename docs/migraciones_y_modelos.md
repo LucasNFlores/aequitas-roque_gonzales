@@ -28,7 +28,7 @@ Ya existen (implementado y probado, 82 tests):
 - `user_servicios` — tabla intermedia N:M `user_id, servicio_id` PK compuesta, `constrained cascade` (permite múltiples servicios por profesional, evita duplicados, disponible para `Proceso.servicio_id`)
 - `permissions`, `roles`, `model_has_permissions`, `model_has_roles`, `role_has_permissions` — creados por Spatie
 - `audits` — tabla de auditoría
-- `clientes`, `servicios`, `procesos`, `turnos`, `categorias_documento`, `documentos`, `documento_versiones`, `reportes`, `comprobante_pagos`, `notificaciones`, `estados_proceso`, `historial_estados_proceso` — ver secciones Fase 1-3; Notificaciones cuenta aquí como base de persistencia, no como módulo funcional completo (última fase)
+- `clientes`, `servicios`, `procesos`, `turnos`, `categorias_documento`, `documentos`, `documento_versiones`, `reportes`, `comprobante_pagos`, `notificaciones`, `estados_proceso`, `historial_estados_proceso` — ver secciones Fase 1-3
 
 > **Documentación CRUD usuarios:** ver `docs/gestion-usuarios-roles-servicios.md` para `StoreUserRequest/UpdateUserRequest`, `UserPolicy`, `UserController`, `Livewire/Usuarios/Index`, rutas `users.*`, vistas `resources/views/users/*` y `livewire/usuarios/*`, registro `/register` deshabilitado, búsqueda por `name/email/dni`.
 
@@ -431,13 +431,9 @@ git commit -m "feat: add comprobantes_pago table and model"
 git push
 ```
 
-### notificaciones (módulo diferido a la fase final)
+### notificaciones
 
-La tabla, el modelo y parte de la estructura técnica ya existen en el repositorio; eso no representa que el módulo funcional esté terminado. La bandeja, la generación de avisos, los canales de envío y la integración con los eventos del resto del sistema quedan agrupados como un módulo independiente para la última fase.
-
-No ejecutar la receta histórica de creación que aparecía en esta sección: utiliza el nombre incorrecto `Notificacione` y presupone un diseño de persistencia anterior. Al comenzar la fase final se revisará el esquema existente y los costos/condiciones de Brevo antes de decidir el proveedor. El alcance vigente contempla avisos internos, correo y WhatsApp.
-
-El estado y los límites de entrega están en [Módulo de Notificaciones — fase final](modulo-notificaciones-fase-final.md) y en [la propuesta OpenSpec](../openspec/changes/separar-modulo-notificaciones/proposal.md).
+La tabla, el modelo y sus relaciones forman parte de la persistencia actual. La estructura conserva canal, mensaje, destinatario, fecha y estado del registro.
 
 ---
 
