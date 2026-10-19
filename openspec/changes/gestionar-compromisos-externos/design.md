@@ -20,10 +20,6 @@ La policy, middleware de rutas y componente Livewire comprueban los permisos de 
 
 Secretario y Administrador pueden escribir. Profesional, Coordinador y Directivo pueden recibir 403 o no tienen acceso a CU8 según la matriz, y nunca obtienen controles de escritura. La lectura de agenda conserva el alcance previo del Profesional.
 
-## Notificaciones
-
-No se envían, registran ni programan notificaciones o recordatorios en HU-13. El módulo independiente se realizará en la última fase, después del núcleo; los eventos de compromisos externos se conectarán después de validar ese módulo de forma aislada. El proveedor externo se decidirá tras revisar los costos vigentes de Brevo.
-
 ## Verificación
 
 Probar roles y acceso directo, detalle obligatorio, relaciones, bloqueo diario en ambas direcciones, reprogramación con conflicto y sin conflicto, cancelación histórica, disponibilidad liberada, agenda y persistencia en navegador real y tests PHPUnit en Docker.

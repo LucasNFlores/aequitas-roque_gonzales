@@ -39,10 +39,6 @@ La cancelación no ejecutará `delete()` ni `softDelete()`. El turno seguirá di
 
 `Turno::visibleTo()` debe restringir al Profesional antes de aplicar filtros de profesional o rango. La agenda abre en un período futuro por defecto, requiere fechas inicial y final y limita cada consulta a 90 días; además carga las relaciones necesarias para evitar N+1. Muestra interno, seguimiento, externo y cancelado; este último solo como historial y nunca como bloqueo.
 
-### Notificaciones
-
-Las notificaciones de alta, reprogramación y cancelación quedan fuera de esta entrega. El alcance se agrupa en el [módulo independiente de fase final de Trello](https://trello.com/c/voW5TBHi/75-m%C3%B3dulo-de-notificaciones-integraci%C3%B3n-final) y se define en [Módulo de Notificaciones — fase final](../../../docs/modulo-notificaciones-fase-final.md). Este cambio no envía mensajes ni crea registros de notificación. La integración de eventos se hará después de validar el módulo; Brevo requiere revisión de costos antes de decidir proveedor.
-
 ## Categorías documentales
 
 ### Persistencia y transición
@@ -69,7 +65,7 @@ Las pruebas deben incluir:
 - Matriz completa de roles para CU4–CU8 y CU37, incluso por URL o petición directa.
 - Alcance del Profesional para la agenda.
 - Coherencia tipo/flag/detalle, consistencia cliente-proceso-profesional y conflictos de turnos.
-- Reprogramación, cancelación, conservación de historial y ausencia de registros de notificación durante HU-11; la integración de eventos corresponde al módulo independiente de fase final vinculado arriba.
+- Reprogramación, cancelación y conservación del historial.
 - Ciclo activo/inactivo/baja de categorías, nombre vacío o duplicado, selección en nuevas cargas y preservación de documentos históricos.
 
 ## Riesgos y controles

@@ -25,7 +25,6 @@
 
 - Mantener una única pantalla Livewire por proceso con carga, reemplazo, baja, enlaces separados de ver/descargar y sección de versiones históricas.
 - Aplicar `@can` a cada control y volver a autorizar en cada acción Livewire. Mantener links a endpoints protegidos por servidor.
-- No agregar notificaciones ni avisos nuevos.
 
 ## Verificación
 

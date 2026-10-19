@@ -28,8 +28,3 @@ El sistema SHALL permitir a Secretario y Administrador registrar, reprogramar y 
 
 - **WHEN** Secretario o Administrador cancelan un compromiso programado
 - **THEN** el registro se conserva con estado cancelado y deja de bloquear la fecha
-
-#### Scenario: Notificaciones diferidas
-
-- **WHEN** se registra, reprograma o cancela un compromiso dentro de HU-13
-- **THEN** no se envía ni registra una notificación en HU-13; el evento queda para integrarse en el módulo independiente de fase final, después de validar ese módulo

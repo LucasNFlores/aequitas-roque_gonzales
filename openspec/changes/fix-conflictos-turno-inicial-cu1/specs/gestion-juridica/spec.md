@@ -8,7 +8,7 @@ El sistema MUST permitir al Secretario y al Administrador registrar, modificar y
 
 - **WHEN** Secretario o Administrador registra un cliente con datos válidos y existe la configuración inicial requerida y hay disponibilidad para el Coordinador
 - **THEN** el sistema crea el cliente, un proceso de Consultoría pendiente y un turno inicial con un Coordinador en una operación consistente
-- **AND** crea el registro interno mínimo dirigido al Coordinador, que no constituye la entrega de CU 35 ni del módulo final de Notificaciones
+- **AND** crea el registro interno mínimo dirigido al Coordinador
 
 #### Scenario: CU 1 - Conflicto en el turno inicial
 

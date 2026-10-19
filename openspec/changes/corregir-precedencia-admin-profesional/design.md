@@ -22,7 +22,7 @@ No cambiar el bypass de Gate ni los permisos de Spatie. Las policies seguirán c
 - Solo Administrador conserva el acceso de superadministrador ya concedido.
 - Solo Profesional mantiene el filtro por asignación actual.
 - Profesional combinado con un rol distinto de Administrador continúa sujeto al filtro profesional existente; no se altera ninguna otra combinación.
-- No se tocan roles, permisos, archivos de notificaciones, eventos ni proveedores externos.
+- No se tocan roles, permisos, eventos ni proveedores externos.
 
 ## Pruebas de aceptación
 
@@ -39,4 +39,4 @@ No cambiar el bypass de Gate ni los permisos de Spatie. Las policies seguirán c
 | Un query secundario conserva el filtro profesional | Auditar todos los `hasRole('Profesional')` del código y verificar listados, relaciones y filtros de agenda/legajo. |
 | Se amplía un perfil profesional combinado con otro rol | Usar un predicado que excluya específicamente Administrador y cubrir Profesional solo en pruebas. |
 | Un cambio de scope oculta la autorización por CU | Mantener `can(...)` en los scopes y las comprobaciones de policy; no modificar Gate ni el seeder. |
-| Cambia el comportamiento de carga, escritura o notificaciones | Probar autorización de lectura y mantener fuera de alcance las superficies no requeridas. |
+| Cambia el comportamiento de carga o escritura | Probar autorización de lectura y mantener fuera de alcance las superficies no requeridas. |

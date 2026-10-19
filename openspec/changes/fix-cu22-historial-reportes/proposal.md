@@ -14,7 +14,7 @@ Completar CU22 para que cada cambio autorizado al contenido o fecha de un report
 
 ## Fuera de alcance
 
-- Notificaciones, restauración de reportes, cambios a la matriz, ampliación de CU24, auditoría genérica o eliminación física.
+- Restauración de reportes, cambios a la matriz, ampliación de CU24, auditoría genérica o eliminación física.
 
 ## Criterios de salida
 
