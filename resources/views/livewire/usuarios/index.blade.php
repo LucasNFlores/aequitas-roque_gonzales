@@ -13,7 +13,7 @@
     x-on:keydown.escape.window="formOpen = false; deleteOpen = false; serviciosOpen = false"
 >
 @if($successMessage !== '')
-    <div class="mb-6 rounded border border-green-400 bg-green-100 px-4 py-3 text-green-700" role="alert">
+    <div class="mb-6 rounded border border-green-400 bg-green-100 px-4 py-3 text-positive" role="alert">
         {{ $successMessage }}
     </div>
 @endif
@@ -25,12 +25,12 @@
 
 <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
     <div>
-        <h3 class="text-lg font-medium text-gray-900">Listado de Usuarios</h3>
-        <p class="mt-1 text-sm text-gray-500">Gestiona usuarios internos, sus roles y servicios asociados.</p>
+        <h3 class="text-lg font-medium text-ink">Listado de Usuarios</h3>
+        <p class="mt-1 text-sm text-muted">Gestiona usuarios internos, sus roles y servicios asociados.</p>
     </div>
     <div class="flex flex-wrap items-center gap-3">
         @can('agregar_usuarios')
-        <button type="button" @click="formOpen = true" wire:click="createUser" class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-indigo-700 focus:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 active:bg-indigo-900">
+        <button type="button" @click="formOpen = true" wire:click="createUser" class="inline-flex items-center rounded-control border border-transparent bg-aequitas-900 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-aequitas-800 focus:bg-aequitas-800 focus:outline-none focus:ring-2 focus:ring-gold-600 focus:ring-offset-2 active:bg-aequitas-950">
             Nuevo Usuario
         </button>
         @endcan
@@ -39,12 +39,12 @@
 
 <div class="mt-6">
     <label for="search" class="sr-only">Buscar usuario</label>
-    <input id="search" type="search" wire:model.live.debounce.300ms="search" placeholder="Buscar por nombre, email o DNI..." class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-sm" />
+    <input id="search" type="search" wire:model.live.debounce.300ms="search" placeholder="Buscar por nombre, email o DNI..." class="block w-full rounded-control border-line shadow-sm focus:border-gold-600 focus:ring-gold-600 sm:max-w-sm" />
 </div>
 
-<div class="mt-6 overflow-x-auto rounded-lg shadow-md">
-    <table class="w-full text-left text-sm text-gray-500">
-        <thead class="bg-gray-50 text-xs uppercase text-gray-700">
+<div class="mt-6 overflow-x-auto rounded-card shadow-panel">
+    <table class="w-full text-left text-sm text-muted">
+        <thead class="bg-canvas text-xs uppercase text-muted">
             <tr>
                 <th scope="col" class="px-6 py-3">Nombre</th>
                 <th scope="col" class="px-6 py-3">Email</th>
@@ -55,50 +55,50 @@
         </thead>
         <tbody>
             @forelse($users as $user)
-                <tr wire:key="user-{{ $user->id }}" class="border-b bg-white hover:bg-gray-50">
-                    <td class="whitespace-nowrap px-6 py-4 font-medium text-gray-900">
+                <tr wire:key="user-{{ $user->id }}" class="border-b bg-white hover:bg-canvas">
+                    <td class="whitespace-nowrap px-6 py-4 font-medium text-ink">
                         {{ $user->name }}
                         @if($user->dni)
-                            <span class="block text-xs font-normal text-gray-500">DNI: {{ $user->dni }}</span>
+                            <span class="block text-xs font-normal text-muted">DNI: {{ $user->dni }}</span>
                         @endif
                     </td>
                     <td class="px-6 py-4">{{ $user->email }}</td>
                     <td class="px-6 py-4">
                         @forelse($user->roles as $role)
-                            <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">{{ $role->name }}</span>
+                            <span class="bg-aequitas-50 text-aequitas-900 text-xs font-semibold px-2.5 py-0.5 rounded">{{ $role->name }}</span>
                         @empty
                             <span class="text-red-500 text-xs italic">Sin rol</span>
                         @endforelse
                     </td>
                     <td class="px-6 py-4">
                         @forelse($user->servicios as $servicio)
-                            <span class="bg-green-100 text-green-800 text-xs font-semibold px-2 py-0.5 rounded mr-1">{{ $servicio->nombre }}</span>
+                            <span class="bg-green-100 text-positive text-xs font-semibold px-2 py-0.5 rounded mr-1">{{ $servicio->nombre }}</span>
                         @empty
-                            <span class="text-gray-400 text-xs italic">—</span>
+                            <span class="text-muted text-xs italic">—</span>
                         @endforelse
                     </td>
                     <td class="px-6 py-4">
                         <div class="flex flex-wrap justify-center gap-2">
                             @can('update', $user)
-                            <button type="button" @click="formOpen = true" wire:click="editUser({{ $user->id }})" class="rounded-md bg-indigo-50 px-3 py-2 font-medium text-indigo-600 transition hover:text-indigo-900">Editar</button>
+                            <button type="button" @click="formOpen = true" wire:click="editUser({{ $user->id }})" class="rounded-control bg-aequitas-50 px-3 py-2 font-medium text-aequitas-900 transition hover:text-aequitas-900">Editar</button>
                             @endcan
                             @can('asignar_especialidad_servicio')
                                 @if($user->hasRole('Profesional'))
-                                <button type="button" @click="serviciosOpen = true" wire:click="manageServicios({{ $user->id }})" class="rounded-md bg-green-50 px-3 py-2 font-medium text-green-700 transition hover:text-green-900">Servicios</button>
+                                <button type="button" @click="serviciosOpen = true" wire:click="manageServicios({{ $user->id }})" class="rounded-control bg-green-50 px-3 py-2 font-medium text-positive transition hover:text-green-900">Servicios</button>
                                 @endif
                             @endcan
                             @can('manageRoles', $user)
-                            <a href="{{ route('users.roles.edit', $user->id) }}" class="rounded-md bg-gray-50 px-3 py-2 font-medium text-gray-700 transition hover:text-gray-900">Roles</a>
+                            <a href="{{ route('users.roles.edit', $user->id) }}" class="rounded-control bg-canvas px-3 py-2 font-medium text-muted transition hover:text-ink">Roles</a>
                             @endcan
                             @can('delete', $user)
-                            <button type="button" @click="deleteOpen = true" wire:click="confirmDelete({{ $user->id }})" class="rounded-md bg-red-50 px-3 py-2 font-medium text-red-600 transition hover:text-red-900">Desactivar</button>
+                            <button type="button" @click="deleteOpen = true" wire:click="confirmDelete({{ $user->id }})" class="rounded-control bg-red-50 px-3 py-2 font-medium text-red-600 transition hover:text-red-900">Desactivar</button>
                             @endcan
                         </div>
                     </td>
                 </tr>
             @empty
                 <tr class="bg-white">
-                    <td colspan="5" class="px-6 py-4 text-center italic text-gray-500">No hay usuarios.</td>
+                    <td colspan="5" class="px-6 py-4 text-center italic text-muted">No hay usuarios.</td>
                 </tr>
             @endforelse
         </tbody>
@@ -110,71 +110,71 @@
 </div>
 
 {{-- Modal crear/editar usuario --}}
-<div x-cloak x-show="formOpen" x-transition.opacity role="dialog" aria-modal="true" aria-labelledby="user-modal-title" wire:key="user-form-modal" @click.self="formOpen = false; $wire.closeModal()" class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-gray-900/60 px-4 py-6 backdrop-blur-sm sm:px-6">
-    <div class="relative max-h-[calc(100vh-3rem)] w-full max-w-2xl overflow-y-auto rounded-xl bg-white shadow-2xl">
-        <div wire:loading.flex wire:target="createUser,editUser" class="absolute inset-0 z-10 items-center justify-center rounded-xl bg-white/80">
-            <span class="rounded-md bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow">Cargando...</span>
+<div x-cloak x-show="formOpen" x-transition.opacity role="dialog" aria-modal="true" aria-labelledby="user-modal-title" wire:key="user-form-modal" @click.self="formOpen = false; $wire.closeModal()" class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-aequitas-900/60 px-4 py-6 backdrop-blur-sm sm:px-6">
+    <div class="relative max-h-[calc(100vh-3rem)] w-full max-w-2xl overflow-y-auto rounded-panel bg-white shadow-2xl">
+        <div wire:loading.flex wire:target="createUser,editUser" class="absolute inset-0 z-10 items-center justify-center rounded-panel bg-white/80">
+            <span class="rounded-control bg-white px-4 py-3 text-sm font-medium text-muted shadow">Cargando...</span>
         </div>
-        <div class="flex items-start justify-between gap-4 border-b border-gray-200 px-6 py-5 sm:px-8">
+        <div class="flex items-start justify-between gap-4 border-b border-line px-6 py-5 sm:px-8">
             <div>
-                <h2 id="user-modal-title" class="text-xl font-semibold text-gray-900">{{ $editingUserId ? 'Editar Usuario' : 'Nuevo Usuario' }}</h2>
-                <p class="mt-1 text-sm text-gray-500">Los roles se traen desde la base de datos. El email debe ser único.</p>
+                <h2 id="user-modal-title" class="text-xl font-semibold text-ink">{{ $editingUserId ? 'Editar Usuario' : 'Nuevo Usuario' }}</h2>
+                <p class="mt-1 text-sm text-muted">Los roles se traen desde la base de datos. El email debe ser único.</p>
             </div>
-            <button type="button" @click="formOpen = false; $wire.closeModal()" class="rounded-md p-1 text-2xl leading-none text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500" aria-label="Cerrar modal">&times;</button>
+            <button type="button" @click="formOpen = false; $wire.closeModal()" class="rounded-control p-1 text-2xl leading-none text-muted transition hover:bg-canvas hover:text-muted focus:outline-none focus:ring-2 focus:ring-gold-600" aria-label="Cerrar modal">&times;</button>
         </div>
 
         <form wire:submit="saveUser" class="space-y-6 px-6 py-6 sm:px-8">
             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <div>
-                    <label for="modal-name" class="block text-sm font-medium text-gray-700">Nombre *</label>
-                    <input id="modal-name" type="text" wire:model.defer="name" class="mt-2 block w-full rounded-md border-gray-300 px-3 py-2.5 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                    <label for="modal-name" class="block text-sm font-medium text-muted">Nombre *</label>
+                    <input id="modal-name" type="text" wire:model.defer="name" class="mt-2 block w-full rounded-control border-line px-3 py-2.5 shadow-sm focus:border-gold-600 focus:ring-gold-600" />
                     @error('name') <span class="mt-1 block text-sm text-red-600">{{ $message }}</span> @enderror
                 </div>
                 <div>
-                    <label for="modal-email" class="block text-sm font-medium text-gray-700">Email *</label>
-                    <input id="modal-email" type="email" wire:model.defer="email" class="mt-2 block w-full rounded-md border-gray-300 px-3 py-2.5 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                    <label for="modal-email" class="block text-sm font-medium text-muted">Email *</label>
+                    <input id="modal-email" type="email" wire:model.defer="email" class="mt-2 block w-full rounded-control border-line px-3 py-2.5 shadow-sm focus:border-gold-600 focus:ring-gold-600" />
                     @error('email') <span class="mt-1 block text-sm text-red-600">{{ $message }}</span> @enderror
                 </div>
                 <div>
-                    <label for="modal-password" class="block text-sm font-medium text-gray-700">Contraseña {{ $editingUserId ? '(dejar vacío para no cambiar)' : '(vacío = 1234)' }}</label>
-                    <input id="modal-password" type="password" wire:model.defer="password" class="mt-2 block w-full rounded-md border-gray-300 px-3 py-2.5 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                    <label for="modal-password" class="block text-sm font-medium text-muted">Contraseña {{ $editingUserId ? '(dejar vacío para no cambiar)' : '(vacío = 1234)' }}</label>
+                    <input id="modal-password" type="password" wire:model.defer="password" class="mt-2 block w-full rounded-control border-line px-3 py-2.5 shadow-sm focus:border-gold-600 focus:ring-gold-600" />
                     @error('password') <span class="mt-1 block text-sm text-red-600">{{ $message }}</span> @enderror
                 </div>
                 <div>
-                    <label for="modal-dni" class="block text-sm font-medium text-gray-700">DNI</label>
-                    <input id="modal-dni" type="text" wire:model.defer="dni" class="mt-2 block w-full rounded-md border-gray-300 px-3 py-2.5 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                    <label for="modal-dni" class="block text-sm font-medium text-muted">DNI</label>
+                    <input id="modal-dni" type="text" wire:model.defer="dni" class="mt-2 block w-full rounded-control border-line px-3 py-2.5 shadow-sm focus:border-gold-600 focus:ring-gold-600" />
                     @error('dni') <span class="mt-1 block text-sm text-red-600">{{ $message }}</span> @enderror
                 </div>
                 <div>
-                    <label for="modal-telefono" class="block text-sm font-medium text-gray-700">Teléfono</label>
-                    <input id="modal-telefono" type="text" wire:model.defer="telefono" class="mt-2 block w-full rounded-md border-gray-300 px-3 py-2.5 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                    <label for="modal-telefono" class="block text-sm font-medium text-muted">Teléfono</label>
+                    <input id="modal-telefono" type="text" wire:model.defer="telefono" class="mt-2 block w-full rounded-control border-line px-3 py-2.5 shadow-sm focus:border-gold-600 focus:ring-gold-600" />
                     @error('telefono') <span class="mt-1 block text-sm text-red-600">{{ $message }}</span> @enderror
                 </div>
                 <div>
-                    <label for="modal-domicilio" class="block text-sm font-medium text-gray-700">Domicilio</label>
-                    <input id="modal-domicilio" type="text" wire:model.defer="domicilio" class="mt-2 block w-full rounded-md border-gray-300 px-3 py-2.5 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                    <label for="modal-domicilio" class="block text-sm font-medium text-muted">Domicilio</label>
+                    <input id="modal-domicilio" type="text" wire:model.defer="domicilio" class="mt-2 block w-full rounded-control border-line px-3 py-2.5 shadow-sm focus:border-gold-600 focus:ring-gold-600" />
                     @error('domicilio') <span class="mt-1 block text-sm text-red-600">{{ $message }}</span> @enderror
                 </div>
                 <div>
-                    <label for="modal-fecha-nac" class="block text-sm font-medium text-gray-700">Fecha nacimiento</label>
-                    <input id="modal-fecha-nac" type="date" wire:model.defer="fecha_nacimiento" class="mt-2 block w-full rounded-md border-gray-300 px-3 py-2.5 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                    <label for="modal-fecha-nac" class="block text-sm font-medium text-muted">Fecha nacimiento</label>
+                    <input id="modal-fecha-nac" type="date" wire:model.defer="fecha_nacimiento" class="mt-2 block w-full rounded-control border-line px-3 py-2.5 shadow-sm focus:border-gold-600 focus:ring-gold-600" />
                     @error('fecha_nacimiento') <span class="mt-1 block text-sm text-red-600">{{ $message }}</span> @enderror
                 </div>
                 <div>
-                    <label for="modal-fecha-ing" class="block text-sm font-medium text-gray-700">Fecha ingreso</label>
-                    <input id="modal-fecha-ing" type="date" wire:model.defer="fecha_ingreso" class="mt-2 block w-full rounded-md border-gray-300 px-3 py-2.5 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                    <label for="modal-fecha-ing" class="block text-sm font-medium text-muted">Fecha ingreso</label>
+                    <input id="modal-fecha-ing" type="date" wire:model.defer="fecha_ingreso" class="mt-2 block w-full rounded-control border-line px-3 py-2.5 shadow-sm focus:border-gold-600 focus:ring-gold-600" />
                     @error('fecha_ingreso') <span class="mt-1 block text-sm text-red-600">{{ $message }}</span> @enderror
                 </div>
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700">Roles (desde BD)</label>
+                <label class="block text-sm font-medium text-muted">Roles (desde BD)</label>
                 <div class="mt-2 space-y-2">
                     @foreach($roles as $role)
                         @if(auth()->user()->hasRole('Administrador') || $role->name !== 'Administrador')
                         <label class="flex items-center gap-2">
-                            <input type="checkbox" value="{{ $role->name }}" wire:model.defer="selectedRoles" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" />
-                            <span class="text-sm text-gray-700">{{ $role->name }}</span>
+                            <input type="checkbox" value="{{ $role->name }}" wire:model.defer="selectedRoles" class="rounded border-line text-aequitas-900 shadow-sm focus:ring-gold-600" />
+                            <span class="text-sm text-muted">{{ $role->name }}</span>
                         </label>
                         @endif
                     @endforeach
@@ -185,24 +185,24 @@
 
             @can('asignar_especialidad_servicio')
             <div>
-                <label class="block text-sm font-medium text-gray-700">Servicios / Especialidades</label>
-                <div class="mt-2 max-h-32 overflow-y-auto rounded-md border border-gray-200 p-3">
+                <label class="block text-sm font-medium text-muted">Servicios / Especialidades</label>
+                <div class="mt-2 max-h-32 overflow-y-auto rounded-control border border-line p-3">
                     @forelse($servicios as $servicio)
                         <label class="flex items-center gap-2 py-1">
-                            <input type="checkbox" value="{{ $servicio->id }}" wire:model.defer="selectedServicios" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" />
-                            <span class="text-sm text-gray-700">{{ $servicio->nombre }} — ${{ number_format($servicio->costo_servicio, 2, ',', '.') }}</span>
+                            <input type="checkbox" value="{{ $servicio->id }}" wire:model.defer="selectedServicios" class="rounded border-line text-aequitas-900 shadow-sm focus:ring-gold-600" />
+                            <span class="text-sm text-muted">{{ $servicio->nombre }} — ${{ number_format($servicio->costo_servicio, 2, ',', '.') }}</span>
                         </label>
                     @empty
-                        <span class="text-sm italic text-gray-500">No hay servicios cargados.</span>
+                        <span class="text-sm italic text-muted">No hay servicios cargados.</span>
                     @endforelse
                 </div>
                 @error('selectedServicios') <span class="mt-1 block text-sm text-red-600">{{ $message }}</span> @enderror
             </div>
             @endcan
 
-            <div class="flex flex-col-reverse gap-3 border-t border-gray-200 pt-5 sm:flex-row sm:justify-end">
-                <button type="button" @click="formOpen = false; $wire.closeModal()" class="inline-flex w-full items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-gray-700 shadow-sm transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto">Cancelar</button>
-                <button type="submit" wire:loading.attr="disabled" class="inline-flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 sm:w-auto">
+            <div class="flex flex-col-reverse gap-3 border-t border-line pt-5 sm:flex-row sm:justify-end">
+                <button type="button" @click="formOpen = false; $wire.closeModal()" class="inline-flex w-full items-center justify-center rounded-control border border-line bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-muted shadow-sm transition hover:bg-canvas focus:outline-none focus:ring-2 focus:ring-gold-600 focus:ring-offset-2 sm:w-auto">Cancelar</button>
+                <button type="submit" wire:loading.attr="disabled" class="inline-flex w-full items-center justify-center rounded-control border border-transparent bg-aequitas-900 px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-aequitas-800 focus:outline-none focus:ring-2 focus:ring-gold-600 focus:ring-offset-2 disabled:opacity-50 sm:w-auto">
                     <span wire:loading.remove wire:target="saveUser">{{ $editingUserId ? 'Guardar cambios' : 'Crear usuario' }}</span>
                     <span wire:loading wire:target="saveUser">Guardando...</span>
                 </button>
@@ -212,18 +212,18 @@
 </div>
 
 {{-- Modal desactivar --}}
-<div x-cloak x-show="deleteOpen" x-transition.opacity role="dialog" aria-modal="true" aria-labelledby="delete-modal-title" wire:key="user-delete-modal" @click.self="deleteOpen = false; $wire.closeDeleteModal()" class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-gray-900/60 px-4 py-6 backdrop-blur-sm sm:px-6">
-    <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl sm:p-8">
+<div x-cloak x-show="deleteOpen" x-transition.opacity role="dialog" aria-modal="true" aria-labelledby="delete-modal-title" wire:key="user-delete-modal" @click.self="deleteOpen = false; $wire.closeDeleteModal()" class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-aequitas-900/60 px-4 py-6 backdrop-blur-sm sm:px-6">
+    <div class="w-full max-w-md rounded-panel bg-white p-6 shadow-2xl sm:p-8">
         <div class="flex items-start gap-4">
             <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600" aria-hidden="true">!</div>
             <div>
-                <h2 id="delete-modal-title" class="text-lg font-semibold text-gray-900">Desactivar usuario</h2>
-                <p class="mt-2 text-sm leading-6 text-gray-600">El usuario se desactivará con baja lógica y se conservará su trazabilidad. Si posee procesos activos, la operación será rechazada.</p>
+                <h2 id="delete-modal-title" class="text-lg font-semibold text-ink">Desactivar usuario</h2>
+                <p class="mt-2 text-sm leading-6 text-muted">El usuario se desactivará con baja lógica y se conservará su trazabilidad. Si posee procesos activos, la operación será rechazada.</p>
             </div>
         </div>
         <div class="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-            <button type="button" @click="deleteOpen = false; $wire.closeDeleteModal()" class="inline-flex w-full items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-gray-700 shadow-sm transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto">Cancelar</button>
-            <button type="button" wire:click="deleteUser" wire:loading.attr="disabled" class="inline-flex w-full items-center justify-center rounded-md border border-transparent bg-red-600 px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 sm:w-auto">
+            <button type="button" @click="deleteOpen = false; $wire.closeDeleteModal()" class="inline-flex w-full items-center justify-center rounded-control border border-line bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-muted shadow-sm transition hover:bg-canvas focus:outline-none focus:ring-2 focus:ring-gold-600 focus:ring-offset-2 sm:w-auto">Cancelar</button>
+            <button type="button" wire:click="deleteUser" wire:loading.attr="disabled" class="inline-flex w-full items-center justify-center rounded-control border border-transparent bg-red-600 px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 sm:w-auto">
                 <span wire:loading.remove wire:target="deleteUser">Desactivar</span>
                 <span wire:loading wire:target="deleteUser">Desactivando...</span>
             </button>
@@ -232,25 +232,25 @@
 </div>
 
 {{-- Modal asociar servicios --}}
-<div x-cloak x-show="serviciosOpen" x-transition.opacity role="dialog" aria-modal="true" aria-labelledby="servicios-modal-title" wire:key="servicios-modal" @click.self="serviciosOpen = false; $wire.closeServiciosModal()" class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-gray-900/60 px-4 py-6 backdrop-blur-sm sm:px-6">
-    <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl sm:p-8">
-        <h2 id="servicios-modal-title" class="text-lg font-semibold text-gray-900">Asociar servicios a profesional</h2>
-        <p class="mt-1 text-sm text-gray-500">Selecciona los servicios que el profesional puede atender. Se evitan duplicados.</p>
+<div x-cloak x-show="serviciosOpen" x-transition.opacity role="dialog" aria-modal="true" aria-labelledby="servicios-modal-title" wire:key="servicios-modal" @click.self="serviciosOpen = false; $wire.closeServiciosModal()" class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-aequitas-900/60 px-4 py-6 backdrop-blur-sm sm:px-6">
+    <div class="w-full max-w-md rounded-panel bg-white p-6 shadow-2xl sm:p-8">
+        <h2 id="servicios-modal-title" class="text-lg font-semibold text-ink">Asociar servicios a profesional</h2>
+        <p class="mt-1 text-sm text-muted">Selecciona los servicios que el profesional puede atender. Se evitan duplicados.</p>
         <form wire:submit="saveServicios" class="mt-6 space-y-4">
-            <div class="max-h-64 overflow-y-auto rounded-md border border-gray-200 p-3">
+            <div class="max-h-64 overflow-y-auto rounded-control border border-line p-3">
                 @forelse($servicios as $servicio)
                     <label class="flex items-center gap-2 py-1">
-                        <input type="checkbox" value="{{ $servicio->id }}" wire:model.defer="selectedServicios" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" />
-                        <span class="text-sm text-gray-700">{{ $servicio->nombre }}</span>
+                        <input type="checkbox" value="{{ $servicio->id }}" wire:model.defer="selectedServicios" class="rounded border-line text-aequitas-900 shadow-sm focus:ring-gold-600" />
+                        <span class="text-sm text-muted">{{ $servicio->nombre }}</span>
                     </label>
                 @empty
-                    <span class="text-sm italic text-gray-500">No hay servicios disponibles.</span>
+                    <span class="text-sm italic text-muted">No hay servicios disponibles.</span>
                 @endforelse
             </div>
             @error('selectedServicios') <span class="block text-sm text-red-600">{{ $message }}</span> @enderror
             <div class="flex flex-col-reverse gap-3 pt-4 sm:flex-row sm:justify-end">
-                <button type="button" @click="serviciosOpen = false; $wire.closeServiciosModal()" class="inline-flex w-full items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-gray-700 shadow-sm transition hover:bg-gray-50 sm:w-auto">Cancelar</button>
-                <button type="submit" wire:loading.attr="disabled" class="inline-flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto">
+                <button type="button" @click="serviciosOpen = false; $wire.closeServiciosModal()" class="inline-flex w-full items-center justify-center rounded-control border border-line bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-muted shadow-sm transition hover:bg-canvas sm:w-auto">Cancelar</button>
+                <button type="submit" wire:loading.attr="disabled" class="inline-flex w-full items-center justify-center rounded-control border border-transparent bg-aequitas-900 px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-aequitas-800 focus:outline-none focus:ring-2 focus:ring-gold-600 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto">
                     <span wire:loading.remove wire:target="saveServicios">Guardar</span>
                     <span wire:loading wire:target="saveServicios">Guardando...</span>
                 </button>
