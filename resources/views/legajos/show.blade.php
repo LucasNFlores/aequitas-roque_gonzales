@@ -2,10 +2,10 @@
     <x-slot name="header">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <p class="text-sm font-medium text-indigo-600">Legajo jurídico</p>
-                <h1 class="mt-1 text-xl font-semibold leading-tight text-gray-900">{{ $cliente->apellido }}, {{ $cliente->nombre }}</h1>
+                <p class="text-sm font-medium text-aequitas-900">Legajo jurídico</p>
+                <h1 class="mt-1 text-xl font-semibold leading-tight text-ink">{{ $cliente->apellido }}, {{ $cliente->nombre }}</h1>
             </div>
-            <a href="{{ route('legajos.index') }}" class="inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+            <a href="{{ route('legajos.index') }}" class="inline-flex items-center justify-center rounded-control border border-line bg-white min-h-11 px-4 py-2 text-sm font-medium text-ink shadow-panel transition hover:bg-canvas focus:outline-none focus:ring-2 focus:ring-gold-600 focus:ring-offset-2">
                 Volver a la búsqueda
             </a>
         </div>
@@ -14,73 +14,73 @@
     <div class="py-8 sm:py-12">
         <div class="mx-auto max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">
             @if(session('success'))
-                <div class="rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800" role="status">{{ session('success') }}</div>
+                <div class="rounded-control border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800" role="status">{{ session('success') }}</div>
             @endif
-            <section class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-7">
+            <section class="rounded-panel border border-line bg-white p-5 shadow-panel sm:p-7">
                 <div class="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
                     <div>
-                        <h2 class="text-lg font-semibold text-gray-900">Datos del cliente</h2>
-                        <p class="mt-1 text-sm text-gray-500">Información de contacto asociada a los procesos visibles para tu rol.</p>
+                        <h2 class="text-lg font-semibold text-ink">Datos del cliente</h2>
+                        <p class="mt-1 text-sm text-muted">Información de contacto asociada a los procesos visibles para tu rol.</p>
                     </div>
-                    <span class="inline-flex w-fit items-center rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">{{ $procesos->count() }} {{ $procesos->count() === 1 ? 'proceso visible' : 'procesos visibles' }}</span>
+                    <span class="inline-flex w-fit items-center rounded-full bg-aequitas-50 px-3 py-1 text-xs font-semibold text-aequitas-900">{{ $procesos->count() }} {{ $procesos->count() === 1 ? 'proceso visible' : 'procesos visibles' }}</span>
                 </div>
 
                 <dl class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                     <div>
-                        <dt class="text-xs font-semibold uppercase tracking-wide text-gray-500">DNI</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ $cliente->dni }}</dd>
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-muted">DNI</dt>
+                        <dd class="mt-1 text-sm text-ink">{{ $cliente->dni }}</dd>
                     </div>
                     <div>
-                        <dt class="text-xs font-semibold uppercase tracking-wide text-gray-500">Teléfono</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ $cliente->telefono ?: 'Sin teléfono registrado' }}</dd>
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-muted">Teléfono</dt>
+                        <dd class="mt-1 text-sm text-ink">{{ $cliente->telefono ?: 'Sin teléfono registrado' }}</dd>
                     </div>
                     <div>
-                        <dt class="text-xs font-semibold uppercase tracking-wide text-gray-500">Correo</dt>
-                        <dd class="mt-1 break-all text-sm text-gray-900">{{ $cliente->correo ?: 'Sin correo registrado' }}</dd>
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-muted">Correo</dt>
+                        <dd class="mt-1 break-all text-sm text-ink">{{ $cliente->correo ?: 'Sin correo registrado' }}</dd>
                     </div>
                     <div>
-                        <dt class="text-xs font-semibold uppercase tracking-wide text-gray-500">Domicilio</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ $cliente->domicilio ?: 'Sin domicilio registrado' }}</dd>
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-muted">Domicilio</dt>
+                        <dd class="mt-1 text-sm text-ink">{{ $cliente->domicilio ?: 'Sin domicilio registrado' }}</dd>
                     </div>
                     <div>
-                        <dt class="text-xs font-semibold uppercase tracking-wide text-gray-500">Fecha de nacimiento</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ $cliente->fecha_nacimiento?->format('d/m/Y') ?? 'Sin fecha registrada' }}</dd>
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-muted">Fecha de nacimiento</dt>
+                        <dd class="mt-1 text-sm text-ink">{{ $cliente->fecha_nacimiento?->format('d/m/Y') ?? 'Sin fecha registrada' }}</dd>
                     </div>
                 </dl>
             </section>
 
             @forelse($procesos as $proceso)
-                <article class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm" wire:key="legajo-proceso-{{ $proceso->id }}">
-                    <header class="border-b border-gray-200 bg-gray-50 px-5 py-5 sm:px-7">
+                <article class="overflow-hidden rounded-panel border border-line border-l-4 border-l-gold-600 bg-white shadow-panel" wire:key="legajo-proceso-{{ $proceso->id }}">
+                    <header class="border-b border-line bg-canvas px-5 py-5 sm:px-7">
                         <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                             <div>
-                                <p class="text-xs font-semibold uppercase tracking-wide text-indigo-600">{{ $proceso->servicio?->nombre ?? 'Sin servicio' }} · {{ $proceso->tipo }}</p>
-                                <h2 class="mt-1 text-xl font-semibold text-gray-900">{{ $proceso->nombre }}</h2>
-                                <p class="mt-2 max-w-3xl whitespace-pre-line text-sm leading-6 text-gray-600">{{ $proceso->descripcion ?: 'Sin descripción registrada.' }}</p>
+                                <p class="text-xs font-semibold uppercase tracking-wide text-aequitas-900">{{ $proceso->servicio?->nombre ?? 'Sin servicio' }} · {{ $proceso->tipo }}</p>
+                                <h2 class="mt-1 text-xl font-semibold text-ink">{{ $proceso->nombre }}</h2>
+                                <p class="mt-2 max-w-3xl whitespace-pre-line text-sm leading-6 text-muted">{{ $proceso->descripcion ?: 'Sin descripción registrada.' }}</p>
                             </div>
-                            <span class="inline-flex w-fit items-center rounded-full bg-white px-3 py-1 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300">{{ str_replace('_', ' ', ucfirst($proceso->estado)) }}</span>
+                            <span class="inline-flex w-fit items-center rounded-full bg-gold-50 px-3 py-1 text-sm font-semibold text-gold-700 ring-1 ring-inset ring-gold-100">{{ str_replace('_', ' ', ucfirst($proceso->estado)) }}</span>
                         </div>
 
                         <dl class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                             <div>
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-gray-500">Inicio</dt>
-                                <dd class="mt-1 text-sm text-gray-900">{{ $proceso->fecha_inicio?->format('d/m/Y') ?? 'Sin fecha' }}</dd>
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-muted">Inicio</dt>
+                                <dd class="mt-1 text-sm text-ink">{{ $proceso->fecha_inicio?->format('d/m/Y') ?? 'Sin fecha' }}</dd>
                             </div>
                             <div>
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-gray-500">Coordinador</dt>
-                                <dd class="mt-1 text-sm text-gray-900">{{ $proceso->coordinador?->name ?? 'Sin asignar' }}</dd>
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-muted">Coordinador</dt>
+                                <dd class="mt-1 text-sm text-ink">{{ $proceso->coordinador?->name ?? 'Sin asignar' }}</dd>
                             </div>
                             <div>
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-gray-500">Profesional</dt>
-                                <dd class="mt-1 text-sm text-gray-900">{{ $proceso->profesional?->name ?? 'Sin asignar' }}</dd>
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-muted">Profesional</dt>
+                                <dd class="mt-1 text-sm text-ink">{{ $proceso->profesional?->name ?? 'Sin asignar' }}</dd>
                             </div>
                             <div>
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-gray-500">Honorarios</dt>
-                                <dd class="mt-1 text-sm text-gray-900">{{ $proceso->honorarios !== null ? '$ '.number_format((float) $proceso->honorarios, 2, ',', '.') : 'Sin definir' }}</dd>
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-muted">Honorarios</dt>
+                                <dd class="mt-1 text-sm text-ink">{{ $proceso->honorarios !== null ? '$ '.number_format((float) $proceso->honorarios, 2, ',', '.') : 'Sin definir' }}</dd>
                             </div>
                             <div class="sm:col-span-2">
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-gray-500">Motivo de rechazo</dt>
-                                <dd class="mt-1 whitespace-pre-line text-sm text-gray-900">{{ $proceso->motivo_rechazo ?: '—' }}</dd>
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-muted">Motivo de rechazo</dt>
+                                <dd class="mt-1 whitespace-pre-line text-sm text-ink">{{ $proceso->motivo_rechazo ?: '—' }}</dd>
                             </div>
                         </dl>
                     </header>
@@ -89,69 +89,69 @@
                         <section aria-labelledby="turnos-proceso-{{ $proceso->id }}">
                             <div class="flex items-baseline justify-between gap-4">
                                 <div>
-                                    <h3 id="turnos-proceso-{{ $proceso->id }}" class="text-base font-semibold text-gray-900">Turnos relacionados</h3>
-                                    <p class="mt-1 text-sm text-gray-500">Turnos vinculados a este proceso.</p>
+                                    <h3 id="turnos-proceso-{{ $proceso->id }}" class="text-base font-semibold text-ink">Turnos relacionados</h3>
+                                    <p class="mt-1 text-sm text-muted">Turnos vinculados a este proceso.</p>
                                 </div>
                             </div>
                             <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
                                 @forelse($proceso->turnos as $turno)
-                                    <div class="rounded-lg border border-gray-200 p-4">
+                                    <div class="rounded-card border border-line p-4">
                                         <div class="flex items-start justify-between gap-3">
-                                            <p class="font-medium text-gray-900">{{ str_replace('_', ' ', ucfirst($turno->tipo)) }}</p>
-                                            <span class="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">{{ ucfirst($turno->estado) }}</span>
+                                            <p class="font-medium text-ink">{{ str_replace('_', ' ', ucfirst($turno->tipo)) }}</p>
+                                            <span class="rounded-full bg-aequitas-50 px-2.5 py-1 text-xs font-medium text-ink">{{ ucfirst($turno->estado) }}</span>
                                         </div>
-                                        <p class="mt-2 text-sm text-gray-700">{{ $turno->fecha_hora?->format('d/m/Y H:i') ?? 'Sin fecha' }}</p>
-                                        <p class="mt-1 text-sm text-gray-500">{{ $turno->profesional?->name ?? $turno->coordinador?->name ?? 'Sin responsable' }}</p>
+                                        <p class="mt-2 text-sm text-ink">{{ $turno->fecha_hora?->format('d/m/Y H:i') ?? 'Sin fecha' }}</p>
+                                        <p class="mt-1 text-sm text-muted">{{ $turno->profesional?->name ?? $turno->coordinador?->name ?? 'Sin responsable' }}</p>
                                         @if($turno->es_externo && $turno->detalle_externo)
-                                            <p class="mt-2 text-sm text-gray-600">{{ $turno->detalle_externo }}</p>
+                                            <p class="mt-2 text-sm text-muted">{{ $turno->detalle_externo }}</p>
                                         @endif
                                     </div>
                                 @empty
-                                    <p class="rounded-lg bg-gray-50 px-4 py-5 text-sm text-gray-500 md:col-span-2">Este proceso todavía no tiene turnos vinculados.</p>
+                                    <p class="rounded-card bg-canvas px-4 py-5 text-sm text-muted md:col-span-2">Este proceso todavía no tiene turnos vinculados.</p>
                                 @endforelse
                             </div>
                         </section>
 
-                        <section aria-labelledby="documentos-proceso-{{ $proceso->id }}" class="border-t border-gray-100 pt-7">
+                        <section aria-labelledby="documentos-proceso-{{ $proceso->id }}" class="border-t border-line pt-7">
                             <div>
-                                <h3 id="documentos-proceso-{{ $proceso->id }}" class="text-base font-semibold text-gray-900">Documentos</h3>
-                                <p class="mt-1 text-sm text-gray-500">Categoría, tipo e historial de versiones. El acceso a los archivos se controla por separado.</p>
+                                <h3 id="documentos-proceso-{{ $proceso->id }}" class="text-base font-semibold text-ink">Documentos</h3>
+                                <p class="mt-1 text-sm text-muted">Categoría, tipo e historial de versiones. El acceso a los archivos se controla por separado.</p>
                             </div>
                             <div class="mt-4 space-y-3">
                                 @forelse($proceso->documentos as $documento)
-                                    <div class="rounded-lg border border-gray-200 p-4">
+                                    <div class="rounded-card border border-line p-4">
                                         <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                                             <div>
-                                                <p class="font-medium text-gray-900">{{ $documento->nombre }}</p>
-                                                <p class="mt-1 text-sm text-gray-600">Categoría: {{ $documento->categoria?->nombre ?? 'Categoría histórica' }} · Tipo: {{ $documento->tipo_documento }}</p>
-                                                <p class="mt-1 text-xs text-gray-500">Cargado el {{ $documento->created_at?->format('d/m/Y') ?? '—' }}</p>
+                                                <p class="font-medium text-ink">{{ $documento->nombre }}</p>
+                                                <p class="mt-1 text-sm text-muted">Categoría: {{ $documento->categoria?->nombre ?? 'Categoría histórica' }} · Tipo: {{ $documento->tipo_documento }}</p>
+                                                <p class="mt-1 text-xs text-muted">Cargado el {{ $documento->created_at?->format('d/m/Y') ?? '—' }}</p>
                                             </div>
                                             <div class="flex flex-wrap gap-2">
                                                 @can('view', $documento)
-                                                    <a href="{{ route('procesos.documentos.show', [$proceso, $documento]) }}" class="rounded-md bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700 hover:bg-indigo-100">Ver PDF</a>
+                                                    <a href="{{ route('procesos.documentos.show', [$proceso, $documento]) }}" class="rounded-control bg-aequitas-50 min-h-11 px-3 py-2 text-xs font-semibold text-aequitas-900 hover:bg-aequitas-100">Ver PDF</a>
                                                 @endcan
                                                 @can('download', $documento)
-                                                    <a href="{{ route('procesos.documentos.download', [$proceso, $documento]) }}" class="rounded-md bg-gray-100 px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-200">Descargar</a>
+                                                    <a href="{{ route('procesos.documentos.download', [$proceso, $documento]) }}" class="rounded-control bg-aequitas-50 min-h-11 px-3 py-2 text-xs font-semibold text-ink hover:bg-aequitas-100">Descargar</a>
                                                 @endcan
                                             </div>
                                         </div>
 
                                         @if($documento->versiones->isNotEmpty())
-                                            <details class="mt-4 border-t border-gray-100 pt-3">
-                                                <summary class="cursor-pointer text-sm font-medium text-indigo-700">Historial · {{ $documento->versiones->count() }} {{ $documento->versiones->count() === 1 ? 'versión anterior' : 'versiones anteriores' }}</summary>
+                                            <details class="mt-4 border-t border-line pt-3">
+                                                <summary class="cursor-pointer text-sm font-medium text-aequitas-900">Historial · {{ $documento->versiones->count() }} {{ $documento->versiones->count() === 1 ? 'versión anterior' : 'versiones anteriores' }}</summary>
                                                 <ul class="mt-3 space-y-3">
                                                     @foreach($documento->versiones as $version)
-                                                        <li class="flex flex-col gap-3 rounded-md bg-gray-50 p-3 sm:flex-row sm:items-center sm:justify-between" wire:key="legajo-documento-version-{{ $version->id }}">
+                                                        <li class="flex flex-col gap-3 rounded-control bg-canvas p-3 sm:flex-row sm:items-center sm:justify-between" wire:key="legajo-documento-version-{{ $version->id }}">
                                                             <div>
-                                                                <p class="text-sm font-medium text-gray-800">{{ $version->nombre }} · {{ $version->categoria_nombre ?: $version->categoria?->nombre ?: 'Sin categoría' }}</p>
-                                                                <p class="mt-1 text-xs text-gray-500">{{ $version->tipo_documento }} · Reemplazado {{ $version->fecha_reemplazo?->format('d/m/Y H:i') ?? '—' }} · {{ $version->usuario?->name ?? 'Usuario eliminado' }}</p>
+                                                                <p class="text-sm font-medium text-ink">{{ $version->nombre }} · {{ $version->categoria_nombre ?: $version->categoria?->nombre ?: 'Sin categoría' }}</p>
+                                                                <p class="mt-1 text-xs text-muted">{{ $version->tipo_documento }} · Reemplazado {{ $version->fecha_reemplazo?->format('d/m/Y H:i') ?? '—' }} · {{ $version->usuario?->name ?? 'Usuario eliminado' }}</p>
                                                             </div>
                                                             <div class="flex flex-wrap gap-2">
                                                                 @can('view', $documento)
-                                                                    <a href="{{ route('procesos.documentos.versiones.show', [$proceso, $documento, $version]) }}" class="rounded-md bg-white px-3 py-2 text-xs font-semibold text-indigo-700 ring-1 ring-inset ring-gray-300 hover:bg-indigo-50">Ver versión</a>
+                                                                    <a href="{{ route('procesos.documentos.versiones.show', [$proceso, $documento, $version]) }}" class="rounded-control bg-white min-h-11 px-3 py-2 text-xs font-semibold text-aequitas-900 ring-1 ring-inset ring-line hover:bg-aequitas-50">Ver versión</a>
                                                                 @endcan
                                                                 @can('download', $documento)
-                                                                    <a href="{{ route('procesos.documentos.versiones.download', [$proceso, $documento, $version]) }}" class="rounded-md bg-white px-3 py-2 text-xs font-semibold text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-100">Descargar versión</a>
+                                                                    <a href="{{ route('procesos.documentos.versiones.download', [$proceso, $documento, $version]) }}" class="rounded-control bg-white min-h-11 px-3 py-2 text-xs font-semibold text-ink ring-1 ring-inset ring-line hover:bg-aequitas-50">Descargar versión</a>
                                                                 @endcan
                                                             </div>
                                                         </li>
@@ -159,37 +159,37 @@
                                                 </ul>
                                             </details>
                                         @else
-                                            <p class="mt-3 text-xs text-gray-500">Sin versiones anteriores.</p>
+                                            <p class="mt-3 text-xs text-muted">Sin versiones anteriores.</p>
                                         @endif
                                     </div>
                                 @empty
-                                    <p class="rounded-lg bg-gray-50 px-4 py-5 text-sm text-gray-500">Este proceso todavía no tiene documentos.</p>
+                                    <p class="rounded-card bg-canvas px-4 py-5 text-sm text-muted">Este proceso todavía no tiene documentos.</p>
                                 @endforelse
                             </div>
                         </section>
 
-                        <section aria-labelledby="reportes-proceso-{{ $proceso->id }}" class="border-t border-gray-100 pt-7">
+                        <section aria-labelledby="reportes-proceso-{{ $proceso->id }}" class="border-t border-line pt-7">
                             <div>
-                                <h3 id="reportes-proceso-{{ $proceso->id }}" class="text-base font-semibold text-gray-900">Reportes</h3>
-                                <p class="mt-1 text-sm text-gray-500">Reuniones, avances y acciones registradas en el proceso.</p>
+                                <h3 id="reportes-proceso-{{ $proceso->id }}" class="text-base font-semibold text-ink">Reportes</h3>
+                                <p class="mt-1 text-sm text-muted">Reuniones, avances y acciones registradas en el proceso.</p>
                             </div>
 
                             @can('createFor', $proceso)
-                                <details class="mt-4 rounded-lg border border-indigo-200 bg-indigo-50/50 p-4">
-                                    <summary class="cursor-pointer font-medium text-indigo-800">Registrar reporte</summary>
+                                <details class="mt-4 rounded-card border border-aequitas-100 bg-aequitas-50/50 p-4">
+                                    <summary class="cursor-pointer font-medium text-aequitas-900">Registrar reporte</summary>
                                     <form method="POST" action="{{ route('procesos.reportes.store', $proceso) }}" class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
                                         @csrf
                                         <input type="hidden" name="proceso_id" value="{{ $proceso->id }}" />
                                         <div>
-                                            <label for="reporte-fecha-{{ $proceso->id }}" class="block text-sm font-medium text-gray-700">Fecha</label>
-                                            <input id="reporte-fecha-{{ $proceso->id }}" type="date" name="fecha" max="{{ now()->toDateString() }}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                                            <label for="reporte-fecha-{{ $proceso->id }}" class="block text-sm font-medium text-ink">Fecha</label>
+                                            <input id="reporte-fecha-{{ $proceso->id }}" type="date" name="fecha" max="{{ now()->toDateString() }}" required class="mt-1 block w-full rounded-control border-line shadow-panel focus:border-gold-600 focus:ring-gold-600" />
                                         </div>
                                         <div class="sm:col-span-2">
-                                            <label for="reporte-contenido-{{ $proceso->id }}" class="block text-sm font-medium text-gray-700">Contenido</label>
-                                            <textarea id="reporte-contenido-{{ $proceso->id }}" name="contenido" rows="4" maxlength="20000" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
+                                            <label for="reporte-contenido-{{ $proceso->id }}" class="block text-sm font-medium text-ink">Contenido</label>
+                                            <textarea id="reporte-contenido-{{ $proceso->id }}" name="contenido" rows="4" maxlength="20000" required class="mt-1 block w-full rounded-control border-line shadow-panel focus:border-gold-600 focus:ring-gold-600"></textarea>
                                         </div>
                                         <div class="sm:col-span-2 sm:text-right">
-                                            <button type="submit" class="inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Guardar reporte</button>
+                                            <button type="submit" class="inline-flex items-center justify-center rounded-control bg-aequitas-900 min-h-11 px-4 py-2 text-sm font-semibold text-white hover:bg-aequitas-800 focus:outline-none focus:ring-2 focus:ring-gold-600 focus:ring-offset-2">Guardar reporte</button>
                                         </div>
                                     </form>
                                 </details>
@@ -197,29 +197,29 @@
 
                             <div class="mt-4 space-y-4">
                                 @forelse($proceso->reportes as $reporte)
-                                    <article class="rounded-lg border border-gray-200 p-4" wire:key="legajo-reporte-{{ $reporte->id }}">
+                                    <article class="rounded-card border border-line p-4" wire:key="legajo-reporte-{{ $reporte->id }}">
                                         <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                                             <div>
-                                                <p class="text-sm font-semibold text-gray-900">{{ $reporte->fecha?->format('d/m/Y') ?? 'Sin fecha' }}</p>
-                                                <p class="mt-1 text-xs text-gray-500">Autor: {{ $reporte->profesional?->name ?? 'Usuario eliminado' }}@if($reporte->registrado_por_id && $reporte->registrado_por_id !== $reporte->profesional_id) · Registrado por {{ $reporte->registradoPor?->name ?? 'Usuario eliminado' }}@endif</p>
+                                                <p class="text-sm font-semibold text-ink">{{ $reporte->fecha?->format('d/m/Y') ?? 'Sin fecha' }}</p>
+                                                <p class="mt-1 text-xs text-muted">Autor: {{ $reporte->profesional?->name ?? 'Usuario eliminado' }}@if($reporte->registrado_por_id && $reporte->registrado_por_id !== $reporte->profesional_id) · Registrado por {{ $reporte->registradoPor?->name ?? 'Usuario eliminado' }}@endif</p>
                                             </div>
                                             <div class="flex flex-wrap gap-2">
                                                 @can('view', $reporte)
-                                                    <a href="{{ route('procesos.reportes.historial', [$proceso, $reporte]) }}" class="rounded-md bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700 hover:bg-indigo-100">Ver historial</a>
+                                                    <a href="{{ route('procesos.reportes.historial', [$proceso, $reporte]) }}" class="rounded-control bg-aequitas-50 min-h-11 px-3 py-2 text-xs font-semibold text-aequitas-900 hover:bg-aequitas-100">Ver historial</a>
                                                 @endcan
                                                 @can('update', $reporte)
-                                                    <details class="rounded-md bg-gray-100 px-3 py-2 text-xs font-semibold text-gray-700">
+                                                    <details class="rounded-control bg-aequitas-50 min-h-11 px-3 py-2 text-xs font-semibold text-ink">
                                                         <summary class="cursor-pointer">Editar</summary>
                                                         <form method="POST" action="{{ route('procesos.reportes.update', [$proceso, $reporte]) }}" class="mt-3 grid min-w-64 gap-3">
                                                             @csrf
                                                             @method('PUT')
-                                                            <label class="grid gap-1 text-xs font-medium text-gray-600">Fecha
-                                                                <input type="date" name="fecha" value="{{ $reporte->fecha?->format('Y-m-d') }}" max="{{ now()->toDateString() }}" required class="rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                                                            <label class="grid gap-1 text-xs font-medium text-muted">Fecha
+                                                                <input type="date" name="fecha" value="{{ $reporte->fecha?->format('Y-m-d') }}" max="{{ now()->toDateString() }}" required class="rounded-control border-line text-sm shadow-panel focus:border-gold-600 focus:ring-gold-600" />
                                                             </label>
-                                                            <label class="grid gap-1 text-xs font-medium text-gray-600">Contenido
-                                                                <textarea name="contenido" rows="4" maxlength="20000" required class="rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ $reporte->contenido }}</textarea>
+                                                            <label class="grid gap-1 text-xs font-medium text-muted">Contenido
+                                                                <textarea name="contenido" rows="4" maxlength="20000" required class="rounded-control border-line text-sm shadow-panel focus:border-gold-600 focus:ring-gold-600">{{ $reporte->contenido }}</textarea>
                                                             </label>
-                                                            <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-xs font-semibold text-white hover:bg-indigo-700">Guardar cambios</button>
+                                                            <button type="submit" class="rounded-control bg-aequitas-900 min-h-11 px-3 py-2 text-xs font-semibold text-white hover:bg-aequitas-800">Guardar cambios</button>
                                                         </form>
                                                     </details>
                                                 @endcan
@@ -227,45 +227,45 @@
                                                     <form method="POST" action="{{ route('procesos.reportes.destroy', [$proceso, $reporte]) }}">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="rounded-md bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 hover:bg-red-100">Eliminar</button>
+                                                        <button type="submit" class="rounded-control bg-red-50 min-h-11 px-3 py-2 text-xs font-semibold text-red-700 hover:bg-red-100">Eliminar</button>
                                                     </form>
                                                 @endcan
                                             </div>
                                         </div>
-                                        <p class="mt-4 whitespace-pre-line text-sm leading-6 text-gray-700">{{ $reporte->contenido }}</p>
+                                        <p class="mt-4 whitespace-pre-line text-sm leading-6 text-ink">{{ $reporte->contenido }}</p>
                                     </article>
                                 @empty
-                                    <p class="rounded-lg bg-gray-50 px-4 py-5 text-sm text-gray-500">No hay reportes visibles para este proceso.</p>
+                                    <p class="rounded-card bg-canvas px-4 py-5 text-sm text-muted">No hay reportes visibles para este proceso.</p>
                                 @endforelse
                             </div>
                         </section>
 
                         @if($user->can('ver_comprobantes_pago'))
-                            <section aria-labelledby="comprobantes-proceso-{{ $proceso->id }}" class="border-t border-gray-100 pt-7">
-                                <h3 id="comprobantes-proceso-{{ $proceso->id }}" class="text-base font-semibold text-gray-900">Comprobantes y pagos</h3>
+                            <section aria-labelledby="comprobantes-proceso-{{ $proceso->id }}" class="border-t border-line pt-7">
+                                <h3 id="comprobantes-proceso-{{ $proceso->id }}" class="text-base font-semibold text-ink">Comprobantes y pagos</h3>
                                 <div class="mt-4 space-y-3">
                                     @forelse($comprobantes->where('proceso_id', $proceso->id) as $comprobante)
-                                        <div class="flex flex-col gap-3 rounded-lg border border-gray-200 p-4 sm:flex-row sm:items-center sm:justify-between" wire:key="legajo-comprobante-{{ $comprobante->id }}">
+                                        <div class="flex flex-col gap-3 rounded-card border border-line p-4 sm:flex-row sm:items-center sm:justify-between" wire:key="legajo-comprobante-{{ $comprobante->id }}">
                                             <div>
-                                                <p class="font-medium text-gray-900">{{ $comprobante->descripcion ?: 'Comprobante de pago' }}</p>
-                                                <p class="mt-1 text-sm text-gray-500">{{ $comprobante->fecha_subida?->format('d/m/Y') ?? 'Sin fecha' }} · {{ $comprobante->proceso?->nombre ?? 'Vinculado al cliente' }}</p>
+                                                <p class="font-medium text-ink">{{ $comprobante->descripcion ?: 'Comprobante de pago' }}</p>
+                                                <p class="mt-1 text-sm text-muted">{{ $comprobante->fecha_subida?->format('d/m/Y') ?? 'Sin fecha' }} · {{ $comprobante->proceso?->nombre ?? 'Vinculado al cliente' }}</p>
                                             </div>
                                             @can('view', $comprobante)
-                                                <a href="{{ route('comprobantes.show', $comprobante) }}" class="inline-flex w-fit items-center justify-center rounded-md bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700 hover:bg-indigo-100">Ver comprobante</a>
+                                                <a href="{{ route('comprobantes.show', $comprobante) }}" class="inline-flex w-fit items-center justify-center rounded-control bg-aequitas-50 min-h-11 px-3 py-2 text-xs font-semibold text-aequitas-900 hover:bg-aequitas-100">Ver comprobante</a>
                                             @endcan
                                         </div>
                                     @empty
-                                        <p class="rounded-lg bg-gray-50 px-4 py-5 text-sm text-gray-500">Este proceso todavía no tiene comprobantes vinculados.</p>
+                                        <p class="rounded-card bg-canvas px-4 py-5 text-sm text-muted">Este proceso todavía no tiene comprobantes vinculados.</p>
                                     @endforelse
                                 </div>
                             </section>
                         @endif
 
-                        <section aria-labelledby="historial-proceso-{{ $proceso->id }}" class="border-t border-gray-100 pt-7">
-                            <h3 id="historial-proceso-{{ $proceso->id }}" class="text-base font-semibold text-gray-900">Historial de estados</h3>
-                            <div class="mt-4 overflow-x-auto rounded-lg border border-gray-200">
-                                <table class="w-full min-w-[650px] text-left text-sm text-gray-600">
-                                    <thead class="bg-gray-50 text-xs uppercase tracking-wide text-gray-700">
+                        <section aria-labelledby="historial-proceso-{{ $proceso->id }}" class="border-t border-line pt-7">
+                            <h3 id="historial-proceso-{{ $proceso->id }}" class="text-base font-semibold text-ink">Historial de estados</h3>
+                            <div class="mt-4 overflow-x-auto rounded-card border border-line">
+                                <table class="w-full min-w-[650px] text-left text-sm text-muted">
+                                    <thead class="bg-canvas text-xs uppercase tracking-wide text-ink">
                                         <tr>
                                             <th scope="col" class="px-4 py-3">Estado anterior</th>
                                             <th scope="col" class="px-4 py-3">Estado nuevo</th>
@@ -274,17 +274,17 @@
                                             <th scope="col" class="px-4 py-3">Motivo</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="divide-y divide-gray-100 bg-white">
+                                    <tbody class="divide-y divide-line bg-white">
                                         @forelse($proceso->historialEstados as $historial)
                                             <tr wire:key="legajo-historial-{{ $historial->id }}">
                                                 <td class="px-4 py-3">{{ $historial->estado_anterior ? str_replace('_', ' ', ucfirst($historial->estado_anterior)) : '—' }}</td>
-                                                <td class="px-4 py-3 font-medium text-gray-900">{{ str_replace('_', ' ', ucfirst($historial->estado_nuevo)) }}</td>
+                                                <td class="px-4 py-3 font-medium text-ink">{{ str_replace('_', ' ', ucfirst($historial->estado_nuevo)) }}</td>
                                                 <td class="px-4 py-3">{{ $historial->fecha_cambio?->format('d/m/Y H:i') ?? '—' }}</td>
                                                 <td class="px-4 py-3">{{ $historial->usuario?->name ?? 'Sistema' }}</td>
                                                 <td class="px-4 py-3">{{ $historial->motivo ?: '—' }}</td>
                                             </tr>
                                         @empty
-                                            <tr><td colspan="5" class="px-4 py-6 text-center text-gray-500">Este proceso todavía no tiene cambios de estado.</td></tr>
+                                            <tr><td colspan="5" class="px-4 py-6 text-center text-muted">Este proceso todavía no tiene cambios de estado.</td></tr>
                                         @endforelse
                                     </tbody>
                                 </table>
@@ -293,26 +293,26 @@
                     </div>
                 </article>
             @empty
-                <section class="rounded-xl border border-dashed border-gray-300 bg-white px-6 py-12 text-center">
-                    <h2 class="text-lg font-semibold text-gray-900">No hay procesos visibles</h2>
-                    <p class="mt-2 text-sm text-gray-600">Este cliente no tiene procesos disponibles para tu alcance.</p>
+                <section class="rounded-panel border border-dashed border-line bg-white px-6 py-12 text-center">
+                    <h2 class="text-lg font-semibold text-ink">No hay procesos visibles</h2>
+                    <p class="mt-2 text-sm text-muted">Este cliente no tiene procesos disponibles para tu alcance.</p>
                 </section>
             @endforelse
 
             @if($turnosSinProceso->isNotEmpty())
-                <section class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-7">
-                    <h2 class="text-base font-semibold text-gray-900">Turnos del cliente sin proceso asociado</h2>
+                <section class="rounded-panel border border-line bg-white p-5 shadow-panel sm:p-7">
+                    <h2 class="text-base font-semibold text-ink">Turnos del cliente sin proceso asociado</h2>
                     <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
                         @foreach($turnosSinProceso as $turno)
-                            <div class="rounded-lg border border-gray-200 p-4" wire:key="legajo-turno-cliente-{{ $turno->id }}">
+                            <div class="rounded-card border border-line p-4" wire:key="legajo-turno-cliente-{{ $turno->id }}">
                                 <div class="flex items-start justify-between gap-3">
-                                    <p class="font-medium text-gray-900">{{ str_replace('_', ' ', ucfirst($turno->tipo)) }}</p>
-                                    <span class="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">{{ ucfirst($turno->estado) }}</span>
+                                    <p class="font-medium text-ink">{{ str_replace('_', ' ', ucfirst($turno->tipo)) }}</p>
+                                    <span class="rounded-full bg-aequitas-50 px-2.5 py-1 text-xs font-medium text-ink">{{ ucfirst($turno->estado) }}</span>
                                 </div>
-                                <p class="mt-2 text-sm text-gray-700">{{ $turno->fecha_hora?->format('d/m/Y H:i') ?? 'Sin fecha' }}</p>
-                                <p class="mt-1 text-sm text-gray-500">{{ $turno->profesional?->name ?? $turno->coordinador?->name ?? 'Sin responsable' }}</p>
+                                <p class="mt-2 text-sm text-ink">{{ $turno->fecha_hora?->format('d/m/Y H:i') ?? 'Sin fecha' }}</p>
+                                <p class="mt-1 text-sm text-muted">{{ $turno->profesional?->name ?? $turno->coordinador?->name ?? 'Sin responsable' }}</p>
                                 @if($turno->es_externo && $turno->detalle_externo)
-                                    <p class="mt-2 text-sm text-gray-600">{{ $turno->detalle_externo }}</p>
+                                    <p class="mt-2 text-sm text-muted">{{ $turno->detalle_externo }}</p>
                                 @endif
                             </div>
                         @endforeach
@@ -321,21 +321,21 @@
             @endif
 
             @if($user->can('ver_comprobantes_pago'))
-                <section class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-7">
-                    <h2 class="text-base font-semibold text-gray-900">Comprobantes del cliente sin proceso asociado</h2>
+                <section class="rounded-panel border border-line bg-white p-5 shadow-panel sm:p-7">
+                    <h2 class="text-base font-semibold text-ink">Comprobantes del cliente sin proceso asociado</h2>
                     <div class="mt-4 space-y-3">
                         @forelse($comprobantes->whereNull('proceso_id') as $comprobante)
-                            <div class="flex flex-col gap-3 rounded-lg border border-gray-200 p-4 sm:flex-row sm:items-center sm:justify-between" wire:key="legajo-comprobante-cliente-{{ $comprobante->id }}">
+                            <div class="flex flex-col gap-3 rounded-card border border-line p-4 sm:flex-row sm:items-center sm:justify-between" wire:key="legajo-comprobante-cliente-{{ $comprobante->id }}">
                                 <div>
-                                    <p class="font-medium text-gray-900">{{ $comprobante->descripcion ?: 'Comprobante de pago' }}</p>
-                                    <p class="mt-1 text-sm text-gray-500">{{ $comprobante->fecha_subida?->format('d/m/Y') ?? 'Sin fecha' }}</p>
+                                    <p class="font-medium text-ink">{{ $comprobante->descripcion ?: 'Comprobante de pago' }}</p>
+                                    <p class="mt-1 text-sm text-muted">{{ $comprobante->fecha_subida?->format('d/m/Y') ?? 'Sin fecha' }}</p>
                                 </div>
                                 @can('view', $comprobante)
-                                    <a href="{{ route('comprobantes.show', $comprobante) }}" class="inline-flex w-fit items-center justify-center rounded-md bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700 hover:bg-indigo-100">Ver comprobante</a>
+                                    <a href="{{ route('comprobantes.show', $comprobante) }}" class="inline-flex w-fit items-center justify-center rounded-control bg-aequitas-50 min-h-11 px-3 py-2 text-xs font-semibold text-aequitas-900 hover:bg-aequitas-100">Ver comprobante</a>
                                 @endcan
                             </div>
                         @empty
-                            <p class="rounded-lg bg-gray-50 px-4 py-5 text-sm text-gray-500">No hay comprobantes vinculados directamente al cliente.</p>
+                            <p class="rounded-card bg-canvas px-4 py-5 text-sm text-muted">No hay comprobantes vinculados directamente al cliente.</p>
                         @endforelse
                     </div>
                 </section>
