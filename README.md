@@ -20,7 +20,7 @@ Este repositorio sirve como base para el sistema de gestión construido con **La
 - **PHP** ^8.4 (con extensiones: `pdo_sqlite`, `pdo_mysql`, `openssl`, `mbstring`, `tokenizer`, `xml`, `ctype`, `json`, `bcmath`)
 - **Composer** (gestor de dependencias PHP)
 - **Node.js** + **npm** (para compilar assets con Vite)
-- **MySQL** (todos los desarrolladores usan MySQL en local)
+- Base de datos: **SQLite** (no requiere servidor ni Docker) o **MySQL/PostgreSQL** si preferís un motor externo
 
 ---
 
@@ -41,23 +41,64 @@ copy .env.example .env        # Windows
 
 # 4. Generar APP_KEY
 php artisan key:generate
+```
 
-# 5. Configurar base de datos en .env
-# DB_CONNECTION=mysql
-# DB_HOST=127.0.0.1
-# DB_PORT=3306
-# DB_DATABASE=nombre_bd
-# DB_USERNAME=root
-# DB_PASSWORD=
+Después elegí **una** de las dos formas de base de datos:
 
-# 6. Crear base de datos y correr migraciones
+#### Opción A — SQLite (local, sin Docker ni servidor de BD)
+
+`.env.example` ya viene preparado para SQLite. En `.env` verificá que exista:
+
+```env
+DB_CONNECTION=sqlite
+```
+
+No definas `DB_DATABASE`: Laravel usa por defecto `database/database.sqlite`. Luego creá el archivo y cargá el esquema con datos de demostración:
+
+```bash
+# Windows PowerShell (crear el archivo antes de migrar)
+New-Item -ItemType File -Path database/database.sqlite
+
+# Linux/Mac
+touch database/database.sqlite
+
+php artisan migrate --seed
+```
+
+El seed carga roles, permisos, estados, categorías, servicios, usuarios y datos de demostración (clientes, procesos con estados variados, turnos, documentos, reportes y comprobantes).
+
+#### Opción B — MySQL o PostgreSQL (base de datos externa)
+
+Configurá la conexión en `.env`, por ejemplo para MySQL:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=nombre_bd
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+O para PostgreSQL:
+
+```env
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=nombre_bd
+DB_USERNAME=postgres
+DB_PASSWORD=
+```
+
+Creá la base y corré las migraciones:
+
+```bash
 php artisan migrate
-
-# 7. (Opcional) Cargar datos de prueba
 php artisan db:seed
 ```
 
-### Levantar el proyecto con Docker (recomendado)
+### Levantar el proyecto con Docker
 
 ```bash
 docker compose up -d
@@ -73,6 +114,8 @@ Laravel queda disponible en `http://localhost:8000` y el servicio Vite se inicia
 
 ### Levantar el proyecto sin Docker
 
+Con SQLite no hace falta levantar ningún servicio adicional. Usá dos terminales:
+
 ```bash
 # Terminal 1 — Servidor Laravel
 php artisan serve
@@ -84,6 +127,29 @@ npm run dev
 ```
 
 > **Nota Windows:** Si `php artisan serve` falla con `Failed to listen on 127.0.0.1:8000`, usá `php artisan serve --no-reload`. Esto soluciona un bug conocido de Laravel en Windows al filtrar variables de entorno.
+
+También podés levantar todo junto (servidor, colas, logs y Vite):
+
+```bash
+composer run dev
+```
+
+Si no vas a tocar el frontend, alcanza con compilar los assets una vez (`npm run build`) y ejecutar sólo `php artisan serve`.
+
+### Usuarios de demostración
+
+Después de `php artisan migrate --seed`, podés ingresar en `http://localhost:8000` con:
+
+| Rol | Email | Contraseña |
+| :--- | :--- | :--- |
+| Administrador | `admin@example.com` | `1234` |
+| Secretario | `carlos@example.com` | `1234` |
+| Profesional | `juanperez@example.com` | `1234` |
+| Coordinador | `coordinador@example.com` | `1234` |
+| Directivo | `directivo@example.com` | `1234` |
+
+Los procesos de demostración se generan con estados variados (pendiente, admitido, iniciado, en proceso, en espera, finalizado y rechazado) para probar los filtros y el tablero.
+
 
 ---
 

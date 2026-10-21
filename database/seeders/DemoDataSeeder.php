@@ -49,13 +49,11 @@ class DemoDataSeeder extends Seeder
 
     /** @var list<string> */
     private const PROCESS_STATES = [
-        'pendiente', 'pendiente', 'pendiente',
-        'admitido', 'admitido', 'admitido',
-        'iniciado', 'iniciado', 'iniciado',
-        'en_proceso', 'en_proceso', 'en_proceso',
-        'en_espera', 'en_espera', 'en_espera',
-        'finalizado', 'finalizado', 'finalizado',
-        'rechazado', 'rechazado', 'rechazado',
+        'pendiente', 'admitido', 'en_proceso', 'finalizado', 'iniciado',
+        'pendiente', 'en_espera', 'admitido', 'finalizado', 'iniciado',
+        'pendiente', 'en_proceso', 'rechazado', 'admitido', 'en_espera',
+        'iniciado', 'finalizado', 'pendiente', 'en_proceso', 'admitido',
+        'en_espera',
     ];
 
     /** @var list<array{nombre: string, apellido: string}> */
