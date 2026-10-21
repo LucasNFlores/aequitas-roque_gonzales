@@ -48,12 +48,14 @@ Las fuentes disponibles son `font-sans` (Figtree) y `font-editorial` (Playfair D
 
 ## Pantallas administrativas y alcance
 
-Esta implementación cubre el layout autenticado, la navegación, botones, campos, labels, errores y feedback compartidos. No reorganiza las pantallas de módulos ni reemplaza en masa utilidades locales explícitas, componentes nativos de Livewire, insignias, tablas o gráficos. Esas superficies pueden conservar acentos índigo o defaults anteriores hasta que cada chat de módulo adopte los tokens compartidos.
+La base visual compartida cubre el layout autenticado, la navegación, botones, campos, labels, errores y feedback. La primera adopción por módulo cubre clientes, turnos/agenda y comprobantes de pago: tablas de escritorio y tarjetas móviles conservan los datos y las acciones autorizadas, y los formularios aplican superficies y foco de la misma base. Los filtros, búsquedas, permisos y estados operativos existentes se mantienen.
+
+Los demás módulos todavía pueden conservar utilidades locales o defaults anteriores hasta que se adapten por separado. Esta cobertura no incluye `layouts.static` ni `static-navigation`, usados por la versión legada de servicios.
 
 ## Recomendaciones futuras
 
-1. Migrar por módulo las utilidades de color locales a tokens semánticos, revisando cada estado y contraste en la pantalla correspondiente.
-2. Revisar tablas, tarjetas, insignias, filtros y estados vacíos de cada módulo para acordar su aplicación de radios y elevación compartidos sin alterar densidad de datos.
+1. Continuar la adopción por módulo en las pantallas administrativas pendientes, revisando colores, estados y contraste en cada flujo.
+2. Revisar tablas, tarjetas, insignias, filtros y estados vacíos pendientes para aplicar radios y elevación compartidos sin alterar densidad de datos.
 3. Limitar Playfair Display a la marca y a encabezados editoriales puntuales, manteniendo Figtree para contenido y controles.
 4. Revisar por separado `layouts.static` y `static-navigation`, usados por la versión legada de servicios, cuando se planifique su retiro o alineación.
 

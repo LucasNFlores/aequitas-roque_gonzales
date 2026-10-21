@@ -4,7 +4,7 @@
         @method('PUT')
     @endif
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div>
             <x-forms.input-label for="nombre" :value="__('Nombre')" />
             <x-forms.text-input id="nombre" class="block mt-1 w-full" type="text" name="nombre" :value="old('nombre', $cliente->nombre ?? '')" required autofocus />
@@ -18,7 +18,7 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div>
             <x-forms.input-label for="dni" :value="__('DNI')" />
             <x-forms.text-input id="dni" class="block mt-1 w-full" type="text" name="dni" :value="old('dni', $cliente->dni ?? '')" required />
@@ -60,11 +60,11 @@
         </div>
     @endif
 
-    <div class="border-t border-gray-200 pt-4 flex space-x-3">
+    <div class="flex flex-col gap-3 border-t border-[#dde2e8] pt-5 sm:flex-row">
         <x-buttons.primary-button>
             {{ $submitLabel }}
         </x-buttons.primary-button>
-        <a href="{{ route('clientes.index') }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
+        <a href="{{ route('clientes.index') }}" class="inline-flex min-h-11 items-center justify-center rounded-control border border-[#c7ced7] bg-white px-4 py-2 text-sm font-semibold text-[#172538] shadow-sm transition hover:bg-[#f5f6f8] focus:outline-none focus:ring-2 focus:ring-[#8c6936] focus:ring-offset-2">
             Cancelar
         </a>
     </div>
