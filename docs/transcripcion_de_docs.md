@@ -89,7 +89,7 @@ El cliente se registra como dato administrativo. No inicia sesión, no tiene cre
 | CU 40 | Gestión Directiva | Consultar Dashboard del Directivo (métricas pendientes de definición) | Directivo |
 
 El Administrador está autorizado en todos los casos de uso, por su carácter de superadministrador.
-CU 39 sigue pendiente de implementación. El dashboard operativo HU-22 ya está implementado. El 2026-10-15 se aprobaron las métricas estratégicas de Directivo para CU 40 y, por separado, el panel operativo de Administrador descrito en OpenSpec. La matriz online conserva su nota de métricas pendientes y no se modifica en esta tarea.
+CU 39 está implementado con autorización de Coordinador y Administrador. El dashboard operativo HU-22 ya está implementado. El 2026-10-15 se aprobaron las métricas estratégicas de Directivo para CU 40 y, por separado, el panel operativo de Administrador descrito en OpenSpec. La matriz online conserva su nota de métricas pendientes y no se modifica en esta tarea.
 
 ## 5. Reglas funcionales complementarias
 
@@ -133,7 +133,7 @@ Coordinador y Administrador pueden crear, editar, activar, desactivar, dar de ba
 
 ### Informe PDF de documentos por categoría (CU 39)
 
-El Coordinador y el Administrador pueden generar un resumen PDF por categoría para un período, con filtros de estado y categoría. El informe presenta cantidades y última fecha de carga; no contiene ni adjunta los archivos individuales. El Directivo no recibe acceso a documentación ni a este informe por consultar el legajo. La funcionalidad aún no está implementada en dev.
+El Coordinador y el Administrador pueden consultar un resumen por categoría y descargarlo como PDF, con filtros de estado y categoría. Por defecto incluye hoy y los 29 días previos. El rango personalizado exige ambas fechas válidas, no futuras, ordenadas y limitado a 366 días calendario. El informe presenta cantidades y última fecha de carga; no contiene ni adjunta archivos individuales. El Directivo no recibe acceso al informe por consultar el legajo.
 
 ### Dashboard del Directivo (CU 40)
 

@@ -139,6 +139,12 @@
                             </svg>
                             <span>{{ __('Categorías') }}</span>
                         </x-navigation.nav-link>
+                        <x-navigation.nav-link :href="route('reportes.documentos.index')" :active="request()->routeIs('reportes.documentos.*')">
+                            <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 3.75h7.25L19 8.5v11.75A1.75 1.75 0 0 1 17.25 22h-10.5A1.75 1.75 0 0 1 5 20.25v-14.5A1.75 1.75 0 0 1 6.75 4H7Zm7.25 0V9H19M8.5 13h7m-7 3.5h7" />
+                            </svg>
+                            <span>{{ __('Informe documental') }}</span>
+                        </x-navigation.nav-link>
                     @endcan
 
                     @can('ver_agenda_profesional')

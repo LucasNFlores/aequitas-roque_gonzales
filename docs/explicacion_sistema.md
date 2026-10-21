@@ -91,9 +91,9 @@ El alta inicial crea un registro interno dirigido al Coordinador, con canal, des
 
 > Detalle de matriz: `RoleSeeder.php:15` y `docs/gestion-usuarios-roles-servicios.md:3`.
 
-## Funcionalidad especificada pendiente
+## Informe documental (CU 39)
 
-- **CU 39 — Informe PDF de documentos por categoría:** propuesta para Coordinador y Administrador, con filtros por período, estado y categoría y un resumen de cantidades y última carga. El PDF no incluye los archivos individuales. La funcionalidad aún no está implementada en dev.
+Coordinador y Administrador pueden consultar el informe por categoría y descargarlo como PDF. Por defecto abarca hoy y los 29 días anteriores. El rango manual exige ambas fechas, no admite fechas futuras ni períodos invertidos y está limitado a 366 días. Se puede filtrar por estado y categoría; el resumen no incluye los archivos originales. El acceso usa la autorización de CU 37.
 
 ## Dashboard operativo (HU-22 / CU 40)
 

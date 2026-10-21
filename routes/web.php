@@ -8,6 +8,7 @@ use App\Http\Controllers\LegajoController;
 use App\Http\Controllers\ProcesoController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReporteController;
+use App\Http\Controllers\ReporteDocumentoController;
 use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\UserController;
 use App\Models\Proceso;
@@ -109,6 +110,11 @@ Route::middleware(['auth', 'permission:gestionar_estados_proceso'])->group(funct
 
 Route::middleware(['auth', 'permission:gestionar_categorias_documentos'])->group(function () {
     Route::get('/categorias', fn () => view('categorias.index'))->name('categorias.index');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/reportes/documentos', [ReporteDocumentoController::class, 'index'])->name('reportes.documentos.index');
+    Route::get('/reportes/documentos/pdf', [ReporteDocumentoController::class, 'pdf'])->name('reportes.documentos.pdf');
 });
 
 // -----------------------------------------------------------------------------

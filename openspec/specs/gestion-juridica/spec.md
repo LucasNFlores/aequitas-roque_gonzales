@@ -353,6 +353,31 @@ Coordinador y Administrador MUST poder administrar estados de proceso y categor�
 - **THEN** el sistema conserva su asociación histórica y los documentos y archivos relacionados, sin dejar datos activos sin transición válida
 - **AND** la restauración complementaria conserva el valor activo o inactivo previo y usa la autorización existente de CU 37
 
+### Requirement: Generar informe PDF de documentos por categoría (CU 39)
+
+El sistema MUST permitir al Coordinador y al Administrador generar un informe PDF que resuma documentos por categoría para un período. El informe MUST permitir filtrar por período, estado de categoría y categoría, y MUST presentar cantidades de documentos y la última fecha de carga por categoría. Si no se ingresa un período, MUST usar hoy y los 29 días anteriores, inclusive. Si se ingresan fechas, MUST exigir ambas, validar el formato y existencia de cada fecha, rechazar fechas futuras, exigir `desde <= hasta` y limitar el rango a 366 días calendario inclusive. El informe MUST NOT incluir ni adjuntar los archivos originales. El Directivo MUST NOT obtener acceso a este informe por el solo hecho de poder consultar legajos. El Administrador MUST conservar acceso como superadministrador.
+
+#### Scenario: Coordinador genera informe PDF de documentos
+
+- **WHEN** un Coordinador solicita el informe con filtros válidos
+- **THEN** el sistema genera un PDF agregado que respeta el período, estado y categoría seleccionados
+- **AND** el resultado presenta las cantidades y la última fecha de carga sin exponer los archivos individuales
+
+#### Scenario: CU 39 usa el período predeterminado
+
+- **WHEN** un Coordinador abre el informe sin indicar fechas
+- **THEN** el sistema consulta desde hoy menos 29 días hasta hoy, inclusive
+
+#### Scenario: CU 39 rechaza un período inválido
+
+- **WHEN** se envía una sola fecha, una fecha imposible o futura, un rango invertido o un período mayor a 366 días
+- **THEN** el sistema conserva los filtros y muestra el error sin generar el PDF
+
+#### Scenario: Directivo intenta acceder al informe documental
+
+- **WHEN** un Directivo solicita el informe desde la interfaz o una ruta directa
+- **THEN** el sistema deniega el acceso y no revela sus resultados
+
 ### Requirement: Conservar las bajas y excluirlas de la operación vigente
 
 Clientes, usuarios, procesos, servicios, estados, categorías y reportes MUST admitir baja lógica y MUST conservar su trazabilidad. Los turnos MUST conservarse con estado cancelado y los documentos MUST conservar su referencia, historial y auditoría sin eliminar automáticamente el archivo físico. Las consultas operativas MUST excluir los registros dados de baja, salvo vistas explícitas de auditoría o restauración. CU 13 y CU 14 MUST NOT habilitar la baja de comprobantes.
