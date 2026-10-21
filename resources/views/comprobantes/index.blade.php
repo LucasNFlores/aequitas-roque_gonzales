@@ -1,15 +1,15 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="text-xl font-semibold leading-tight text-gray-800">
+        <h2 class="text-xl font-semibold leading-tight text-[#172538]">
             {{ __('Comprobantes de pago') }}
         </h2>
     </x-slot>
 
-    <div class="py-12">
-        <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-            <div class="overflow-hidden rounded-lg border-b border-gray-200 bg-white p-6 shadow-sm">
+    <div class="px-4 py-8 sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-7xl">
+            <section class="min-w-0 rounded-panel border border-[#dde2e8] bg-white p-4 shadow-panel sm:p-6">
                 @livewire('comprobantes.index')
-            </div>
+            </section>
         </div>
     </div>
 </x-app-layout>
