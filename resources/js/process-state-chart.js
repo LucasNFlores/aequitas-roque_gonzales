@@ -4,6 +4,11 @@ export function renderProcessStateChart(canvas) {
     const labels = JSON.parse(canvas.dataset.labels ?? '[]');
     const values = JSON.parse(canvas.dataset.values ?? '[]');
     const chartContainer = canvas.closest('[data-process-state-chart-container]');
+    const tokens = getComputedStyle(document.documentElement);
+    const navy = tokens.getPropertyValue('--aequitas-navy-800').trim() || '#243850';
+    const ink = tokens.getPropertyValue('--aequitas-ink').trim() || '#172538';
+    const muted = tokens.getPropertyValue('--aequitas-muted').trim() || '#5b6470';
+    const line = tokens.getPropertyValue('--aequitas-line').trim() || '#dde2e8';
 
     if (chartContainer instanceof HTMLElement) {
         chartContainer.style.height = `${Math.max(180, labels.length * 44)}px`;
@@ -15,7 +20,7 @@ export function renderProcessStateChart(canvas) {
             labels,
             datasets: [{
                 data: values,
-                backgroundColor: '#4f46e5',
+                backgroundColor: navy,
                 borderRadius: 4,
                 maxBarThickness: 32,
             }],
@@ -36,11 +41,11 @@ export function renderProcessStateChart(canvas) {
             scales: {
                 x: {
                     beginAtZero: true,
-                    ticks: { precision: 0, color: '#4b5563' },
-                    grid: { color: '#e5e7eb' },
+                    ticks: { precision: 0, color: muted },
+                    grid: { color: line },
                 },
                 y: {
-                    ticks: { color: '#374151' },
+                    ticks: { color: ink },
                     grid: { display: false },
                 },
             },
