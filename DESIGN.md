@@ -1,168 +1,91 @@
----
-name: Prestige Legal
-colors:
-  surface: '#f9f9f8'
-  surface-dim: '#dadad9'
-  surface-bright: '#f9f9f8'
-  surface-container-lowest: '#ffffff'
-  surface-container-low: '#f3f4f3'
-  surface-container: '#eeeeed'
-  surface-container-high: '#e8e8e7'
-  surface-container-highest: '#e2e2e2'
-  on-surface: '#1a1c1c'
-  on-surface-variant: '#45464d'
-  inverse-surface: '#2f3130'
-  inverse-on-surface: '#f1f1f0'
-  outline: '#76777d'
-  outline-variant: '#c6c6cd'
-  surface-tint: '#565e74'
-  primary: '#000000'
-  on-primary: '#ffffff'
-  primary-container: '#131b2e'
-  on-primary-container: '#7c839b'
-  inverse-primary: '#bec6e0'
-  secondary: '#735c00'
-  on-secondary: '#ffffff'
-  secondary-container: '#fed65b'
-  on-secondary-container: '#745c00'
-  tertiary: '#000000'
-  on-tertiary: '#ffffff'
-  tertiary-container: '#1e1b19'
-  on-tertiary-container: '#888380'
-  error: '#ba1a1a'
-  on-error: '#ffffff'
-  error-container: '#ffdad6'
-  on-error-container: '#93000a'
-  primary-fixed: '#dae2fd'
-  primary-fixed-dim: '#bec6e0'
-  on-primary-fixed: '#131b2e'
-  on-primary-fixed-variant: '#3f465c'
-  secondary-fixed: '#ffe088'
-  secondary-fixed-dim: '#e9c349'
-  on-secondary-fixed: '#241a00'
-  on-secondary-fixed-variant: '#574500'
-  tertiary-fixed: '#e9e1dd'
-  tertiary-fixed-dim: '#ccc5c2'
-  on-tertiary-fixed: '#1e1b19'
-  on-tertiary-fixed-variant: '#4a4643'
-  background: '#f9f9f8'
-  on-background: '#1a1c1c'
-  surface-variant: '#e2e2e2'
-typography:
-  display-lg:
-    fontFamily: Playfair Display
-    fontSize: 64px
-    fontWeight: '700'
-    lineHeight: '1.1'
-    letterSpacing: -0.02em
-  headline-lg:
-    fontFamily: Playfair Display
-    fontSize: 48px
-    fontWeight: '600'
-    lineHeight: '1.2'
-  headline-lg-mobile:
-    fontFamily: Playfair Display
-    fontSize: 32px
-    fontWeight: '600'
-    lineHeight: '1.2'
-  headline-md:
-    fontFamily: Playfair Display
-    fontSize: 32px
-    fontWeight: '500'
-    lineHeight: '1.3'
-  headline-sm:
-    fontFamily: Playfair Display
-    fontSize: 24px
-    fontWeight: '600'
-    lineHeight: '1.4'
-  body-lg:
-    fontFamily: Montserrat
-    fontSize: 18px
-    fontWeight: '400'
-    lineHeight: '1.6'
-  body-md:
-    fontFamily: Montserrat
-    fontSize: 16px
-    fontWeight: '400'
-    lineHeight: '1.6'
-  label-md:
-    fontFamily: Montserrat
-    fontSize: 14px
-    fontWeight: '600'
-    lineHeight: '1.2'
-    letterSpacing: 0.1em
-  label-sm:
-    fontFamily: Montserrat
-    fontSize: 12px
-    fontWeight: '500'
-    lineHeight: '1.2'
-    letterSpacing: 0.05em
-spacing:
-  unit: 8px
-  container-max: 1280px
-  gutter: 24px
-  margin-desktop: 64px
-  margin-mobile: 20px
----
+# Guía visual de Aequitas
 
-## Brand & Style
-The design system is engineered to evoke an atmosphere of exclusivity, historical authority, and modern precision. It serves high-net-worth clients and corporate entities who value discretion and excellence. 
+Esta guía describe la interfaz que está implementada actualmente. Distingue el acceso (login) del área autenticada porque hoy usan tratamientos visuales distintos. Las recomendaciones de unificación aparecen al final y no representan cambios ya hechos en la aplicación.
 
-The aesthetic direction is **Refined Luxury**, a blend of classical editorial layouts and modern high-end digital interfaces. It utilizes a "Paper and Gold" metaphor: 
-- **Minimalism:** Massive amounts of negative space to convey clarity and focus.
-- **Editorial Influence:** High-contrast typography and intentional asymmetric balance.
-- **Prestige Details:** Thin metallic strokes and serif-driven hierarchy that mirrors traditional legal parchment and gold-leaf embossing.
+## Alcance y fuentes
 
-## Colors
-The palette is rooted in deep, authoritative tones and warm, metallic accents to differentiate from standard corporate blues.
+La referencia visual del login es `resources/views/auth/login.blade.php` junto con `resources/views/layouts/guest.blade.php` y `public/images/auth/estudio-juridico-login.png`. Para el área autenticada, las referencias principales son `resources/views/layouts/app.blade.php`, `resources/views/layouts/navigation.blade.php` y `resources/views/dashboard.blade.php`.
 
-- **Midnight Navy (#0F172A):** Used for primary navigation, deep headers, and high-importance interaction states. It represents stability and depth.
-- **Champagne Gold (#D4AF37):** Reserved for primary calls to action, active indicators, and thin decorative borders. It should be used sparingly to maintain its "precious" quality.
-- **Paper White (#FAFAF9):** The foundational background color, providing a softer, more luxurious feel than pure white.
-- **Deep Stone (#1C1917):** Primary text color, offering high legibility with a warmer, more organic feel than black.
+Los estilos globales se cargan desde `resources/css/app.css`. Tailwind está configurado en `tailwind.config.js`, donde la familia `sans` se extiende con Figtree. No hay actualmente una capa de variables CSS o un catálogo central de tokens de color y espaciado; varios estilos se declaran directamente en clases Blade.
 
-## Typography
-The typographic hierarchy relies on the tension between the expressive **Playfair Display** and the architectural **Montserrat**.
+## Identidad visual observada
 
-- **Headlines:** Use Playfair Display for all semantic headings. For high-end marketing sections, use italicized serif weights to emphasize specific words.
-- **Body:** Montserrat provides a clean, neutral counterpoint. Ensure generous line-height (1.6) to facilitate readability of complex legal text.
-- **Captions & Labels:** Always use Montserrat in medium or semi-bold weights. All-caps styling with increased letter spacing (0.1em) is preferred for secondary navigation and small labels to reinforce the luxury brand feel.
+La interfaz combina una presentación editorial y cálida en el acceso con una interfaz administrativa funcional en las pantallas autenticadas. La marca visible es **Aequitas · Gestión jurídica**. El login usa fotografía, azul marino, acentos dorados y títulos serif. El área autenticada conserva en gran medida los componentes base de Breeze: superficies blancas y grises, navegación índigo y controles con bordes redondeados.
 
-## Layout & Spacing
-This design system utilizes a **Fixed Grid** model for desktop to ensure content remains centered and readable, reflecting a controlled, professional environment.
+## Tipografía
 
-- **Rhythm:** An 8px base unit governs all padding and margins. 
-- **Desktop:** 12-column grid with a 1280px max-width. Use "Airy" margins (64px+) to prevent the interface from feeling cluttered.
-- **Mobile:** 4-column grid with 20px side margins.
-- **Sectioning:** Vertical spacing between major sections should be aggressive (96px to 160px) to allow the brand elements to "breathe."
+- **Figtree** es la familia sans-serif configurada como `font-sans` y cargada también en los layouts.
+- **Playfair Display** se carga en el layout de acceso. Se aplica a la marca Aequitas y a los mensajes editoriales del panel fotográfico; no está establecida como tipografía general de las pantallas internas.
+- El resto de la interfaz usa principalmente la escala tipográfica de Tailwind mediante clases como `text-sm`, `text-base`, `text-lg`, `text-2xl` y `text-3xl`.
+- **Plus Jakarta Sans y Montserrat no están configuradas** en los archivos revisados.
 
-## Elevation & Depth
-Depth is created through **Tonal Layering** and **Subtle Shadows** rather than heavy gradients.
+## Colores implementados
 
-- **Surfaces:** Use `#FFFFFF` for cards and containers sitting on the `#FAFAF9` background.
-- **Shadows:** Utilize "Ambient Shadows"—extremely low opacity (4-8%) with a large blur radius (24px-48px). The shadow should feel like a soft glow rather than a hard drop.
-- **Borders:** Thin (1px) borders in Champagne Gold are used to define the most important structural elements, such as the main navigation bar or primary call-out cards.
-- **Glassmorphism:** Use sparingly for fixed navigation backgrounds (10px blur, 80% opacity white) to maintain context while scrolling.
+Los valores siguientes describen usos encontrados en las vistas; no son todavía tokens globales.
 
-## Shapes
-The shape language is **Sharp and Architectural**. 
+| Uso | Valor o clase encontrada | Contexto |
+| --- | --- | --- |
+| Fondo del acceso | `#101a2a` | Fondo base de la página de login |
+| Superposición del fondo | `#07111e` con transparencia | Oscurece la fotografía de fondo |
+| Azul marino de marca | `#172538` | Marca, título y botón principal del login |
+| Dorado de marca | `#a17b42`, `#8c6936`, `#b28a4b`, `#e4c687`, `#d8b776` | Etiquetas, enlaces, emblema y detalles del panel editorial |
+| Superficie de acceso | `white` / `bg-white` | Tarjeta principal y panel del formulario |
+| Neutros del acceso | `slate-200`, `slate-400`, `slate-500`, `slate-600`, `slate-700`, `slate-900` | Bordes, textos, ayudas y campos del formulario |
+| Superficies internas | `gray-50`, `gray-100`, `white` | Fondo del dashboard, contenedor de la app y tarjetas |
+| Navegación y acentos internos | `indigo-50`, `indigo-500`, `indigo-600`, `indigo-700`, `indigo-800` | Elementos activos, foco, enlaces, marca de navegación e indicadores |
 
-- **Corners:** 0px radius (Sharp) is the default for buttons, cards, and input fields. This communicates precision, formality, and legal "edge."
-- **Dividers:** Horizontal and vertical rules should be 1px thick. Use a 20% opacity of Midnight Navy for standard dividers, and 100% Champagne Gold for high-impact section breaks.
+Los campos del login declaran `bg-white` y `border-slate-200` en Blade. Si una captura los muestra azulados, puede reflejar el estado del navegador o del campo y no un token de superficie compartido.
 
-## Components
+## Login
 
-- **Buttons:** 
-  - *Primary:* Solid Midnight Navy background with white text. No border. Sharp corners.
-  - *Secondary:* Transparent background with a 1px Champagne Gold border.
-  - *Interaction:* On hover, the primary button should transition to a subtle gold-leaf gradient or a gold border.
-- **Input Fields:** 
-  - Underline style preferred. A 1px Deep Stone bottom border that turns Champagne Gold on focus. Label text should be Label-MD (uppercase).
-- **Cards:** 
-  - Flat white background with a 1px soft-stone border. On hover, apply a subtle ambient shadow and a top-edge 2px gold accent line.
-- **Chips/Tags:** 
-  - Small, rectangular, with a very light Midnight Navy tint (5% opacity) and dark navy text.
-- **Icons:** 
-  - Ultra-thin (1pt stroke) monoline icons. Avoid filled icons; stick to geometric, minimalist representations.
-- **Legal Tables:** 
-  - High density with clear 1px horizontal dividers. Header rows should use the Midnight Navy background with Gold text.
+- El fondo ocupa toda la pantalla y reutiliza `estudio-juridico-login.png`, con desenfoque, una capa oscura y un degradado radial.
+- La tarjeta central tiene ancho máximo `max-w-6xl`, borde blanco de 10 px, esquinas muy redondeadas y sombra marcada.
+- En escritorio se organiza en dos columnas asimétricas (`0.92fr` para el formulario y `1.08fr` para la fotografía). El panel visual se muestra desde el breakpoint `lg`.
+- El panel izquierdo presenta la marca, el formulario y una nota de acceso seguro. El formulario usa labels visibles, errores junto al campo, opción de recordar sesión, enlace de recuperación y un botón de acción principal.
+- El panel derecho superpone textos blancos y detalles dorados sobre la fotografía. En tamaños menores a `lg`, ese panel se oculta; el diseño actual no lo apila debajo del formulario.
+- El botón del login sobrescribe el estilo base del componente para usar azul marino, texto blanco, esquinas `rounded-xl`, sombra y estados hover, focus y active.
+
+## Área autenticada
+
+- El layout principal usa una navegación lateral blanca de 16 rem en escritorio. En pantallas pequeñas muestra una barra superior y un menú lateral desplegable.
+- La navegación activa usa fondo `indigo-50`, texto `indigo-700` y foco `indigo-500`; el estado inactivo usa texto gris y hover gris claro.
+- El dashboard separa el encabezado del contenido. Usa fondos `gray-50` y `gray-100`, tarjetas blancas con bordes `gray-200`, esquinas `rounded-xl` y sombras suaves.
+- Indicadores, insignias y enlaces emplean acentos índigo. Las tarjetas y grillas se adaptan mediante breakpoints de Tailwind.
+- Los componentes compartidos de botones y campos conservan defaults Breeze en gris e índigo. Las vistas pueden personalizarlos mediante clases adicionales; el login es un ejemplo de esa personalización.
+
+## Formas, espaciado y profundidad
+
+- La aplicación usa la escala de espaciado de Tailwind, con utilidades explícitas como `px-4`, `p-5`, `gap-4`, `py-8` y sus variantes responsive.
+- No hay una regla universal de radio: el login usa radios amplios (`rounded-[2.75rem]`, `rounded-[2rem]`, `rounded-xl`), mientras que el área interna combina `rounded-xl`, `rounded-lg`, `rounded-md` y otros valores de Breeze.
+- El login usa una sombra ambiental fuerte para separar la tarjeta del fondo. En las pantallas internas predominan `shadow-sm` y bordes grises suaves.
+- Los campos compartidos usan borde, radio y foco de la configuración de Tailwind Forms/Breeze. El login amplía esos estilos con clases propias.
+
+## Interacción y accesibilidad
+
+- Mantener labels asociados a sus campos y mostrar los errores junto al control correspondiente.
+- Conservar estados de foco visibles; los componentes base usan anillos índigo y el login los adapta al dorado de marca.
+- La navegación móvil expone `aria-expanded` y `aria-controls`, y permite abrir y cerrar el menú.
+- Preservar los estados hover, focus, active y disabled que ya definen los componentes y las vistas.
+- No usar únicamente el color para comunicar errores, estado activo o disponibilidad; conservar texto y semántica accesible.
+
+## Recomendaciones para cambios futuros
+
+Estas recomendaciones son propuestas para mantener coherencia; no describen el estado actual.
+
+1. Tratar el login y el área autenticada como dos superficies del mismo producto. Reutilizar identidad de marca sin trasladar automáticamente la fotografía, los radios extremos ni el dorado a cada pantalla administrativa.
+2. Mantener Figtree como sans-serif común y reservar Playfair Display para usos editoriales puntuales, salvo que una decisión de diseño aprobada amplíe su alcance.
+3. Definir tokens semánticos compartidos para color, tipografía, radios, foco y elevación antes de reemplazar sistemáticamente los valores directos de las clases.
+4. Acordar si índigo sigue siendo el acento funcional del área autenticada o si se migra a azul marino/dorado. Mientras no se implemente esa decisión, documentar ambas paletas como tratamientos existentes.
+5. Si se modifica el login para móviles, describir y validar el comportamiento real del panel visual en cada breakpoint; la guía no debe afirmar que se apila cuando el código lo oculta.
+
+## Archivos de referencia
+
+- Login: `resources/views/auth/login.blade.php`
+- Layout de acceso: `resources/views/layouts/guest.blade.php`
+- Imagen de acceso: `public/images/auth/estudio-juridico-login.png`
+- Layout autenticado: `resources/views/layouts/app.blade.php`
+- Navegación: `resources/views/layouts/navigation.blade.php`
+- Dashboard: `resources/views/dashboard.blade.php`
+- Estilos globales: `resources/css/app.css`
+- Configuración Tailwind: `tailwind.config.js`
+- Componentes compartidos: `resources/views/components/buttons/`, `forms/`, `navigation/` y `branding/`
