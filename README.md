@@ -114,25 +114,46 @@ Laravel queda disponible en `http://localhost:8000` y el servicio Vite se inicia
 
 ### Levantar el proyecto sin Docker
 
-Con SQLite no hace falta levantar ningún servicio adicional. Usá dos terminales:
+Con SQLite no hace falta levantar ningún servicio adicional. Un solo comando inicia Laravel y Vite en la misma consola:
+
+```bash
+php artisan dev
+```
+
+- Laravel: `http://localhost:8000`
+- Vite: `http://localhost:5175`
+
+Al presionar `Ctrl+C` se detienen ambos procesos; no quedan servidores ni consolas abiertas. El comando usa `--no-reload`, así que si modificás `.env` tenés que reiniciarlo.
+
+También podés usar el atajo de Composer, que ejecuta el mismo comando:
+
+```bash
+composer run dev
+```
+
+> **Nota Windows:** `composer.bat` puede mostrar `Terminate batch job (Y/N)?` al cancelar; respondé `Y`. Para evitar ese paso, usá directamente `php artisan dev`.
+
+Para incluir también el worker de colas y los logs en vivo:
+
+```bash
+php artisan dev --full
+# equivalente:
+composer run dev:full
+```
+
+> **Nota logs:** Pail requiere la extensión `pcntl`, que no está disponible en Windows. En ese caso `--full` levanta Laravel, Vite y el worker de colas, y omite el visor de logs; podés seguir el log con `Get-Content storage/logs/laravel.log -Wait`.
+
+Si preferís ejecutar los procesos por separado, usá dos terminales:
 
 ```bash
 # Terminal 1 — Servidor Laravel
-php artisan serve
-# En caso de error en Windows, usar:
-# php artisan serve --no-reload
+php artisan serve --no-reload
 
 # Terminal 2 — Vite (frontend)
 npm run dev
 ```
 
-> **Nota Windows:** Si `php artisan serve` falla con `Failed to listen on 127.0.0.1:8000`, usá `php artisan serve --no-reload`. Esto soluciona un bug conocido de Laravel en Windows al filtrar variables de entorno.
-
-También podés levantar todo junto (servidor, colas, logs y Vite):
-
-```bash
-composer run dev
-```
+> **Nota Windows:** `php artisan dev` ya utiliza `php artisan serve --no-reload`, que evita el bug conocido de Laravel en Windows al filtrar variables de entorno.
 
 Si no vas a tocar el frontend, alcanza con compilar los assets una vez (`npm run build`) y ejecutar sólo `php artisan serve`.
 
