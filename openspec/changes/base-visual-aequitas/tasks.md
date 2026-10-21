@@ -17,4 +17,4 @@
 - [x] Construir los assets del frontend.
 - [x] Revisar la interfaz en escritorio y móvil, navegación y controles compartidos.
 - [x] Revisar el diff y el estado de la rama.
-- [ ] Crear commit atómico e integrar la rama completa en `dev`.
+- [x] Crear commit atómico e integrar la rama completa en `dev`.
