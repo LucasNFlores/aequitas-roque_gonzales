@@ -60,11 +60,11 @@
         </div>
     @endif
 
-    <div class="flex flex-col gap-3 border-t border-[#dde2e8] pt-5 sm:flex-row">
+    <div class="flex flex-col gap-3 border-t border-line pt-5 sm:flex-row">
         <x-buttons.primary-button>
             {{ $submitLabel }}
         </x-buttons.primary-button>
-        <a href="{{ route('clientes.index') }}" class="inline-flex min-h-11 items-center justify-center rounded-control border border-[#c7ced7] bg-white px-4 py-2 text-sm font-semibold text-[#172538] shadow-sm transition hover:bg-[#f5f6f8] focus:outline-none focus:ring-2 focus:ring-[#8c6936] focus:ring-offset-2">
+        <a href="{{ route('clientes.index') }}" class="inline-flex min-h-11 items-center justify-center rounded-control border border-line bg-white px-4 py-2 text-sm font-semibold text-ink shadow-sm transition hover:bg-canvas focus:outline-none focus:ring-2 focus:ring-gold-600 focus:ring-offset-2">
             Cancelar
         </a>
     </div>

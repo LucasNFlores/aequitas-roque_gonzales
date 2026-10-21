@@ -1,3 +1,11 @@
+@php
+    $themePreference = request()->cookie('aequitas-theme', 'light');
+
+    if (! in_array($themePreference, ['light', 'dark', 'system'], true)) {
+        $themePreference = 'light';
+    }
+@endphp
+
 <nav x-data="{ open: false }" class="relative md:w-64 md:shrink-0">
     <div class="fixed inset-x-0 top-0 z-30 flex h-16 items-center justify-between border-b border-line bg-white px-4 shadow-panel md:hidden">
         <a href="{{ route('dashboard') }}" class="flex items-center gap-3 text-aequitas-900">
@@ -26,7 +34,7 @@
         x-show="open"
         x-transition.opacity
         @click="open = false"
-        class="fixed inset-0 z-40 bg-[rgba(16,26,42,0.4)] md:hidden"
+        class="fixed inset-0 z-40 bg-[var(--aequitas-overlay)] md:hidden"
         aria-hidden="true"
     ></div>
 
@@ -160,6 +168,14 @@
             </div>
 
             <div class="mt-auto border-t border-gray-100 pt-5">
+                <div class="mb-5 px-3">
+                    <label for="theme-preference" class="mb-2 block text-xs font-semibold uppercase tracking-wider text-muted">{{ __('Apariencia') }}</label>
+                    <select id="theme-preference" data-theme-preference x-init="$el.value = document.documentElement.dataset.themePreference" class="min-h-11 w-full rounded-control border border-line bg-white px-3 py-2 text-sm text-ink shadow-sm focus:border-gold-600 focus:ring-gold-600">
+                        <option value="light" @selected($themePreference === 'light')>{{ __('Claro') }}</option>
+                        <option value="dark" @selected($themePreference === 'dark')>{{ __('Oscuro') }}</option>
+                        <option value="system" @selected($themePreference === 'system')>{{ __('Sistema') }}</option>
+                    </select>
+                </div>
                 <div class="flex flex-col gap-2">
                     <x-navigation.nav-link :href="route('profile.edit')" :active="request()->routeIs('profile.*')">
                         <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">

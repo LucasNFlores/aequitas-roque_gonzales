@@ -201,7 +201,7 @@
         {{ $procesos->links() }}
     </div>
 
-    <div x-cloak x-show="historyOpen" x-transition.opacity role="dialog" aria-modal="true" aria-labelledby="history-modal-title" @click.self="historyOpen = false; $wire.closeHistory()" class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-gray-900/60 px-4 py-6 backdrop-blur-sm sm:px-6">
+    <div x-cloak x-show="historyOpen" x-transition.opacity role="dialog" aria-modal="true" aria-labelledby="history-modal-title" @click.self="historyOpen = false; $wire.closeHistory()" class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 px-4 py-6 backdrop-blur-sm sm:px-6">
         <div class="max-h-[calc(100vh-3rem)] w-full max-w-3xl overflow-y-auto rounded-panel bg-white shadow-floating">
             <div class="flex items-start justify-between gap-4 border-b border-line px-6 py-5 sm:px-8">
                 <div>
@@ -229,7 +229,7 @@
         </div>
     </div>
 
-    <div x-cloak x-show="rejectionOpen" x-transition.opacity role="dialog" aria-modal="true" aria-labelledby="rejection-modal-title" @click.self="rejectionOpen = false; $wire.closeRejectionModal()" class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-gray-900/60 px-4 py-6 backdrop-blur-sm sm:px-6">
+    <div x-cloak x-show="rejectionOpen" x-transition.opacity role="dialog" aria-modal="true" aria-labelledby="rejection-modal-title" @click.self="rejectionOpen = false; $wire.closeRejectionModal()" class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 px-4 py-6 backdrop-blur-sm sm:px-6">
         <div class="w-full max-w-xl rounded-panel bg-white shadow-floating">
             <div class="flex items-start justify-between gap-4 border-b border-line px-6 py-5 sm:px-8">
                 <div>
@@ -259,7 +259,7 @@
         </div>
     </div>
 
-    <div x-cloak x-show="assignmentOpen" x-transition.opacity role="dialog" aria-modal="true" aria-labelledby="assignment-modal-title" @click.self="assignmentOpen = false; $wire.closeAssignmentModal()" class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-gray-900/60 px-4 py-6 backdrop-blur-sm sm:px-6">
+    <div x-cloak x-show="assignmentOpen" x-transition.opacity role="dialog" aria-modal="true" aria-labelledby="assignment-modal-title" @click.self="assignmentOpen = false; $wire.closeAssignmentModal()" class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 px-4 py-6 backdrop-blur-sm sm:px-6">
         <div class="w-full max-w-xl rounded-panel bg-white shadow-floating">
             <div class="flex items-start justify-between gap-4 border-b border-line px-6 py-5 sm:px-8">
                 <div>
@@ -297,7 +297,7 @@
         </div>
     </div>
 
-    <div x-cloak x-show="stateOpen" x-transition.opacity role="dialog" aria-modal="true" aria-labelledby="state-modal-title" @click.self="stateOpen = false; $wire.closeStateModal()" class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-gray-900/60 px-4 py-6 backdrop-blur-sm sm:px-6">
+    <div x-cloak x-show="stateOpen" x-transition.opacity role="dialog" aria-modal="true" aria-labelledby="state-modal-title" @click.self="stateOpen = false; $wire.closeStateModal()" class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 px-4 py-6 backdrop-blur-sm sm:px-6">
         <div class="w-full max-w-xl rounded-panel bg-white shadow-floating">
             <div class="flex items-start justify-between gap-4 border-b border-line px-6 py-5 sm:px-8">
                 <div>
