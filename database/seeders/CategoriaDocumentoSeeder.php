@@ -9,7 +9,7 @@ class CategoriaDocumentoSeeder extends Seeder
 {
     public function run(): void
     {
-        $base = [
+        $categories = [
             ['nombre' => 'Identidad', 'descripcion' => 'DNI, pasaporte y documentación personal'],
             ['nombre' => 'Comprobante ARCA', 'descripcion' => 'Comprobantes descargados de ARCA'],
             ['nombre' => 'Informe profesional', 'descripcion' => 'Reportes del profesional asignado'],
@@ -17,11 +17,14 @@ class CategoriaDocumentoSeeder extends Seeder
             ['nombre' => 'Judicial', 'descripcion' => 'Escritos y resoluciones judiciales'],
         ];
 
-        foreach ($base as $row) {
-            CategoriaDocumento::withTrashed()->firstOrCreate(
-                ['nombre' => $row['nombre']],
-                ['descripcion' => $row['descripcion'], 'activo' => true]
-            );
+        foreach ($categories as $categoryData) {
+            $category = CategoriaDocumento::withTrashed()->firstOrNew(['nombre' => $categoryData['nombre']]);
+
+            if (! $category->exists) {
+                $category->fill([...$categoryData, 'activo' => true])->save();
+            } elseif ($category->trashed()) {
+                $category->restore();
+            }
         }
     }
 }

@@ -18,11 +18,16 @@ class UserSeeder extends Seeder
         ];
 
         foreach ($users as $userData) {
-            $user = User::updateOrCreate(
-                ['email' => $userData['email']],
-                ['name' => $userData['name'], 'password' => '1234'],
-            );
+            $user = User::withTrashed()->firstOrNew(['email' => $userData['email']]);
 
+            if ($user->trashed()) {
+                $user->restore();
+            }
+
+            $user->fill([
+                'name' => $userData['name'],
+                'password' => '1234',
+            ])->save();
             $user->syncRoles([$userData['role']]);
         }
     }

@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             ServicioSeeder::class,
             ClienteSeeder::class,
+            DemoDataSeeder::class,
         ]);
     }
 }

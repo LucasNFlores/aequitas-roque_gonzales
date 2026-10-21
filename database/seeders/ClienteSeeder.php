@@ -60,8 +60,14 @@ class ClienteSeeder extends Seeder
             ],
         ];
 
-        foreach ($clientes as $cliente) {
-            Cliente::firstOrCreate(['dni' => $cliente['dni']], $cliente);
+        foreach ($clientes as $clientData) {
+            $client = Cliente::withTrashed()->firstOrNew(['dni' => $clientData['dni']]);
+
+            if (! $client->exists) {
+                $client->fill($clientData)->save();
+            } elseif ($client->trashed()) {
+                $client->restore();
+            }
         }
     }
 }

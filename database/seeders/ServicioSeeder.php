@@ -17,8 +17,14 @@ class ServicioSeeder extends Seeder
             ['nombre' => 'Trámite de sucesión', 'costo_servicio' => 12000.00],
         ];
 
-        foreach ($servicios as $servicio) {
-            Servicio::firstOrCreate(['nombre' => $servicio['nombre']], $servicio);
+        foreach ($servicios as $serviceData) {
+            $service = Servicio::withTrashed()->firstOrNew(['nombre' => $serviceData['nombre']]);
+
+            if (! $service->exists) {
+                $service->fill($serviceData)->save();
+            } elseif ($service->trashed()) {
+                $service->restore();
+            }
         }
     }
 }
