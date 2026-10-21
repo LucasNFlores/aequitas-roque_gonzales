@@ -198,10 +198,6 @@ Route::middleware(['auth'])->group(function () {
         ->name('turnos.edit');
 });
 
-Route::get('/tutorial', function () {
-    return view('tutorial.index');
-})->middleware(['auth'])->name('tutorial');
-
 // -----------------------------------------------------------------------------
 
 require __DIR__.'/auth.php';

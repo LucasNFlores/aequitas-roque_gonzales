@@ -156,12 +156,6 @@
                         </x-navigation.nav-link>
                     @endcan
 
-                    <x-navigation.nav-link :href="route('tutorial')" :active="request()->routeIs('tutorial')">
-                        <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5v-16ZM4 5.5v16M8 7h8m-8 4h8" />
-                        </svg>
-                        <span>{{ __('Guía Técnica') }}</span>
-                    </x-navigation.nav-link>
                 </div>
             </div>
 
