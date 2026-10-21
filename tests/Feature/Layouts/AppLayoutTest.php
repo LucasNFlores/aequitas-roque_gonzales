@@ -73,11 +73,17 @@ class AppLayoutTest extends TestCase
 
             $response->assertSee(route('dashboard'), false);
             $response->assertSee(route('profile.edit'), false);
-            $response->assertSee(route('tutorial'), false);
+            $response->assertDontSee('Guía Técnica');
+            $response->assertDontSee('/tutorial', false);
             $response->assertSee(route('logout'), false);
             $this->assertStringContainsString(route('profile.edit'), $staticNavigation);
-            $this->assertStringContainsString(route('tutorial'), $staticNavigation);
+            $this->assertStringNotContainsString('/tutorial', $staticNavigation);
         }
+    }
+
+    public function test_tutorial_route_is_not_available(): void
+    {
+        $this->get('/tutorial')->assertNotFound();
     }
 
     public function test_navigation_destinations_remain_denied_to_roles_without_matrix_access(): void

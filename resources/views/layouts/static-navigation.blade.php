@@ -52,7 +52,6 @@
                     <a href="{{ route('turnos.index') }}" class="text-gray-700 hover:text-indigo-600">{{ __('Turnos') }}</a>
                 @endcan
 
-                <a href="{{ route('tutorial') }}" class="text-gray-700 hover:text-indigo-600">{{ __('Guía Técnica') }}</a>
             </div>
         </div>
 
