@@ -6,6 +6,7 @@ use App\Models\CategoriaDocumento;
 use App\Models\Documento;
 use App\Models\DocumentoVersion;
 use App\Models\Proceso;
+use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -90,9 +91,32 @@ class Index extends Component
 
         Gate::authorize($isEditing ? 'update' : 'create', $isEditing ? $documento : Documento::class);
 
+        $categoriaRules = $isEditing
+            ? [
+                'nullable',
+                'integer',
+                function (string $attribute, mixed $value, Closure $fail) use ($documento): void {
+                    if ($value === null) {
+                        if ($documento?->categoria_id !== null) {
+                            $fail('La categoría seleccionada ya no está disponible.');
+                        }
+
+                        return;
+                    }
+
+                    $categoria = CategoriaDocumento::withTrashed()->find($value);
+                    $isCurrentCategory = (int) $documento?->categoria_id === (int) $value;
+
+                    if ($categoria === null || (! $isCurrentCategory && (! $categoria->activo || $categoria->trashed()))) {
+                        $fail('La categoría seleccionada no está disponible para nuevas cargas.');
+                    }
+                },
+            ]
+            : ['required', 'integer', Rule::exists('categorias_documento', 'id')->where('activo', true)->whereNull('deleted_at')];
+
         $rules = [
             'nombre' => ['required', 'string', 'max:255'],
-            'categoriaId' => ['required', 'integer', Rule::exists('categorias_documento', 'id')->where('activo', true)->whereNull('deleted_at')],
+            'categoriaId' => $categoriaRules,
             'archivo' => $isEditing
                 ? ['nullable', 'file', 'mimes:pdf', 'mimetypes:application/pdf', 'max:20480']
                 : ['required', 'file', 'mimes:pdf', 'mimetypes:application/pdf', 'max:20480'],
@@ -109,15 +133,26 @@ class Index extends Component
 
         $validated = $this->validate($rules, $messages);
 
-        $categoria = CategoriaDocumento::query()->findOrFail($validated['categoriaId']);
-        abort_unless($categoria->activo, 422, 'La categoría seleccionada no está disponible.');
+        $categoria = $validated['categoriaId'] === null
+            ? null
+            : CategoriaDocumento::withTrashed()->findOrFail($validated['categoriaId']);
+        $categoriaSinCambios = $isEditing && (int) $documento?->categoria_id === (int) $categoria?->id;
+        abort_unless(
+            $categoria !== null
+                ? (($categoria->activo && ! $categoria->trashed()) || $categoriaSinCambios)
+                : ($isEditing && $documento?->categoria_id === null),
+            422,
+            'La categoría seleccionada no está disponible.',
+        );
 
-        $tipoDocumento = $categoria->nombre;
+        $tipoDocumento = $categoriaSinCambios
+            ? $documento?->tipo_documento
+            : $categoria?->nombre;
 
         if ($isEditing) {
             $data = [
                 'nombre' => $validated['nombre'],
-                'categoria_id' => $categoria->id,
+                'categoria_id' => $categoria?->id,
                 'tipo_documento' => $tipoDocumento,
             ];
 
@@ -166,7 +201,7 @@ class Index extends Component
                 DB::transaction(function () use ($validated, $categoria, $tipoDocumento, $path): void {
                     Documento::query()->create([
                         'proceso_id' => $this->proceso->id,
-                        'categoria_id' => $categoria->id,
+                        'categoria_id' => $categoria?->id,
                         'archivo_path' => $path,
                         'tipo_documento' => $tipoDocumento,
                         'nombre' => $validated['nombre'],
@@ -224,6 +259,15 @@ class Index extends Component
         Gate::authorize('view', $this->proceso);
 
         $categorias = CategoriaDocumento::paraCargaNueva();
+
+        if ($this->editingDocumentoId !== null) {
+            $categoriaActual = $this->findDocumento($this->editingDocumentoId)->categoria;
+
+            if ($categoriaActual !== null && ! $categorias->contains('id', $categoriaActual->id)) {
+                $categorias->push($categoriaActual);
+                $categorias = $categorias->sortBy('nombre')->values();
+            }
+        }
 
         $documentos = Documento::query()
             ->where('proceso_id', $this->proceso->id)

@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\CategoriaDocumento;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class CategoriaDocumentoSeeder extends Seeder
 {
@@ -26,5 +28,31 @@ class CategoriaDocumentoSeeder extends Seeder
                 $category->restore();
             }
         }
+
+        $this->backfillUnambiguousDocumentCategories();
+    }
+
+    private function backfillUnambiguousDocumentCategories(): void
+    {
+        DB::table('documentos')
+            ->whereNull('categoria_id')
+            ->select(['id', 'tipo_documento'])
+            ->orderBy('id')
+            ->chunkById(500, function (Collection $documentos): void {
+                $categoryIdsByName = CategoriaDocumento::withTrashed()
+                    ->whereIn('nombre', $documentos->pluck('tipo_documento')->filter()->unique())
+                    ->pluck('id', 'nombre');
+
+                foreach ($documentos as $documento) {
+                    $categoryId = $categoryIdsByName->get($documento->tipo_documento);
+
+                    if ($categoryId !== null) {
+                        DB::table('documentos')
+                            ->where('id', $documento->id)
+                            ->whereNull('categoria_id')
+                            ->update(['categoria_id' => $categoryId]);
+                    }
+                }
+            });
     }
 }

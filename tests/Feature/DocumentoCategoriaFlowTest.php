@@ -196,6 +196,52 @@ class DocumentoCategoriaFlowTest extends TestCase
         $this->assertEquals('Actualizado', $doc->fresh()->nombre);
     }
 
+    public function test_livewire_edits_other_fields_while_preserving_an_inactive_historical_category(): void
+    {
+        $proceso = $this->procesoWithCliente();
+        $secretario = $this->userWithRole('Secretario');
+        $categoria = CategoriaDocumento::factory()->create(['nombre' => 'Categoría antigua', 'activo' => false]);
+        $documento = Documento::factory()->create([
+            'proceso_id' => $proceso->id,
+            'categoria_id' => $categoria->id,
+            'tipo_documento' => 'Nombre histórico original',
+        ]);
+
+        Livewire::actingAs($secretario)
+            ->test(Index::class, ['proceso' => $proceso])
+            ->call('editDocumento', $documento->id)
+            ->assertSee('Categoría antigua')
+            ->set('nombre', 'Nombre corregido')
+            ->call('saveDocumento')
+            ->assertHasNoErrors();
+
+        $this->assertSame($categoria->id, $documento->fresh()->categoria_id);
+        $this->assertSame('Nombre histórico original', $documento->fresh()->tipo_documento);
+        $this->assertSame('Nombre corregido', $documento->fresh()->nombre);
+    }
+
+    public function test_livewire_edits_historical_documents_without_a_category_link(): void
+    {
+        $proceso = $this->procesoWithCliente();
+        $secretario = $this->userWithRole('Secretario');
+        $documento = Documento::factory()->create([
+            'proceso_id' => $proceso->id,
+            'categoria_id' => null,
+            'tipo_documento' => 'Clasificación anterior',
+        ]);
+
+        Livewire::actingAs($secretario)
+            ->test(Index::class, ['proceso' => $proceso])
+            ->call('editDocumento', $documento->id)
+            ->set('nombre', 'Nombre corregido')
+            ->call('saveDocumento')
+            ->assertHasNoErrors();
+
+        $this->assertNull($documento->fresh()->categoria_id);
+        $this->assertSame('Clasificación anterior', $documento->fresh()->tipo_documento);
+        $this->assertSame('Nombre corregido', $documento->fresh()->nombre);
+    }
+
     public function test_replacing_a_pdf_preserves_the_old_file_and_authorizes_version_access_separately(): void
     {
         $proceso = $this->procesoWithCliente();

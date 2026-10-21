@@ -104,7 +104,7 @@
             <div class="flex items-start justify-between gap-4 border-b border-gray-200 px-6 py-5 sm:px-8">
                 <div>
                     <h2 class="text-xl font-semibold text-gray-900">{{ $editingDocumentoId ? 'Editar documento' : 'Nuevo documento' }}</h2>
-                    <p class="mt-1 text-sm text-gray-500">La categoría debe estar activa. El archivo solo se reemplaza si seleccionás uno nuevo.</p>
+                    <p class="mt-1 text-sm text-gray-500">Las nuevas cargas requieren una categoría activa. Al editar, podés conservar la categoría histórica asociada. El archivo solo se reemplaza si seleccionás uno nuevo.</p>
                 </div>
                 <button type="button" @click="formOpen = false; $wire.closeModal()" class="rounded-md p-1 text-2xl leading-none text-gray-400 hover:bg-gray-100" aria-label="Cerrar">&times;</button>
             </div>
@@ -115,11 +115,15 @@
                     @error('nombre')<span class="mt-1 block text-sm text-red-600">{{ $message }}</span>@enderror
                 </div>
                 <div>
-                    <label for="doc-categoria" class="block text-sm font-medium text-gray-700">Categoría *</label>
+                    <label for="doc-categoria" class="block text-sm font-medium text-gray-700">Categoría {{ $editingDocumentoId ? '' : '*' }}</label>
                     <select id="doc-categoria" wire:model.defer="categoriaId" class="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                        <option value="">Seleccioná una categoría</option>
+                        @if($editingDocumentoId && $categoriaId === null)
+                            <option value="">Sin categoría asociada (registro histórico)</option>
+                        @else
+                            <option value="">Seleccioná una categoría</option>
+                        @endif
                         @foreach($categorias as $cat)
-                            <option value="{{ $cat->id }}">{{ $cat->nombre }}</option>
+                            <option value="{{ $cat->id }}">{{ $cat->nombre }}{{ ! $cat->activo || $cat->trashed() ? ' (histórica)' : '' }}</option>
                         @endforeach
                     </select>
                     @error('categoriaId')<span class="mt-1 block text-sm text-red-600">{{ $message }}</span>@enderror

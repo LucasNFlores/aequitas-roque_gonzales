@@ -6,6 +6,7 @@ use App\Livewire\Categorias\Index;
 use App\Models\CategoriaDocumento;
 use App\Models\Documento;
 use App\Models\User;
+use Database\Seeders\CategoriaDocumentoSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
@@ -204,6 +205,52 @@ class CategoriaDocumentoTest extends TestCase
         $nombres = CategoriaDocumento::paraCargaNueva()->pluck('nombre');
         $this->assertTrue($nombres->contains('A-activa'));
         $this->assertFalse($nombres->contains('B-inactiva'));
+    }
+
+    public function test_migration_backfills_only_exact_legacy_category_matches(): void
+    {
+        $category = CategoriaDocumento::factory()->create(['nombre' => 'Identidad']);
+        $matchedDocument = Documento::factory()->create([
+            'categoria_id' => null,
+            'tipo_documento' => 'Identidad',
+        ]);
+        $unmatchedDocument = Documento::factory()->create([
+            'categoria_id' => null,
+            'tipo_documento' => 'Clasificación histórica sin catálogo',
+        ]);
+        $alreadyLinkedDocument = Documento::factory()->create([
+            'categoria_id' => $category->id,
+            'tipo_documento' => 'Etiqueta histórica distinta',
+        ]);
+
+        $migration = require database_path('migrations/2026_10_21_000001_backfill_documento_categoria_links.php');
+        $migration->up();
+
+        $this->assertSame($category->id, $matchedDocument->fresh()->categoria_id);
+        $this->assertSame('Identidad', $matchedDocument->fresh()->tipo_documento);
+        $this->assertNull($unmatchedDocument->fresh()->categoria_id);
+        $this->assertSame('Clasificación histórica sin catálogo', $unmatchedDocument->fresh()->tipo_documento);
+        $this->assertSame($category->id, $alreadyLinkedDocument->fresh()->categoria_id);
+        $this->assertSame('Etiqueta histórica distinta', $alreadyLinkedDocument->fresh()->tipo_documento);
+    }
+
+    public function test_category_seeder_backfills_exact_legacy_matches_and_preserves_unknown_types(): void
+    {
+        $matchedDocument = Documento::factory()->create([
+            'categoria_id' => null,
+            'tipo_documento' => 'Identidad',
+        ]);
+        $unmatchedDocument = Documento::factory()->create([
+            'categoria_id' => null,
+            'tipo_documento' => 'Poder notarial histórico',
+        ]);
+
+        $this->seed(CategoriaDocumentoSeeder::class);
+
+        $this->assertSame('Identidad', $matchedDocument->fresh()->categoria?->nombre);
+        $this->assertSame('Identidad', $matchedDocument->fresh()->tipo_documento);
+        $this->assertNull($unmatchedDocument->fresh()->categoria_id);
+        $this->assertSame('Poder notarial histórico', $unmatchedDocument->fresh()->tipo_documento);
     }
 
     public function test_no_autorizado_denegado_en_livewire_directo(): void
