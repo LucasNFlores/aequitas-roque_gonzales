@@ -7,10 +7,10 @@
     'valuesLabel' => 'Valores de procesos activos por estado',
 ])
 
-<section aria-labelledby="dashboard-states-title" class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
+<section aria-labelledby="dashboard-states-title" class="flex flex-col gap-4 rounded-panel border border-line bg-white p-5 shadow-panel sm:p-6">
     <div class="flex flex-col gap-1">
-        <h2 id="dashboard-states-title" class="text-lg font-semibold text-gray-900">{{ $title }}</h2>
-        <p class="text-sm leading-6 text-gray-600">{{ $scopeDescription }}</p>
+        <h2 id="dashboard-states-title" class="text-lg font-semibold text-ink">{{ $title }}</h2>
+        <p class="text-sm leading-6 text-muted">{{ $scopeDescription }}</p>
     </div>
 
     @if (count($states) >= $minimumChartItems)
@@ -28,13 +28,13 @@
     @if (count($states) > 0)
         <dl aria-label="{{ $valuesLabel }}" class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             @foreach ($states as $state)
-                <div class="flex items-center justify-between gap-3 rounded-lg bg-gray-50 px-4 py-3">
-                    <dt class="text-sm font-medium text-gray-700">{{ $state['label'] }}</dt>
-                    <dd class="tabular-nums text-sm font-semibold text-gray-950">{{ number_format($state['value'], 0, ',', '.') }}</dd>
+                <div class="flex items-center justify-between gap-3 rounded-card bg-canvas px-4 py-3">
+                    <dt class="text-sm font-medium text-ink">{{ $state['label'] }}</dt>
+                    <dd class="tabular-nums text-sm font-semibold text-ink">{{ number_format($state['value'], 0, ',', '.') }}</dd>
                 </div>
             @endforeach
         </dl>
     @else
-        <p class="rounded-lg bg-gray-50 px-4 py-3 text-sm leading-6 text-gray-700" role="status">{{ $emptyMessage }}</p>
+        <p class="rounded-card bg-canvas px-4 py-3 text-sm leading-6 text-ink" role="status">{{ $emptyMessage }}</p>
     @endif
 </section>
