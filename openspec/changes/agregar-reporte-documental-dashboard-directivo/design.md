@@ -2,11 +2,11 @@
 
 ## CU 39 — Informe por categoría
 
-La consulta agrupa documentos por categoría y cuenta las cargas realizadas en el período seleccionado. Admite filtro de período, estado de categoría y categoría específica. El resultado PDF resume cantidades y última fecha de carga por categoría. No lista nombres de archivo ni incorpora los PDF originales.
+La consulta agrupa documentos por categoría y cuenta las cargas realizadas en el período seleccionado. Admite filtro de período, estado de categoría y categoría específica. Si no se indica período, usa desde hoy menos 29 días hasta hoy, inclusive. El rango personalizado exige ambas fechas válidas, no futuras, ordenadas y con un máximo de 366 días inclusive. El resultado PDF resume cantidades y última fecha de carga por categoría. No lista nombres de archivo ni incorpora los PDF originales. La exportación CSV queda fuera del alcance de CU 39.
 
 La autorización sigue CU 37: Coordinador y Administrador. El Directivo no obtiene el informe por tener acceso a consultar legajos (CU 18). La navegación, el controlador y la descarga directa del PDF deben aplicar la misma autorización. El Administrador conserva acceso universal.
 
-El rango predeterminado y la decisión sobre exportación CSV quedan abiertos. No debe reutilizarse el período fijo que aparece en la rama de referencia.
+El período predeterminado queda definido como los últimos 30 días calendario. No se integra exportación CSV, que no forma parte del requisito del informe PDF.
 
 ## CU 40 — Dashboard del Directivo
 

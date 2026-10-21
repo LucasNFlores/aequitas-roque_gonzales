@@ -12,14 +12,14 @@ La gestión de categorías y documentos ya forma parte del sistema, pero la rama
 
 ## Estado actual
 
-La rama de referencia feature/reportes-documentos contiene una vista web de reporte y salidas PDF y CSV, pero no está integrada en la rama dev actual. Esta propuesta formaliza el PDF solicitado; la inclusión de CSV queda pendiente de decisión. La rama dev contiene la gestión de categorías CU 37 y el dashboard HU-22. La matriz online mantiene su nota de métricas CU 40 pendientes; el usuario aprobó para esta implementación las cuatro métricas y el gráfico documentados en el diseño, sin modificar la matriz externa.
+La rama de referencia feature/reportes-documentos contiene una vista web de reporte y salidas PDF y CSV, pero no está integrada en la rama dev actual. Se integra el informe web y PDF; la exportación CSV queda fuera del alcance de CU 39. El período opcional por defecto cubre hoy y los 29 días anteriores. La matriz online mantiene su nota de métricas CU 40 pendientes; el usuario aprobó para esta implementación las cuatro métricas y el gráfico documentados en el diseño, sin modificar la matriz externa.
 
 ## Restricciones
 
 - La matriz online de Aequitas es la fuente funcional de verdad. El Administrador debe permanecer autorizado en todos los casos de uso.
 - El informe por categoría no concede al Directivo los permisos CU 12 o CU 19 ni incluye el contenido de archivos.
 - El dashboard no debe ampliar permisos de acceso a legajos, documentos o reportes. Sus indicadores deben limitarse a datos autorizados para el Directivo.
-- No copiar el valor por defecto de período fijado temporalmente en la rama de referencia. El período predeterminado debe acordarse antes de implementar.
+- El rango manual de CU 39 debe validarse como período completo, no futuro y de hasta 366 días calendario.
 
 ## Áreas afectadas
 
@@ -38,13 +38,12 @@ Mantener la matriz online como fuente de permisos. Integrar el informe CU 39 con
 - La matriz y su copia local contienen CU 39 y CU 40 con roles consistentes y Administrador autorizado en ambos.
 - Coordinador y Administrador pueden generar el PDF agregado de CU 39 con los filtros aplicados; el Directivo no obtiene acceso al informe ni a los archivos por CU 18.
 - El dashboard de CU 40 es propio del Directivo, mantiene a Administrador autorizado y muestra únicamente indicadores aprobados.
-- Los indicadores del dashboard y el período predeterminado del informe quedan definidos antes de cerrar la implementación.
+- CU 39 usa por defecto los últimos 30 días calendario y rechaza rangos inválidos o mayores a 366 días.
 - Las rutas directas respetan las mismas autorizaciones que la interfaz.
 
 ## Riesgos y preguntas abiertas
 
 - **Indicadores:** alcance aprobado para esta entrega y documentado en el diseño; la matriz online conserva su nota original hasta que el usuario solicite modificarla.
 - **Exposición de datos:** métricas agregadas pueden revelar información fuera del alcance de un rol si las consultas no conservan el filtrado de autorización.
-- **Período predeterminado:** la rama de referencia usa un período fijo temporal; debe sustituirse por una regla acordada.
-- **CSV:** la rama de referencia ofrece CSV además de PDF; el alcance solicitado solo confirma PDF.
-- **Estado de integración:** CU 39 continúa pendiente de integración; el dashboard operativo HU-22 ya está en dev y esta entrega completa la variante CU 40.
+- **Período:** el rango manual tiene un máximo de 366 días calendario para evitar consultas demasiado extensas.
+- **Estado de integración:** CU 39 se integra en esta rama junto con la variante CU 40 ya implementada.
