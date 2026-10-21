@@ -8,7 +8,7 @@
 ## Implementación
 
 - [x] Añadir tokens semánticos de tema y compatibilidad para los colores existentes.
-- [x] Añadir selector accesible y persistencia sin destello al cargar.
+- [x] Añadir botón accesible para alternar Claro/Oscuro y persistencia sin destello al cargar.
 - [x] Adaptar layout, componentes comunes y vistas activas de todos los roles.
 - [x] Redibujar los gráficos canvas al cambiar de tema.
 - [x] Actualizar `DESIGN.md` y el requerimiento funcional de OpenSpec.

@@ -1,11 +1,3 @@
-@php
-    $themePreference = request()->cookie('aequitas-theme', 'light');
-
-    if (! in_array($themePreference, ['light', 'dark', 'system'], true)) {
-        $themePreference = 'light';
-    }
-@endphp
-
 <nav x-data="{ open: false }" class="relative md:w-64 md:shrink-0">
     <div class="fixed inset-x-0 top-0 z-30 flex h-16 items-center justify-between border-b border-line bg-white px-4 shadow-panel md:hidden">
         <a href="{{ route('dashboard') }}" class="flex items-center gap-3 text-aequitas-900">
@@ -169,12 +161,19 @@
 
             <div class="mt-auto border-t border-gray-100 pt-5">
                 <div class="mb-5 px-3">
-                    <label for="theme-preference" class="mb-2 block text-xs font-semibold uppercase tracking-wider text-muted">{{ __('Apariencia') }}</label>
-                    <select id="theme-preference" data-theme-preference x-init="$el.value = document.documentElement.dataset.themePreference" class="min-h-11 w-full rounded-control border border-line bg-white px-3 py-2 text-sm text-ink shadow-sm focus:border-gold-600 focus:ring-gold-600">
-                        <option value="light" @selected($themePreference === 'light')>{{ __('Claro') }}</option>
-                        <option value="dark" @selected($themePreference === 'dark')>{{ __('Oscuro') }}</option>
-                        <option value="system" @selected($themePreference === 'system')>{{ __('Sistema') }}</option>
-                    </select>
+                    <button
+                        type="button"
+                        data-theme-toggle
+                        class="flex min-h-11 w-full items-center gap-3 rounded-control px-3 py-2.5 text-start text-sm font-medium text-muted transition hover:bg-aequitas-50 hover:text-aequitas-900 focus:outline-none focus:ring-2 focus:ring-gold-600 focus:ring-offset-2"
+                    >
+                        <svg data-theme-icon="dark" class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20.25 15.25A8.25 8.25 0 0 1 8.75 3.75 8.25 8.25 0 1 0 20.25 15.25Z" />
+                        </svg>
+                        <svg data-theme-icon="light" class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" hidden>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3v2m0 14v2M5.64 5.64l1.42 1.42m9.88 9.88 1.42 1.42M3 12h2m14 0h2M5.64 18.36l1.42-1.42m9.88-9.88 1.42-1.42M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z" />
+                        </svg>
+                        <span data-theme-toggle-label>{{ __('Modo oscuro') }}</span>
+                    </button>
                 </div>
                 <div class="flex flex-col gap-2">
                     <x-navigation.nav-link :href="route('profile.edit')" :active="request()->routeIs('profile.*')">

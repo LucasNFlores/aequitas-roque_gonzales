@@ -1,65 +1,67 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="light" data-theme-preference="light">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="light">
     <head>
         <script>
             (() => {
-                let preference = 'light';
+                const systemThemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+                let theme = 'light';
 
                 try {
                     const savedPreference = localStorage.getItem('aequitas-theme');
 
-                    if (['light', 'dark', 'system'].includes(savedPreference)) {
-                        preference = savedPreference;
+                    if (savedPreference === 'light' || savedPreference === 'dark') {
+                        theme = savedPreference;
+                    } else if (savedPreference === 'system') {
+                        theme = systemThemeQuery.matches ? 'dark' : 'light';
                     }
                 } catch {}
 
-                const systemThemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
-                const resolveTheme = (selectedPreference) => selectedPreference === 'system'
-                    ? (systemThemeQuery.matches ? 'dark' : 'light')
-                    : selectedPreference;
-                const applyThemePreference = (selectedPreference) => {
-                    preference = selectedPreference;
-                    const resolvedTheme = resolveTheme(preference);
+                const syncThemeToggle = () => {
+                    const themeToggle = document.querySelector('[data-theme-toggle]');
 
-                    document.documentElement.dataset.theme = resolvedTheme;
-                    document.documentElement.dataset.themePreference = preference;
-                    window.dispatchEvent(new CustomEvent('aequitas:theme-changed', { detail: { theme: resolvedTheme } }));
-                };
-                const syncThemePreferenceControl = () => {
-                    const themePreferenceSelect = document.querySelector('[data-theme-preference]');
-
-                    if (themePreferenceSelect) {
-                        themePreferenceSelect.value = preference;
+                    if (!themeToggle) {
+                        return;
                     }
+
+                    const isDarkTheme = document.documentElement.dataset.theme === 'dark';
+                    const targetTheme = isDarkTheme ? 'light' : 'dark';
+                    const targetThemeLabel = targetTheme === 'dark' ? 'Oscuro' : 'Claro';
+
+                    themeToggle.setAttribute('aria-label', `Cambiar a modo ${targetThemeLabel.toLowerCase()}`);
+                    themeToggle.title = `Cambiar a modo ${targetThemeLabel.toLowerCase()}`;
+                    themeToggle.querySelector('[data-theme-toggle-label]').textContent = `Modo ${targetThemeLabel.toLowerCase()}`;
+                    themeToggle.querySelector('[data-theme-icon="dark"]').hidden = targetTheme !== 'dark';
+                    themeToggle.querySelector('[data-theme-icon="light"]').hidden = targetTheme !== 'light';
+                };
+                const applyTheme = (nextTheme) => {
+                    theme = nextTheme;
+                    document.documentElement.dataset.theme = theme;
+                    syncThemeToggle();
+                    window.dispatchEvent(new CustomEvent('aequitas:theme-changed', { detail: { theme } }));
                 };
 
-                applyThemePreference(preference);
-                document.addEventListener('DOMContentLoaded', syncThemePreferenceControl, { once: true });
-                document.addEventListener('livewire:navigated', syncThemePreferenceControl);
-                window.addEventListener('pageshow', syncThemePreferenceControl);
-                new MutationObserver(syncThemePreferenceControl).observe(document.documentElement, {
+                applyTheme(theme);
+                document.addEventListener('DOMContentLoaded', syncThemeToggle, { once: true });
+                document.addEventListener('livewire:navigated', syncThemeToggle);
+                window.addEventListener('pageshow', syncThemeToggle);
+                new MutationObserver(syncThemeToggle).observe(document.documentElement, {
                     childList: true,
                     subtree: true,
                     attributes: true,
-                    attributeFilter: ['data-theme-preference'],
+                    attributeFilter: ['data-theme'],
                 });
-                document.addEventListener('change', (event) => {
-                    if (!(event.target instanceof HTMLSelectElement) || !event.target.matches('[data-theme-preference]')) {
+                document.addEventListener('click', (event) => {
+                    const themeToggle = event.target.closest('[data-theme-toggle]');
+
+                    if (!themeToggle) {
                         return;
                     }
 
                     try {
-                        localStorage.setItem('aequitas-theme', event.target.value);
+                        localStorage.setItem('aequitas-theme', theme === 'dark' ? 'light' : 'dark');
                     } catch {}
 
-                    document.cookie = `aequitas-theme=${event.target.value}; Path=/; Max-Age=31536000; SameSite=Lax`;
-
-                    applyThemePreference(event.target.value);
-                });
-                systemThemeQuery.addEventListener('change', () => {
-                    if (preference === 'system') {
-                        applyThemePreference('system');
-                    }
+                    applyTheme(theme === 'dark' ? 'light' : 'dark');
                 });
             })();
         </script>
@@ -85,21 +87,6 @@
         </a>
         <div class="min-h-screen bg-canvas md:flex">
             @include('layouts.navigation')
-            <script>
-                (() => {
-                    const syncThemePreferenceControl = () => {
-                        const themePreferenceSelect = document.querySelector('[data-theme-preference]');
-
-                        if (themePreferenceSelect) {
-                            themePreferenceSelect.value = document.documentElement.dataset.themePreference;
-                        }
-                    };
-
-                    syncThemePreferenceControl();
-                    window.addEventListener('load', syncThemePreferenceControl, { once: true });
-                })();
-            </script>
-
             <div class="flex min-h-screen min-w-0 flex-1 flex-col pt-16 md:pt-0">
                 <!-- Page Heading -->
                 @isset($header)

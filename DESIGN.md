@@ -1,6 +1,6 @@
 # Guía visual de Aequitas
 
-Esta guía registra la base visual compartida implementada para Aequitas. El área autenticada ofrece temas Claro, Oscuro y Sistema y mantiene la prioridad de lectura y operación de las pantallas administrativas.
+Esta guía registra la base visual compartida implementada para Aequitas. El área autenticada ofrece un botón para alternar entre los temas Claro y Oscuro y mantiene la prioridad de lectura y operación de las pantallas administrativas.
 
 ## Objetivo visual implementado
 
@@ -37,8 +37,8 @@ Las variables de superficie (`--aequitas-surface`, `--aequitas-surface-muted`, `
 ## Layout autenticado y navegación implementados
 
 - El layout autenticado carga Figtree y Playfair Display, aplica el fondo neutro compartido y mantiene una cabecera clara con borde y sombra leve.
-- El selector accesible Claro / Oscuro / Sistema está en la navegación común. La elección se guarda en `localStorage` y en una cookie del navegador para volver a mostrar la opción seleccionada; Sistema sigue `prefers-color-scheme` mientras está seleccionado.
-- Un script temprano en el layout autenticado resuelve el tema antes de cargar los estilos. Sin preferencia guardada, la aplicación inicia en Claro. El login y los layouts estáticos no adoptan el tema oscuro.
+- Un botón accesible de alternancia Claro / Oscuro está en la navegación común y guarda la elección en `localStorage`.
+- Un script temprano en el layout autenticado aplica la preferencia antes de cargar los estilos. Sin preferencia guardada, la aplicación inicia en Claro. El login y los layouts estáticos no adoptan el tema oscuro.
 - La navegación lateral conserva los enlaces y permisos existentes. La marca usa azul marino; el elemento activo usa fondo azul pálido, texto marino y un indicador dorado.
 - El botón de menú móvil tiene un área táctil mínima de 44 px, foco visible y atributos `aria-expanded` / `aria-controls`. El overlay mantiene el cierre del menú.
 - Un enlace de salto al contenido permite recorrer la página por teclado.
