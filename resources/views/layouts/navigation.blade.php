@@ -1,14 +1,14 @@
 <nav x-data="{ open: false }" class="relative md:w-64 md:shrink-0">
-    <div class="fixed inset-x-0 top-0 z-30 flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 md:hidden">
-        <a href="{{ route('dashboard') }}" class="flex items-center gap-3 text-gray-900">
-            <x-branding.application-logo class="h-8 w-8 fill-current text-indigo-600" />
+    <div class="fixed inset-x-0 top-0 z-30 flex h-16 items-center justify-between border-b border-line bg-white px-4 shadow-panel md:hidden">
+        <a href="{{ route('dashboard') }}" class="flex items-center gap-3 text-aequitas-900">
+            <x-branding.application-logo class="h-8 w-8 fill-current text-aequitas-900" />
             <span class="text-sm font-semibold">{{ config('app.name', 'Laravel') }}</span>
         </a>
 
         <button
             type="button"
             @click="open = ! open"
-            class="inline-flex items-center justify-center rounded-lg p-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            class="inline-flex h-11 w-11 items-center justify-center rounded-control text-muted transition hover:bg-aequitas-50 hover:text-aequitas-900 focus:outline-none focus:ring-2 focus:ring-gold-600 focus:ring-offset-2"
             :aria-expanded="open.toString()"
             aria-controls="app-sidebar"
         >
@@ -26,30 +26,30 @@
         x-show="open"
         x-transition.opacity
         @click="open = false"
-        class="fixed inset-0 z-40 bg-gray-900/40 md:hidden"
+        class="fixed inset-0 z-40 bg-[rgba(16,26,42,0.4)] md:hidden"
         aria-hidden="true"
     ></div>
 
     <aside
         id="app-sidebar"
-        class="fixed inset-y-0 start-0 z-50 flex h-screen w-64 shrink-0 -translate-x-full flex-col border-r border-gray-200 bg-white shadow-xl transition-transform duration-200 ease-in-out md:sticky md:inset-auto md:top-0 md:z-auto md:translate-x-0 md:shadow-none"
+        class="fixed inset-y-0 start-0 z-50 flex h-screen w-64 shrink-0 -translate-x-full flex-col border-r border-line bg-white shadow-floating transition-transform duration-200 ease-in-out md:sticky md:inset-auto md:top-0 md:z-auto md:translate-x-0 md:shadow-none"
         :class="{ 'translate-x-0': open, '-translate-x-full': ! open }"
     >
-        <div class="flex h-20 shrink-0 items-center border-b border-gray-100 px-6">
-            <a href="{{ route('dashboard') }}" class="flex items-center gap-3 text-gray-900">
-                <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-sm">
+        <div class="flex h-20 shrink-0 items-center border-b border-line px-6">
+            <a href="{{ route('dashboard') }}" class="flex items-center gap-3 text-aequitas-900">
+                <span class="flex h-10 w-10 items-center justify-center rounded-control bg-aequitas-900 text-gold-300 shadow-panel">
                     <x-branding.application-logo class="h-6 w-6 fill-current" />
                 </span>
                 <span class="min-w-0">
-                    <span class="block truncate text-sm font-bold">{{ config('app.name', 'Laravel') }}</span>
-                    <span class="block text-xs text-gray-500">{{ __('Gestión jurídica') }}</span>
+                    <span class="block truncate font-editorial text-base font-semibold">{{ config('app.name', 'Laravel') }}</span>
+                    <span class="block text-xs text-muted">{{ __('Gestión jurídica') }}</span>
                 </span>
             </a>
         </div>
 
         <div class="flex flex-1 flex-col gap-8 overflow-y-auto px-4 py-6">
             <div>
-                <p class="px-3 text-xs font-semibold uppercase tracking-wider text-gray-400">{{ __('Navegación') }}</p>
+                <p class="px-3 text-xs font-semibold uppercase tracking-wider text-muted">{{ __('Navegación') }}</p>
 
                 <div class="mt-3 flex flex-col gap-2">
                     <x-navigation.nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
@@ -170,7 +170,7 @@
 
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-start text-sm font-medium text-gray-600 transition hover:bg-red-50 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+                        <button type="submit" class="flex min-h-[44px] w-full items-center gap-3 rounded-control px-3 py-2.5 text-start text-sm font-medium text-muted transition hover:bg-red-50 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-negative">
                             <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10 17l5-5-5-5m5 5H3m9-9V3h9v18h-9v-2" />
                             </svg>
@@ -179,13 +179,13 @@
                     </form>
                 </div>
 
-                <div class="mt-5 flex items-center gap-3 border-t border-gray-100 pt-5">
-                    <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-sm font-semibold text-indigo-700">
+                <div class="mt-5 flex items-center gap-3 border-t border-line pt-5">
+                    <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-aequitas-50 text-sm font-semibold text-aequitas-900">
                         {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                     </span>
                     <div class="min-w-0">
-                        <p class="truncate text-sm font-semibold text-gray-900">{{ Auth::user()->name }}</p>
-                        <p class="truncate text-xs text-gray-500">{{ Auth::user()->getRoleNames()->implode(', ') }}</p>
+                        <p class="truncate text-sm font-semibold text-ink">{{ Auth::user()->name }}</p>
+                        <p class="truncate text-xs text-muted">{{ Auth::user()->getRoleNames()->implode(', ') }}</p>
                     </div>
                 </div>
             </div>

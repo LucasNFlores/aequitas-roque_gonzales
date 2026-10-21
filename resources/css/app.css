@@ -2,6 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+    --aequitas-navy-50: #edf1f5;
+    --aequitas-navy-100: #dce4ec;
+    --aequitas-navy-700: #344a61;
+    --aequitas-navy-800: #243850;
+    --aequitas-navy-900: #172538;
+    --aequitas-navy-950: #101a2a;
+    --aequitas-gold-50: #faf7f1;
+    --aequitas-gold-100: #f3eadb;
+    --aequitas-gold-300: #d8b776;
+    --aequitas-gold-600: #8c6936;
+    --aequitas-gold-700: #74552c;
+    --aequitas-ink: #172538;
+    --aequitas-muted: #5b6470;
+    --aequitas-canvas: #f5f6f8;
+    --aequitas-line: #dde2e8;
+    --aequitas-positive: #18794e;
+    --aequitas-negative: #b42318;
+    --aequitas-negative-hover: #c43227;
+    --aequitas-negative-active: #912018;
+}
+
 [x-cloak] {
     display: none !important;
 }
