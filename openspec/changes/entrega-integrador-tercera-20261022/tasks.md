@@ -10,7 +10,8 @@
 - [x] 8. Actualizar README.md para retirar el pendiente obsoleto y describir la visualización protegida del PDF.
 - [x] 9. Sincronizar docs/diagrama-clases/diagrama-clases.md, docs/diagrama-clases/diagrama-clases.mermaid, docs/diagrama-clases/Diagrama de clases.drawio y docs/diagrama-clases/funcionamiento-diagrama-clases.md con modelos y migraciones, incluyendo proceso obligatorio en Turno y explicación de Legajo como consulta compuesta.
 - [x] 10. Actualizar docs/diagrama de secuencia/CU-4.mermaid y docs/diagrama de secuencia/CU-4.1.mermaid para reflejar los flujos Livewire vigentes y su relación con Proceso.
-- [ ] 11. Ejecutar las pruebas PHPUnit dirigidas, revisar los resultados y registrar comandos y evidencia reproducibles.
-- [ ] 12. Crear docs/informe-pruebas-tercera-entrega-20261022.md con caso, precondiciones, datos, resultado esperado, resultado obtenido y evidencia real.
-- [ ] 13. Validar OpenSpec, revisar el diff completo y confirmar que no se alteraron permisos ni reglas de negocio no incluidas en el delta.
-- [ ] 14. En el entorno local aislado preparado por el coordinador y con datos de prueba, recorrer en navegador cliente → legajo → admitir/rechazar → asignar profesional → turno → documento → reporte → historial; observar una entrada inválida y un acceso denegado, guardar evidencia y no usar datos existentes.
+- [x] 11. Ejecutar las pruebas PHPUnit dirigidas informadas, revisar resultados y registrar sus comandos y conteos en el informe.
+- [x] 11.1. Incorporar el resultado final del nuevo caso HTTP de renderizado y POST del formulario de reporte sin mezclarlo con el conteo anterior de ReporteFlowTest.
+- [x] 12. Crear docs/informe-pruebas-tercera-entrega-20261022.md con caso, precondiciones, datos, resultado esperado, resultado obtenido y evidencia real disponible; registrar la discrepancia de creación de reporte como pendiente.
+- [x] 13. Validar OpenSpec, revisar el diff completo y confirmar que no se alteraron permisos ni reglas de negocio no incluidas en el delta.
+- [ ] 14. En el entorno local aislado preparado por el coordinador y con datos de prueba, recorrer en navegador cliente → legajo → admitir/rechazar → asignar profesional → turno → documento → reporte → historial; observar una entrada inválida y un acceso denegado, y registrar evidencia sin usar datos existentes. La creación manual por el Profesional asignado no se considera comprobada mientras el formulario observado en navegador no se reconcilie con la prueba HTTP que confirma renderizado y POST.
