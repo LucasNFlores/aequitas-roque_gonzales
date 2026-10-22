@@ -24,13 +24,13 @@ Laravel usa `->constrained()` para definir estas relaciones automáticamente.
 ## Estado actual del proyecto
 
 Ya existen (implementado y probado, 82 tests):
-- `users` — tabla base + `add_profesional_fields_to_users` (dni unique nullable, telefono, domicilio, fecha_nacimiento, fecha_ingreso, softDeletes corregido `dropColumn/dropSoftDeletes`) + modelo `User` (`HasFactory, HasRoles, SoftDeletes, Auditable`, `servicios() BelongsToMany`, `procesosComoProfesional/Coordinador HasMany`)
+- `users` — tabla base + `add_profesional_fields_to_users` + `add_apellido_to_users_table` (`apellido` nullable, sin backfill heurístico) + modelo `User` (`HasFactory, HasRoles, SoftDeletes, Auditable`, `nombre_completo`, `servicios() BelongsToMany`, `procesosComoProfesional/Coordinador HasMany`)
 - `user_servicios` — tabla intermedia N:M `user_id, servicio_id` PK compuesta, `constrained cascade` (permite múltiples servicios por profesional, evita duplicados, disponible para `Proceso.servicio_id`)
 - `permissions`, `roles`, `model_has_permissions`, `model_has_roles`, `role_has_permissions` — creados por Spatie
 - `audits` — tabla de auditoría
 - `clientes`, `servicios`, `procesos`, `turnos`, `categorias_documento`, `documentos`, `documento_versiones`, `reportes`, `comprobante_pagos`, `notificaciones`, `estados_proceso`, `historial_estados_proceso` — ver secciones Fase 1-3
 
-> **Documentación CRUD usuarios:** ver `docs/gestion-usuarios-roles-servicios.md` para `StoreUserRequest/UpdateUserRequest`, `UserPolicy`, `UserController`, `Livewire/Usuarios/Index`, rutas `users.*`, vistas `resources/views/users/*` y `livewire/usuarios/*`, registro `/register` deshabilitado, búsqueda por `name/email/dni`.
+> **Documentación CRUD usuarios:** ver `docs/gestion-usuarios-roles-servicios.md` para nombre/apellido, rol único, jerarquía, fecha de ingreso por defecto, Form Requests, `UserPolicy`, controladores, rutas y vistas; búsqueda por `name/apellido/email/dni`.
 
 ---
 
@@ -67,7 +67,7 @@ php artisan make:migration add_profesional_fields_to_users_table
 
 ### Paso 2: Editar la migración
 
-**Archivo:** `database/migrations/xxxx_add_profesional_fields_to_users_table.php`
+**Archivo:** `database/migrations/2026_06_03_221010_add_profesional_fields_to_users_table.php`
 
 ```php
 public function up(): void
@@ -99,6 +99,7 @@ Reemplazar `$fillable` por:
 ```php
 protected $fillable = [
     'name',
+    'apellido',
     'email',
     'password',
     'dni',
@@ -128,7 +129,13 @@ protected function casts(): array
 php artisan migrate
 ```
 
-### Paso 5: Commit y push
+### Paso 5: Migraciones vigentes de apellido y roles
+
+`2026_10_22_123118_add_apellido_to_users_table.php` agrega `users.apellido` nullable para conservar filas anteriores. `2026_10_22_123121_enforce_single_role_per_model.php` normaliza asignaciones múltiples conservando Administrador > Directivo > Coordinador > Profesional > Secretario y establece un índice único para impedir otra asignación. La reversión quita el índice, pero no reconstruye roles que la normalización ya eliminó.
+
+La fecha de ingreso se establece en la capa HTTP/Livewire al crear usuarios; el campo no tiene un default de base de datos para no inventar fechas de ingreso en datos importados o históricos.
+
+### Paso 6: Commit y push
 
 ```bash
 git add database/migrations/xxxx_add_profesional_fields_to_users_table.php app/Models/User.php

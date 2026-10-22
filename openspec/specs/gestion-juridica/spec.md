@@ -322,17 +322,29 @@ El sistema MUST asociar cada reporte al proceso y al Profesional actualmente asi
 
 ### Requirement: Administrar usuarios según CU 25 a CU 27
 
-El sistema MUST permitir a Directivo y Administrador agregar, modificar y dar de baja lógicamente usuarios. La baja MUST rechazarse mientras el usuario tenga procesos activos y MUST conservar trazabilidad.
+El sistema MUST permitir a Directivo y Administrador agregar, modificar y dar de baja lógicamente usuarios. La baja MUST rechazarse mientras el usuario tenga procesos activos y MUST conservar trazabilidad. Los formularios MUST admitir nombres y apellido en campos separados y MUST conservar los nombres existentes sin inferir apellidos automáticamente. Al crear una cuenta, la fecha de ingreso MUST iniciar con la fecha actual, incluso si una petición autorizada omite el campo.
+
+Cada cuenta MUST tener como máximo un rol en todo el sistema. La gestión MUST presentar un selector de un solo valor y rechazar asignaciones múltiples. Al migrar cuentas existentes con varios roles, MUST conservar únicamente el rol de mayor jerarquía en este orden: Administrador, Directivo, Coordinador, Profesional y Secretario. Los roles no listados MUST quedar por debajo de los roles oficiales y MUST desempatarse de forma determinista. La base de datos MUST impedir que una cuenta reciba más de un rol simultáneo.
 
 #### Scenario: CU 25 - Agregar Nuevo Usuario
 
-- **WHEN** Directivo o Administrador agrega un usuario interno y asigna su rol
+- **WHEN** Directivo o Administrador agrega un usuario interno con nombres, apellido y un rol
 - **THEN** el sistema crea la cuenta autenticable con los datos y rol admitidos
+- **AND** asigna la fecha actual como fecha de ingreso si la petición no incluye una fecha
+- **AND** guarda como máximo un rol
 
 #### Scenario: CU 26 - Modificar Usuario
 
 - **WHEN** Directivo o Administrador modifica los datos o rol de un usuario
-- **THEN** el sistema guarda los cambios autorizados
+- **THEN** el sistema guarda los cambios autorizados y mantiene nombre y apellido en campos separados
+- **AND** reemplaza el rol anterior por el único rol seleccionado, si se modifica
+
+#### Scenario: Normalizar cuentas con roles múltiples
+
+- **GIVEN** una cuenta existente con dos o más roles
+- **WHEN** se aplica la migración de la regla de rol único
+- **THEN** conserva únicamente el rol de mayor jerarquía
+- **AND** la base de datos impide que esa cuenta vuelva a recibir otro rol simultáneo
 
 #### Scenario: CU 27 - Eliminar Usuario
 

@@ -68,11 +68,11 @@
                             </div>
                             <div>
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-muted">Coordinador</dt>
-                                <dd class="mt-1 text-sm text-ink">{{ $proceso->coordinador?->name ?? 'Sin asignar' }}</dd>
+                                <dd class="mt-1 text-sm text-ink">{{ $proceso->coordinador?->nombre_completo ?? 'Sin asignar' }}</dd>
                             </div>
                             <div>
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-muted">Profesional</dt>
-                                <dd class="mt-1 text-sm text-ink">{{ $proceso->profesional?->name ?? 'Sin asignar' }}</dd>
+                                <dd class="mt-1 text-sm text-ink">{{ $proceso->profesional?->nombre_completo ?? 'Sin asignar' }}</dd>
                             </div>
                             <div>
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-muted">Honorarios</dt>
@@ -101,7 +101,7 @@
                                             <span class="rounded-full bg-aequitas-50 px-2.5 py-1 text-xs font-medium text-ink">{{ ucfirst($turno->estado) }}</span>
                                         </div>
                                         <p class="mt-2 text-sm text-ink">{{ $turno->fecha_hora?->format('d/m/Y H:i') ?? 'Sin fecha' }}</p>
-                                        <p class="mt-1 text-sm text-muted">{{ $turno->profesional?->name ?? $turno->coordinador?->name ?? 'Sin responsable' }}</p>
+                                        <p class="mt-1 text-sm text-muted">{{ $turno->profesional?->nombre_completo ?? $turno->coordinador?->nombre_completo ?? 'Sin responsable' }}</p>
                                         @if($turno->es_externo && $turno->detalle_externo)
                                             <p class="mt-2 text-sm text-muted">{{ $turno->detalle_externo }}</p>
                                         @endif
@@ -144,7 +144,7 @@
                                                         <li class="flex flex-col gap-3 rounded-control bg-canvas p-3 sm:flex-row sm:items-center sm:justify-between" wire:key="legajo-documento-version-{{ $version->id }}">
                                                             <div>
                                                                 <p class="text-sm font-medium text-ink">{{ $version->nombre }} · {{ $version->categoria_nombre ?: $version->categoria?->nombre ?: 'Sin categoría' }}</p>
-                                                                <p class="mt-1 text-xs text-muted">{{ $version->tipo_documento }} · Reemplazado {{ $version->fecha_reemplazo?->format('d/m/Y H:i') ?? '—' }} · {{ $version->usuario?->name ?? 'Usuario eliminado' }}</p>
+                                                                <p class="mt-1 text-xs text-muted">{{ $version->tipo_documento }} · Reemplazado {{ $version->fecha_reemplazo?->format('d/m/Y H:i') ?? '—' }} · {{ $version->usuario?->nombre_completo ?? 'Usuario eliminado' }}</p>
                                                             </div>
                                                             <div class="flex flex-wrap gap-2">
                                                                 @can('view', $documento)
@@ -201,7 +201,7 @@
                                         <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                                             <div>
                                                 <p class="text-sm font-semibold text-ink">{{ $reporte->fecha?->format('d/m/Y') ?? 'Sin fecha' }}</p>
-                                                <p class="mt-1 text-xs text-muted">Autor: {{ $reporte->profesional?->name ?? 'Usuario eliminado' }}@if($reporte->registrado_por_id && $reporte->registrado_por_id !== $reporte->profesional_id) · Registrado por {{ $reporte->registradoPor?->name ?? 'Usuario eliminado' }}@endif</p>
+                                                <p class="mt-1 text-xs text-muted">Autor: {{ $reporte->profesional?->nombre_completo ?? 'Usuario eliminado' }}@if($reporte->registrado_por_id && $reporte->registrado_por_id !== $reporte->profesional_id) · Registrado por {{ $reporte->registradoPor?->nombre_completo ?? 'Usuario eliminado' }}@endif</p>
                                             </div>
                                             <div class="flex flex-wrap gap-2">
                                                 @can('view', $reporte)
@@ -280,7 +280,7 @@
                                                 <td class="px-4 py-3">{{ $historial->estado_anterior ? str_replace('_', ' ', ucfirst($historial->estado_anterior)) : '—' }}</td>
                                                 <td class="px-4 py-3 font-medium text-ink">{{ str_replace('_', ' ', ucfirst($historial->estado_nuevo)) }}</td>
                                                 <td class="px-4 py-3">{{ $historial->fecha_cambio?->format('d/m/Y H:i') ?? '—' }}</td>
-                                                <td class="px-4 py-3">{{ $historial->usuario?->name ?? 'Sistema' }}</td>
+                                                <td class="px-4 py-3">{{ $historial->usuario?->nombre_completo ?? 'Sistema' }}</td>
                                                 <td class="px-4 py-3">{{ $historial->motivo ?: '—' }}</td>
                                             </tr>
                                         @empty
@@ -310,7 +310,7 @@
                                     <span class="rounded-full bg-aequitas-50 px-2.5 py-1 text-xs font-medium text-ink">{{ ucfirst($turno->estado) }}</span>
                                 </div>
                                 <p class="mt-2 text-sm text-ink">{{ $turno->fecha_hora?->format('d/m/Y H:i') ?? 'Sin fecha' }}</p>
-                                <p class="mt-1 text-sm text-muted">{{ $turno->profesional?->name ?? $turno->coordinador?->name ?? 'Sin responsable' }}</p>
+                                <p class="mt-1 text-sm text-muted">{{ $turno->profesional?->nombre_completo ?? $turno->coordinador?->nombre_completo ?? 'Sin responsable' }}</p>
                                 @if($turno->es_externo && $turno->detalle_externo)
                                     <p class="mt-2 text-sm text-muted">{{ $turno->detalle_externo }}</p>
                                 @endif

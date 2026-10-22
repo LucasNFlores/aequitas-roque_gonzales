@@ -72,7 +72,7 @@
                                             <li class="flex flex-col gap-2 rounded-control bg-white p-3 sm:flex-row sm:items-center sm:justify-between" wire:key="doc-version-{{ $version->id }}">
                                                 <div>
                                                     <p class="text-sm font-medium text-ink">{{ $version->nombre }} · {{ $version->categoria_nombre ?: $version->categoria?->nombre ?: 'Sin categoría' }}</p>
-                                                    <p class="mt-1 text-xs text-muted">{{ $version->tipo_documento }} · {{ $version->fecha_reemplazo?->format('d/m/Y H:i') ?? '—' }} · {{ $version->usuario?->name ?? 'Usuario eliminado' }}</p>
+                                                    <p class="mt-1 text-xs text-muted">{{ $version->tipo_documento }} · {{ $version->fecha_reemplazo?->format('d/m/Y H:i') ?? '—' }} · {{ $version->usuario?->nombre_completo ?? 'Usuario eliminado' }}</p>
                                                 </div>
                                                 <div class="flex flex-wrap gap-2">
                                                     @can('view', $documento)

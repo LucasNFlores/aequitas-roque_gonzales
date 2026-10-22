@@ -219,7 +219,7 @@
                             {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                         </span>
                         <span class="min-w-0 flex-1">
-                            <span class="block truncate text-sm font-semibold text-ink">{{ Auth::user()->name }}</span>
+                            <span class="block truncate text-sm font-semibold text-ink">{{ Auth::user()->nombre_completo }}</span>
                             <span class="block truncate text-xs text-muted">{{ Auth::user()->getRoleNames()->implode(', ') }}</span>
                         </span>
                         <svg class="h-4 w-4 shrink-0 text-muted transition-transform" :class="{ 'rotate-180': accountMenuOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">

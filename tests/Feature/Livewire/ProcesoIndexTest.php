@@ -68,6 +68,11 @@ class ProcesoIndexTest extends TestCase
         $this->assertSame($coordinator->id, $change->usuario_id);
         $this->assertSame('Se inició el trabajo del caso.', $change->motivo);
         $this->assertSame('pendiente', $change->estado_anterior);
+
+        Livewire::actingAs($coordinator)
+            ->test(ProcesosIndex::class)
+            ->call('openHistory', $process->id)
+            ->assertSet('historial.0.usuario', $coordinator->nombre_completo);
     }
 
     public function test_professional_is_limited_to_assigned_processes_and_history(): void

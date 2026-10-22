@@ -70,7 +70,7 @@ use \OwenIt\Auditing\Auditable;
 | Trait | ¿Qué aporta a User? |
 |-------|-------------------|
 | `HasFactory` | Método `factory()` para crear usuarios de prueba |
-| `HasRoles` | Métodos `assignRole()`, `hasRole()`, `givePermissionTo()`, etc. (roles y permisos) |
+| `HasRoles` | Métodos `assignRole()`, `hasRole()`, `syncRoles()`, etc. La base limita cada modelo a un rol. |
 | `Notifiable` | Método `notify()` para enviar mails, notificaciones en base de datos, etc. |
 | `SoftDeletes` | Borrado lógico: cuando "borrás" un usuario, solo pone fecha en `deleted_at`, no lo elimina de verdad |
 | `Auditable` | Cada vez que se crea, modifica o borra un usuario, queda registrado en la tabla `audits` |
@@ -92,6 +92,7 @@ $user->delete();  // UPDATE users SET deleted_at = NOW() WHERE id = 1
 ```php
 protected $fillable = [
     'name',
+    'apellido',
     'email',
     'password',
     'dni',
@@ -108,13 +109,15 @@ protected $fillable = [
 
 ```php
 // Esto funciona porque 'name' está en $fillable
-User::create(['name' => 'Juan', 'email' => 'juan@mail.com']);
+User::create(['name' => 'Juan', 'apellido' => 'Pérez', 'email' => 'juan@mail.com']);
 
 // Esto ignora 'is_admin' porque NO está en $fillable
 User::create(['name' => 'Hacker', 'is_admin' => true]);
 ```
 
 Es `protected` porque es una propiedad interna de la clase, no accesible desde afuera.
+
+`name` almacena los nombres y `apellido` el apellido. El accesor `$user->nombre_completo` los presenta juntos; si `apellido` es nulo en una cuenta anterior, el accesor conserva el valor original de `name` sin intentar dividirlo automáticamente.
 
 ### 6. `$hidden` — Ocultar campos sensibles
 
@@ -231,7 +234,7 @@ $user->procesosComoProfesional;  // WHERE profesional_id = 1
 $user->procesosComoCoordinador;  // WHERE coordinador_id = 1
 ```
 
-Esto permite que un mismo usuario tenga dos roles distintos en dos conjuntos de procesos diferentes.
+Estas son dos responsabilidades de proceso distintas; la cuenta conserva un único rol global que determina sus permisos.
 
 ```php
 public function notificaciones(): HasMany
@@ -290,7 +293,7 @@ $user = User::with([
 ])->find(1);
 
 // Verificar rol
-if ($user->hasRole('profesional')) {
+if ($user->hasRole('Profesional')) {
     // Procesos asignados como profesional, ordenados por fecha
     $procesos = $user->procesosComoProfesional()
         ->where('estado', 'en_proceso')
@@ -298,15 +301,16 @@ if ($user->hasRole('profesional')) {
         ->get();
 }
 
-// Asignar rol
-$user->assignRole('coordinador');
+// Reemplazar el rol actual por uno solo
+$user->syncRoles(['Coordinador']);
 
 // Enviar notificación
 $user->notify(new NuevaTareaAsignada($tarea));
 
 // Crear con datos validados
 $nuevo = User::create([
-    'name' => 'María Gómez',
+    'name' => 'María',
+    'apellido' => 'Gómez',
     'email' => 'maria@estudio.com',
     'password' => 'secreto123',   // Se hashea automáticamente por el cast
     'fecha_ingreso' => '2026-06-08', // Se convierte a Carbon por el cast date
@@ -339,6 +343,7 @@ $nuevo->forceDelete();   // DELETE FROM users WHERE id = ?
 │  PROPIEDADES                                  │
 │  $fillable → qué campos se pueden crear       │
 │  $hidden   → qué campos son secretos (JSON)   │
+│  nombre_completo → nombre + apellido          │
 ├─────────────────────────────────────────────┤
 │  MÉTODOS                                      │
 │  casts()   → cómo interpretar cada columna    │
@@ -351,6 +356,7 @@ $nuevo->forceDelete();   // DELETE FROM users WHERE id = ?
 ├─────────────────────────────────────────────┤
 │  TABLA ASOCIADA                               │
 │  users (id, name, email, password,            │
+│  apellido,                                    │
 │  dni, telefono, domicilio,                    │
 │  fecha_nacimiento, fecha_ingreso,             │
 │  timestamps, deleted_at)                      │

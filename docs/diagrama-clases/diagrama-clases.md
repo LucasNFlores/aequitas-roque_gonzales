@@ -9,6 +9,7 @@ direction LR
     namespace Acceso_y_Personas {
         class User {
             -String name
+            -String apellido
             -String email
             -String password
             -String dni
@@ -16,6 +17,7 @@ direction LR
             -String domicilio
             -Date fecha_nacimiento
             -Date fecha_ingreso
+            -String role (maximo uno)
             +HasMany turnos()
             +HasMany reportes()
             +HasMany procesosComoProfesional()

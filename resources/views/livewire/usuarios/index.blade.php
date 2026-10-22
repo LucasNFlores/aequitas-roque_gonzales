@@ -39,7 +39,7 @@
 
 <div class="mt-6">
     <label for="search" class="sr-only">Buscar usuario</label>
-    <input id="search" type="search" wire:model.live.debounce.300ms="search" placeholder="Buscar por nombre, email o DNI..." class="block w-full rounded-control border-line shadow-sm focus:border-gold-600 focus:ring-gold-600 sm:max-w-sm" />
+    <input id="search" type="search" wire:model.live.debounce.300ms="search" placeholder="Buscar por nombre, apellido, email o DNI..." class="block w-full rounded-control border-line shadow-sm focus:border-gold-600 focus:ring-gold-600 sm:max-w-sm" />
 </div>
 
 <div class="mt-6 overflow-x-auto rounded-card shadow-panel">
@@ -48,7 +48,7 @@
             <tr>
                 <th scope="col" class="px-6 py-3">Nombre</th>
                 <th scope="col" class="px-6 py-3">Email</th>
-                <th scope="col" class="px-6 py-3">Roles</th>
+                <th scope="col" class="px-6 py-3">Rol</th>
                 <th scope="col" class="px-6 py-3">Servicios</th>
                 <th scope="col" class="px-6 py-3 text-center">Acciones</th>
             </tr>
@@ -57,7 +57,7 @@
             @forelse($users as $user)
                 <tr wire:key="user-{{ $user->id }}" class="border-b bg-white hover:bg-canvas">
                     <td class="whitespace-nowrap px-6 py-4 font-medium text-ink">
-                        {{ $user->name }}
+                        {{ $user->nombre_completo }}
                         @if($user->dni)
                             <span class="block text-xs font-normal text-muted">DNI: {{ $user->dni }}</span>
                         @endif
@@ -126,9 +126,14 @@
         <form wire:submit="saveUser" class="space-y-6 px-6 py-6 sm:px-8">
             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <div>
-                    <label for="modal-name" class="block text-sm font-medium text-muted">Nombre *</label>
+                    <label for="modal-name" class="block text-sm font-medium text-muted">Nombres *</label>
                     <input id="modal-name" type="text" wire:model.defer="name" class="mt-2 block w-full rounded-control border-line px-3 py-2.5 shadow-sm focus:border-gold-600 focus:ring-gold-600" />
                     @error('name') <span class="mt-1 block text-sm text-red-600">{{ $message }}</span> @enderror
+                </div>
+                <div>
+                    <label for="modal-apellido" class="block text-sm font-medium text-muted">Apellido *</label>
+                    <input id="modal-apellido" type="text" wire:model.defer="apellido" class="mt-2 block w-full rounded-control border-line px-3 py-2.5 shadow-sm focus:border-gold-600 focus:ring-gold-600" />
+                    @error('apellido') <span class="mt-1 block text-sm text-red-600">{{ $message }}</span> @enderror
                 </div>
                 <div>
                     <label for="modal-email" class="block text-sm font-medium text-muted">Email *</label>
@@ -168,19 +173,16 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-muted">Roles (desde BD)</label>
-                <div class="mt-2 space-y-2">
+                <label for="modal-role" class="block text-sm font-medium text-muted">Rol</label>
+                <select id="modal-role" wire:model.defer="selectedRole" class="mt-2 block w-full rounded-control border-line px-3 py-2.5 shadow-sm focus:border-gold-600 focus:ring-gold-600">
+                    <option value="">Sin rol</option>
                     @foreach($roles as $role)
                         @if(auth()->user()->hasRole('Administrador') || $role->name !== 'Administrador')
-                        <label class="flex items-center gap-2">
-                            <input type="checkbox" value="{{ $role->name }}" wire:model.defer="selectedRoles" class="rounded border-line text-aequitas-900 shadow-sm focus:ring-gold-600" />
-                            <span class="text-sm text-muted">{{ $role->name }}</span>
-                        </label>
+                            <option value="{{ $role->name }}">{{ $role->name }}</option>
                         @endif
                     @endforeach
-                </div>
-                @error('selectedRoles') <span class="mt-1 block text-sm text-red-600">{{ $message }}</span> @enderror
-                @error('selectedRoles.*') <span class="mt-1 block text-sm text-red-600">{{ $message }}</span> @enderror
+                </select>
+                @error('selectedRole') <span class="mt-1 block text-sm text-red-600">{{ $message }}</span> @enderror
             </div>
 
             @can('asignar_especialidad_servicio')

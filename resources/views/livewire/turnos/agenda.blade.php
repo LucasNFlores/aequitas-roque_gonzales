@@ -6,7 +6,7 @@
                 <select id="agenda-profesional" wire:model="profesionalId" class="min-h-11 w-full rounded-control border-line bg-white text-ink shadow-sm focus:border-gold-600 focus:ring-gold-600" @error('profesionalId') aria-invalid="true" aria-describedby="agenda-profesional-error" @enderror>
                     <option value="">Todos</option>
                     @foreach ($profesionales as $profesional)
-                        <option value="{{ $profesional->id }}">{{ $profesional->name }}</option>
+                        <option value="{{ $profesional->id }}">{{ $profesional->nombre_completo }}</option>
                     @endforeach
                 </select>
                 @error('profesionalId')
@@ -53,7 +53,7 @@
 
                 <div>
                     <h2 class="text-sm font-medium text-muted">Profesional</h2>
-                    <p class="break-words text-ink">{{ $turno->profesional?->name }}</p>
+                    <p class="break-words text-ink">{{ $turno->profesional?->nombre_completo }}</p>
                 </div>
 
                 <div class="min-w-0">

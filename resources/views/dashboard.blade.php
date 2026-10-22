@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex flex-col gap-1">
             <p class="text-sm font-semibold text-gold-700">Panel de {{ $roleName ?: 'usuario interno' }}</p>
-            <h1 class="text-2xl font-semibold leading-tight text-ink">Hola, {{ $user->name }}</h1>
+            <h1 class="text-2xl font-semibold leading-tight text-ink">Hola, {{ $user->nombre_completo }}</h1>
             <p class="text-sm leading-6 text-muted">
                 {{ $isAdministratorDashboard
                     ? 'Panorama global y tareas operativas disponibles para la administración.'

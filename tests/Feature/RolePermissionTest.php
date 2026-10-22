@@ -7,6 +7,7 @@ use Database\Seeders\RoleSeeder;
 use Database\Seeders\UserSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -19,6 +20,10 @@ class RolePermissionTest extends TestCase
         $this->seed(RoleSeeder::class);
 
         $this->assertSame(5, Role::count());
+        $this->assertSame(
+            User::ROLE_HIERARCHY,
+            Role::query()->orderBy('id')->pluck('name')->all(),
+        );
         $this->assertTrue(Role::findByName('Administrador')->hasPermissionTo('gestionar_servicios'));
         $this->assertTrue(Role::findByName('Directivo')->hasPermissionTo('editar_roles'));
         $this->assertTrue(Role::findByName('Coordinador')->hasPermissionTo('gestionar_estados_proceso'));
@@ -35,7 +40,7 @@ class RolePermissionTest extends TestCase
         $this->seed(RoleSeeder::class);
 
         $this->assertSame(5, Role::count());
-        $this->assertSame(42, Role::findByName('Administrador')->permissions()->count());
+        $this->assertSame(Permission::count(), Role::findByName('Administrador')->permissions()->count());
     }
 
     public function test_user_seeder_creates_one_user_per_role_with_password_1234(): void
@@ -56,6 +61,9 @@ class RolePermissionTest extends TestCase
             $user = User::where('email', $email)->firstOrFail();
 
             $this->assertTrue($user->hasRole($role));
+            $this->assertCount(1, $user->getRoleNames());
+            $this->assertNotEmpty($user->apellido);
+            $this->assertSame(today()->toDateString(), $user->fecha_ingreso->toDateString());
             $this->assertTrue(Hash::check('1234', $user->password));
         }
 
@@ -101,14 +109,18 @@ class RolePermissionTest extends TestCase
         $target = User::factory()->create();
 
         $this->actingAs($directivo)
-            ->put(route('users.roles.update', $target), ['roles' => ['Secretario']])
+            ->put(route('users.roles.update', $target), ['role' => 'Secretario'])
             ->assertRedirect();
 
         $this->assertTrue($target->fresh()->hasRole('Secretario'));
 
         $this->actingAs($directivo)
-            ->put(route('users.roles.update', $target), ['roles' => ['Rol inexistente']])
-            ->assertSessionHasErrors('roles.0');
+            ->put(route('users.roles.update', $target), ['role' => 'Rol inexistente'])
+            ->assertSessionHasErrors('role');
+
+        $this->actingAs($directivo)
+            ->put(route('users.roles.update', $target), ['roles' => ['Secretario', 'Profesional']])
+            ->assertSessionHasErrors('roles');
     }
 
     public function test_directivo_cannot_assign_or_remove_the_administrator_role(): void
@@ -121,14 +133,14 @@ class RolePermissionTest extends TestCase
         $target = User::factory()->create();
 
         $this->actingAs($directivo)
-            ->put(route('users.roles.update', $target), ['roles' => ['Administrador']])
+            ->put(route('users.roles.update', $target), ['role' => 'Administrador'])
             ->assertForbidden();
 
         $administrator = User::factory()->create();
         $administrator->assignRole('Administrador');
 
         $this->actingAs($directivo)
-            ->put(route('users.roles.update', $administrator), ['roles' => ['Directivo']])
+            ->put(route('users.roles.update', $administrator), ['role' => 'Directivo'])
             ->assertForbidden();
     }
 

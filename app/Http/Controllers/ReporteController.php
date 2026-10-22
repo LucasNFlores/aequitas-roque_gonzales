@@ -49,7 +49,7 @@ class ReporteController extends Controller
                     'contenido_anterior' => $reporte->contenido,
                     'fecha_anterior' => $reporte->fecha,
                     'usuario_id' => $actor->id,
-                    'usuario_nombre' => $actor->name,
+                    'usuario_nombre' => $actor->nombre_completo,
                     'fecha_cambio' => now(),
                 ]);
 

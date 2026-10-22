@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateUserRolesRequest;
 use App\Models\Servicio;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -20,16 +21,17 @@ class UserController extends Controller
     {
         $this->authorize('manageRoles', $user);
 
-        $roles = Role::query()->orderBy('name')->get();
+        $roles = $this->roleOptions();
 
         return view('users.roles', compact('user', 'roles'));
     }
 
     public function updateRoles(UpdateUserRolesRequest $request, User $user): RedirectResponse
     {
-        $user->syncRoles($request->validated('roles') ?? []);
+        $role = $request->validated('role');
+        $user->syncRoles($role === null ? [] : [$role]);
 
-        return redirect()->back()->with('success', 'Roles actualizados correctamente.');
+        return redirect()->back()->with('success', 'Rol actualizado correctamente.');
     }
 
     /**
@@ -46,6 +48,7 @@ class UserController extends Controller
                 $term = '%'.$search.'%';
                 $query->where(function ($q) use ($term): void {
                     $q->where('name', 'like', $term)
+                        ->orWhere('apellido', 'like', $term)
                         ->orWhere('email', 'like', $term)
                         ->orWhere('dni', 'like', $term);
                 });
@@ -64,7 +67,7 @@ class UserController extends Controller
     {
         $this->authorize('create', User::class);
 
-        $roles = Role::query()->orderBy('name')->get();
+        $roles = $this->roleOptions();
         $servicios = Servicio::orderBy('nombre')->get();
 
         return view('users.create', compact('roles', 'servicios'));
@@ -78,7 +81,7 @@ class UserController extends Controller
         $validated = $request->validated();
 
         // Validar rol Administrador solo para administradores
-        if (! empty($validated['roles']) && in_array('Administrador', $validated['roles'], true)) {
+        if (($validated['role'] ?? null) === 'Administrador') {
             abort_unless(auth()->user()?->hasRole('Administrador'), 403);
         }
 
@@ -86,18 +89,19 @@ class UserController extends Controller
 
         $user = User::create([
             'name' => $validated['name'],
+            'apellido' => $validated['apellido'],
             'email' => $validated['email'],
             'password' => $password,
             'dni' => $validated['dni'] ?? null,
             'telefono' => $validated['telefono'] ?? null,
             'domicilio' => $validated['domicilio'] ?? null,
             'fecha_nacimiento' => $validated['fecha_nacimiento'] ?? null,
-            'fecha_ingreso' => $validated['fecha_ingreso'] ?? null,
+            'fecha_ingreso' => $validated['fecha_ingreso'] ?? today()->toDateString(),
         ]);
 
-        if (! empty($validated['roles'])) {
+        if (filled($validated['role'] ?? null)) {
             $this->authorize('manageRoles', $user);
-            $user->syncRoles($validated['roles']);
+            $user->syncRoles([$validated['role']]);
         }
 
         if (! empty($validated['servicios'])) {
@@ -129,7 +133,7 @@ class UserController extends Controller
     {
         $this->authorize('update', $user);
 
-        $roles = Role::query()->orderBy('name')->get();
+        $roles = $this->roleOptions();
         $servicios = Servicio::orderBy('nombre')->get();
 
         return view('users.edit', compact('user', 'roles', 'servicios'));
@@ -144,6 +148,7 @@ class UserController extends Controller
 
         $data = [
             'name' => $validated['name'],
+            'apellido' => $validated['apellido'],
             'email' => $validated['email'],
             'dni' => $validated['dni'] ?? null,
             'telefono' => $validated['telefono'] ?? null,
@@ -156,15 +161,16 @@ class UserController extends Controller
             $data['password'] = $validated['password'];
         }
 
-        if (array_key_exists('roles', $validated) && ! empty($validated['roles']) && in_array('Administrador', $validated['roles'], true)) {
+        if (array_key_exists('role', $validated) && $validated['role'] === 'Administrador') {
             abort_unless(auth()->user()?->hasRole('Administrador'), 403);
         }
 
         $user->update($data);
 
-        if (array_key_exists('roles', $validated)) {
+        if (array_key_exists('role', $validated)) {
             $this->authorize('manageRoles', $user);
-            $user->syncRoles($validated['roles'] ?? []);
+            $role = $validated['role'];
+            $user->syncRoles($role === null ? [] : [$role]);
         }
 
         if (array_key_exists('servicios', $validated)) {
@@ -208,5 +214,14 @@ class UserController extends Controller
         });
 
         return redirect()->back()->with('success', 'Servicios asignados correctamente.');
+    }
+
+    /** @return Collection<int, Role> */
+    private function roleOptions(): Collection
+    {
+        return Role::query()->get()->sortBy(fn (Role $role): array => [
+            User::rolePriority($role->name),
+            mb_strtolower($role->name),
+        ])->values();
     }
 }

@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-ink leading-tight">
-            Asignar Roles a: <span class="text-aequitas-900">{{ $user->name }}</span>
+            Asignar rol a: <span class="text-aequitas-900">{{ $user->nombre_completo }}</span>
         </h2>
     </x-slot>
 
@@ -19,26 +19,18 @@
                     @csrf
                     @method('PUT')
 
-                    <h5 class="mb-4 text-lg font-bold text-muted">Selecciona los roles para este usuario:</h5>
-
-                    <div class="mb-6 space-y-3">
+                    <label class="mb-4 block text-lg font-bold text-muted" for="role">Selecciona un rol para este usuario:</label>
+                    <select class="mb-6 block w-full rounded-control border-line shadow-sm focus:border-gold-600 focus:ring-gold-600" name="role" id="role">
+                        <option value="">Sin rol</option>
                         @foreach($roles as $role)
                             @if(auth()->user()->hasRole('Administrador') || $role->name !== 'Administrador')
-                            <div class="flex items-center">
-                                <input class="rounded border-line text-gold-600 shadow-sm focus:border-gold-600 focus:ring focus:ring-gold-600 focus:ring-opacity-50 h-5 w-5"
-                                       type="checkbox"
-                                       name="roles[]"
-                                       value="{{ $role->name }}"
-                                       id="role_{{ $role->id }}"
-                                       {{ $user->hasRole($role->name) ? 'checked' : '' }}>
-
-                                <label class="ml-3 text-muted font-medium" for="role_{{ $role->id }}">
+                                <option value="{{ $role->name }}" @selected(old('role', $user->roles->first()?->name ?? '') === $role->name)>
                                     {{ $role->name }}
-                                </label>
-                            </div>
+                                </option>
                             @endif
                         @endforeach
-                    </div>
+                    </select>
+                    @error('role') <p class="mb-4 text-sm text-red-600">{{ $message }}</p> @enderror
 
                     <div class="border-t border-line pt-4 flex space-x-3">
                         <x-buttons.primary-button>

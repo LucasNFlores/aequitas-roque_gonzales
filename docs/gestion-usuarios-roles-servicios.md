@@ -6,8 +6,10 @@
 
 Se implementó la administración completa de usuarios internos del estudio jurídico con:
 
-- **Alta** con validación de datos únicos (`email` único), roles traídos de BD y generación de contraseña inicial (`1234` si no se provee).
-- **Modificación** con validación `Rule::unique()->ignore($id)` sin duplicar registros y actualización de permisos atómica vía `syncRoles`.
+- **Alta y modificación** con nombres y apellido separados, rol único tomado de BD y generación de contraseña inicial (`1234` si no se provee).
+- **Rol único global** en la gestión y en la base. Si una cuenta existente tenía varios, la migración conserva el mayor según Administrador > Directivo > Coordinador > Profesional > Secretario; roles personalizados quedan debajo de esos cinco.
+- **Fecha de ingreso** precargada con la fecha actual en las altas HTTP y Livewire, y aplicada también como respaldo del servidor.
+- **Búsqueda** por nombre, apellido, email o DNI.
 - **Baja lógica** con `SoftDeletes` y verificación de procesos activos (`finalizado`/`rechazado` permiten baja; `pendiente/en_proceso/...` la bloquean), conservando trazabilidad y sin `forceDelete`.
 - **Gestión de servicios** ya existente (`app/Livewire/Servicios/Index.php:19`) y **asignación de especialidades/servicios a profesionales** (`user_servicios`) evitando duplicados por PK compuesta y disponible para `Proceso.servicio_id`.
 - **Rutas, políticas, vistas híbridas Blade+Livewire+Alpine+Tailwind y pruebas** cubriendo los 7 ítems de la checklist: Crear/editar usuarios, Asignar roles, Asociar servicios, Desactivar, Rutas, Vistas, Tests.
@@ -29,7 +31,7 @@ Estado: **82 tests passed (452 assertions)** al 2026-09-10 tras correcciones cr�
 | **Baja lógica con procesos activos**: impide física, permite lógica conservando trazabilidad | `UserPolicy::delete` + `SoftDeletes` + `UserController::destroy`/`Livewire::deleteUser` | `UserManagementTest::test_baja_logica_impide_eliminacion_fisica_y_conserva_trazabilidad` |
 | **Servicio/Especialidad**: directivo/admin/coordinador gestiona o asigna → evita duplicados, disponible para procesos | `user_servicios` PK(`user_id`,`servicio_id`) + `sync()` + `permission:asignar_especialidad_servicio` | `UserManagementTest::test_servicio_o_especialidad_gestion_y_asignacion_evita_duplicados` |
 | **Usuario único por email** | `unique:users,email` en Store y `Rule::unique->ignore` en Update/Livewire | `UserManagementTest::test_email_debe_ser_unico` + `UsuarioIndexTest::test_usuario_unico_por_email_livewire_valida` |
-| **Roles desde BD** | `Role::orderBy('name')->get()` en controlador y Livewire render | `UserManagementTest::test_roles_deben_venir_de_bd_y_validar_existentes` |
+| **Rol único desde BD** | Selector singular ordenado por jerarquía y validación `exists:roles,name` | `UserManagementTest::test_roles_deben_venir_de_bd_y_validar_existentes` |
 
 ---
 
@@ -64,7 +66,7 @@ Matriz V2 (`docs/aequitas-matriz-modulos-funciones-permisos-v2.md:45`):
 ```php
 class User extends Authenticatable implements Auditable {
   use HasFactory, HasRoles, Notifiable, SoftDeletes, Auditable;
-  protected $fillable = ['name','email','password','dni','telefono','domicilio','fecha_nacimiento','fecha_ingreso'];
+  protected $fillable = ['name','apellido','email','password','dni','telefono','domicilio','fecha_nacimiento','fecha_ingreso'];
   protected $casts = ['email_verified_at'=>'datetime','password'=>'hashed','fecha_nacimiento'=>'date','fecha_ingreso'=>'date'];
   public function servicios(): BelongsToMany { return $this->belongsToMany(Servicio::class,'user_servicios'); }
   public function procesosComoProfesional(): HasMany { return $this->hasMany(Proceso::class,'profesional_id'); }
@@ -78,6 +80,8 @@ Migraciones:
 
 - `database/migrations/0001_01_01_000000_create_users_table.php:14` `id, name, email unique, password`
 - `2026_06_03_221010_add_profesional_fields_to_users_table.php:14` añade `dni unique nullable, telefono, domicilio, fecha_nacimiento, fecha_ingreso, softDeletes`
+- `2026_10_22_123118_add_apellido_to_users_table.php` añade `apellido nullable`, sin intentar inferirlo de cuentas existentes.
+- `2026_10_22_123121_enforce_single_role_per_model.php` conserva un único rol por jerarquía y crea un índice único en `model_has_roles`.
 - `2026_05_06_121351_create_permission_tables.php` (Spatie) y `2026_08_23_190000_create_user_servicios_table.php:13`:
 
 ```php
@@ -114,7 +118,7 @@ forceDelete: false // nunca físico, conserva trazabilidad
 manageRoles: can('editar_roles') && (hasRole Admin || !target.hasRole Admin)
 ```
 
-Mas el check adicional de **rol Administrador en payload**: tanto `UserController` como `Livewire` hacen `abort_unless(hasRole Administrador)` si `roles` contiene `Administrador` (`UserController.php:63`, `Livewire/Usuarios/Index.php:143`). `UpdateUserRolesRequest.php:11` ya tenía esa lógica para `/roles` y se replicó para CRUD.
+Más el check adicional del rol Administrador singular: tanto `UserController` como Livewire hacen `abort_unless(hasRole Administrador)` si `role` contiene `Administrador`. `UpdateUserRolesRequest` aplica la misma restricción en `/roles`.
 
 `ServicioPolicy.php:9` `viewAny/view/create/update/delete/restore` → `can('gestionar_servicios')`, `forceDelete false`.
 
@@ -130,6 +134,7 @@ Mas el check adicional de **rol Administrador en payload**: tanto `UserControlle
 authorize(): can('agregar_usuarios')
 rules: [
   'name' => required|string|max:255,
+  'apellido' => required|string|max:255,
   'email' => required|email|unique:users,email,
   'password' => nullable|string|min:4|max:255,
   'dni' => nullable|string|max:20|unique:users,dni,
@@ -137,7 +142,7 @@ rules: [
   'domicilio' => nullable|string|max:255,
   'fecha_nacimiento' => nullable|date|before:today,
   'fecha_ingreso' => nullable|date,
-  'roles' => nullable|array, 'roles.*' => string|exists:roles,name,
+  'role' => nullable|string|exists:roles,name, 'roles' => prohibited,
   'servicios' => nullable|array, 'servicios.*' => integer|exists:servicios,id,
 ]
 ```
@@ -148,7 +153,7 @@ rules: [
 
 ### 6.3 Livewire rules
 
-`app/Livewire/Usuarios/Index.php:45` replica mismas reglas con `Rule::unique(...)->ignore($editingUserId)`, `password nullable` y `selectedRoles/selectedServicios` como arrays validados contra `roles.name` y `servicios.id`. Esto garantiza que **los roles vienen de BD**; un `RolInexistente` falla con `selectedRoles.0`.
+`app/Livewire/Usuarios/Index.php` replica las reglas con `Rule::unique(...)->ignore($editingUserId)`, `password nullable`, `selectedRole` singular y `selectedServicios` como array validado contra `servicios.id`. Esto garantiza que **el rol viene de BD**; un `RolInexistente` falla en `selectedRole`.
 
 ---
 
@@ -159,11 +164,11 @@ rules: [
 | Método | Autorización | Lógica clave |
 |---|---|---|
 | `index` | `authorize viewAny` | `User::with(roles,servicios)->latest()->paginate(10)` → `users.index` |
-| `create` | `authorize create` | `Role::orderBy name`, `Servicio::orderBy nombre` → `users.create` |
-| `store(StoreUserRequest)` | `abort_unless` si roles contiene Administrador; `password = filled ? input : '1234'` (criterio contraseña inicial); `User::create` (hashed cast); `syncRoles` tras `authorize manageRoles`; `servicios()->sync` tras `can asignar_especialidad_servicio` | redirect `users.index` |
+| `create` | `authorize create` | opciones de rol por jerarquía, `Servicio::orderBy nombre` → `users.create` |
+| `store(StoreUserRequest)` | `abort_unless` si role es Administrador; `password = filled ? input : '1234'`; `User::create` (hashed cast); `syncRoles` con cero o un valor; fecha de ingreso hoy si no llega; servicios tras autorización | redirect `users.index` |
 | `show` | `authorize view` | `load roles,servicios` → `users.show` |
 | `edit` | `authorize update` | roles+servicios → `users.edit` |
-| `update(UpdateUserRequest, User)` | `abort_unless` Administrador; `password` solo si `filled`; `update`; `syncRoles`/`sync(servicios)` condicionales | redirect |
+| `update(UpdateUserRequest, User)` | `abort_unless` Administrador; `password` solo si `filled`; `update`; `syncRoles` con cero o un valor y `sync(servicios)` condicional | redirect |
 | `destroy` | `authorize delete` | `$user->delete()` soft → redirect |
 | `updateServicios` | `can asignar_especialidad_servicio` | `validate servicios array`, `sync` |
 | `editRoles/updateRoles` | `authorize manageRoles` + `UpdateUserRolesRequest` | `syncRoles` |
@@ -181,9 +186,10 @@ Patrón idéntico a `Servicios/Index` y `EstadosProceso/Index`, híbrido Alpine+
 ```php
 public bool $showModal, $showDeleteModal, $showServiciosModal;
 public ?int $editingUserId, $deletingUserId, $managingServiciosUserId;
-public string $name, email, password, search, successMessage;
+public string $name, apellido, email, password, search, successMessage;
 public ?string $dni, telefono, domicilio, fecha_nacimiento, fecha_ingreso;
-public array $selectedRoles, $selectedServicios; // roles string[], servicios int[]
+public ?string $selectedRole;
+public array $selectedServicios; // servicios int[]
 use WithPagination;
 ```
 
@@ -194,12 +200,12 @@ use WithPagination;
 - `editUser(int $id)`: `Gate::authorize('update', $user)`, hidrata propiedades desde `User::with(roles,servicios)`, `resetValidation()`
 - `confirmDelete(int $id)`: `Gate::authorize('delete', $user)` — si tiene procesos activos lanza 403 inmediato (verificado en tests)
 - `manageServicios(int $id)`: `abort_unless(can asignar_especialidad_servicio)`, carga `selectedServicios`
-- `saveUser()`: `validate()`, check Administrador, branch `editingUserId ? update : create` con `filled` para password, `syncRoles`/`sync` servicios, `successMessage`, `closeModal()`, `dispatch('usuario-guardado')`
+- `saveUser()`: `validate()`, check de Administrador, branch `editingUserId ? update : create`, fecha de ingreso hoy por defecto al crear y `syncRoles` con cero o un valor; sincroniza servicios y despacha `usuario-guardado`
 - `saveServicios()`: `validate servicios`, `sync`, `dispatch('servicios-asignados')`
 - `deleteUser()`: `Gate::authorize('delete')`, `delete()` soft, `dispatch('usuario-eliminado')`
-- `render()`: `User::with(roles,servicios)->when(search)->where(name|email|dni like)->latest()->paginate(10)` + `Role::orderBy`, `Servicio::orderBy`
+- `render()`: `User::with(roles,servicios)->when(search)->where(name|apellido|email|dni like)->latest()->paginate(10)` + opciones de rol por jerarquía y `Servicio::orderBy`
 
-**ResetForm:** limpia `editingUserId, name, email, password, dni, telefono, domicilio, fechas, selectedRoles/Servicios` y `resetValidation`.
+**ResetForm:** limpia `editingUserId, name, apellido, email, password, dni, telefono, domicilio, fechas, selectedRole/Servicios` y `resetValidation`; la fecha de ingreso se inicializa a hoy para la próxima alta.
 
 ---
 
@@ -254,7 +260,7 @@ Verificación: `php artisan route:list --path=usuarios` y tests `assertTrue(Rout
   <!-- search wire:model.live.debounce.300ms -->
   <!-- tabla: nombre/dni, email, roles (badge blue), servicios (badge green) -->
   <!-- acciones: Editar (@can modificar_usuarios) wire:click editUser, Servicios (@can asignar_especialidad_servicio) manageServicios, Roles (link), Desactivar (@can eliminar_usuarios) confirmDelete -->
-  <!-- modal crear/editar: x-show formOpen, wire:submit saveUser, campos name/email/password/dni/telefono/domicilio/fechas, checkboxes roles (Role::orderBy, oculta Administrador si no es admin), checkboxes servicios, @error, wire:loading -->
+  <!-- modal crear/editar: x-show formOpen, wire:submit saveUser, campos name/apellido/email/password/dni/telefono/domicilio/fechas, selector único de rol por jerarquía, checkboxes servicios, @error, wire:loading -->
   <!-- modal desactivar: x-show deleteOpen, wire:click deleteUser -->
   <!-- modal servicios: x-show serviciosOpen, wire:submit saveServicios -->
 </div>
@@ -275,7 +281,7 @@ Navegación `resources/views/layouts/navigation.blade.php:62` ya mostraba `@can(
 | Ítem imagen | Dónde | Cómo se cumple |
 |---|---|---|
 | **Crear y editar usuarios** | `UserController::create/store/edit/update`, `Livewire::createUser/editUser/saveUser`, `users/_form.blade.php`, `livewire/usuarios/index modal` | Form validado, `email` único, `Role::orderBy`, password inicial |
-| **Asignar roles** | `UpdateUserRolesRequest`, `users/roles.blade.php`, `Livewire selectedRoles` | Checkboxes desde BD, `exists:roles,name`, admin-only para `Administrador`, `syncRoles` |
+| **Asignar rol** | `UpdateUserRolesRequest`, `users/roles.blade.php`, `Livewire selectedRole` | Selector único desde BD, `exists:roles,name`, `roles` arrays prohibidos, admin-only para `Administrador`, `syncRoles` |
 | **Asociar servicios a profesionales** | `user_servicios` PK, `updateServicios`/`saveServicios`, modales servicios | `sync()` evita duplicados, `permission:asignar_especialidad_servicio`, disponible para `Proceso.servicio_id` |
 | **Desactivar usuarios** | `UserPolicy::delete`, `destroy`/`deleteUser`, `SoftDeletes` | Verifica `procesos activos`, baja lógica, `forceDelete false`, trazabilidad `withTrashed` |
 | **Completar rutas** | `routes/web.php:30` | 9 rutas `users.*` + `users.servicios.update` con `permission` |
@@ -326,7 +332,7 @@ php artisan test --compact # 76 passed (416 assertions) total proyecto
 Login (admin@example.com / 1234) -> GET /usuarios (permission: listar_usuarios + UserPolicy viewAny)
  -> Livewire::render -> User::with(roles,servicios)->paginate -> tabla Tailwind
  -> Click Nuevo Usuario (Alpine @click formOpen=true + Livewire createUser autoriza create)
- -> Modal: completa name/email (único), dni, teléfono, domicilio, fechas, checks roles (BD) y servicios (BD)
+ -> Modal: completa name/apellido/email (email único), dni, teléfono, domicilio, fechas (fecha de ingreso inicia hoy), un rol (BD) y servicios (BD)
  -> Submit wire:submit saveUser -> validate() + check Administrador + Gate authorize + User::create(password='1234' si vacío) + syncRoles/sync servicios + dispatch usuario-guardado
  -> Alpine cierra modal, successMessage, tabla recarga (solo active, sin soft-deleted)
  -> Click Editar (editUser hidrata) -> modifica -> saveUser (Rule::unique ignore) -> syncRoles
@@ -432,7 +438,7 @@ Respuesta a los hallazgos Crítico/Alto/Medio/Bajo detectados en la revisión.
 
 **Hallazgo:** `UserController` sólo tenía `index` y roles; `create/store/show/edit/update/destroy` vacíos; sólo 3 rutas.
 
-**Corrección:** `app/Http/Controllers/UserController.php:37` ahora implementa `index(Request)` con búsqueda, `create`, `store(StoreUserRequest)`, `show`, `edit`, `update(UpdateUserRequest)`, `destroy` y `updateServicios`. Todos protegidos por `UserPolicy` (`viewAny/create/update/delete/manageRoles`) y con `SoftDeletes`. `StoreUserRequest.php:1`/`UpdateUserRequest.php:1` validan `name/email unique/dni/roles exists`. Livewire `app/Livewire/Usuarios/Index.php:19` replica el flujo con `createUser/editUser/saveUser/deleteUser` + validación y `syncRoles/sync`.
+**Corrección:** `app/Http/Controllers/UserController.php` implementa el CRUD con `UserPolicy`, `SoftDeletes`, nombre y apellido separados, búsqueda por nombre/apellido/email/DNI y selección de un rol. `StoreUserRequest`/`UpdateUserRequest` validan el rol singular; Livewire replica el flujo con `selectedRole` y `syncRoles` de un solo valor.
 
 ### Crítico 2 — Registro público saltea administración
 
@@ -444,7 +450,7 @@ Respuesta a los hallazgos Crítico/Alto/Medio/Bajo detectados en la revisión.
 
 **Hallazgo:** Pantalla sólo paginaba y mostraba nombre/correo/roles.
 
-**Corrección:** Modelo `User` ya tenía `dni, telefono, domicilio, fecha_nacimiento, fecha_ingreso` (`2026_06_03_221010`). `UserController::index` ahora acepta `?search=` y filtra `name|email|dni like`. Vistas `livewire/usuarios/index.blade.php:40` y `users/_form.blade.php` exponen `dni, telefono, domicilio, fechas` con validación y búsqueda `wire:model.live.debounce` `Buscar por nombre, email o DNI`. Tests `test_busqueda_por_dni_y_nombre` verifican Livewire `search` y `?search`.
+**Corrección:** Modelo `User` tiene `name` para nombres y `apellido` nullable para conservar compatibilidad con cuentas anteriores. La búsqueda HTTP y Livewire filtra `name|apellido|email|dni`; ambos formularios exponen el apellido y presentan el nombre completo. La fecha de ingreso inicia con hoy al crear una cuenta y el servidor la aplica si falta.
 
 ### Alto 2 — Sin asociación servicios/especialidades (CU34)
 

@@ -226,7 +226,7 @@ class Index extends Component
     public function openHistory(int $procesoId): void
     {
         $proceso = $this->authorizedProcess($procesoId, 'viewHistory');
-        $history = $proceso->historialEstados()->with('usuario:id,name')->get();
+        $history = $proceso->historialEstados()->with('usuario:id,name,apellido')->get();
         $stateNames = EstadoProceso::withTrashed()
             ->whereIn('slug', $history->pluck('estado_nuevo')->merge($history->pluck('estado_anterior'))->filter()->unique())
             ->pluck('nombre', 'slug');
@@ -237,7 +237,7 @@ class Index extends Component
                 : 'Sin estado previo',
             'estado_nuevo' => $stateNames[$change->estado_nuevo] ?? Str::headline($change->estado_nuevo),
             'motivo' => $change->motivo ?: 'Sin motivo registrado',
-            'usuario' => $change->usuario?->name ?? 'Sistema',
+            'usuario' => $change->usuario?->nombre_completo ?? 'Sistema',
             'fecha_cambio' => $change->fecha_cambio?->format('d/m/Y H:i') ?? 'Sin fecha',
         ])->all();
         $this->selectedProcesoId = $proceso->id;

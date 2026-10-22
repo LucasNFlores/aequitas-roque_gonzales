@@ -40,7 +40,7 @@
             <select id="coordinador_id" name="coordinador_id" required class="block mt-1 w-full rounded-control border-line shadow-panel focus:border-gold-600 focus:ring-gold-600">
                 <option value="">Seleccionar coordinador</option>
                 @foreach ($coordinadores as $coordinador)
-                    <option value="{{ $coordinador->id }}" @selected((string) old('coordinador_id') === (string) $coordinador->id)>{{ $coordinador->name }}</option>
+                    <option value="{{ $coordinador->id }}" @selected((string) old('coordinador_id') === (string) $coordinador->id)>{{ $coordinador->nombre_completo }}</option>
                 @endforeach
             </select>
             <x-forms.input-error :messages="$errors->get('coordinador_id')" class="mt-2" />

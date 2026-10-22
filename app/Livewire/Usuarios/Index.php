@@ -36,6 +36,8 @@ class Index extends Component
 
     public string $name = '';
 
+    public string $apellido = '';
+
     public string $email = '';
 
     public string $password = '';
@@ -50,8 +52,7 @@ class Index extends Component
 
     public ?string $fecha_ingreso = null;
 
-    /** @var array<int,string> */
-    public array $selectedRoles = [];
+    public ?string $selectedRole = null;
 
     /** @var array<int,int> */
     public array $selectedServicios = [];
@@ -69,6 +70,7 @@ class Index extends Component
 
         return [
             'name' => ['required', 'string', 'max:255'],
+            'apellido' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', $emailUnique],
             'password' => [$this->editingUserId ? 'nullable' : 'nullable', 'string', 'min:4', 'max:255'],
             'dni' => ['nullable', 'string', 'max:20', $dniUnique],
@@ -76,8 +78,7 @@ class Index extends Component
             'domicilio' => ['nullable', 'string', 'max:255'],
             'fecha_nacimiento' => ['nullable', 'date', 'before:today'],
             'fecha_ingreso' => ['nullable', 'date'],
-            'selectedRoles' => ['nullable', 'array'],
-            'selectedRoles.*' => ['string', 'exists:roles,name'],
+            'selectedRole' => ['nullable', 'string', 'exists:roles,name'],
             'selectedServicios' => ['nullable', 'array'],
             'selectedServicios.*' => ['integer', 'exists:servicios,id'],
         ];
@@ -104,6 +105,7 @@ class Index extends Component
 
         $this->editingUserId = $user->id;
         $this->name = $user->name;
+        $this->apellido = $user->apellido ?? '';
         $this->email = $user->email;
         $this->password = '';
         $this->dni = $user->dni;
@@ -111,7 +113,9 @@ class Index extends Component
         $this->domicilio = $user->domicilio;
         $this->fecha_nacimiento = $user->fecha_nacimiento?->format('Y-m-d');
         $this->fecha_ingreso = $user->fecha_ingreso?->format('Y-m-d');
-        $this->selectedRoles = $user->roles->pluck('name')->all();
+        $this->selectedRole = $user->roles
+            ->sortBy(fn (Role $role): array => [User::rolePriority($role->name), mb_strtolower($role->name)])
+            ->first()?->name;
         $this->selectedServicios = $user->servicios->pluck('id')->all();
         $this->resetValidation();
         $this->showModal = true;
@@ -140,8 +144,8 @@ class Index extends Component
     {
         $validated = $this->validate();
 
-        // Validar que roles provengan de DB y que el actor pueda asignar Administrador.
-        if (! empty($validated['selectedRoles']) && in_array('Administrador', $validated['selectedRoles'], true)) {
+        // Validar que el rol provenga de DB y que el actor pueda asignar Administrador.
+        if (($validated['selectedRole'] ?? null) === 'Administrador') {
             abort_unless(auth()->user()?->hasRole('Administrador'), 403);
         }
 
@@ -151,6 +155,7 @@ class Index extends Component
 
             $data = [
                 'name' => $validated['name'],
+                'apellido' => $validated['apellido'],
                 'email' => $validated['email'],
                 'dni' => $validated['dni'] ?? null,
                 'telefono' => $validated['telefono'] ?? null,
@@ -164,9 +169,10 @@ class Index extends Component
             $user->update($data);
 
             // Roles: requiere permiso editar_roles
-            if (array_key_exists('selectedRoles', $validated)) {
+            if (array_key_exists('selectedRole', $validated)) {
                 Gate::authorize('manageRoles', $user);
-                $user->syncRoles($validated['selectedRoles'] ?? []);
+                $role = $validated['selectedRole'];
+                $user->syncRoles($role === null ? [] : [$role]);
             }
 
             // Servicios: requiere permiso asignar_especialidad_servicio y rol Profesional
@@ -187,18 +193,19 @@ class Index extends Component
 
             $user = User::create([
                 'name' => $validated['name'],
+                'apellido' => $validated['apellido'],
                 'email' => $validated['email'],
                 'password' => $password,
                 'dni' => $validated['dni'] ?? null,
                 'telefono' => $validated['telefono'] ?? null,
                 'domicilio' => $validated['domicilio'] ?? null,
                 'fecha_nacimiento' => $validated['fecha_nacimiento'] ?? null,
-                'fecha_ingreso' => $validated['fecha_ingreso'] ?? null,
+                'fecha_ingreso' => $validated['fecha_ingreso'] ?? today()->toDateString(),
             ]);
 
-            if (! empty($validated['selectedRoles'])) {
+            if (filled($validated['selectedRole'] ?? null)) {
                 Gate::authorize('manageRoles', $user);
-                $user->syncRoles($validated['selectedRoles']);
+                $user->syncRoles([$validated['selectedRole']]);
             }
 
             if (! empty($validated['selectedServicios'])) {
@@ -277,6 +284,7 @@ class Index extends Component
                 $term = '%'.trim($this->search).'%';
                 $query->where(function (Builder $q) use ($term): void {
                     $q->where('name', 'like', $term)
+                        ->orWhere('apellido', 'like', $term)
                         ->orWhere('email', 'like', $term)
                         ->orWhere('dni', 'like', $term);
                 });
@@ -284,7 +292,10 @@ class Index extends Component
             ->latest()
             ->paginate(10);
 
-        $roles = Role::orderBy('name')->get();
+        $roles = Role::query()->get()->sortBy(fn (Role $role): array => [
+            User::rolePriority($role->name),
+            mb_strtolower($role->name),
+        ])->values();
         $servicios = Servicio::orderBy('nombre')->get();
 
         return view('livewire.usuarios.index', compact('users', 'roles', 'servicios'));
@@ -294,14 +305,15 @@ class Index extends Component
     {
         $this->editingUserId = null;
         $this->name = '';
+        $this->apellido = '';
         $this->email = '';
         $this->password = '';
         $this->dni = null;
         $this->telefono = null;
         $this->domicilio = null;
         $this->fecha_nacimiento = null;
-        $this->fecha_ingreso = null;
-        $this->selectedRoles = [];
+        $this->selectedRole = null;
+        $this->fecha_ingreso = today()->toDateString();
         $this->selectedServicios = [];
         $this->resetValidation();
     }
