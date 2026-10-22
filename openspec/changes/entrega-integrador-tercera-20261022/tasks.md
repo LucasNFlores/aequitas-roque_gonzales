@@ -7,9 +7,9 @@
 - [ ] 5. Agregar pruebas de regresión para los cuatro recorridos y confirmar que el acceso anidado y la transición de estado conservan su contexto.
 - [ ] 6. Cubrir errores de validación y autorización del PATCH de estado, el caso permitido sin `motivo` (opcional en la petición, sin excepción en la actualización) y los casos permitidos existentes.
 - [ ] 7. Agregar pruebas unitarias de las reglas de Proceso::transitionTo que pueden probarse sin base de datos.
-- [ ] 8. Actualizar README.md para retirar el pendiente obsoleto y describir la visualización protegida del PDF.
-- [ ] 9. Sincronizar docs/diagrama-clases/diagrama-clases.md, docs/diagrama-clases/diagrama-clases.mermaid, docs/diagrama-clases/Diagrama de clases.drawio y docs/diagrama-clases/funcionamiento-diagrama-clases.md con modelos y migraciones, incluyendo proceso obligatorio en Turno y explicación de Legajo como consulta compuesta.
-- [ ] 10. Actualizar docs/diagrama de secuencia/CU-4.mermaid y docs/diagrama de secuencia/CU-4.1.mermaid para reflejar los flujos Livewire vigentes y su relación con Proceso.
+- [x] 8. Actualizar README.md para retirar el pendiente obsoleto y describir la visualización protegida del PDF.
+- [x] 9. Sincronizar docs/diagrama-clases/diagrama-clases.md, docs/diagrama-clases/diagrama-clases.mermaid, docs/diagrama-clases/Diagrama de clases.drawio y docs/diagrama-clases/funcionamiento-diagrama-clases.md con modelos y migraciones, incluyendo proceso obligatorio en Turno y explicación de Legajo como consulta compuesta.
+- [x] 10. Actualizar docs/diagrama de secuencia/CU-4.mermaid y docs/diagrama de secuencia/CU-4.1.mermaid para reflejar los flujos Livewire vigentes y su relación con Proceso.
 - [ ] 11. Ejecutar las pruebas PHPUnit dirigidas, revisar los resultados y registrar comandos y evidencia reproducibles.
 - [ ] 12. Crear docs/informe-pruebas-tercera-entrega-20261022.md con caso, precondiciones, datos, resultado esperado, resultado obtenido y evidencia real.
 - [ ] 13. Validar OpenSpec, revisar el diff completo y confirmar que no se alteraron permisos ni reglas de negocio no incluidas en el delta.

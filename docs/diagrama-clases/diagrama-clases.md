@@ -4,9 +4,13 @@
 
 El diagrama refleja los modelos y relaciones declarados en `app/Models/`. Las tablas pivote y los modelos de infraestructura de paquetes se resumen como relaciones o estereotipos para mantener el foco en el dominio.
 
+El modelo de dominio se organiza alrededor de `Cliente` y `Proceso`: un cliente puede tener muchos procesos y cada proceso reúne sus turnos, documentos, comprobantes, reportes e historial de estados. `Legajo` es la consulta/vista que compone información del cliente y sus procesos; no existe como clase Eloquent ni como tabla.
+
 ```mermaid
 classDiagram
 direction LR
+
+%% Cliente agrupa procesos; cada Proceso relaciona turnos, documentos, comprobantes, reportes e historial. Legajo es una consulta/vista compuesta, no un modelo.
 
     namespace Acceso_y_Personas {
         class User {
@@ -48,16 +52,17 @@ direction LR
     namespace Gestion_Juridica {
         class Proceso {
             -BigInt cliente_id
-            -BigInt profesional_id
+            -BigInt profesional_id (nullable)
             -BigInt servicio_id
             -BigInt coordinador_id
             -String nombre
             -Text descripcion
             -Date fecha_inicio
-            -Decimal honorarios
+            -Decimal honorarios (nullable)
+            -UUID submission_token (nullable)
             -String tipo
             -String estado
-            -String motivo_rechazo
+            -String motivo_rechazo (nullable)
             +BelongsTo cliente()
             +BelongsTo profesional()
             +BelongsTo coordinador()
@@ -101,7 +106,7 @@ direction LR
             -BigInt cliente_id
             -BigInt profesional_id
             -BigInt coordinador_id
-            -BigInt proceso_id
+            -BigInt proceso_id (obligatorio)
             -DateTime fecha_hora
             -Boolean es_externo
             -String detalle_externo
@@ -237,7 +242,7 @@ direction LR
     Cliente "1" --> "N" Turno : turnos
 
     Proceso "N" --> "1" Cliente : cliente
-    Proceso "N" --> "1" User : profesional
+    Proceso "N" --> "0..1" User : profesional
     Proceso "N" --> "1" User : coordinador
     Proceso "N" --> "1" Servicio : servicio
     Proceso "1" --> "N" Turno : turnos
@@ -253,7 +258,7 @@ direction LR
     Turno "N" --> "1" Cliente : cliente
     Turno "N" --> "1" User : profesional
     Turno "N" --> "0..1" User : coordinador
-    Turno "N" --> "0..1" Proceso : proceso
+    Turno "N" --> "1" Proceso : proceso
 
     Documento "N" --> "1" Proceso : proceso
     Documento "N" --> "0..1" CategoriaDocumento : categoria
@@ -290,7 +295,7 @@ direction LR
 - `EstadoProceso.procesos()` relaciona `EstadoProceso.slug` con `Proceso.estado`; no utiliza la clave primaria numérica del estado.
 - `HistorialEstadoProceso` pertenece a un proceso y opcionalmente al usuario que registró la transición.
 - `Reporte` puede tener muchas `ReporteVersion`; cada versión conserva el contenido y la fecha previos, además del usuario asociado.
-- `ComprobantePago.proceso_id`, `Turno.proceso_id` y `Turno.coordinador_id` son opcionales. Las claves de `Notificacion` a usuario y cliente también son opcionales.
+- `ComprobantePago.proceso_id` y `Turno.coordinador_id` son opcionales; cada `Turno` requiere un `proceso_id`. Las claves de `Notificacion` a usuario y cliente también son opcionales.
 - `User` tiene asignación de un solo rol. Los roles son gestionados por Spatie Permission; no existe una columna `role` directa en `users`.
 - `Servicio` y `User` se relacionan mediante `user_servicios`.
 

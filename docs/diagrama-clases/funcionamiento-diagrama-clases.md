@@ -55,7 +55,7 @@ Este modulo contiene el nucleo funcional del sistema:
 - `EstadoProceso`: define los estados disponibles y su orden de visualizacion.
 - `HistorialEstadoProceso`: conserva las transiciones de estado de cada proceso y el usuario que las registró, cuando existe.
 
-`Proceso` es la clase central del diagrama porque conecta clientes, profesionales, coordinadores, servicios, turnos, documentos y reportes. Cada proceso pertenece a un cliente y a un servicio. Tambien puede tener un profesional asignado y un coordinador responsable.
+`Proceso` es la clase central del diagrama porque conecta un cliente y un servicio con sus turnos, documentos, comprobantes, reportes e historial de estados. Cada proceso pertenece a un cliente, a un servicio y a un coordinador. `profesional_id` sí es opcional: el proceso puede no tener profesional asignado todavía.
 
 `Servicio` define lo que el estudio ofrece. Un servicio puede estar vinculado a muchos procesos y tambien a muchos usuarios profesionales mediante la relacion muchos-a-muchos `user_servicios`.
 
@@ -63,9 +63,9 @@ Este modulo contiene el nucleo funcional del sistema:
 
 Este modulo administra la planificacion de citas:
 
-- `Turno`: representa una cita entre un cliente y un profesional, con un coordinador opcional.
+- `Turno`: representa una cita entre un cliente y un profesional, siempre asociada a un proceso y con un coordinador opcional.
 
-Un turno pertenece a un cliente y a un profesional. Tambien puede pertenecer a un proceso cuando se trata de un seguimiento de caso. Si el turno es externo, como una audiencia judicial, el campo `es_externo` permite distinguirlo y `detalle_externo` permite guardar informacion adicional.
+Un turno pertenece a un cliente, a un profesional y a un proceso (`proceso_id` obligatorio). `coordinador_id` sí es opcional. Si el turno es externo, como una audiencia judicial, el campo `es_externo` permite distinguirlo y `detalle_externo` permite guardar informacion adicional.
 
 ### Documentacion y Seguimiento
 
@@ -116,19 +116,25 @@ Esta relacion se implementa mediante la tabla intermedia `user_servicios`. Sirve
 
 ### Cliente con Proceso
 
-Un cliente puede tener muchos procesos. Cada proceso pertenece a un solo cliente.
+Un cliente puede tener muchos procesos. Cada proceso pertenece a un solo cliente. Esta relación organiza el modelo orientado a objetos: `Cliente` reúne los casos de una persona y cada `Proceso` concentra las relaciones asociadas a ese caso.
 
 Esta es una de las relaciones principales del sistema porque el historial juridico de una persona se construye a partir de sus procesos.
 
-### Proceso con Turno, Documento y Reporte
+### Proceso con Turno, Documento, Comprobante, Reporte e Historial
 
 Un proceso puede tener:
 
-- Muchos turnos de seguimiento.
+- Muchos turnos, cada uno asociado obligatoriamente al proceso.
 - Muchos documentos cargados.
+- Muchos comprobantes de pago asociados al proceso; el comprobante también pertenece a un cliente y `proceso_id` puede ser nulo.
 - Muchos reportes generados por profesionales.
+- Muchas entradas de historial de estado.
 
 Estas relaciones convierten a `Proceso` en el punto de entrada natural para consultar el expediente completo de un cliente.
+
+### Legajo como consulta compuesta
+
+`Legajo` no es un modelo Eloquent ni una clase persistente. `LegajoController` reúne el cliente y sus procesos visibles, y las vistas `legajos.show` y `legajos.procesos.show` presentan los datos relacionados. El legajo es, por tanto, una consulta/vista compuesta sobre `Cliente`, `Proceso` y sus relaciones.
 
 ### Cliente con ComprobantePago
 
@@ -151,7 +157,7 @@ Esto permite registrar mensajes para eventos como confirmacion de turnos, asigna
 2. Se crea un `Proceso` asociado a ese cliente y a un `Servicio`.
 3. Un `User` con rol de coordinador evalua el proceso.
 4. Si el proceso es admitido, se asigna un `User` profesional.
-5. Se agendan `Turno` para consulta inicial, seguimiento o eventos externos.
+5. Se agendan `Turno` para consulta inicial, seguimiento o eventos externos; cada turno queda vinculado a un `Proceso`.
 6. Se cargan `Documento` vinculados al proceso.
 7. El profesional registra `Reporte` con avances o reuniones.
 8. Se cargan `ComprobantePago` asociados al cliente.
@@ -222,7 +228,7 @@ Esto ayuda a conservar trazabilidad y permite recuperar informacion si fue elimi
 
 ## Resumen
 
-El diagrama muestra un sistema centrado en `Proceso`. Alrededor de esa clase se organizan los clientes, usuarios internos, servicios, turnos, documentos, reportes, pagos y notificaciones.
+El diagrama muestra un modelo centrado en `Cliente` y `Proceso`: un cliente reúne sus procesos y cada proceso vincula turnos, documentos, comprobantes, reportes e historial de estados. `Legajo` es la consulta/vista que compone esos datos; no es una clase del dominio persistente.
 
 La separacion por modulos permite leer el sistema por responsabilidades:
 

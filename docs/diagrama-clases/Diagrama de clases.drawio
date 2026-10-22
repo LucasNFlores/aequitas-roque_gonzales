@@ -6,7 +6,7 @@
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="module-0" value="Acceso y Personas" style="swimlane;html=1;startSize=32;horizontal=1;fillColor=#e8f0fe;strokeColor=#999999;fontStyle=1;rounded=0;whiteSpace=wrap;" vertex="1" parent="1">
-          <mxGeometry x="10" y="40" width="400" height="1080" as="geometry" />
+          <mxGeometry x="10" y="40" width="400" height="1260" as="geometry" />
         </mxCell>
         <mxCell id="module-1" value="Gestión Jurídica" style="swimlane;html=1;startSize=32;horizontal=1;fillColor=#e9f3e6;strokeColor=#999999;fontStyle=1;rounded=0;whiteSpace=wrap;" vertex="1" parent="1">
           <mxGeometry x="470" y="40" width="440" height="1510" as="geometry" />
@@ -26,7 +26,7 @@
         <mxCell id="class-Cliente" value="&lt;b&gt;Cliente&lt;/b&gt;&lt;hr&gt;&amp;lt;&amp;lt;SoftDeletes&amp;gt;&amp;gt;&lt;br&gt;&amp;lt;&amp;lt;HasFactory&amp;gt;&amp;gt;&lt;br&gt;-String nombre&lt;br&gt;-String apellido&lt;br&gt;-String dni&lt;br&gt;-String telefono&lt;br&gt;-String correo&lt;br&gt;-String domicilio&lt;br&gt;-Date fecha_nacimiento&lt;br&gt;+procesos()&lt;br&gt;+comprobantesPago()&lt;br&gt;+notificaciones()&lt;br&gt;+turnos()" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="1">
           <mxGeometry x="30" y="700" width="360" height="350" as="geometry" />
         </mxCell>
-        <mxCell id="class-Proceso" value="&lt;b&gt;Proceso&lt;/b&gt;&lt;hr&gt;&amp;lt;&amp;lt;SoftDeletes&amp;gt;&amp;gt;&lt;br&gt;&amp;lt;&amp;lt;HasFactory&amp;gt;&amp;gt;&lt;br&gt;-BigInt cliente_id&lt;br&gt;-BigInt profesional_id&lt;br&gt;-BigInt servicio_id&lt;br&gt;-BigInt coordinador_id&lt;br&gt;-String nombre&lt;br&gt;-Text descripcion&lt;br&gt;-Date fecha_inicio&lt;br&gt;-Decimal honorarios&lt;br&gt;-String tipo&lt;br&gt;-String estado&lt;br&gt;-String motivo_rechazo&lt;br&gt;+cliente()&lt;br&gt;+profesional()&lt;br&gt;+coordinador()&lt;br&gt;+servicio()&lt;br&gt;+turnos()&lt;br&gt;+documentos()&lt;br&gt;+comprobantesPago()&lt;br&gt;+reportes()&lt;br&gt;+historialEstados()" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="1">
+        <mxCell id="class-Proceso" value="&lt;b&gt;Proceso&lt;/b&gt;&lt;hr&gt;&amp;lt;&amp;lt;SoftDeletes&amp;gt;&amp;gt;&lt;br&gt;&amp;lt;&amp;lt;HasFactory&amp;gt;&amp;gt;&lt;br&gt;-BigInt cliente_id&lt;br&gt;-BigInt profesional_id (nullable)&lt;br&gt;-BigInt servicio_id&lt;br&gt;-BigInt coordinador_id&lt;br&gt;-String nombre&lt;br&gt;-Text descripcion&lt;br&gt;-Date fecha_inicio&lt;br&gt;-Decimal honorarios (nullable)&lt;br&gt;-UUID submission_token (nullable)&lt;br&gt;-String tipo&lt;br&gt;-String estado&lt;br&gt;-String motivo_rechazo (nullable)&lt;br&gt;+cliente()&lt;br&gt;+profesional()&lt;br&gt;+coordinador()&lt;br&gt;+servicio()&lt;br&gt;+turnos()&lt;br&gt;+documentos()&lt;br&gt;+comprobantesPago()&lt;br&gt;+reportes()&lt;br&gt;+historialEstados()" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="1">
           <mxGeometry x="500" y="90" width="370" height="500" as="geometry" />
         </mxCell>
         <mxCell id="class-Servicio" value="&lt;b&gt;Servicio&lt;/b&gt;&lt;hr&gt;&amp;lt;&amp;lt;SoftDeletes&amp;gt;&amp;gt;&lt;br&gt;&amp;lt;&amp;lt;HasFactory&amp;gt;&amp;gt;&lt;br&gt;-String nombre&lt;br&gt;-Decimal costo_servicio&lt;br&gt;+procesos()&lt;br&gt;+usuarios()" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="1">
@@ -38,7 +38,7 @@
         <mxCell id="class-HistorialEstadoProceso" value="&lt;b&gt;HistorialEstadoProceso&lt;/b&gt;&lt;hr&gt;&amp;lt;&amp;lt;HasFactory&amp;gt;&amp;gt;&lt;br&gt;-BigInt proceso_id&lt;br&gt;-BigInt usuario_id (nullable)&lt;br&gt;-String estado_anterior&lt;br&gt;-String estado_nuevo&lt;br&gt;-String motivo&lt;br&gt;-DateTime fecha_cambio&lt;br&gt;+proceso()&lt;br&gt;+usuario()" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="1">
           <mxGeometry x="500" y="1240" width="350" height="260" as="geometry" />
         </mxCell>
-        <mxCell id="class-Turno" value="&lt;b&gt;Turno&lt;/b&gt;&lt;hr&gt;&amp;lt;&amp;lt;HasFactory&amp;gt;&amp;gt;&lt;br&gt;-BigInt cliente_id&lt;br&gt;-BigInt profesional_id&lt;br&gt;-BigInt coordinador_id (nullable)&lt;br&gt;-BigInt proceso_id (nullable)&lt;br&gt;-DateTime fecha_hora&lt;br&gt;-Boolean es_externo&lt;br&gt;-String detalle_externo&lt;br&gt;-String tipo&lt;br&gt;-String estado&lt;br&gt;+cliente()&lt;br&gt;+profesional()&lt;br&gt;+coordinador()&lt;br&gt;+proceso()" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="1">
+        <mxCell id="class-Turno" value="&lt;b&gt;Turno&lt;/b&gt;&lt;hr&gt;&amp;lt;&amp;lt;HasFactory&amp;gt;&amp;gt;&lt;br&gt;-BigInt cliente_id&lt;br&gt;-BigInt profesional_id&lt;br&gt;-BigInt coordinador_id (nullable)&lt;br&gt;-BigInt proceso_id (obligatorio)&lt;br&gt;-DateTime fecha_hora&lt;br&gt;-Boolean es_externo&lt;br&gt;-String detalle_externo&lt;br&gt;-String tipo&lt;br&gt;-String estado&lt;br&gt;+cliente()&lt;br&gt;+profesional()&lt;br&gt;+coordinador()&lt;br&gt;+proceso()" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="1">
           <mxGeometry x="990" y="90" width="350" height="410" as="geometry" />
         </mxCell>
         <mxCell id="class-CategoriaDocumento" value="&lt;b&gt;CategoriaDocumento&lt;/b&gt;&lt;hr&gt;&amp;lt;&amp;lt;SoftDeletes&amp;gt;&amp;gt;&lt;br&gt;&amp;lt;&amp;lt;HasFactory&amp;gt;&amp;gt;&lt;br&gt;-String nombre&lt;br&gt;-String descripcion&lt;br&gt;-Boolean activo&lt;br&gt;+documentos()" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="1">
@@ -95,7 +95,7 @@
         <mxCell id="relation-11" value="servicio" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=10;strokeColor=#555555;" edge="1" parent="1" source="class-Proceso" target="class-Servicio">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="relation-12" value="turnos" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=10;strokeColor=#555555;" edge="1" parent="1" source="class-Proceso" target="class-Turno">
+        <mxCell id="relation-12" value="turnos (proceso obligatorio)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=10;strokeColor=#555555;" edge="1" parent="1" source="class-Proceso" target="class-Turno">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="relation-13" value="documentos" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=10;strokeColor=#555555;" edge="1" parent="1" source="class-Proceso" target="class-Documento">
@@ -154,6 +154,9 @@
         </mxCell>
         <mxCell id="relation-extra-0" value="registradoPor" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=10;strokeColor=#555555;" edge="1" parent="1" source="class-Reporte" target="class-User">
           <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="note-legajo" value="Modelo centrado en Cliente y Proceso: Cliente agrupa muchos procesos; cada Proceso relaciona turnos, documentos, comprobantes, reportes e historial. Legajo es una consulta/vista compuesta, no un modelo Eloquent." style="shape=note;whiteSpace=wrap;html=1;size=20;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="30" y="1070" width="360" height="170" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

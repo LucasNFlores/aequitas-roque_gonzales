@@ -1,6 +1,8 @@
 classDiagram
 direction LR
 
+%% Cliente agrupa procesos; cada Proceso relaciona turnos, documentos, comprobantes, reportes e historial. Legajo es una consulta/vista compuesta, no un modelo.
+
     namespace Acceso_y_Personas {
         class User {
             -String name
@@ -41,16 +43,17 @@ direction LR
     namespace Gestion_Juridica {
         class Proceso {
             -BigInt cliente_id
-            -BigInt profesional_id
+            -BigInt profesional_id (nullable)
             -BigInt servicio_id
             -BigInt coordinador_id
             -String nombre
             -Text descripcion
             -Date fecha_inicio
-            -Decimal honorarios
+            -Decimal honorarios (nullable)
+            -UUID submission_token (nullable)
             -String tipo
             -String estado
-            -String motivo_rechazo
+            -String motivo_rechazo (nullable)
             +BelongsTo cliente()
             +BelongsTo profesional()
             +BelongsTo coordinador()
@@ -94,7 +97,7 @@ direction LR
             -BigInt cliente_id
             -BigInt profesional_id
             -BigInt coordinador_id
-            -BigInt proceso_id
+            -BigInt proceso_id (obligatorio)
             -DateTime fecha_hora
             -Boolean es_externo
             -String detalle_externo
@@ -230,7 +233,7 @@ direction LR
     Cliente "1" --> "N" Turno : turnos
 
     Proceso "N" --> "1" Cliente : cliente
-    Proceso "N" --> "1" User : profesional
+    Proceso "N" --> "0..1" User : profesional
     Proceso "N" --> "1" User : coordinador
     Proceso "N" --> "1" Servicio : servicio
     Proceso "1" --> "N" Turno : turnos
@@ -246,7 +249,7 @@ direction LR
     Turno "N" --> "1" Cliente : cliente
     Turno "N" --> "1" User : profesional
     Turno "N" --> "0..1" User : coordinador
-    Turno "N" --> "0..1" Proceso : proceso
+    Turno "N" --> "1" Proceso : proceso
 
     Documento "N" --> "1" Proceso : proceso
     Documento "N" --> "0..1" CategoriaDocumento : categoria
