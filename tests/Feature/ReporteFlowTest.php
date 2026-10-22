@@ -70,6 +70,39 @@ class ReporteFlowTest extends TestCase
         $this->assertDatabaseHas('reporte_versiones', ['reporte_id' => $report->id]);
     }
 
+    public function test_assigned_professional_sees_and_uses_the_report_form_on_process_detail(): void
+    {
+        $professional = $this->userWithRole('Profesional');
+        $process = $this->processFor($professional);
+        $detailUrl = route('legajos.procesos.show', [$process->cliente_id, $process]);
+
+        $this->assertTrue($professional->can('registrar_reportes'));
+        $this->assertTrue($professional->can('create', Reporte::class));
+
+        $this->actingAs($professional)
+            ->get($detailUrl)
+            ->assertOk()
+            ->assertSee('reporte-contenido')
+            ->assertSee('Registrar nueva actuación judicial o acta')
+            ->assertSee(route('procesos.reportes.store', $process));
+
+        $this->actingAs($professional)
+            ->post(route('procesos.reportes.store', $process), [
+                'proceso_id' => $process->id,
+                'contenido' => 'Actuación cargada desde el detalle del proceso.',
+                'fecha' => now()->toDateString(),
+            ])
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('reportes', [
+            'proceso_id' => $process->id,
+            'profesional_id' => $professional->id,
+            'registrado_por_id' => $professional->id,
+            'contenido' => 'Actuación cargada desde el detalle del proceso.',
+        ]);
+    }
+
     public function test_editing_without_changes_does_not_create_a_version_and_multiple_edits_keep_snapshots(): void
     {
         $professional = $this->userWithRole('Profesional');
