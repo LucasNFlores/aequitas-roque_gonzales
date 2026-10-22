@@ -96,7 +96,7 @@ class ClienteInitialProcessTest extends TestCase
             ]);
 
         $this->assertDatabaseCount('clientes', 1);
-        $this->assertDatabaseCount('procesos', 0);
+        $this->assertDatabaseCount('procesos', 1);
         $this->assertDatabaseCount('turnos', 1);
         $this->assertSame(0, Notificacion::count());
     }
@@ -120,7 +120,7 @@ class ClienteInitialProcessTest extends TestCase
             ->assertSessionHasErrors('fecha_hora_inicial');
 
         $this->assertDatabaseCount('clientes', 1);
-        $this->assertDatabaseCount('procesos', 0);
+        $this->assertDatabaseCount('procesos', 1);
         $this->assertDatabaseCount('turnos', 1);
         $this->assertSame(0, Notificacion::count());
     }
@@ -143,7 +143,7 @@ class ClienteInitialProcessTest extends TestCase
             ->assertRedirect(route('clientes.index'));
 
         $this->assertDatabaseCount('clientes', 2);
-        $this->assertDatabaseCount('procesos', 1);
+        $this->assertDatabaseCount('procesos', 2);
         $this->assertDatabaseCount('turnos', 2);
         $this->assertSame(1, Notificacion::count());
     }

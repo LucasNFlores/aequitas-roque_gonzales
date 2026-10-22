@@ -517,13 +517,21 @@ class DemoDataSeeder extends Seeder
         }
 
         foreach ($professionals as $index => $professional) {
+            $process = $processes[$index]['process'];
             $detail = sprintf('[DEMO] Compromiso externo %d', $index + 1);
             $existingExternal = Turno::query()
                 ->where('profesional_id', $professional->id)
+                ->where('cliente_id', $process->cliente_id)
+                ->where('tipo', 'externo')
+                ->where('es_externo', true)
                 ->where('detalle_externo', $detail)
                 ->first();
 
             if ($existingExternal !== null) {
+                if ($existingExternal->proceso_id === null) {
+                    $existingExternal->update(['proceso_id' => $process->id]);
+                }
+
                 continue;
             }
 
@@ -537,7 +545,7 @@ class DemoDataSeeder extends Seeder
                 'cliente_id' => $processes[$index]['client']->id,
                 'profesional_id' => $professional->id,
                 'coordinador_id' => $this->coordinatorId(),
-                'proceso_id' => null,
+                'proceso_id' => $process->id,
                 'fecha_hora' => $slot,
                 'es_externo' => true,
                 'detalle_externo' => $detail,

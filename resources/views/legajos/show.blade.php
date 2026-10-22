@@ -75,22 +75,6 @@
                 @endforelse
             </section>
 
-            @if($turnosSinProceso->isNotEmpty())
-                <section class="rounded-panel border border-line bg-white p-5 shadow-panel sm:p-7">
-                    <h2 class="text-base font-semibold text-ink">Turnos del cliente sin proceso asociado</h2>
-                    <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
-                        @foreach($turnosSinProceso as $turno)
-                            <div class="rounded-card border border-line p-4">
-                                <div class="flex items-start justify-between gap-3"><p class="font-medium text-ink">{{ str_replace('_', ' ', ucfirst($turno->tipo)) }}</p><span class="rounded-full bg-aequitas-50 px-2.5 py-1 text-xs font-medium text-ink">{{ ucfirst($turno->estado) }}</span></div>
-                                <p class="mt-2 text-sm text-ink">{{ $turno->fecha_hora?->format('d/m/Y H:i') ?? 'Sin fecha' }}</p>
-                                <p class="mt-1 text-sm text-muted">{{ $turno->profesional?->nombre_completo ?? $turno->coordinador?->nombre_completo ?? 'Sin responsable' }}</p>
-                                @if($turno->es_externo && $turno->detalle_externo)<p class="mt-2 text-sm text-muted">{{ $turno->detalle_externo }}</p>@endif
-                            </div>
-                        @endforeach
-                    </div>
-                </section>
-            @endif
-
             @if($user->can('ver_comprobantes_pago'))
                 <section class="rounded-panel border border-line bg-white p-5 shadow-panel sm:p-7">
                     <h2 class="text-base font-semibold text-ink">Comprobantes del cliente sin proceso asociado</h2>

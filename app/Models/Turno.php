@@ -135,6 +135,6 @@ class Turno extends Model
 
     public function proceso(): BelongsTo
     {
-        return $this->belongsTo(Proceso::class);
+        return $this->belongsTo(Proceso::class)->withTrashed();
     }
 }

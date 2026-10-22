@@ -61,22 +61,23 @@ class ExternalForm extends Component
         $validated = $this->validate([
             'clienteId' => ['required', 'integer', Rule::exists('clientes', 'id')->whereNull('deleted_at')],
             'profesionalId' => ['required', 'integer', Rule::exists('users', 'id')->whereNull('deleted_at')],
-            'procesoId' => ['nullable', 'integer', Rule::exists('procesos', 'id')->whereNull('deleted_at')],
+            'procesoId' => ['required', 'integer', Rule::exists('procesos', 'id')->whereNull('deleted_at')],
             'fechaHora' => ['required', 'date', 'after:now'],
             'detalleExterno' => ['required', 'string'],
         ], [
             'clienteId.required' => 'Selecciona un cliente.',
             'profesionalId.required' => 'Selecciona un profesional.',
+            'procesoId.required' => 'Selecciona un proceso para el compromiso externo.',
             'fechaHora.required' => 'Indica fecha y hora del compromiso.',
             'detalleExterno.required' => 'Indica el detalle del compromiso externo.',
         ]);
 
-        $this->validateRelationships($validated['procesoId'] ?: null);
+        $this->validateRelationships($validated['procesoId']);
 
         $turno = $scheduler->scheduleExternal([
             'cliente_id' => (int) $validated['clienteId'],
             'profesional_id' => (int) $validated['profesionalId'],
-            'proceso_id' => $validated['procesoId'] !== '' ? (int) $validated['procesoId'] : null,
+            'proceso_id' => (int) $validated['procesoId'],
             'fecha_hora' => $validated['fechaHora'],
             'detalle_externo' => trim($validated['detalleExterno']),
         ]);

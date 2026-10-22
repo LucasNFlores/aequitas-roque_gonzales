@@ -58,16 +58,17 @@ class Form extends Component
         $validated = $this->validate([
             'clienteId' => ['required', 'integer', Rule::exists('clientes', 'id')->whereNull('deleted_at')],
             'profesionalId' => ['required', 'integer', Rule::exists('users', 'id')->whereNull('deleted_at')],
-            'procesoId' => ['nullable', 'integer', Rule::exists('procesos', 'id')->whereNull('deleted_at')],
+            'procesoId' => ['required', 'integer', Rule::exists('procesos', 'id')->whereNull('deleted_at')],
             'fechaHora' => ['required', 'date', 'after:now'],
             'tipo' => ['required', Rule::in(['consulta_inicial', 'seguimiento'])],
         ], [
             'clienteId.required' => 'Selecciona un cliente.',
             'profesionalId.required' => 'Selecciona un profesional.',
+            'procesoId.required' => 'Selecciona un proceso para el turno.',
             'fechaHora.required' => 'Indica fecha y hora del turno.',
         ]);
 
-        $this->validateRelationships($validated['procesoId'] ?: null);
+        $this->validateRelationships($validated['procesoId']);
         Gate::authorize($validated['tipo'] === 'seguimiento'
             ? 'agendar_turnos_seguimiento'
             : 'agendar_turnos_internos');
@@ -75,7 +76,7 @@ class Form extends Component
         $turno = $scheduler->schedule([
             'cliente_id' => (int) $validated['clienteId'],
             'profesional_id' => (int) $validated['profesionalId'],
-            'proceso_id' => $validated['procesoId'] !== '' ? (int) $validated['procesoId'] : null,
+            'proceso_id' => (int) $validated['procesoId'],
             'fecha_hora' => $validated['fechaHora'],
             'tipo' => $validated['tipo'],
         ]);

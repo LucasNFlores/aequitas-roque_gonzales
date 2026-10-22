@@ -75,7 +75,7 @@ class TurnoTest extends TestCase
         return array_merge([
             'clienteId' => (string) $this->cliente->id,
             'profesionalId' => (string) $this->profesional->id,
-            'procesoId' => '',
+            'procesoId' => $overrides['procesoId'] ?? (string) $this->procesoActivo()->id,
             'fechaHora' => now()->addDays(2)->setTime(10, 0)->format('Y-m-d\\TH:i'),
             'tipo' => 'consulta_inicial',
         ], $overrides);
@@ -86,7 +86,7 @@ class TurnoTest extends TestCase
         return array_merge([
             'clienteId' => (string) $this->cliente->id,
             'profesionalId' => (string) $this->profesional->id,
-            'procesoId' => '',
+            'procesoId' => $overrides['procesoId'] ?? (string) $this->procesoActivo()->id,
             'fechaHora' => now()->addDays(3)->setTime(9, 0)->format('Y-m-d\\TH:i'),
             'detalleExterno' => 'Audiencia de prueba HU-13',
         ], $overrides);
@@ -122,10 +122,33 @@ class TurnoTest extends TestCase
         $this->assertDatabaseCount('notificaciones', 0);
     }
 
+    public function test_todos_los_turnos_internos_exigen_un_proceso(): void
+    {
+        foreach (['consulta_inicial', 'seguimiento'] as $tipo) {
+            $this->form()
+                ->set($this->fillNewTurno(['tipo' => $tipo, 'procesoId' => '']))
+                ->call('save')
+                ->assertHasErrors(['procesoId' => 'required']);
+        }
+
+        $this->assertDatabaseCount('turnos', 0);
+    }
+
+    public function test_compromiso_externo_exige_un_proceso(): void
+    {
+        Livewire::actingAs($this->secretario)
+            ->test(ExternalForm::class)
+            ->set($this->fillNewExternalTurno(['procesoId' => '']))
+            ->call('save')
+            ->assertHasErrors(['procesoId' => 'required']);
+
+        $this->assertDatabaseCount('turnos', 0);
+    }
+
     public function test_seguimiento_exige_proceso_activo_y_cliente_y_profesional_coherentes(): void
     {
         $this->form()
-            ->set($this->fillNewTurno(['tipo' => 'seguimiento']))
+            ->set($this->fillNewTurno(['tipo' => 'seguimiento', 'procesoId' => '']))
             ->call('save')
             ->assertHasErrors('procesoId');
 

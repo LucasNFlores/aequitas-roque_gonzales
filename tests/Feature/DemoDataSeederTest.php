@@ -96,6 +96,12 @@ class DemoDataSeederTest extends TestCase
         $this->assertGreaterThan(0, ReporteVersion::query()->whereHas('reporte', fn ($query) => $query->where('contenido', 'like', '[DEMO] Informe%'))->count());
         $this->assertSame(4, ReporteVersion::query()->whereHas('reporte', fn ($query) => $query->where('contenido', 'like', '[DEMO] Informe%'))->count());
         $this->assertGreaterThan(0, Turno::query()->where('es_externo', true)->where('detalle_externo', 'like', '[DEMO] Compromiso%')->count());
+        $this->assertFalse(Turno::query()->whereNull('proceso_id')->exists());
+
+        foreach (Turno::query()->with('proceso')->get() as $turno) {
+            $this->assertNotNull($turno->proceso);
+            $this->assertSame((int) $turno->cliente_id, (int) $turno->proceso->cliente_id);
+        }
         $this->assertGreaterThan(0, Turno::query()->activos()->whereIn('proceso_id', $this->demoProcesses()->modelKeys())->where('fecha_hora', '>', CarbonImmutable::now())->count());
         $this->assertSame(8, Turno::query()->where('estado', 'cancelado')->whereHas('proceso', fn ($query) => $query->where('nombre', 'like', '[DEMO] Legajo %'))->count());
         $this->assertScheduledTurnsHaveNoConflicts();
@@ -125,6 +131,27 @@ class DemoDataSeederTest extends TestCase
         $this->assertSoftDeleted($unrelatedDeletedService);
         $this->assertSame(1, Servicio::query()->where('nombre', 'Consultoría')->count());
         $this->assertSame(1, Cliente::query()->where('dni', '99010001')->count());
+    }
+
+    public function test_repeating_the_seeder_repairs_legacy_demo_external_turns_without_duplicating_them(): void
+    {
+        Storage::fake('local');
+        $this->seed(DatabaseSeeder::class);
+        $counts = $this->demoCounts();
+        $externalTurns = Turno::query()->where('detalle_externo', 'like', '[DEMO] Compromiso externo %')->get();
+        $this->assertCount(4, $externalTurns);
+
+        $migration = require database_path('migrations/2026_10_22_135346_require_proceso_id_on_turnos_table.php');
+        $migration->down();
+        DB::table('turnos')->whereIn('id', $externalTurns->modelKeys())->update(['proceso_id' => null]);
+
+        $this->seed(DatabaseSeeder::class);
+
+        $this->assertSame($counts, $this->demoCounts());
+        foreach ($externalTurns as $turno) {
+            $this->assertSame((int) $turno->proceso_id, (int) $turno->fresh()->proceso_id);
+        }
+        $this->assertFalse(Turno::query()->whereNull('proceso_id')->exists());
     }
 
     /** @return Collection<int, Cliente> */

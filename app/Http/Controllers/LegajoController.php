@@ -38,14 +38,6 @@ class LegajoController extends Controller
                 'honorarios',
             ]);
 
-        $turnosSinProceso = $cliente->turnos()
-            ->whereNull('proceso_id')
-            ->when($user->requiresProfessionalAssignmentScope(), fn (Builder $query): Builder => $query->where('profesional_id', $user->id))
-            ->with(['profesional:id,name,apellido', 'coordinador:id,name,apellido'])
-            ->orderByDesc('fecha_hora')
-            ->orderByDesc('id')
-            ->get(['id', 'cliente_id', 'profesional_id', 'coordinador_id', 'fecha_hora', 'tipo', 'estado', 'es_externo', 'detalle_externo']);
-
         $comprobantes = collect();
 
         if ($user->can('ver_comprobantes_pago')) {
@@ -62,7 +54,7 @@ class LegajoController extends Controller
                 ->get(['id', 'cliente_id', 'proceso_id', 'fecha_subida', 'descripcion']);
         }
 
-        return view('legajos.show', compact('cliente', 'procesos', 'turnosSinProceso', 'comprobantes', 'user'));
+        return view('legajos.show', compact('cliente', 'procesos', 'comprobantes', 'user'));
     }
 
     public function showProcess(Cliente $cliente, Proceso $proceso): View

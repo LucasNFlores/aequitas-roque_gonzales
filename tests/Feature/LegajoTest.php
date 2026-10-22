@@ -45,7 +45,7 @@ class LegajoTest extends TestCase
             'dni' => '28123456',
         ]);
         $assignedProcess = $this->processFor($client, $professional, $coordinator, 'Visible asignado');
-        $this->processFor($client, $otherProfessional, $coordinator, 'Proceso ajeno');
+        $otherProcess = $this->processFor($client, $otherProfessional, $coordinator, 'Proceso ajeno');
 
         Turno::factory()->create([
             'cliente_id' => $client->id,
@@ -55,7 +55,7 @@ class LegajoTest extends TestCase
         Turno::factory()->create([
             'cliente_id' => $client->id,
             'profesional_id' => $otherProfessional->id,
-            'proceso_id' => null,
+            'proceso_id' => $otherProcess->id,
             'detalle_externo' => 'Turno de otro profesional',
         ]);
 
@@ -73,6 +73,7 @@ class LegajoTest extends TestCase
             ->assertSee($professional->nombre_completo)
             ->assertSee($coordinator->nombre_completo)
             ->assertDontSee('Proceso ajeno')
+            ->assertDontSee('Turnos del cliente sin proceso asociado')
             ->assertDontSee('Turno de otro profesional');
 
         $this->actingAs($professional)
