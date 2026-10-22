@@ -380,7 +380,7 @@ Coordinador y Administrador MUST poder administrar estados de proceso y categor�
 
 ### Requirement: Generar informe PDF de documentos por categoría (CU 39)
 
-El sistema MUST permitir al Coordinador y al Administrador generar un informe PDF que resuma documentos por categoría para un período. El informe MUST permitir filtrar por período, estado de categoría y categoría, y MUST presentar cantidades de documentos y la última fecha de carga por categoría. Si no se ingresa un período, MUST usar hoy y los 29 días anteriores, inclusive. Si se ingresan fechas, MUST exigir ambas, validar el formato y existencia de cada fecha, rechazar fechas futuras, exigir `desde <= hasta` y limitar el rango a 366 días calendario inclusive. El informe MUST NOT incluir ni adjuntar los archivos originales. El Directivo MUST NOT obtener acceso a este informe por el solo hecho de poder consultar legajos. El Administrador MUST conservar acceso como superadministrador.
+El sistema MUST permitir al Coordinador, al Directivo y al Administrador generar un informe PDF que resuma documentos por categoría para un período. El informe MUST permitir filtrar por período, estado de categoría y categoría, y MUST presentar cantidades de documentos y la última fecha de carga por categoría. Si no se ingresa un período, MUST usar hoy y los 29 días anteriores, inclusive. Si se ingresan fechas, MUST exigir ambas, validar el formato y existencia de cada fecha, rechazar fechas futuras, exigir `desde <= hasta` y limitar el rango a 366 días calendario inclusive. El informe MUST NOT incluir ni adjuntar los archivos originales. El acceso MUST usar un permiso específico de consulta que no conceda permisos para gestionar categorías, visualizar documentación individual ni descargar archivos de legajos. El Administrador MUST conservar acceso como superadministrador.
 
 #### Scenario: Coordinador genera informe PDF de documentos
 
@@ -398,9 +398,15 @@ El sistema MUST permitir al Coordinador y al Administrador generar un informe PD
 - **WHEN** se envía una sola fecha, una fecha imposible o futura, un rango invertido o un período mayor a 366 días
 - **THEN** el sistema conserva los filtros y muestra el error sin generar el PDF
 
-#### Scenario: Directivo intenta acceder al informe documental
+#### Scenario: Directivo genera el informe documental
 
-- **WHEN** un Directivo solicita el informe desde la interfaz o una ruta directa
+- **WHEN** un Directivo solicita el informe con filtros válidos desde la interfaz o una ruta directa
+- **THEN** el sistema genera el informe agregado y su PDF
+- **AND** el permiso no habilita la gestión de categorías ni el acceso a archivos individuales
+
+#### Scenario: Secretario o Profesional intenta acceder al informe documental
+
+- **WHEN** un Secretario o Profesional solicita el informe desde la interfaz o una ruta directa
 - **THEN** el sistema deniega el acceso y no revela sus resultados
 
 ### Requirement: Conservar las bajas y excluirlas de la operación vigente

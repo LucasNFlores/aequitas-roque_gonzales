@@ -73,6 +73,7 @@ class RoleSeeder extends Seeder
             'consultar_notificaciones',
             'gestionar_estados_proceso',
             'gestionar_categorias_documentos',
+            'consultar_informe_documental',
         ],
         'Directivo' => [
             'listar_usuarios',
@@ -90,6 +91,7 @@ class RoleSeeder extends Seeder
             'gestionar_servicios',
             'asignar_especialidad_servicio',
             'consultar_notificaciones',
+            'consultar_informe_documental',
         ],
     ];
 

@@ -173,7 +173,7 @@
                         </div>
                     @endif
 
-                    @if (Auth::user()->canAny(['gestionar_categorias_documentos', 'ver_comprobantes_pago']))
+                    @if (Auth::user()->canAny(['gestionar_categorias_documentos', 'consultar_informe_documental', 'ver_comprobantes_pago']))
                         <div class="space-y-1" x-data="{ sectionOpen: @js(request()->routeIs('comprobantes.*', 'reportes.documentos.*')) }">
                             <button type="button" @click="sectionOpen = ! sectionOpen" aria-expanded="false" x-bind:aria-expanded="sectionOpen.toString()" aria-controls="sidebar-group-reports" class="flex min-h-11 w-full items-center justify-between gap-3 rounded-control px-3 text-[10px] font-semibold uppercase tracking-wide text-muted transition hover:bg-aequitas-50 hover:text-aequitas-900 focus:outline-none focus:ring-2 focus:ring-gold-600 focus:ring-offset-2">
                                 <span>{{ __('Informes') }}</span>
@@ -191,7 +191,7 @@
                                         <span>{{ __('Comprobantes') }}</span>
                                     </x-navigation.nav-link>
                                 @endcan
-                                @can('gestionar_categorias_documentos')
+                                @can('consultar_informe_documental')
                                     <x-navigation.nav-link :href="route('reportes.documentos.index')" :active="request()->routeIs('reportes.documentos.*')">
                                         <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 3.75h7.25L19 8.5v11.75A1.75 1.75 0 0 1 17.25 22h-10.5A1.75 1.75 0 0 1 5 20.25v-14.5A1.75 1.75 0 0 1 6.75 4H7Zm7.25 0V9H19M8.5 13h7m-7 3.5h7" />

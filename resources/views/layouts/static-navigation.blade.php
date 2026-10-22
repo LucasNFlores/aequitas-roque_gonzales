@@ -43,9 +43,12 @@
                     <a href="{{ route('estados-proceso.index') }}" class="text-gray-700 hover:text-indigo-600">{{ __('Estados de proceso') }}</a>
                 @endcan
 
+                @can('consultar_informe_documental')
+                    <a href="{{ route('reportes.documentos.index') }}" class="text-gray-700 hover:text-indigo-600">{{ __('Informe documental') }}</a>
+                @endcan
+
                 @can('gestionar_categorias_documentos')
                     <a href="{{ route('categorias.index') }}" class="text-gray-700 hover:text-indigo-600">{{ __('Categorías') }}</a>
-                    <a href="{{ route('reportes.documentos.index') }}" class="text-gray-700 hover:text-indigo-600">{{ __('Informe documental') }}</a>
                 @endcan
 
                 @can('ver_agenda_profesional')

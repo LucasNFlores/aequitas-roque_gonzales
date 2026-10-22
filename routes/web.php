@@ -112,7 +112,7 @@ Route::middleware(['auth', 'permission:gestionar_categorias_documentos'])->group
     Route::get('/categorias', fn () => view('categorias.index'))->name('categorias.index');
 });
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'permission:consultar_informe_documental'])->group(function () {
     Route::get('/reportes/documentos', [ReporteDocumentoController::class, 'index'])->name('reportes.documentos.index');
     Route::get('/reportes/documentos/pdf', [ReporteDocumentoController::class, 'pdf'])->name('reportes.documentos.pdf');
 });

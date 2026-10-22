@@ -22,9 +22,9 @@ class ReporteDocumentoTest extends TestCase
         $this->travelTo(Carbon::parse('2026-10-20 12:00:00'));
     }
 
-    public function test_coordinator_and_administrator_can_open_the_report(): void
+    public function test_coordinator_directive_and_administrator_can_open_the_report(): void
     {
-        foreach (['Coordinador', 'Administrador'] as $role) {
+        foreach (['Coordinador', 'Directivo', 'Administrador'] as $role) {
             $user = User::factory()->create();
             $user->assignRole($role);
 
@@ -108,16 +108,45 @@ class ReporteDocumentoTest extends TestCase
         $this->assertStringStartsWith('%PDF-', $response->getContent());
     }
 
-    public function test_directive_is_denied_and_guest_is_redirected_to_login(): void
+    public function test_directive_can_view_and_download_report_without_document_management_permissions(): void
     {
         $directive = User::factory()->create();
         $directive->assignRole('Directivo');
 
-        $this->actingAs($directive)->get(route('reportes.documentos.index'))->assertForbidden();
-        $this->actingAs($directive)->get(route('reportes.documentos.pdf'))->assertForbidden();
+        $this->assertTrue($directive->can('consultar_informe_documental'));
+        $this->assertFalse($directive->can('gestionar_categorias_documentos'));
+        $this->assertFalse($directive->can('visualizar_documentacion'));
+        $this->assertFalse($directive->can('descargar_documentacion'));
 
-        $this->app['auth']->forgetGuards();
+        $this->actingAs($directive)
+            ->get(route('reportes.documentos.index'))
+            ->assertOk()
+            ->assertSee('Informe documental');
 
+        $response = $this->actingAs($directive)->get(route('reportes.documentos.pdf'));
+        $response->assertOk();
+        $this->assertStringContainsString('application/pdf', $response->headers->get('Content-Type'));
+        $this->assertStringStartsWith('%PDF-', $response->getContent());
+    }
+
+    public function test_secretary_and_professional_are_denied_report_and_pdf(): void
+    {
+        foreach (['Secretario', 'Profesional'] as $role) {
+            $user = User::factory()->create();
+            $user->assignRole($role);
+
+            $this->actingAs($user)
+                ->get(route('dashboard'))
+                ->assertOk()
+                ->assertDontSee('Informe documental');
+
+            $this->actingAs($user)->get(route('reportes.documentos.index'))->assertForbidden();
+            $this->actingAs($user)->get(route('reportes.documentos.pdf'))->assertForbidden();
+        }
+    }
+
+    public function test_guest_is_redirected_to_login(): void
+    {
         $this->get(route('reportes.documentos.index'))->assertRedirect('/login');
     }
 }

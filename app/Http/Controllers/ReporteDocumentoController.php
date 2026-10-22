@@ -114,7 +114,7 @@ class ReporteDocumentoController extends Controller
 
     public function index(Request $request): View
     {
-        $this->authorize('viewAny', CategoriaDocumento::class);
+        $this->authorize('viewReport', CategoriaDocumento::class);
 
         $filtros = $this->filtros($request);
         $categorias = $this->queryReporte($filtros)->paginate(10)->withQueryString();
@@ -131,7 +131,7 @@ class ReporteDocumentoController extends Controller
 
     public function pdf(Request $request): Response
     {
-        $this->authorize('viewAny', CategoriaDocumento::class);
+        $this->authorize('viewReport', CategoriaDocumento::class);
 
         $filtros = $this->filtros($request);
         $categorias = $this->queryReporte($filtros)->get();

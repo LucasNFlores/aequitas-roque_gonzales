@@ -93,7 +93,7 @@ El alta inicial crea un registro interno dirigido al Coordinador, con canal, des
 
 ## Informe documental (CU 39)
 
-Coordinador y Administrador pueden consultar el informe por categoría y descargarlo como PDF. Por defecto abarca hoy y los 29 días anteriores. El rango manual exige ambas fechas, no admite fechas futuras ni períodos invertidos y está limitado a 366 días. Se puede filtrar por estado y categoría; el resumen no incluye los archivos originales. El acceso usa la autorización de CU 37.
+Coordinador, Directivo y Administrador pueden consultar el informe por categoría y descargarlo como PDF. Por defecto abarca hoy y los 29 días anteriores. El rango manual exige ambas fechas, no admite fechas futuras ni períodos invertidos y está limitado a 366 días. Se puede filtrar por estado y categoría; el resumen no incluye los archivos originales. Coordinador y Directivo usan el permiso específico `consultar_informe_documental`, que no habilita la gestión de categorías ni el acceso a documentación individual. El Administrador conserva acceso como superusuario.
 
 ## Dashboard operativo (HU-22 / CU 40)
 
