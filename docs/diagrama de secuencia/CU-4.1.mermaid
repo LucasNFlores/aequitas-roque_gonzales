@@ -1,51 +1,87 @@
 sequenceDiagram
-    actor Secretario
-    participant Sistema as Sistema (Controller)
-    participant Proceso as Proceso (Model)
+    autonumber
+    actor Operador as Usuario autenticado con permiso de agenda
+    participant Navegador
+    participant Ruta as GET /turnos/create
+    participant Form as Livewire Form (Turnos)
+    participant Gate as Gate y TurnoPolicy
     participant Cliente as Cliente (Model)
-    participant User as User/Profesional (Model)
+    participant User as User (Model)
+    participant Proceso as Proceso (Model)
+    participant DB as Base de datos
+    participant Scheduler as TurnoScheduler
     participant Turno as Turno (Model)
-    participant Notificacion as Notificacion (Model)
 
-    Secretario->>Sistema: buscarProceso(query)
-    Sistema->>Proceso: buscarPorNombreODescripcion(query)
-    Proceso-->>Sistema: lista de procesos
+    Note over Operador,Form: CU 4.1 usa el mismo formulario Livewire que CU 4. Para seguimiento requiere un proceso no finalizado ni rechazado.
+    Note over Form,Navegador: Si el formulario se inició desde un detalle, conserva return_cliente_id y return_proceso_id solo con contexto autorizado.
 
-    alt Sin resultados
-        Sistema-->>Secretario: mensajeSinResultados()
-    end
+    Operador->>Navegador: abrir formulario de turno
+    Navegador->>Ruta: GET /turnos/create
+    Ruta->>Ruta: comprobar permiso agendar_turnos_internos o agendar_turnos_seguimiento
 
-    Sistema-->>Secretario: mostrarProcesos(procesos)
-    Secretario->>Sistema: seleccionarProceso(procesoId)
+    alt Sin permiso de ruta o creación
+        Ruta-->>Navegador: 403 acceso denegado
+    else Con permiso
+        Ruta->>Form: montar componente turnos.form
+        Form->>Gate: authorize(create, Turno::class)
+        Gate-->>Form: permitido
+        Form->>Cliente: consultar clientes no eliminados
+        Cliente-->>Form: clientes
+        Form->>User: listar usuarios con rol Profesional
+        User-->>Form: profesionales
+        Form->>Proceso: listar procesos excepto finalizado y rechazado
+        Proceso-->>Form: procesos con cliente
+        Form-->>Navegador: mostrar campos Cliente, Profesional, Tipo, Proceso, Fecha y hora
 
-    Sistema->>Proceso: obtenerConRelaciones(procesoId)
-    Proceso-->>Sistema: proceso con cliente, profesional y servicio
-
-    Sistema->>Cliente: obtenerPorId(proceso.clienteId)
-    Cliente-->>Sistema: cliente
-
-    Sistema->>User: obtenerPorId(proceso.profesionalId)
-    User-->>Sistema: profesional
-
-    Sistema-->>Secretario: mostrarDatosCasoYProfesional(proceso, cliente, profesional)
-
-    Secretario->>Sistema: ingresarFechaHora(fechaHora)
-    Sistema->>Turno: existeTurnoEnHorario(profesionalId, fechaHora)
-    Turno-->>Sistema: true / false
-
-    alt Profesional no disponible
-        Sistema-->>Secretario: solicitarNuevaFecha(mensaje)
-    else Profesional disponible
-        Secretario->>Sistema: confirmarTurno(procesoId, profesionalId, clienteId, fechaHora)
-
-        Sistema->>Turno: crearTurnoDeSeguimiento(clienteId, profesionalId, procesoId, fechaHora)
-        Turno-->>Sistema: turno creado
-
-        Sistema->>Notificacion: enviarNotificacionProfesional(profesionalId, mensaje)
-        Notificacion-->>Sistema: notificacion registrada
-
-        Sistema->>Notificacion: enviarNotificacionCliente(clienteId, mensaje)
-        Notificacion-->>Sistema: notificacion registrada
-
-        Sistema-->>Secretario: turnoRegistradoConExito(turno, proceso)
+        Operador->>Navegador: seleccionar tipo seguimiento, cliente, profesional, proceso y fecha futura
+        Operador->>Navegador: enviar formulario
+        Navegador->>Form: save()
+        Form->>Form: validar campos obligatorios, existencia, fecha futura y tipo seguimiento
+        alt Campos inválidos
+            Form-->>Navegador: mostrar errores de validación
+        else Campos válidos
+            Form->>User: comprobar rol Profesional
+            User-->>Form: profesional válido o error
+            Form->>Proceso: validar proceso no eliminado, cliente coincidente y profesional asignado compatible
+            Proceso-->>Form: relaciones válidas o errores
+            Form->>Proceso: verificar que estado no sea finalizado ni rechazado
+            Proceso-->>Form: estado válido o error
+            alt Relaciones o estado inválidos
+                Form-->>Navegador: mostrar errores de validación
+            else Relaciones y estado válidos
+                Form->>Gate: authorize(agendar_turnos_seguimiento)
+                alt Permiso específico denegado
+                    Gate-->>Form: denegado
+                    Form-->>Navegador: mostrar acceso denegado
+                else Permiso concedido
+                    Gate-->>Form: permitido
+                    Form->>Scheduler: schedule(cliente_id, profesional_id, proceso_id, fecha_hora, tipo seguimiento)
+                    Scheduler->>Scheduler: iniciar transacción
+                    Scheduler->>DB: comprobar proceso existente, no eliminado y del cliente
+                    DB-->>Scheduler: válido o error
+                    alt Proceso no disponible
+                        Scheduler-->>Form: error de validación
+                        Form-->>Navegador: mostrar error
+                    else Proceso válido
+                        Scheduler->>User: bloquear profesional con lockForUpdate
+                        User-->>Scheduler: bloqueo adquirido
+                        Scheduler->>Turno: existeConflicto(profesional_id, fecha_hora, es_externo=false)
+                        Turno-->>Scheduler: disponible o conflicto
+                        alt Horario en conflicto
+                            Scheduler-->>Form: error de validación
+                            Form-->>Navegador: mostrar error
+                        else Turno creado
+                            Scheduler->>Turno: crear con proceso_id obligatorio, tipo seguimiento y estado programado
+                            Turno-->>Scheduler: turno persistido
+                            Scheduler-->>Form: turno
+                            alt Inicio desde detalle de proceso con contexto autorizado
+                                Form-->>Navegador: volver al mismo detalle de proceso con confirmación
+                            else Alta directa sin contexto de detalle
+                                Form-->>Navegador: redirigir a turnos.show con confirmación
+                            end
+                        end
+                    end
+                end
+            end
+        end
     end

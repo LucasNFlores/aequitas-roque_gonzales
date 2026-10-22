@@ -1,80 +1,88 @@
 sequenceDiagram
     autonumber
-    actor Operador as Secretario / Administrador
-    participant Sistema as TurnoController
-    participant Policy as TurnoPolicy
-    participant Request as StoreTurnoRequest
+    actor Operador as Usuario autenticado con permiso de agenda
+    participant Navegador
+    participant Ruta as GET /turnos/create
+    participant Form as Livewire Form (Turnos)
+    participant Gate as Gate y TurnoPolicy
     participant Cliente as Cliente (Model)
     participant User as User (Model)
     participant Proceso as Proceso (Model)
+    participant DB as Base de datos
+    participant Scheduler as TurnoScheduler
     participant Turno as Turno (Model)
-    participant Notificacion as Notificacion (Model)
 
-    Note over Operador,Sistema: CU 4 registra una cita interna entre un cliente y un profesional o coordinador.
+    Note over Operador,Form: CU 4 usa el formulario Livewire compartido y selecciona tipo consulta_inicial. El mismo formulario también permite CU 4.1 según permiso.
+    Note over Form,Navegador: Si el formulario se inició desde un detalle, conserva return_cliente_id y return_proceso_id solo con contexto autorizado.
 
-    Operador->>Sistema: ingresarDniONombreCliente(criterio)
-    Sistema->>Cliente: buscarClienteActivo(criterio)
-    Cliente-->>Sistema: cliente o sin resultados
+    Operador->>Navegador: abrir formulario de turno
+    Navegador->>Ruta: GET /turnos/create
+    Ruta->>Ruta: comprobar permiso agendar_turnos_internos o agendar_turnos_seguimiento
 
-    alt Cliente no encontrado
-        Sistema-->>Operador: informarClienteNoExiste()
-    else Cliente encontrado
-        Sistema-->>Operador: mostrarDatosCliente(cliente)
+    alt Sin permiso de ruta o creación
+        Ruta-->>Navegador: 403 acceso denegado
+    else Con permiso
+        Ruta->>Form: montar componente turnos.form
+        Form->>Gate: authorize(create, Turno::class)
+        Gate-->>Form: permitido
+        Form->>Form: inicializar fecha y hora por defecto
+        Form->>Cliente: consultar clientes no eliminados
+        Cliente-->>Form: clientes
+        Form->>User: listar usuarios con rol Profesional
+        User-->>Form: profesionales
+        Form->>Proceso: listar procesos excepto finalizado y rechazado
+        Proceso-->>Form: procesos con cliente
+        Form-->>Navegador: mostrar campos Cliente, Profesional, Tipo, Proceso, Fecha y hora
 
-        Operador->>Sistema: seleccionarProfesionalOCoordinador(usuarioId)
-        Sistema->>User: consultarUsuarioActivo(usuarioId)
-        User-->>Sistema: usuario seleccionado
-        Sistema-->>Operador: mostrarDatosProfesionalOCoordinador(usuario)
-
-        Operador->>Sistema: ingresarFechaHora(fechaHora)
-        Operador->>Sistema: confirmarTurno(clienteId, usuarioId, fechaHora)
-        Sistema->>Policy: authorize(create, Turno::class)
-        Policy->>Policy: user.canAny(permisosDeAgendamiento)
-        Policy-->>Sistema: permitido o denegado
-
-        alt Operador sin permiso
-            Sistema-->>Operador: errorSinPermiso()
-        else Operador autorizado
-            Sistema->>Request: validarDatosTurnoInterno()
-            Request->>Cliente: exists(cliente_id) y no eliminado
-            Cliente-->>Request: válido o error
-            Request->>User: exists(profesional_id) y no eliminado
-            User-->>Request: válido o error
-            Request->>User: verificarRolProfesional(profesional_id)
-            User-->>Request: rol Profesional o error
-            Request->>Request: verificar tipo=consulta_inicial y es_externo=false
-
-            opt Proceso informado
-                Request->>Proceso: verificar cliente y profesional relacionados
-                Proceso-->>Request: relación válida o error
-            end
-
-            Request-->>Sistema: datos válidos o errores
-
-            alt Datos inválidos
-                Sistema-->>Operador: mostrarErroresDeValidacion()
-            else Datos válidos
-                Sistema->>Turno: verificarDisponibilidad(usuarioId, fechaHora)
-                Turno-->>Sistema: disponible o ocupado
-
-                alt Horario ocupado
-                    Sistema-->>Operador: solicitarNuevaFecha()
-                else Horario disponible
-                    Sistema->>Turno: crear(cliente_id, profesional_id, proceso_id opcional, fecha_hora, tipo=consulta_inicial, es_externo=false)
-                    Turno-->>Sistema: turno registrado
-
-                    par Notificar al profesional o coordinador
-                        Sistema->>Notificacion: registrarDestinatarioUsuario(usuarioId, mensaje)
-                        Notificacion-->>Sistema: notificación registrada
-                    and Notificar al cliente
-                        Sistema->>Notificacion: registrarDestinatarioCliente(clienteId, mensaje)
-                        Notificacion-->>Sistema: notificación registrada
+        Operador->>Navegador: seleccionar cliente, profesional, proceso y fecha futura
+        Operador->>Navegador: seleccionar consulta_inicial y enviar
+        Navegador->>Form: save()
+        Form->>Gate: authorize(create, Turno::class)
+        Gate-->>Form: permitido
+        Form->>Form: validar cliente, profesional, proceso obligatorios; fecha futura y tipo permitido
+        alt Campos inválidos
+            Form-->>Navegador: mostrar errores de validación
+        else Campos válidos
+            Form->>User: comprobar rol Profesional
+            User-->>Form: profesional válido o error
+            Form->>Proceso: comprobar proceso no eliminado y del cliente; si tiene profesional, debe coincidir
+            Proceso-->>Form: relaciones válidas o errores
+            alt Relaciones inválidas
+                Form-->>Navegador: mostrar errores de validación
+            else Relaciones válidas
+                Form->>Gate: authorize(agendar_turnos_internos)
+                alt Permiso específico denegado
+                    Gate-->>Form: denegado
+                    Form-->>Navegador: mostrar acceso denegado
+                else Permiso concedido
+                    Gate-->>Form: permitido
+                    Form->>Scheduler: schedule(cliente_id, profesional_id, proceso_id, fecha_hora, tipo)
+                    Scheduler->>Scheduler: iniciar transacción
+                    Scheduler->>DB: comprobar proceso existente, no eliminado y del cliente
+                    DB-->>Scheduler: válido o error
+                    alt Proceso no disponible
+                        Scheduler-->>Form: error de validación
+                        Form-->>Navegador: mostrar error
+                    else Proceso válido
+                        Scheduler->>User: bloquear profesional con lockForUpdate
+                        User-->>Scheduler: bloqueo adquirido
+                        Scheduler->>Turno: existeConflicto(profesional_id, fecha_hora, es_externo=false)
+                        Turno-->>Scheduler: disponible o conflicto
+                        alt Horario en conflicto
+                            Scheduler-->>Form: error de validación
+                            Form-->>Navegador: mostrar error
+                        else Turno creado
+                            Scheduler->>Turno: crear con proceso_id obligatorio, tipo consulta_inicial y estado programado
+                            Turno-->>Scheduler: turno persistido
+                            Scheduler-->>Form: turno
+                            alt Inicio desde detalle de proceso con contexto autorizado
+                                Form-->>Navegador: volver al mismo detalle de proceso con confirmación
+                            else Alta directa sin contexto de detalle
+                                Form-->>Navegador: redirigir a turnos.show con confirmación
+                            end
+                        end
                     end
-
-                    Sistema-->>Operador: turnoRegistradoConExito(turno)
                 end
             end
         end
     end
-
-    Note over User,Request: Diferencia detectada: Drive admite profesional o coordinador&#59; StoreTurnoRequest actual solo acepta un usuario con rol Profesional.
