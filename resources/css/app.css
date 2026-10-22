@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+    font-size: 12px;
+}
+
 :root {
     --aequitas-navy-50: #edf1f5;
     --aequitas-navy-100: #dce4ec;
