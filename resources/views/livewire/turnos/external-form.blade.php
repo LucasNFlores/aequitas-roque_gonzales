@@ -5,7 +5,7 @@
         </label>
         @error('clienteId')<p role="alert" class="text-sm text-red-700">{{ $message }}</p>@enderror
         <label class="grid gap-1 text-sm font-medium text-ink">Profesional
-            <select wire:model="profesionalId" class="min-h-11 w-full rounded-control border-line bg-white px-3 py-2 text-ink shadow-sm focus:border-gold-600 focus:ring-gold-600"><option value="">Seleccionar</option>@foreach ($profesionales as $profesional)<option value="{{ $profesional->id }}">{{ $profesional->name }}</option>@endforeach</select>
+            <select wire:model="profesionalId" class="min-h-11 w-full rounded-control border-line bg-white px-3 py-2 text-ink shadow-sm focus:border-gold-600 focus:ring-gold-600"><option value="">Seleccionar</option>@foreach ($profesionales as $profesional)<option value="{{ $profesional->id }}">{{ $profesional->nombre_completo }}</option>@endforeach</select>
         </label>
         @error('profesionalId')<p role="alert" class="text-sm text-red-700">{{ $message }}</p>@enderror
         <label class="grid gap-1 text-sm font-medium text-ink">Proceso (opcional)
@@ -15,7 +15,7 @@
     @else
         <dl class="grid gap-3 rounded-card border border-line bg-canvas p-4 text-sm sm:grid-cols-2">
             <div><dt class="font-semibold text-muted">Cliente</dt><dd class="break-words text-ink">{{ $turno?->cliente?->apellido }}, {{ $turno?->cliente?->nombre }}</dd></div>
-            <div><dt class="font-semibold text-muted">Profesional</dt><dd class="break-words text-ink">{{ $turno?->profesional?->name }}</dd></div>
+            <div><dt class="font-semibold text-muted">Profesional</dt><dd class="break-words text-ink">{{ $turno?->profesional?->nombre_completo }}</dd></div>
             <div><dt class="font-semibold text-muted">Proceso</dt><dd class="break-words text-ink">{{ $turno?->proceso?->nombre ?? '—' }}</dd></div>
         </dl>
     @endif

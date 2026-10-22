@@ -173,11 +173,13 @@ public function coordinador(): BelongsTo
 $proceso = Proceso::find(1);
 
 // El profesional asignado
-$proceso->profesional->name;     // "Dr. García"
+$proceso->profesional->nombre_completo; // "Juan García"
+$proceso->profesional->name;     // "Juan"
+$proceso->profesional->apellido; // "García"
 $proceso->profesional->email;    // "garcia@estudio.com"
 
 // El coordinador asignado
-$proceso->coordinador->name;     // "Lic. Martínez"
+$proceso->coordinador->nombre_completo; // "Ana Martínez"
 
 // Son dos personas distintas desde la misma tabla users
 ```
@@ -312,7 +314,7 @@ $proceso = Proceso::with([
 
 // Navegar las relaciones encadenadas
 echo $proceso->cliente->nombre;                       // "Juan"
-echo $proceso->profesional->name;                     // "Dr. García"
+echo $proceso->profesional->nombre_completo;           // "Juan García"
 echo $proceso->turnos->first()->fecha_hora;           // "2026-06-15 10:00:00"
 echo $proceso->reportes->last()->contenido;           // "..."
 

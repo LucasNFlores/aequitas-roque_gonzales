@@ -2,7 +2,7 @@
     @if (session('success'))<p role="status" class="rounded-control border border-green-200 bg-green-50 p-3 text-sm text-green-800">{{ session('success') }}</p>@endif
     <dl class="grid gap-4 rounded-card border border-line bg-canvas p-4 sm:grid-cols-2 sm:p-5">
         <div><dt class="text-sm font-medium text-muted">Cliente</dt><dd class="break-words font-medium text-ink">{{ $turno->cliente?->apellido }}, {{ $turno->cliente?->nombre }}</dd></div>
-        <div><dt class="text-sm font-medium text-muted">Profesional</dt><dd class="break-words text-ink">{{ $turno->profesional?->name }}</dd></div>
+        <div><dt class="text-sm font-medium text-muted">Profesional</dt><dd class="break-words text-ink">{{ $turno->profesional?->nombre_completo }}</dd></div>
         <div><dt class="text-sm font-medium text-muted">Proceso</dt><dd class="break-words text-ink">{{ $turno->proceso?->nombre ?? '—' }}</dd></div>
         <div><dt class="text-sm font-medium text-muted">Tipo</dt><dd class="text-ink">{{ $turno->tipo === 'seguimiento' ? 'Seguimiento' : ($turno->es_externo ? 'Compromiso externo' : 'Consulta inicial') }}</dd></div>
         @if ($turno->es_externo)<div class="sm:col-span-2"><dt class="text-sm font-medium text-muted">Detalle</dt><dd class="break-words text-ink">{{ $turno->detalle_externo }}</dd></div>@endif

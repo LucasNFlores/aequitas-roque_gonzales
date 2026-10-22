@@ -49,10 +49,11 @@ class UserManagementTest extends TestCase
         $directivo = $this->actingAsDirectivo();
 
         $response = $this->actingAs($directivo)->post(route('users.store'), [
-            'name' => 'Nuevo Profesional',
+            'name' => 'Nuevo',
+            'apellido' => 'Profesional',
             'email' => 'nuevo.profesional@example.com',
             // password omitida -> debe generar 1234
-            'roles' => ['Profesional'],
+            'role' => 'Profesional',
         ]);
 
         $response->assertRedirect(route('users.index'));
@@ -60,15 +61,17 @@ class UserManagementTest extends TestCase
 
         $creado = User::where('email', 'nuevo.profesional@example.com')->firstOrFail();
         $this->assertTrue($creado->hasRole('Profesional'));
+        $this->assertSame(today()->toDateString(), $creado->fecha_ingreso->toDateString());
         $this->assertTrue(Hash::check('1234', $creado->password));
 
         // Con password explícita
         $admin = $this->actingAsAdministrador();
         $this->actingAs($admin)->post(route('users.store'), [
-            'name' => 'Otro Usuario',
+            'name' => 'Otro',
+            'apellido' => 'Usuario',
             'email' => 'otro@example.com',
             'password' => 'secreta123',
-            'roles' => ['Secretario'],
+            'role' => 'Secretario',
         ])->assertRedirect(route('users.index'));
 
         $otro = User::where('email', 'otro@example.com')->firstOrFail();
@@ -82,8 +85,9 @@ class UserManagementTest extends TestCase
 
         $this->actingAs($directivo)->post(route('users.store'), [
             'name' => 'Duplicado',
+            'apellido' => 'Duplicado',
             'email' => 'duplicado@example.com',
-            'roles' => ['Profesional'],
+            'role' => 'Profesional',
         ])->assertSessionHasErrors('email');
 
         $this->assertSame(1, User::where('email', 'duplicado@example.com')->count());
@@ -99,12 +103,14 @@ class UserManagementTest extends TestCase
 
         $this->actingAs($directivo)->put(route('users.update', $target), [
             'name' => 'Nombre Actualizado',
+            'apellido' => 'Actualizado',
             'email' => 'actualizado@example.com',
-            'roles' => ['Coordinador'],
+            'role' => 'Coordinador',
         ])->assertRedirect(route('users.index'));
 
         $target->refresh();
         $this->assertSame('Nombre Actualizado', $target->name);
+        $this->assertSame('Actualizado', $target->apellido);
         $this->assertSame('actualizado@example.com', $target->email);
         $this->assertTrue($target->hasRole('Coordinador'));
         $this->assertFalse($target->hasRole('Secretario'));
@@ -114,8 +120,9 @@ class UserManagementTest extends TestCase
         User::factory()->create(['email' => 'existente@example.com']);
         $this->actingAs($directivo)->put(route('users.update', $target), [
             'name' => 'Otro Intento',
+            'apellido' => 'Intento',
             'email' => 'existente@example.com',
-            'roles' => ['Coordinador'],
+            'role' => 'Coordinador',
         ])->assertSessionHasErrors('email');
     }
 
@@ -244,24 +251,27 @@ class UserManagementTest extends TestCase
         // Rol inexistente -> error validación
         $this->actingAs($directivo)->post(route('users.store'), [
             'name' => 'Test',
+            'apellido' => 'Test',
             'email' => 'test.roles@example.com',
-            'roles' => ['RolInexistente'],
-        ])->assertSessionHasErrors('roles.0');
+            'role' => 'RolInexistente',
+        ])->assertSessionHasErrors('role');
 
         // Roles válidos desde BD
         $rolDb = Role::where('name', 'Secretario')->firstOrFail();
         $this->actingAs($directivo)->post(route('users.store'), [
             'name' => 'Valido',
+            'apellido' => 'Valido',
             'email' => 'valido.roles@example.com',
-            'roles' => [$rolDb->name],
+            'role' => $rolDb->name,
         ])->assertRedirect(route('users.index'));
         $this->assertTrue(User::where('email', 'valido.roles@example.com')->firstOrFail()->hasRole('Secretario'));
 
         // Directivo no puede asignar Administrador
         $this->actingAs($directivo)->post(route('users.store'), [
             'name' => 'Intento Admin',
+            'apellido' => 'Intento',
             'email' => 'admin.intento@example.com',
-            'roles' => ['Administrador'],
+            'role' => 'Administrador',
         ])->assertForbidden();
     }
 
@@ -300,7 +310,7 @@ class UserManagementTest extends TestCase
         $target = User::factory()->create();
         $this->actingAs($directivo)->get(route('users.edit', $target))->assertOk()->assertSee('Editar Usuario');
         $this->actingAs($directivo)->get(route('users.show', $target))->assertOk()->assertSee($target->email);
-        $this->actingAs($directivo)->get(route('users.roles.edit', $target))->assertOk()->assertSee('Asignar Roles');
+        $this->actingAs($directivo)->get(route('users.roles.edit', $target))->assertOk()->assertSee('Asignar rol')->assertSee('name="role"', false)->assertDontSee('roles[]', false);
     }
 
     public function test_registro_publico_deshabilitado(): void
@@ -366,15 +376,20 @@ class UserManagementTest extends TestCase
         $this->assertTrue(true);
     }
 
-    public function test_busqueda_por_dni_y_nombre(): void
+    public function test_busqueda_por_dni_nombre_y_apellido(): void
     {
         $directivo = $this->actingAsDirectivo();
-        User::factory()->create(['name' => 'Ana García', 'dni' => '30111222']);
-        User::factory()->create(['name' => 'Bruno Díaz', 'dni' => '30222333']);
+        User::factory()->create(['name' => 'Ana', 'apellido' => 'García', 'dni' => '30111222']);
+        User::factory()->create(['name' => 'Bruno', 'apellido' => 'Díaz', 'dni' => '30222333']);
 
         // Búsqueda vía Livewire (la vista principal es Livewire; el query string clásico no se aplica al componente)
         Livewire::actingAs($directivo)->test(Index::class)
             ->set('search', 'Ana')
+            ->assertSee('Ana García')
+            ->assertDontSee('Bruno Díaz');
+
+        Livewire::actingAs($directivo)->test(Index::class)
+            ->set('search', 'García')
             ->assertSee('Ana García')
             ->assertDontSee('Bruno Díaz');
 
@@ -390,6 +405,16 @@ class UserManagementTest extends TestCase
 
         // El controller clásico también soporta ?search= (para uso progresivo)
         $this->actingAs($directivo)->get(route('users.index'))->assertOk()->assertSee('Ana García')->assertSee('Bruno Díaz');
+    }
+
+    public function test_nombre_completo_de_cuentas_anteriores_conserva_el_name_original(): void
+    {
+        $legacyUser = User::factory()->create([
+            'name' => 'María Gómez',
+            'apellido' => null,
+        ]);
+
+        $this->assertSame('María Gómez', $legacyUser->nombre_completo);
     }
 
     public function test_servicios_solo_a_profesionales(): void

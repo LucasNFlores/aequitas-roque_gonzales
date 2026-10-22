@@ -122,7 +122,7 @@ class AdministratorProfessionalPrecedenceTest extends TestCase
         $this->assertFalse($professional->can('delete', $records['reports']['foreign']));
     }
 
-    public function test_only_administrator_and_combined_profile_get_unfiltered_client_process_and_legajo_views(): void
+    public function test_administrator_gets_unfiltered_client_process_and_legajo_views(): void
     {
         $records = $this->records();
 
@@ -312,7 +312,7 @@ class AdministratorProfessionalPrecedenceTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_combined_administrator_can_manage_reports_on_unassigned_processes(): void
+    public function test_administrator_can_manage_reports_on_unassigned_processes(): void
     {
         $records = $this->records();
         $foreignProcess = $records['foreignProcess'];
@@ -322,14 +322,14 @@ class AdministratorProfessionalPrecedenceTest extends TestCase
             ->from(route('legajos.show', $records['foreignClient']))
             ->post(route('procesos.reportes.store', $foreignProcess), [
                 'proceso_id' => $foreignProcess->id,
-                'contenido' => 'Reporte creado por administrador combinado',
+                'contenido' => 'Reporte creado por administrador',
                 'fecha' => now()->toDateString(),
             ])
             ->assertRedirect()
             ->assertSessionHasNoErrors();
 
         $createdReport = Reporte::query()
-            ->where('contenido', 'Reporte creado por administrador combinado')
+            ->where('contenido', 'Reporte creado por administrador')
             ->sole();
 
         $this->assertSame($foreignProcess->profesional_id, $createdReport->profesional_id);
@@ -367,17 +367,13 @@ class AdministratorProfessionalPrecedenceTest extends TestCase
         $this->assertDatabaseMissing('reportes', ['contenido' => 'Reporte profesional no autorizado']);
     }
 
-    public function test_professional_combined_with_another_non_admin_role_keeps_assignment_scope(): void
+    public function test_role_priority_selects_a_single_highest_role(): void
     {
-        $records = $this->records();
         $professionalCoordinator = $this->userWithRoles('Profesional', 'Coordinador');
 
-        $this->assertSame([], Proceso::query()->visibleTo($professionalCoordinator)->pluck('id')->all());
-        $this->assertSame([], Cliente::query()->visibleTo($professionalCoordinator)->pluck('id')->all());
-        $this->assertSame([], Turno::query()->visibleTo($professionalCoordinator)->pluck('id')->all());
-        $this->assertSame([], Documento::query()->visibleTo($professionalCoordinator)->pluck('id')->all());
-        $this->assertSame([], Reporte::query()->visibleTo($professionalCoordinator)->pluck('id')->all());
-        $this->assertFalse($professionalCoordinator->can('view', $records['foreignProcess']));
+        $this->assertSame(['Coordinador'], $professionalCoordinator->getRoleNames()->all());
+        $this->assertSame(1, $professionalCoordinator->roles()->count());
+        $this->assertFalse($professionalCoordinator->requiresProfessionalAssignmentScope());
     }
 
     /**
@@ -502,9 +498,12 @@ class AdministratorProfessionalPrecedenceTest extends TestCase
     private function userWithRoles(string ...$roles): User
     {
         $user = User::factory()->create();
+        $role = collect($roles)
+            ->sortBy(fn (string $role): int => User::rolePriority($role))
+            ->first();
 
-        foreach ($roles as $role) {
-            $user->assignRole($role);
+        if ($role !== null) {
+            $user->syncRoles([$role]);
         }
 
         return $user;

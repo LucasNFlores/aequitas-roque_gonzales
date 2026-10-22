@@ -58,7 +58,7 @@ class ReporteFlowTest extends TestCase
             'reporte_id' => $report->id,
             'contenido_anterior' => 'Primera consulta completada.',
             'usuario_id' => $professional->id,
-            'usuario_nombre' => $professional->name,
+            'usuario_nombre' => $professional->nombre_completo,
         ]);
         $this->assertSame(now()->toDateString(), ReporteVersion::query()->sole()->fecha_anterior->toDateString());
 
@@ -124,7 +124,7 @@ class ReporteFlowTest extends TestCase
             'reporte_id' => $report->id,
             'contenido_anterior' => 'Contenido del profesional.',
             'usuario_id' => $administrator->id,
-            'usuario_nombre' => $administrator->name,
+            'usuario_nombre' => $administrator->nombre_completo,
         ]);
         $this->assertDatabaseHas('reportes', [
             'id' => $report->id,
@@ -158,7 +158,7 @@ class ReporteFlowTest extends TestCase
         $this->actingAs($administrator)
             ->get(route('legajos.show', $process->cliente))
             ->assertOk()
-            ->assertSee('Autor: '.$professional->name.' · Registrado por '.$administrator->name);
+            ->assertSee('Autor: '.$professional->nombre_completo.' · Registrado por '.$administrator->nombre_completo);
     }
 
     public function test_professional_report_scope_excludes_reports_from_processes_reassigned_to_someone_else(): void
@@ -264,7 +264,7 @@ class ReporteFlowTest extends TestCase
             'contenido_anterior' => 'Texto anterior confidencial.',
             'fecha_anterior' => now()->subDay()->toDateString(),
             'usuario_id' => $professional->id,
-            'usuario_nombre' => $professional->name,
+            'usuario_nombre' => $professional->nombre_completo,
             'fecha_cambio' => now(),
         ]);
         $historyUrl = route('procesos.reportes.historial', [$process, $report]);

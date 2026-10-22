@@ -1,6 +1,7 @@
 Table users {
   id bigint [pk, increment]
   name varchar
+  apellido varchar [null]
   email varchar [unique]
   email_verified_at timestamp [null]
   password varchar
@@ -36,6 +37,9 @@ Table model_has_roles {
   role_id bigint [ref: > roles.id]
   model_type varchar
   model_id bigint
+  Indexes {
+    (model_id, model_type) [unique, name: 'model_has_roles_one_role_per_model_unique']
+  }
 }
 
 Table role_has_permissions {

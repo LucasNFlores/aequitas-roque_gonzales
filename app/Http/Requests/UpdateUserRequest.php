@@ -24,6 +24,7 @@ class UpdateUserRequest extends FormRequest
 
         return [
             'name' => ['required', 'string', 'max:255'],
+            'apellido' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($userId)],
             'password' => ['nullable', 'string', 'min:4', 'max:255'],
             'dni' => ['nullable', 'string', 'max:20', Rule::unique('users', 'dni')->ignore($userId)],
@@ -31,8 +32,8 @@ class UpdateUserRequest extends FormRequest
             'domicilio' => ['nullable', 'string', 'max:255'],
             'fecha_nacimiento' => ['nullable', 'date', 'before:today'],
             'fecha_ingreso' => ['nullable', 'date'],
-            'roles' => ['nullable', 'array'],
-            'roles.*' => ['string', 'exists:roles,name'],
+            'role' => ['nullable', 'string', 'exists:roles,name'],
+            'roles' => ['prohibited'],
             'servicios' => ['nullable', 'array'],
             'servicios.*' => ['integer', 'exists:servicios,id'],
         ];

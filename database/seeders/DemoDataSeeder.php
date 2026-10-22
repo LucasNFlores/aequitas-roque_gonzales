@@ -120,9 +120,9 @@ class DemoDataSeeder extends Seeder
         $existingProfessional = User::query()->where('email', 'juanperez@example.com')->firstOrFail();
         $professionals = [$existingProfessional];
         $newProfessionals = [
-            ['name' => 'Dra. Paula Ríos', 'email' => 'profesional.civil@example.test', 'dni' => '40990001'],
-            ['name' => 'Dr. Andrés Luna', 'email' => 'profesional.familia@example.test', 'dni' => '40990002'],
-            ['name' => 'Dra. Micaela Paz', 'email' => 'profesional.comercial@example.test', 'dni' => '40990003'],
+            ['name' => 'Paula', 'apellido' => 'Ríos', 'email' => 'profesional.civil@example.test', 'dni' => '40990001'],
+            ['name' => 'Andrés', 'apellido' => 'Luna', 'email' => 'profesional.familia@example.test', 'dni' => '40990002'],
+            ['name' => 'Micaela', 'apellido' => 'Paz', 'email' => 'profesional.comercial@example.test', 'dni' => '40990003'],
         ];
 
         foreach ($newProfessionals as $index => $attributes) {
@@ -390,7 +390,7 @@ class DemoDataSeeder extends Seeder
                 $version->fill([
                     'contenido_anterior' => sprintf('[DEMO] Borrador anterior del informe %s.', $fixture['key']),
                     'fecha_anterior' => CarbonImmutable::now()->subMonths(5)->toDateString(),
-                    'usuario_nombre' => $coordinator->name,
+                    'usuario_nombre' => $coordinator->nombre_completo,
                     'usuario_id' => $coordinator->id,
                     'fecha_cambio' => CarbonImmutable::now()->subMonths(4),
                 ])->save();
