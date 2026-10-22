@@ -5,7 +5,7 @@
 - [ ] 3. Corregir el retorno desde el historial de reporte para volver al detalle del proceso del reporte.
 - [ ] 4. Corregir el retorno desde gestión documental para volver al detalle del proceso administrado.
 - [ ] 5. Agregar pruebas de regresión para los cuatro recorridos y confirmar que el acceso anidado y la transición de estado conservan su contexto.
-- [ ] 6. Cubrir los errores PATCH de cambio de estado identificados en la auditoría, preservando los casos permitidos existentes.
+- [ ] 6. Cubrir errores de validación y autorización del PATCH de estado, el caso permitido sin `motivo` (opcional en la petición, sin excepción en la actualización) y los casos permitidos existentes.
 - [ ] 7. Agregar pruebas unitarias de las reglas de Proceso::transitionTo que pueden probarse sin base de datos.
 - [ ] 8. Actualizar README.md para retirar el pendiente obsoleto y describir la visualización protegida del PDF.
 - [ ] 9. Sincronizar docs/diagrama-clases/diagrama-clases.md, docs/diagrama-clases/diagrama-clases.mermaid, docs/diagrama-clases/Diagrama de clases.drawio y docs/diagrama-clases/funcionamiento-diagrama-clases.md con modelos y migraciones, incluyendo proceso obligatorio en Turno y explicación de Legajo como consulta compuesta.

@@ -22,7 +22,7 @@ El contexto no concede autorización. Cada destino continúa resolviendo el clie
 ## Pruebas
 
 - Añadir cobertura de feature para los cuatro retornos y una regresión para acceso anidado y actualización de estado.
-- En las pruebas de PATCH de estado, verificar los casos de error de validación y autorización observados en la auditoría, además del camino permitido existente.
+- En las pruebas de PATCH de estado, verificar los casos de error de validación y autorización observados en la auditoría, además del camino permitido existente. Cubrir también el caso válido sin `motivo`: la petición ya lo declara opcional y la actualización no debe lanzar una excepción al recibirlo omitido.
 - Añadir pruebas unitarias de Proceso::transitionTo para las reglas que puedan verificarse con modelos en memoria: estado inexistente o inactivo y transición al mismo estado. No simular una persistencia exitosa como prueba unitaria.
 - Mantener las pruebas de integración existentes para escrituras que requieren base de datos.
 - Recorrer en navegador, en el entorno local aislado preparado por el coordinador y usando solo datos de prueba, el guion cliente → legajo → admitir/rechazar → asignar profesional → turno → documento → reporte → historial. Observar también una entrada inválida y un acceso denegado, y registrar evidencia reproducible. No usar servidores ni navegadores conectados a datos existentes.
@@ -37,6 +37,7 @@ El contexto no concede autorización. Cada destino continúa resolviendo el clie
 ## Compatibilidad y restricciones
 
 - No cambia la matriz Aequitas, los permisos, las políticas de acceso ni las reglas de negocio.
+- El caso de `motivo` omitido mantiene la opcionalidad de la petición vigente; el ajuste solo evita que la actualización falle al leer un dato ausente.
 - El contexto se usa solo como destino interno de retorno y no habilita acceso cruzado.
 - No se agrega un modelo, migración o tabla Legajo.
 - El cambio referencia detalle-proceso-legajo y formalizar-turnos-agenda-categorias como antecedentes; no reabre sus alcances.

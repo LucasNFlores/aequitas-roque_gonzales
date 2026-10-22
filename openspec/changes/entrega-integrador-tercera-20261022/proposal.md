@@ -6,12 +6,14 @@ La revisión del estado en origin/dev al 22 de octubre de 2026 encontró documen
 
 La auditoría de navegación detectó cuatro retornos que pierden el proceso de origen: después de agendar desde el detalle, después de editar el cliente desde el detalle, al regresar del historial de un reporte y al salir de la gestión documental. La especificación vigente no expresa ese comportamiento de retorno, por lo que se propone agregar un requisito acotado.
 
+La auditoría de errores PATCH encontró además que la petición permite omitir `motivo`, pero `ProcesoController::updateState()` accede a esa clave como si siempre existiera y lanza una excepción. Se requiere cubrir y manejar el caso de omisión de acuerdo con la validación existente, sin cambiar el requisito funcional.
+
 No se encontró en los documentos versionados ni en el historial revisado un informe previo de pruebas ni una plantilla de clase. El informe de esta entrega debe registrar evidencia obtenida al ejecutar las pruebas actuales, sin reutilizar cifras históricas.
 
 ## Alcance
 
 - Preservar el retorno al mismo detalle de proceso en los cuatro recorridos de navegación confirmados.
-- Añadir cobertura de regresión para esos recorridos y cubrir los errores de la petición PATCH de cambio de estado identificados en la auditoría.
+- Añadir cobertura de regresión para esos recorridos y cubrir los errores de la petición PATCH de cambio de estado identificados en la auditoría, incluida la omisión permitida de `motivo` sin excepción.
 - Añadir pruebas unitarias sin base de datos para las reglas de transición de Proceso que lo permitan.
 - Actualizar README y los diagramas de clases y secuencia con base en la implementación vigente.
 - Explicar el modelo centrado en Cliente y Proceso sin representar Legajo como clase persistente.
@@ -39,6 +41,7 @@ Ejecutar las pruebas dirigidas después de implementar los cambios y documentar 
 - Los accesos anidados y las transiciones de estado que ya conservan contexto siguen haciéndolo.
 - Un recorrido en navegador, ejecutado con datos de prueba en el entorno local aislado preparado para esta entrega, cubre cliente, legajo, admisión, rechazo, asignación de profesional, turno, documento, reporte e historial, y observa una entrada inválida y un acceso denegado.
 - Las pruebas PHPUnit cubren los errores relevantes de PATCH de estado y las reglas puras de transición que no requieren persistencia.
+- Una petición PATCH válida sin `motivo` no produce una excepción; los casos de validación, autorización y actualización permitida existentes siguen cubiertos.
 - README describe la visualización privada existente de comprobantes y no la marca como pendiente.
 - Los artefactos de clases coinciden entre sí y con los modelos y migraciones actuales; no presentan Legajo como modelo.
 - CU-4 y CU-4.1 describen los componentes actuales y la asociación obligatoria con Proceso.
@@ -51,6 +54,7 @@ Ejecutar las pruebas dirigidas después de implementar los cambios y documentar 
 - Los formatos Mermaid, Markdown y draw.io pueden divergir si se corrige solo una representación; validarlos en conjunto.
 - Un informe preparado antes de ejecutar las pruebas podría presentar resultados supuestos; completar resultados y evidencias después de la ejecución.
 - Algunos casos no tienen cobertura específica hoy; las tareas deben agregar aserciones sin debilitar las pruebas existentes.
+- La corrección del acceso a `motivo` debe respetar su opcionalidad declarada por la petición y no agregar una regla nueva de negocio.
 - El recorrido en navegador depende de que esté preparado el entorno local aislado; no usar datos ni servicios existentes para sustituirlo.
 
 ## Referencias
