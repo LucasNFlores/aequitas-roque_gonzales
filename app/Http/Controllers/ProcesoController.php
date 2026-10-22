@@ -95,7 +95,7 @@ class ProcesoController extends Controller
         $estado = EstadoProceso::query()->active()->where('slug', $validated['estado'])->firstOrFail();
 
         DB::transaction(function () use ($proceso, $estado, $validated): void {
-            $proceso->transitionTo($estado, $validated['motivo'] ?: null);
+            $proceso->transitionTo($estado, $validated['motivo'] ?? null);
         });
 
         return redirect()
