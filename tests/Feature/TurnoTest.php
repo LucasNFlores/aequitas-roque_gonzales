@@ -111,7 +111,7 @@ class TurnoTest extends TestCase
             ->set($this->fillNewTurno(['fechaHora' => $turnoDate]))
             ->call('save')
             ->assertHasNoErrors()
-            ->assertRedirect();
+            ->assertRedirect(route('turnos.show', Turno::query()->latest('id')->firstOrFail()));
 
         $this->assertDatabaseHas('turnos', [
             'cliente_id' => $this->cliente->id,

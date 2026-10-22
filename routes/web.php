@@ -122,7 +122,7 @@ Route::middleware(['auth', 'permission:consultar_informe_documental'])->group(fu
 // MÓDULO DOCUMENTAL — ruta anidada por proceso (CU9-12, CU19, CU37)
 // -----------------------------------------------------------------------------
 Route::middleware(['auth', 'permission:visualizar_documentacion'])->group(function () {
-    Route::get('/procesos/{proceso}/documentos', fn (Proceso $proceso) => view('documentos.index', compact('proceso')))->name('procesos.documentos.index');
+    Route::get('/procesos/{proceso}/documentos', [DocumentoController::class, 'index'])->name('procesos.documentos.index');
 });
 
 Route::middleware(['auth'])->group(function () {
@@ -185,7 +185,18 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/turnos', fn () => view('turnos.index'))
         ->middleware('permission:ver_agenda_profesional')
         ->name('turnos.index');
-    Route::get('/turnos/create', fn () => view('turnos.create'))
+    Route::get('/turnos/create', function (Request $request) {
+        $readPositiveId = static function (mixed $value): ?int {
+            $id = filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+
+            return $id === false ? null : $id;
+        };
+
+        return view('turnos.create', [
+            'returnClienteId' => $readPositiveId($request->query('return_cliente_id')),
+            'returnProcesoId' => $readPositiveId($request->query('return_proceso_id')),
+        ]);
+    })
         ->middleware('permission:agendar_turnos_internos|agendar_turnos_seguimiento')
         ->name('turnos.create');
     Route::get('/turnos/externos/create', fn () => view('turnos.externos.create'))

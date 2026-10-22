@@ -7,6 +7,7 @@ use App\Http\Requests\StoreClienteRequest;
 use App\Http\Requests\UpdateClienteRequest;
 use App\Models\Cliente;
 use App\Models\EstadoProceso;
+use App\Models\Proceso;
 use App\Models\User;
 use DomainException;
 use Illuminate\Database\Eloquent\Builder;
@@ -109,11 +110,25 @@ class ClienteController extends Controller
         return view('clientes.show', compact('cliente'));
     }
 
-    public function edit(Cliente $cliente): View
+    public function edit(Request $request, Cliente $cliente): View
     {
         $this->authorize('update', $cliente);
 
-        return view('clientes.edit', compact('cliente'));
+        $returnProcess = $this->returnProcessFromContext($request, $cliente);
+        $updateParameters = ['cliente' => $cliente];
+
+        if ($returnProcess instanceof Proceso) {
+            $updateParameters['return_cliente_id'] = $cliente->id;
+            $updateParameters['return_proceso_id'] = $returnProcess->id;
+        }
+
+        return view('clientes.edit', [
+            'cliente' => $cliente,
+            'updateUrl' => route('clientes.update', $updateParameters),
+            'returnUrl' => $returnProcess instanceof Proceso
+                ? route('legajos.procesos.show', [$cliente, $returnProcess])
+                : route('clientes.index'),
+        ]);
     }
 
     public function update(UpdateClienteRequest $request, Cliente $cliente): RedirectResponse
@@ -121,6 +136,14 @@ class ClienteController extends Controller
         $this->authorize('update', $cliente);
 
         $cliente->update($request->validated());
+
+        $returnProcess = $this->returnProcessFromContext($request, $cliente);
+
+        if ($returnProcess instanceof Proceso) {
+            return redirect()
+                ->route('legajos.procesos.show', [$cliente, $returnProcess])
+                ->with('success', 'Cliente actualizado correctamente.');
+        }
 
         return redirect()->route('clientes.index')->with('success', 'Cliente actualizado correctamente.');
     }
@@ -132,5 +155,26 @@ class ClienteController extends Controller
         $cliente->delete();
 
         return redirect()->route('clientes.index')->with('success', 'Cliente eliminado correctamente.');
+    }
+
+    private function returnProcessFromContext(Request $request, Cliente $cliente): ?Proceso
+    {
+        $user = $request->user();
+        $returnClienteId = filter_var($request->query('return_cliente_id'), FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        $returnProcesoId = filter_var($request->query('return_proceso_id'), FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+
+        if (
+            ! $user instanceof User
+            || $returnClienteId !== $cliente->id
+            || $returnProcesoId === false
+            || ! $user->can('viewLegajo', $cliente)
+        ) {
+            return null;
+        }
+
+        return $cliente->procesos()
+            ->visibleTo($user)
+            ->whereKey($returnProcesoId)
+            ->first();
     }
 }

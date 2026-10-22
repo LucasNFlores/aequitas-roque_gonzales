@@ -287,6 +287,23 @@ class ReporteFlowTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_report_history_returns_to_its_process_detail(): void
+    {
+        $professional = $this->userWithRole('Profesional');
+        $process = $this->processFor($professional);
+        $report = Reporte::factory()->create([
+            'proceso_id' => $process->id,
+            'profesional_id' => $professional->id,
+        ]);
+        $detailUrl = route('legajos.procesos.show', [$process->cliente_id, $process]);
+
+        $this->actingAs($professional)
+            ->get(route('procesos.reportes.historial', [$process, $report]))
+            ->assertOk()
+            ->assertSee('Volver al proceso')
+            ->assertSee($detailUrl);
+    }
+
     public function test_professional_author_cannot_access_history_after_process_assignment_changes(): void
     {
         $author = $this->userWithRole('Profesional');

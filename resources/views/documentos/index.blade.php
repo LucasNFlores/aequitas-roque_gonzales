@@ -4,7 +4,7 @@
             <h2 class="text-xl font-semibold leading-tight text-ink">
                 Documentación — {{ $proceso->nombre }} ({{ $proceso->cliente->apellido }}, {{ $proceso->cliente->nombre }})
             </h2>
-            <a href="{{ route('procesos.index') }}" class="text-sm font-medium text-aequitas-900 hover:text-aequitas-900">← Volver a procesos</a>
+            <a href="{{ $returnUrl }}" class="text-sm font-medium text-aequitas-900 hover:text-aequitas-900">← {{ $returnLabel }}</a>
         </div>
     </x-slot>
 
