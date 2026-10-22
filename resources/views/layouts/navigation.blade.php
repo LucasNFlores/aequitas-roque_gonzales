@@ -49,23 +49,33 @@
 
         <div class="flex flex-1 flex-col gap-8 overflow-y-auto px-4 py-6">
             <div>
-                <p class="px-3 text-xs font-semibold uppercase tracking-wider text-muted">{{ __('Navegación') }}</p>
-
-                <div class="mt-4 flex flex-col gap-6">
-                    <div class="space-y-2">
-                        <p class="px-3 text-[11px] font-semibold uppercase tracking-wider text-muted">{{ __('Inicio') }}</p>
-                        <x-navigation.nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                            <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 13h8V3H3v10Zm10 8h8V11h-8v10ZM3 21h8v-6H3v6Zm10-12h8V3h-8v6Z" />
+                <div class="flex flex-col gap-3">
+                    <div class="space-y-1" x-data="{ sectionOpen: @js(request()->routeIs('dashboard')) }">
+                        <button type="button" @click="sectionOpen = ! sectionOpen" aria-expanded="false" x-bind:aria-expanded="sectionOpen.toString()" aria-controls="sidebar-group-home" class="flex min-h-11 w-full items-center justify-between gap-3 rounded-control px-3 text-[10px] font-semibold uppercase tracking-wide text-muted transition hover:bg-aequitas-50 hover:text-aequitas-900 focus:outline-none focus:ring-2 focus:ring-gold-600 focus:ring-offset-2">
+                            <span>{{ __('Inicio') }}</span>
+                            <svg class="h-4 w-4 shrink-0 transition-transform" :class="{ 'rotate-180': sectionOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="m6 9 6 6 6-6" />
                             </svg>
-                            <span>{{ __('Dashboard') }}</span>
-                        </x-navigation.nav-link>
+                        </button>
+                        <div id="sidebar-group-home" x-show="sectionOpen" x-cloak x-transition class="flex flex-col gap-1">
+                            <x-navigation.nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                                <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 13h8V3H3v10Zm10 8h8V11h-8v10ZM3 21h8v-6H3v6Zm10-12h8V3h-8v6Z" />
+                                </svg>
+                                <span>{{ __('Dashboard') }}</span>
+                            </x-navigation.nav-link>
+                        </div>
                     </div>
 
                     @if (Auth::user()->canAny(['listar_filtrar_clientes', 'consultar_legajos', 'listar_filtrar_procesos', 'ver_agenda_profesional']))
-                        <div class="space-y-2">
-                            <p class="px-3 text-[11px] font-semibold uppercase tracking-wider text-muted">{{ __('Gestión jurídica') }}</p>
-                            <div class="flex flex-col gap-2">
+                        <div class="space-y-1" x-data="{ sectionOpen: @js(request()->routeIs('clientes.*', 'legajos.*', 'procesos.*', 'turnos.*')) }">
+                            <button type="button" @click="sectionOpen = ! sectionOpen" aria-expanded="false" x-bind:aria-expanded="sectionOpen.toString()" aria-controls="sidebar-group-legal" class="flex min-h-11 w-full items-center justify-between gap-3 rounded-control px-3 text-[10px] font-semibold uppercase tracking-wide text-muted transition hover:bg-aequitas-50 hover:text-aequitas-900 focus:outline-none focus:ring-2 focus:ring-gold-600 focus:ring-offset-2">
+                                <span>{{ __('Gestión jurídica') }}</span>
+                                <svg class="h-4 w-4 shrink-0 transition-transform" :class="{ 'rotate-180': sectionOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="m6 9 6 6 6-6" />
+                                </svg>
+                            </button>
+                            <div id="sidebar-group-legal" x-show="sectionOpen" x-cloak x-transition class="flex flex-col gap-1">
                                 @can('listar_filtrar_clientes')
                                     <x-navigation.nav-link :href="route('clientes.index')" :active="request()->routeIs('clientes.*')">
                                         <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -107,9 +117,14 @@
                     @endif
 
                     @if (Auth::user()->canAny(['listar_usuarios', 'asignar_especialidad_servicio', 'gestionar_servicios', 'gestionar_estados_proceso', 'gestionar_categorias_documentos']))
-                        <div class="space-y-2">
-                            <p class="px-3 text-[11px] font-semibold uppercase tracking-wider text-muted">{{ __('Administración') }}</p>
-                            <div class="flex flex-col gap-2">
+                        <div class="space-y-1" x-data="{ sectionOpen: @js(request()->routeIs('users.*', 'profesionales.servicios.*', 'servicios.*', 'estados-proceso.*', 'categorias.*')) }">
+                            <button type="button" @click="sectionOpen = ! sectionOpen" aria-expanded="false" x-bind:aria-expanded="sectionOpen.toString()" aria-controls="sidebar-group-administration" class="flex min-h-11 w-full items-center justify-between gap-3 rounded-control px-3 text-[10px] font-semibold uppercase tracking-wide text-muted transition hover:bg-aequitas-50 hover:text-aequitas-900 focus:outline-none focus:ring-2 focus:ring-gold-600 focus:ring-offset-2">
+                                <span>{{ __('Administración') }}</span>
+                                <svg class="h-4 w-4 shrink-0 transition-transform" :class="{ 'rotate-180': sectionOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="m6 9 6 6 6-6" />
+                                </svg>
+                            </button>
+                            <div id="sidebar-group-administration" x-show="sectionOpen" x-cloak x-transition class="flex flex-col gap-1">
                                 @can('listar_usuarios')
                                     <x-navigation.nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
                                         <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -159,9 +174,14 @@
                     @endif
 
                     @if (Auth::user()->canAny(['gestionar_categorias_documentos', 'ver_comprobantes_pago']))
-                        <div class="space-y-2">
-                            <p class="px-3 text-[11px] font-semibold uppercase tracking-wider text-muted">{{ __('Informes') }}</p>
-                            <div class="flex flex-col gap-2">
+                        <div class="space-y-1" x-data="{ sectionOpen: @js(request()->routeIs('comprobantes.*', 'reportes.documentos.*')) }">
+                            <button type="button" @click="sectionOpen = ! sectionOpen" aria-expanded="false" x-bind:aria-expanded="sectionOpen.toString()" aria-controls="sidebar-group-reports" class="flex min-h-11 w-full items-center justify-between gap-3 rounded-control px-3 text-[10px] font-semibold uppercase tracking-wide text-muted transition hover:bg-aequitas-50 hover:text-aequitas-900 focus:outline-none focus:ring-2 focus:ring-gold-600 focus:ring-offset-2">
+                                <span>{{ __('Informes') }}</span>
+                                <svg class="h-4 w-4 shrink-0 transition-transform" :class="{ 'rotate-180': sectionOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="m6 9 6 6 6-6" />
+                                </svg>
+                            </button>
+                            <div id="sidebar-group-reports" x-show="sectionOpen" x-cloak x-transition class="flex flex-col gap-1">
                                 @can('ver_comprobantes_pago')
                                     <x-navigation.nav-link :href="route('comprobantes.index')" :active="request()->routeIs('comprobantes.*')">
                                         <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
