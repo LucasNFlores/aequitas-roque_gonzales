@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\EstadoProceso;
 use App\Models\Proceso;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -32,6 +31,18 @@ class UpdateProcesoStateRequest extends FormRequest
         ];
     }
 
+    /** @return array<string, string> */
+    public function messages(): array
+    {
+        return [
+            'estado.required' => 'Selecciona un estado.',
+            'estado.string' => 'El estado seleccionado no es válido.',
+            'estado.exists' => 'El estado seleccionado ya no está disponible.',
+            'motivo.string' => 'El motivo debe ser un texto.',
+            'motivo.max' => 'El motivo no puede superar los 5000 caracteres.',
+        ];
+    }
+
     /**
      * @return array<int, callable(Validator): void>
      */
@@ -49,9 +60,6 @@ class UpdateProcesoStateRequest extends FormRequest
                 $validator->errors()->add('estado', 'Utiliza las acciones de admisión o rechazo para ese estado.');
             }
 
-            if (is_string($estado) && ! EstadoProceso::query()->active()->where('slug', $estado)->exists()) {
-                $validator->errors()->add('estado', 'El estado seleccionado no está activo.');
-            }
         }];
     }
 }
