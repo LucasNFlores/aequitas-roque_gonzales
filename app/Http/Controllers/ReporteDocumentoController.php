@@ -37,8 +37,8 @@ class ReporteDocumentoController extends Controller
             $canvas->line(55, 36, 63, 54, [1, 1, 1], 2.5);
             $canvas->line(50, 48, 60, 48, [1, 1, 1], 2.5);
             $canvas->text(90, 35, 'AEQUITAS GESTIÓN', $boldFont, 15, $navy);
-            $canvas->text(90, 50, 'Estudio jurídico - Sistemas de gestión', $normalFont, 10, $gray);
-            $canvas->text(90, 65, 'Av. del Parque 1250, Posadas, Misiones · Tel. (0376) 400-0000 · informes@aequitas.example', $normalFont, 8, $gray);
+            $canvas->text(90, 53, 'Estudio jurídico - Sistemas de gestión', $normalFont, 10, $gray);
+            $canvas->text(90, 68, 'Av. del Parque 1250, Posadas, Misiones · Tel. (0376) 400-0000 · informes@aequitas.example', $normalFont, 8, $gray);
             $canvas->line(35, 85, $canvas->get_width() - 35, 85, $navy, 2);
             $canvas->line(35, 790, $canvas->get_width() - 35, 790, [0.6, 0.6, 0.6], 0.8);
             $canvas->text(35, 808, 'AEQUITAS Gestión · Uso interno · Informe documental', $normalFont, 9, $gray);
