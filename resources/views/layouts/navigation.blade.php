@@ -51,156 +51,194 @@
             <div>
                 <p class="px-3 text-xs font-semibold uppercase tracking-wider text-muted">{{ __('Navegación') }}</p>
 
-                <div class="mt-3 flex flex-col gap-2">
-                    <x-navigation.nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 13h8V3H3v10Zm10 8h8V11h-8v10ZM3 21h8v-6H3v6Zm10-12h8V3h-8v6Z" />
-                        </svg>
-                        <span>{{ __('Dashboard') }}</span>
-                    </x-navigation.nav-link>
+                <div class="mt-4 flex flex-col gap-6">
+                    <div class="space-y-2">
+                        <p class="px-3 text-[11px] font-semibold uppercase tracking-wider text-muted">{{ __('Inicio') }}</p>
+                        <x-navigation.nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                            <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 13h8V3H3v10Zm10 8h8V11h-8v10ZM3 21h8v-6H3v6Zm10-12h8V3h-8v6Z" />
+                            </svg>
+                            <span>{{ __('Dashboard') }}</span>
+                        </x-navigation.nav-link>
+                    </div>
 
-                    @can('listar_usuarios')
-                        <x-navigation.nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
-                            <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m6-10a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm8-3v6m3-3h-6" />
-                            </svg>
-                            <span>{{ __('Usuarios y Roles') }}</span>
-                        </x-navigation.nav-link>
-                    @endcan
+                    @if (Auth::user()->canAny(['listar_filtrar_clientes', 'consultar_legajos', 'listar_filtrar_procesos', 'ver_agenda_profesional']))
+                        <div class="space-y-2">
+                            <p class="px-3 text-[11px] font-semibold uppercase tracking-wider text-muted">{{ __('Gestión jurídica') }}</p>
+                            <div class="flex flex-col gap-2">
+                                @can('listar_filtrar_clientes')
+                                    <x-navigation.nav-link :href="route('clientes.index')" :active="request()->routeIs('clientes.*')">
+                                        <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-6 8a6 6 0 0 1 12 0v1H6v-1Z" />
+                                        </svg>
+                                        <span>{{ __('Clientes') }}</span>
+                                    </x-navigation.nav-link>
+                                @endcan
 
-                    @can('asignar_especialidad_servicio')
-                        <x-navigation.nav-link :href="route('profesionales.servicios.index')" :active="request()->routeIs('profesionales.servicios.*')">
-                            <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m6-10a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm12 2h-6m3-3v6" />
-                            </svg>
-                            <span>{{ __('Servicios por profesional') }}</span>
-                        </x-navigation.nav-link>
-                    @endcan
+                                @can('consultar_legajos')
+                                    <x-navigation.nav-link :href="route('legajos.index')" :active="request()->routeIs('legajos.*')">
+                                        <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5 3.75h9.5L19 8.25v12A1.75 1.75 0 0 1 17.25 22h-12A1.75 1.75 0 0 1 3.5 20.25V5.5A1.75 1.75 0 0 1 5.25 3.75ZM14 4v5h5M7.5 13h7m-7 3.5h9" />
+                                        </svg>
+                                        <span>{{ __('Legajos') }}</span>
+                                    </x-navigation.nav-link>
+                                @endcan
 
-                    @can('gestionar_servicios')
-                        <x-navigation.nav-link :href="route('servicios.index')" :active="request()->routeIs('servicios.*')">
-                            <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 6V4m0 16v-2m6-6h2M4 12H2m14.24-4.24 1.42-1.42M6.34 17.66l-1.42 1.42m0-14.14 1.42 1.42m10.32 11.3 1.42 1.42M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z" />
-                            </svg>
-                            <span>{{ __('Servicios') }}</span>
-                        </x-navigation.nav-link>
-                    @endcan
-                    @can('listar_filtrar_clientes')
-                        <x-navigation.nav-link :href="route('clientes.index')" :active="request()->routeIs('clientes.*')">
-                            <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-6 8a6 6 0 0 1 12 0v1H6v-1Z" />
-                            </svg>
-                            <span>{{ __('Clientes') }}</span>
-                        </x-navigation.nav-link>
-                    @endcan
+                                @can('listar_filtrar_procesos')
+                                    <x-navigation.nav-link :href="route('procesos.index')" :active="request()->routeIs('procesos.*')">
+                                        <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3.75 7.5A2.25 2.25 0 0 1 6 5.25h3.75L12 7.5h6A2.25 2.25 0 0 1 20.25 9.75v.75H6.5a2.75 2.75 0 0 0-2.66 2.05L2.25 18.75V7.5Z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="m2.25 18.75 1.59-5.95A2.75 2.75 0 0 1 6.5 10.75h15.25l-1.58 5.93a3.75 3.75 0 0 1-3.63 2.82H4.5a2.25 2.25 0 0 1-2.25-2.25v-.5Zm7.5-4.5h7.5m-7.5 3h5" />
+                                        </svg>
+                                        <span>{{ __('Procesos') }}</span>
+                                    </x-navigation.nav-link>
+                                @endcan
 
-                    @can('consultar_legajos')
-                        <x-navigation.nav-link :href="route('legajos.index')" :active="request()->routeIs('legajos.*')">
-                            <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5 3.75h9.5L19 8.25v12A1.75 1.75 0 0 1 17.25 22h-12A1.75 1.75 0 0 1 3.5 20.25V5.5A1.75 1.75 0 0 1 5.25 3.75ZM14 4v5h5M7.5 13h7m-7 3.5h9" />
-                            </svg>
-                            <span>{{ __('Legajos') }}</span>
-                        </x-navigation.nav-link>
-                    @endcan
+                                @can('ver_agenda_profesional')
+                                    <x-navigation.nav-link :href="route('turnos.index')" :active="request()->routeIs('turnos.*')">
+                                        <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 2v3m8-3v3M3.5 9.5h17M5 4.5h14a1.5 1.5 0 0 1 1.5 1.5v13A1.5 1.5 0 0 1 19 20.5H5A1.5 1.5 0 0 1 3.5 19V6A1.5 1.5 0 0 1 5 4.5Z" />
+                                        </svg>
+                                        <span>{{ __('Turnos') }}</span>
+                                    </x-navigation.nav-link>
+                                @endcan
+                            </div>
+                        </div>
+                    @endif
 
-                    @can('listar_filtrar_procesos')
-                        <x-navigation.nav-link :href="route('procesos.index')" :active="request()->routeIs('procesos.*')">
-                            <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3.75 7.5A2.25 2.25 0 0 1 6 5.25h3.75L12 7.5h6A2.25 2.25 0 0 1 20.25 9.75v.75H6.5a2.75 2.75 0 0 0-2.66 2.05L2.25 18.75V7.5Z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="m2.25 18.75 1.59-5.95A2.75 2.75 0 0 1 6.5 10.75h15.25l-1.58 5.93a3.75 3.75 0 0 1-3.63 2.82H4.5a2.25 2.25 0 0 1-2.25-2.25v-.5Zm7.5-4.5h7.5m-7.5 3h5" />
-                            </svg>
-                            <span>{{ __('Procesos') }}</span>
-                        </x-navigation.nav-link>
-                    @endcan
+                    @if (Auth::user()->canAny(['listar_usuarios', 'asignar_especialidad_servicio', 'gestionar_servicios', 'gestionar_estados_proceso', 'gestionar_categorias_documentos']))
+                        <div class="space-y-2">
+                            <p class="px-3 text-[11px] font-semibold uppercase tracking-wider text-muted">{{ __('Administración') }}</p>
+                            <div class="flex flex-col gap-2">
+                                @can('listar_usuarios')
+                                    <x-navigation.nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
+                                        <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m6-10a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm8-3v6m3-3h-6" />
+                                        </svg>
+                                        <span>{{ __('Usuarios y Roles') }}</span>
+                                    </x-navigation.nav-link>
+                                @endcan
 
-                    @can('ver_comprobantes_pago')
-                        <x-navigation.nav-link :href="route('comprobantes.index')" :active="request()->routeIs('comprobantes.*')">
-                            <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 3.75h7.25L19 8.5v11.75A1.75 1.75 0 0 1 17.25 22h-10.5A1.75 1.75 0 0 1 5 20.25v-14.5A1.75 1.75 0 0 1 6.75 4H7Z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M14 3.75V9h5M8.5 13h7m-7 3.5h5" />
-                            </svg>
-                            <span>{{ __('Comprobantes') }}</span>
-                        </x-navigation.nav-link>
-                    @endcan
+                                @can('asignar_especialidad_servicio')
+                                    <x-navigation.nav-link :href="route('profesionales.servicios.index')" :active="request()->routeIs('profesionales.servicios.*')">
+                                        <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m6-10a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm12 2h-6m3-3v6" />
+                                        </svg>
+                                        <span>{{ __('Servicios por profesional') }}</span>
+                                    </x-navigation.nav-link>
+                                @endcan
 
-                    @can('gestionar_estados_proceso')
-                        <x-navigation.nav-link :href="route('estados-proceso.index')" :active="request()->routeIs('estados-proceso.*')">
-                            <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5 6h14M5 12h14M5 18h14M8 6v0m4 6v0m-2 6v0" />
-                            </svg>
-                            <span>{{ __('Estados de proceso') }}</span>
-                        </x-navigation.nav-link>
-                    @endcan
+                                @can('gestionar_servicios')
+                                    <x-navigation.nav-link :href="route('servicios.index')" :active="request()->routeIs('servicios.*')">
+                                        <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 6V4m0 16v-2m6-6h2M4 12H2m14.24-4.24 1.42-1.42M6.34 17.66l-1.42 1.42m0-14.14 1.42 1.42m10.32 11.3 1.42 1.42M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z" />
+                                        </svg>
+                                        <span>{{ __('Servicios') }}</span>
+                                    </x-navigation.nav-link>
+                                @endcan
 
-                    @can('gestionar_categorias_documentos')
-                        <x-navigation.nav-link :href="route('categorias.index')" :active="request()->routeIs('categorias.*')">
-                            <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3.75 6H7l1.5 2h8L18 6h2.25A1.5 1.5 0 0 1 21.75 7.5V18a1.5 1.5 0 0 1-1.5 1.5H3.75A1.5 1.5 0 0 1 2.25 18V7.5A1.5 1.5 0 0 1 3.75 6Z" />
-                            </svg>
-                            <span>{{ __('Categorías') }}</span>
-                        </x-navigation.nav-link>
-                        <x-navigation.nav-link :href="route('reportes.documentos.index')" :active="request()->routeIs('reportes.documentos.*')">
-                            <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 3.75h7.25L19 8.5v11.75A1.75 1.75 0 0 1 17.25 22h-10.5A1.75 1.75 0 0 1 5 20.25v-14.5A1.75 1.75 0 0 1 6.75 4H7Zm7.25 0V9H19M8.5 13h7m-7 3.5h7" />
-                            </svg>
-                            <span>{{ __('Informe documental') }}</span>
-                        </x-navigation.nav-link>
-                    @endcan
+                                @can('gestionar_estados_proceso')
+                                    <x-navigation.nav-link :href="route('estados-proceso.index')" :active="request()->routeIs('estados-proceso.*')">
+                                        <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5 6h14M5 12h14M5 18h14M8 6v0m4 6v0m-2 6v0" />
+                                        </svg>
+                                        <span>{{ __('Estados de proceso') }}</span>
+                                    </x-navigation.nav-link>
+                                @endcan
 
-                    @can('ver_agenda_profesional')
-                        <x-navigation.nav-link :href="route('turnos.index')" :active="request()->routeIs('turnos.*')">
-                            <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 2v3m8-3v3M3.5 9.5h17M5 4.5h14a1.5 1.5 0 0 1 1.5 1.5v13A1.5 1.5 0 0 1 19 20.5H5A1.5 1.5 0 0 1 3.5 19V6A1.5 1.5 0 0 1 5 4.5Z" />
-                            </svg>
-                            <span>{{ __('Turnos') }}</span>
-                        </x-navigation.nav-link>
-                    @endcan
+                                @can('gestionar_categorias_documentos')
+                                    <x-navigation.nav-link :href="route('categorias.index')" :active="request()->routeIs('categorias.*')">
+                                        <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3.75 6H7l1.5 2h8L18 6h2.25A1.5 1.5 0 0 1 21.75 7.5V18a1.5 1.5 0 0 1-1.5 1.5H3.75A1.5 1.5 0 0 1 2.25 18V7.5A1.5 1.5 0 0 1 3.75 6Z" />
+                                        </svg>
+                                        <span>{{ __('Categorías') }}</span>
+                                    </x-navigation.nav-link>
+                                @endcan
+                            </div>
+                        </div>
+                    @endif
 
+                    @if (Auth::user()->canAny(['gestionar_categorias_documentos', 'ver_comprobantes_pago']))
+                        <div class="space-y-2">
+                            <p class="px-3 text-[11px] font-semibold uppercase tracking-wider text-muted">{{ __('Informes') }}</p>
+                            <div class="flex flex-col gap-2">
+                                @can('ver_comprobantes_pago')
+                                    <x-navigation.nav-link :href="route('comprobantes.index')" :active="request()->routeIs('comprobantes.*')">
+                                        <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 3.75h7.25L19 8.5v11.75A1.75 1.75 0 0 1 17.25 22h-10.5A1.75 1.75 0 0 1 5 20.25v-14.5A1.75 1.75 0 0 1 6.75 4H7Z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M14 3.75V9h5M8.5 13h7m-7 3.5h5" />
+                                        </svg>
+                                        <span>{{ __('Comprobantes') }}</span>
+                                    </x-navigation.nav-link>
+                                @endcan
+                                @can('gestionar_categorias_documentos')
+                                    <x-navigation.nav-link :href="route('reportes.documentos.index')" :active="request()->routeIs('reportes.documentos.*')">
+                                        <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 3.75h7.25L19 8.5v11.75A1.75 1.75 0 0 1 17.25 22h-10.5A1.75 1.75 0 0 1 5 20.25v-14.5A1.75 1.75 0 0 1 6.75 4H7Zm7.25 0V9H19M8.5 13h7m-7 3.5h7" />
+                                        </svg>
+                                        <span>{{ __('Informe documental') }}</span>
+                                    </x-navigation.nav-link>
+                                @endcan
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
 
-            <div class="mt-auto border-t border-gray-100 pt-5">
-                <div class="mb-5 px-3">
+            <div class="mt-auto border-t border-line pt-4" x-data="{ accountMenuOpen: false }" @keydown.escape.window="accountMenuOpen = false">
+                <div class="px-1" @click.outside="accountMenuOpen = false">
                     <button
                         type="button"
-                        data-theme-toggle
-                        class="flex min-h-11 w-full items-center gap-3 rounded-control px-3 py-2.5 text-start text-sm font-medium text-muted transition hover:bg-aequitas-50 hover:text-aequitas-900 focus:outline-none focus:ring-2 focus:ring-gold-600 focus:ring-offset-2"
+                        @click="accountMenuOpen = ! accountMenuOpen"
+                        aria-expanded="false"
+                        :aria-expanded="accountMenuOpen.toString()"
+                        aria-controls="sidebar-account-actions"
+                        class="flex min-h-14 w-full items-center gap-3 rounded-control px-3 py-2 text-start transition hover:bg-aequitas-50 focus:outline-none focus:ring-2 focus:ring-gold-600 focus:ring-offset-2"
                     >
-                        <svg data-theme-icon="dark" class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20.25 15.25A8.25 8.25 0 0 1 8.75 3.75 8.25 8.25 0 1 0 20.25 15.25Z" />
+                        <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-aequitas-50 text-sm font-semibold text-aequitas-900">
+                            {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                        </span>
+                        <span class="min-w-0 flex-1">
+                            <span class="block truncate text-sm font-semibold text-ink">{{ Auth::user()->name }}</span>
+                            <span class="block truncate text-xs text-muted">{{ Auth::user()->getRoleNames()->implode(', ') }}</span>
+                        </span>
+                        <svg class="h-4 w-4 shrink-0 text-muted transition-transform" :class="{ 'rotate-180': accountMenuOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="m6 9 6 6 6-6" />
                         </svg>
-                        <svg data-theme-icon="light" class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" hidden>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3v2m0 14v2M5.64 5.64l1.42 1.42m9.88 9.88 1.42 1.42M3 12h2m14 0h2M5.64 18.36l1.42-1.42m9.88-9.88 1.42-1.42M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z" />
-                        </svg>
-                        <span data-theme-toggle-label>{{ __('Modo oscuro') }}</span>
                     </button>
-                </div>
-                <div class="flex flex-col gap-2">
-                    <x-navigation.nav-link :href="route('profile.edit')" :active="request()->routeIs('profile.*')">
-                        <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm7.4-3.5a7.42 7.42 0 0 0-.1-1.2l2-1.55-2-3.46-2.37.95a7.2 7.2 0 0 0-2.08-1.2L14.5 3h-5l-.35 2.54a7.2 7.2 0 0 0-2.08 1.2L4.7 5.8l-2 3.46 2 1.55a7.42 7.42 0 0 0-.1 1.2c0 .4.04.8.1 1.2l-2 1.55 2 3.46 2.37-.95a7.2 7.2 0 0 0 2.08 1.2L9.5 21h5l.35-2.54a7.2 7.2 0 0 0 2.08-1.2l2.37.95 2-3.46-2-1.55c.06-.4.1-.8.1-1.2Z" />
-                        </svg>
-                        <span>{{ __('Perfil') }}</span>
-                    </x-navigation.nav-link>
 
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="flex min-h-[44px] w-full items-center gap-3 rounded-control px-3 py-2.5 text-start text-sm font-medium text-muted transition hover:bg-red-50 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-negative">
+                    <div id="sidebar-account-actions" x-show="accountMenuOpen" x-cloak x-transition class="mt-2 flex flex-col gap-1">
+                        <div class="px-2">
+                            <button
+                                type="button"
+                                data-theme-toggle
+                                class="flex min-h-11 w-full items-center gap-3 rounded-control px-3 py-2.5 text-start text-sm font-medium text-muted transition hover:bg-aequitas-50 hover:text-aequitas-900 focus:outline-none focus:ring-2 focus:ring-gold-600 focus:ring-offset-2"
+                            >
+                                <svg data-theme-icon="dark" class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20.25 15.25A8.25 8.25 0 0 1 8.75 3.75 8.25 8.25 0 1 0 20.25 15.25Z" />
+                                </svg>
+                                <svg data-theme-icon="light" class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" hidden>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3v2m0 14v2M5.64 5.64l1.42 1.42m9.88 9.88 1.42 1.42M3 12h2m14 0h2M5.64 18.36l-1.42-1.42m9.88-9.88 1.42-1.42M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z" />
+                                </svg>
+                                <span data-theme-toggle-label>{{ __('Modo oscuro') }}</span>
+                            </button>
+                        </div>
+                        <x-navigation.nav-link :href="route('profile.edit')" :active="request()->routeIs('profile.*')">
                             <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10 17l5-5-5-5m5 5H3m9-9V3h9v18h-9v-2" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm7.4-3.5a7.42 7.42 0 0 0-.1-1.2l2-1.55-2-3.46-2.37.95a7.2 7.2 0 0 0-2.08-1.2L14.5 3h-5l-.35 2.54a7.2 7.2 0 0 0-2.08 1.2L4.7 5.8l-2 3.46 2 1.55a7.42 7.42 0 0 0-.1 1.2c0 .4.04.8.1 1.2l-2 1.55 2 3.46 2.37-.95a7.2 7.2 0 0 0 2.08 1.2L9.5 21h5l.35-2.54a7.2 7.2 0 0 0 2.08-1.2l2.37.95 2-3.46-2-1.55c.06-.4.1-.8.1-1.2Z" />
                             </svg>
-                            <span>{{ __('Cerrar sesión') }}</span>
-                        </button>
-                    </form>
-                </div>
+                            <span>{{ __('Perfil') }}</span>
+                        </x-navigation.nav-link>
 
-                <div class="mt-5 flex items-center gap-3 border-t border-line pt-5">
-                    <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-aequitas-50 text-sm font-semibold text-aequitas-900">
-                        {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
-                    </span>
-                    <div class="min-w-0">
-                        <p class="truncate text-sm font-semibold text-ink">{{ Auth::user()->name }}</p>
-                        <p class="truncate text-xs text-muted">{{ Auth::user()->getRoleNames()->implode(', ') }}</p>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="flex min-h-[44px] w-full items-center gap-3 rounded-control px-3 py-2.5 text-start text-sm font-medium text-muted transition hover:bg-red-50 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-negative">
+                                <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10 17l5-5-5-5m5 5H3m9-9V3h9v18h-9v-2" />
+                                </svg>
+                                <span>{{ __('Cerrar sesión') }}</span>
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>

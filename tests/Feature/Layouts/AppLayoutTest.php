@@ -30,6 +30,13 @@ class AppLayoutTest extends TestCase
         $response->assertSee('Secretario');
         $response->assertSee('data-theme-toggle', false);
         $response->assertSee('data-theme-toggle-label', false);
+        $response->assertSee('Gestión jurídica');
+        $response->assertSee('Informes');
+        $response->assertDontSee('Administración');
+        $response->assertSee('aria-expanded="false"', false);
+        $response->assertSee('x-show="accountMenuOpen"', false);
+        $response->assertSee('id="sidebar-account-actions"', false);
+        $response->assertSee('x-cloak', false);
         $response->assertDontSee($user->email);
         $response->assertSee(route('profile.edit'), false);
         $response->assertSee(route('logout'), false);
@@ -60,6 +67,22 @@ class AppLayoutTest extends TestCase
             $response = $this->get(route('dashboard'));
             $response->assertOk();
             $staticNavigation = Blade::render("@include('layouts.static-navigation')");
+
+            $visibleSections = match ($role) {
+                'Secretario' => ['Gestión jurídica', 'Informes'],
+                'Profesional' => ['Gestión jurídica'],
+                'Coordinador' => ['Gestión jurídica', 'Administración', 'Informes'],
+                'Directivo' => ['Gestión jurídica', 'Administración', 'Informes'],
+                'Administrador' => ['Gestión jurídica', 'Administración', 'Informes'],
+            };
+
+            foreach (['Gestión jurídica', 'Administración', 'Informes'] as $section) {
+                if (in_array($section, $visibleSections, true)) {
+                    $response->assertSee($section);
+                } else {
+                    $response->assertDontSee($section);
+                }
+            }
 
             foreach ($destinations as $destination) {
                 $isAuthorized = in_array($role, $destination['roles'], true);
