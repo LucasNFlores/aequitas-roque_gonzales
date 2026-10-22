@@ -46,7 +46,7 @@ Ejecutar las pruebas dirigidas después de implementar los cambios y documentar 
 - Los artefactos de clases coinciden entre sí y con los modelos y migraciones actuales; no presentan Legajo como modelo.
 - CU-4 y CU-4.1 describen los componentes actuales y la asociación obligatoria con Proceso.
 - El informe presenta caso, precondiciones, datos, resultados esperados y obtenidos y evidencia reproducible, sin cifras no verificadas.
-- La diferencia entre la observación de navegador (el formulario no aparece para el Profesional asignado) y la prueba HTTP (renderizado y POST confirmados) queda investigada y reconciliada antes de declarar verificada manualmente la creación por ese perfil.
+- El recorrido aislado confirma en navegador que el Profesional asignado puede ver el formulario, crear el reporte, consultar el historial y volver al detalle del proceso, una vez alineada la caché de permisos con el almacenamiento activo del servidor.
 - El delta de especificación queda limitado al comportamiento de retorno desde acciones iniciadas en el detalle de proceso.
 
 ## Riesgos
@@ -55,7 +55,7 @@ Ejecutar las pruebas dirigidas después de implementar los cambios y documentar 
 - Los formatos Mermaid, Markdown y draw.io pueden divergir si se corrige solo una representación; validarlos en conjunto.
 - Un informe preparado antes de ejecutar las pruebas podría presentar resultados supuestos; completar resultados y evidencias después de la ejecución.
 - Algunos casos no tienen cobertura específica hoy; las tareas deben agregar aserciones sin debilitar las pruebas existentes.
-- La prueba HTTP nueva sobre renderizado y POST del formulario de reporte no coincide con su visibilidad observada en navegador para el Profesional asignado; hasta resolver la diferencia, no afirmar que ese paso se verificó manualmente.
+- Si la CLI y el servidor usan almacenes de caché distintos, limpiar permisos desde el entorno equivocado puede dejar obsoleta la caché consultada por el servidor; alinear el entorno activo, reiniciar y volver a autenticar antes de la comprobación manual.
 - La corrección del acceso a `motivo` debe respetar su opcionalidad declarada por la petición y no agregar una regla nueva de negocio.
 - El recorrido en navegador depende de que esté preparado el entorno local aislado; no usar datos ni servicios existentes para sustituirlo.
 

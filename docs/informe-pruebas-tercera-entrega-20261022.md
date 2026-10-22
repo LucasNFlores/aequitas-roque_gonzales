@@ -97,10 +97,10 @@ Los resultados de esta sección corresponden a comandos ejecutados en `dev`, inf
 
 - **Caso:** recorrido funcional desde el alta de un cliente hasta la consulta del historial de un reporte.
 - **Precondiciones:** entorno SQLite demo aislado; usuario con permisos para las operaciones realizadas; base de prueba sin datos preexistentes.
-- **Datos:** cliente `Ana Demo Entrega` (ID 1); proceso y turno inicial creados durante el alta; profesional `Demo Profesional`; turno de tipo `Seguimiento`; documento PDF de categoría `Judicial`; reporte asociado al proceso.
-- **Resultado esperado:** completar y observar en navegador las operaciones del recorrido y mantener el proceso de origen en el flujo de turnos y en el retorno desde el historial.
-- **Resultado obtenido:** se creó el cliente con su proceso y turno inicial; se admitió el proceso y se asignó `Demo Profesional`; se agendó `Seguimiento` desde el detalle usando los IDs de cliente y proceso y se volvió al detalle exacto; se cargó el PDF `Judicial`; se consultaron un reporte y su historial, con retorno al detalle exacto. La creación manual del reporte por el Profesional asignado no quedó verificada: el formulario no apareció en el navegador.
-- **Evidencia:** recorrido observado en el navegador con los datos indicados sobre SQLite demo aislado. El historial se observó en la sesión; no hay archivos PNG guardados en el repositorio. La discrepancia de visibilidad se detalla abajo.
+- **Datos:** cliente `Ana Demo Entrega` (ID 1); proceso y turno inicial creados durante el alta; Profesional asignado sintético `Demo Profesional Entrega` (ID 3); turno `Seguimiento`; documento PDF de categoría `Judicial`; texto del reporte indicado abajo.
+- **Resultado esperado:** completar y observar en navegador las operaciones del recorrido, crear un reporte desde la sesión del Profesional asignado y mantener el proceso de origen hasta el retorno desde su historial.
+- **Resultado obtenido:** se creó el cliente con su proceso y turno inicial; se admitió el proceso y se asignó el profesional; se agendó `Seguimiento` desde el detalle usando los IDs de cliente y proceso y se volvió al detalle exacto; se cargó el PDF `Judicial`; el Profesional asignado vio el formulario, creó el reporte, abrió su historial y volvió al detalle exacto.
+- **Evidencia:** recorrido en navegador sobre SQLite demo aislado, con resultado visible y rutas consignadas en los casos siguientes. No hay archivos PNG guardados en el repositorio.
 
 ### Entrada inválida: DNI duplicado
 
@@ -120,20 +120,18 @@ Los resultados de esta sección corresponden a comandos ejecutados en `dev`, inf
 - **Resultado obtenido:** respuesta HTTP 403 y texto `USER DOES NOT HAVE THE RIGHT PERMISSIONS.`
 - **Evidencia:** ruta, usuario de prueba, estado HTTP y texto observados en la sesión del navegador. La captura se vio en la sesión, pero no se guardó un PNG en el repositorio.
 
-## Observación pendiente
+### Creación de reporte por el Profesional asignado e historial
 
-### Formulario de reporte para el profesional asignado
-
-- **Caso:** verificar la visibilidad del formulario de reporte para el profesional asignado.
-- **Precondiciones:** sesión como profesional asignado; el coordinador confirmó mediante Tinker que el permiso `registrar_reportes` está presente y que `Gate::create` permite la operación.
-- **Datos:** profesional asignado al proceso y acceso al flujo de reportes.
-- **Resultado esperado:** la visualización del formulario en navegador debe poder reconciliarse con la prueba HTTP que comprueba su renderizado y un POST; no se presupone una regla adicional de permisos.
-- **Resultado obtenido:** el profesional asignado no vio el formulario al recorrer el flujo en navegador, mientras que una prueba HTTP nueva confirma que el formulario se renderiza y que el POST funciona. La causa de la diferencia sigue sin resolverse.
-- **Evidencia:** discrepancia observada entre el navegador y el nuevo caso HTTP, informada por el coordinador; la prueba automatizada confirmó renderizado y creación, y la sesión de navegador no mostró el formulario. No hay captura exportada ni causa confirmada.
+- **Caso:** confirmar manualmente la visibilidad del formulario para el Profesional asignado, crear un reporte, abrir su historial y regresar al detalle.
+- **Precondiciones:** sesión autenticada como Profesional asignado sintético ID 3; SQLite demo aislado con proceso ID 1 asignado; servidor reiniciado después de limpiar la caché de permisos en el almacenamiento que realmente consulta.
+- **Datos:** texto “Se verificó el registro desde la ficha con el profesional asignado.”; historial `/procesos/1/reportes/2/historial`.
+- **Resultado esperado:** mostrar el formulario autorizado, confirmar la creación y el autor, presentar el reporte en historial y devolver al proceso original.
+- **Resultado obtenido:** el formulario apareció; al enviar el texto, la UI mostró “Reporte registrado correctamente.” y presentó como autor/registrador a `Demo Profesional Entrega`. El historial mostró el reporte y el botón “Volver al proceso” regresó a `/clientes/1/legajo/procesos/1`; el navegador quedó en el detalle con el formulario y el reporte nuevo visibles.
+- **Evidencia:** antes de la corrección se había limpiado la caché en `manual-demo-storage`, mientras que el servidor consultaba el almacenamiento predeterminado del worktree. Al ejecutar `php artisan permission:cache-reset` con la base manual y la caché/archivos locales que usa el servidor, reiniciarlo y volver a autenticar al Profesional, el formulario apareció y el recorrido completó los resultados indicados. La evidencia son los mensajes, autor y rutas observados; no se guardó un archivo PNG.
 
 ## Criterios y limitaciones
 
 - Los resultados automatizados y comandos corresponden a ejecuciones en `dev`; esta rama documental no volvió a ejecutar esas pruebas.
 - El recorrido de navegador se hizo en SQLite demo aislado y no representa datos existentes.
 - Las capturas observadas no están disponibles como archivos del repositorio; las rutas, pasos y resultados consignados arriba permiten repetir la observación.
-- La prueba HTTP (incluida en el conteo final de ReporteFlowTest) y la observación de navegador discrepan sobre la visibilidad del formulario para el profesional asignado. La diferencia permanece reproducible y sin causa confirmada; no se afirma que la creación se haya verificado manualmente ni se concluye que el permiso esté mal configurado.
+- La diferencia inicial de visibilidad se debió a limpiar la caché de permisos en un almacenamiento distinto del consultado por el servidor. Tras restablecerla en el entorno activo, reiniciar el servidor y volver a autenticar, el formulario y la creación se verificaron manualmente; no se cambió ninguna regla de permisos.

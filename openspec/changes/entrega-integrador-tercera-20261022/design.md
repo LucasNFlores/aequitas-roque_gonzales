@@ -26,14 +26,14 @@ El contexto no concede autorización. Cada destino continúa resolviendo el clie
 - Añadir pruebas unitarias de Proceso::transitionTo para las reglas que puedan verificarse con modelos en memoria: estado inexistente o inactivo y transición al mismo estado. No simular una persistencia exitosa como prueba unitaria.
 - Mantener las pruebas de integración existentes para escrituras que requieren base de datos.
 - Recorrer en navegador, en el entorno local aislado preparado por el coordinador y usando solo datos de prueba, el guion cliente → legajo → admitir/rechazar → asignar profesional → turno → documento → reporte → historial. Observar también una entrada inválida y un acceso denegado, y registrar evidencia reproducible. No usar servidores ni navegadores conectados a datos existentes.
-- Registrar y reconciliar cualquier diferencia observada entre la visibilidad del formulario en navegador y las pruebas HTTP de renderizado/envío para el Profesional asignado. Mientras persista la diferencia, el paso de creación no se considera verificado manualmente; no inferir ni añadir reglas de permisos.
+- Para la comprobación en navegador, ejecutar `php artisan permission:cache-reset` usando la misma base y el mismo almacenamiento configurados para el servidor; reiniciarlo y volver a autenticar al Profesional asignado. Verificar que el formulario aparece, que el envío confirma la creación, y que el historial conserva el proceso y retorna a su detalle. La diferencia observada se resolvió al ejecutar el reinicio de caché en el almacenamiento activo; no se añadieron reglas de permisos.
 
 ## Actualización de documentos y evidencias
 
 - README: reemplazar el aviso obsoleto de visualización pendiente con la descripción respaldada por ruta, policy, controlador y vista.
 - Diagramas de clases: sincronizar diagrama-clases.md, diagrama-clases.mermaid, Diagrama de clases.drawio y funcionamiento-diagrama-clases.md con app/Models y las migraciones. Explicar Cliente, Proceso y la consulta de Legajo sin inventar un modelo.
 - Diagramas de secuencia: actualizar CU-4.mermaid y CU-4.1.mermaid para describir componentes Livewire, TurnoScheduler, validación y proceso obligatorio según cada flujo vigente.
-- Informe: crear docs/informe-pruebas-tercera-entrega-20261022.md. Cada caso contendrá caso, precondiciones, datos, resultado esperado, resultado obtenido y evidencia. Incluir comandos realmente ejecutados, resultados observados y distinguir resultados incompletos o discrepantes; no sumar a los conteos una prueba nueva hasta recibir su resultado final.
+- Informe: crear docs/informe-pruebas-tercera-entrega-20261022.md. Cada caso contendrá caso, precondiciones, datos, resultado esperado, resultado obtenido y evidencia. Incluir comandos realmente ejecutados, conteos de la ejecución final y las observaciones del navegador, incluida la causa ambiental ya resuelta.
 
 ## Compatibilidad y restricciones
 
