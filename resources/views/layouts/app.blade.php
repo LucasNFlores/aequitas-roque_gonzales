@@ -1,6 +1,70 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="light">
     <head>
+        <script>
+            (() => {
+                const systemThemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+                let theme = 'light';
+
+                try {
+                    const savedPreference = localStorage.getItem('aequitas-theme');
+
+                    if (savedPreference === 'light' || savedPreference === 'dark') {
+                        theme = savedPreference;
+                    } else if (savedPreference === 'system') {
+                        theme = systemThemeQuery.matches ? 'dark' : 'light';
+                    }
+                } catch {}
+
+                const syncThemeToggle = () => {
+                    const themeToggle = document.querySelector('[data-theme-toggle]');
+
+                    if (!themeToggle) {
+                        return;
+                    }
+
+                    const isDarkTheme = document.documentElement.dataset.theme === 'dark';
+                    const targetTheme = isDarkTheme ? 'light' : 'dark';
+                    const targetThemeLabel = targetTheme === 'dark' ? 'Oscuro' : 'Claro';
+
+                    themeToggle.setAttribute('aria-label', `Cambiar a modo ${targetThemeLabel.toLowerCase()}`);
+                    themeToggle.title = `Cambiar a modo ${targetThemeLabel.toLowerCase()}`;
+                    themeToggle.querySelector('[data-theme-toggle-label]').textContent = `Modo ${targetThemeLabel.toLowerCase()}`;
+                    themeToggle.querySelector('[data-theme-icon="dark"]').hidden = targetTheme !== 'dark';
+                    themeToggle.querySelector('[data-theme-icon="light"]').hidden = targetTheme !== 'light';
+                };
+                const applyTheme = (nextTheme) => {
+                    theme = nextTheme;
+                    document.documentElement.dataset.theme = theme;
+                    syncThemeToggle();
+                    window.dispatchEvent(new CustomEvent('aequitas:theme-changed', { detail: { theme } }));
+                };
+
+                applyTheme(theme);
+                document.addEventListener('DOMContentLoaded', syncThemeToggle, { once: true });
+                document.addEventListener('livewire:navigated', syncThemeToggle);
+                window.addEventListener('pageshow', syncThemeToggle);
+                new MutationObserver(syncThemeToggle).observe(document.documentElement, {
+                    childList: true,
+                    subtree: true,
+                    attributes: true,
+                    attributeFilter: ['data-theme'],
+                });
+                document.addEventListener('click', (event) => {
+                    const themeToggle = event.target.closest('[data-theme-toggle]');
+
+                    if (!themeToggle) {
+                        return;
+                    }
+
+                    try {
+                        localStorage.setItem('aequitas-theme', theme === 'dark' ? 'light' : 'dark');
+                    } catch {}
+
+                    applyTheme(theme === 'dark' ? 'light' : 'dark');
+                });
+            })();
+        </script>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -23,7 +87,6 @@
         </a>
         <div class="min-h-screen bg-canvas md:flex">
             @include('layouts.navigation')
-
             <div class="flex min-h-screen min-w-0 flex-1 flex-col pt-16 md:pt-0">
                 <!-- Page Heading -->
                 @isset($header)

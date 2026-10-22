@@ -1,5 +1,15 @@
 import defaultTheme from 'tailwindcss/defaultTheme';
+import colors from 'tailwindcss/colors';
 import forms from '@tailwindcss/forms';
+
+const colorPalette = (name, palette, shades) => Object.fromEntries(
+    shades.map((shade) => {
+        const hex = palette[shade].slice(1);
+        const rgb = [0, 2, 4].map((index) => Number.parseInt(hex.slice(index, index + 2), 16)).join(' ');
+
+        return [shade, `rgb(var(--ui-${name}-${shade}, ${rgb}) / <alpha-value>)`];
+    }),
+);
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -16,6 +26,13 @@ export default {
                 editorial: ['Playfair Display', 'Georgia', 'serif'],
             },
             colors: {
+                gray: colorPalette('gray', colors.gray, Object.keys(colors.gray).filter((shade) => /^\d+$/.test(shade))),
+                slate: colorPalette('slate', colors.slate, Object.keys(colors.slate).filter((shade) => /^\d+$/.test(shade))),
+                red: colorPalette('red', colors.red, Object.keys(colors.red).filter((shade) => /^\d+$/.test(shade))),
+                green: colorPalette('green', colors.green, Object.keys(colors.green).filter((shade) => /^\d+$/.test(shade))),
+                amber: colorPalette('amber', colors.amber, Object.keys(colors.amber).filter((shade) => /^\d+$/.test(shade))),
+                emerald: colorPalette('emerald', colors.emerald, Object.keys(colors.emerald).filter((shade) => /^\d+$/.test(shade))),
+                indigo: colorPalette('indigo', colors.indigo, Object.keys(colors.indigo).filter((shade) => /^\d+$/.test(shade))),
                 aequitas: {
                     50: 'var(--aequitas-navy-50)',
                     100: 'var(--aequitas-navy-100)',

@@ -26,7 +26,7 @@
         x-show="open"
         x-transition.opacity
         @click="open = false"
-        class="fixed inset-0 z-40 bg-[rgba(16,26,42,0.4)] md:hidden"
+        class="fixed inset-0 z-40 bg-[var(--aequitas-overlay)] md:hidden"
         aria-hidden="true"
     ></div>
 
@@ -160,6 +160,21 @@
             </div>
 
             <div class="mt-auto border-t border-gray-100 pt-5">
+                <div class="mb-5 px-3">
+                    <button
+                        type="button"
+                        data-theme-toggle
+                        class="flex min-h-11 w-full items-center gap-3 rounded-control px-3 py-2.5 text-start text-sm font-medium text-muted transition hover:bg-aequitas-50 hover:text-aequitas-900 focus:outline-none focus:ring-2 focus:ring-gold-600 focus:ring-offset-2"
+                    >
+                        <svg data-theme-icon="dark" class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20.25 15.25A8.25 8.25 0 0 1 8.75 3.75 8.25 8.25 0 1 0 20.25 15.25Z" />
+                        </svg>
+                        <svg data-theme-icon="light" class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" hidden>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3v2m0 14v2M5.64 5.64l1.42 1.42m9.88 9.88 1.42 1.42M3 12h2m14 0h2M5.64 18.36l1.42-1.42m9.88-9.88 1.42-1.42M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z" />
+                        </svg>
+                        <span data-theme-toggle-label>{{ __('Modo oscuro') }}</span>
+                    </button>
+                </div>
                 <div class="flex flex-col gap-2">
                     <x-navigation.nav-link :href="route('profile.edit')" :active="request()->routeIs('profile.*')">
                         <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
