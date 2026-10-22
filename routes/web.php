@@ -92,6 +92,7 @@ Route::middleware(['auth', 'permission:listar_filtrar_procesos'])->group(functio
 Route::middleware(['auth', 'permission:consultar_legajos'])->group(function () {
     Route::get('/legajos', fn () => view('legajos.index'))->name('legajos.index');
     Route::get('/clientes/{cliente}/legajo', [LegajoController::class, 'show'])->name('legajos.show');
+    Route::get('/clientes/{cliente}/legajo/procesos/{proceso}', [LegajoController::class, 'showProcess'])->name('legajos.procesos.show');
 });
 
 // HU-23: proceso adicional para un cliente existente (Secretario y Administrador vía Policy create).
@@ -125,6 +126,9 @@ Route::middleware(['auth', 'permission:visualizar_documentacion'])->group(functi
 });
 
 Route::middleware(['auth'])->group(function () {
+    Route::patch('/procesos/{proceso}/estado', [ProcesoController::class, 'updateState'])
+        ->middleware('permission:actualizar_estados_proceso')
+        ->name('procesos.estado.update');
     Route::post('/procesos/{proceso}/documentos', [DocumentoController::class, 'store'])
         ->middleware('permission:cargar_documentacion')
         ->name('procesos.documentos.store');

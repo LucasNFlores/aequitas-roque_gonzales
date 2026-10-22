@@ -5,12 +5,15 @@ namespace App\Http\Controllers;
 use App\Actions\Procesos\CrearProcesoAdicional;
 use App\Http\Requests\StoreProcesoRequest;
 use App\Http\Requests\UpdateProcesoRequest;
+use App\Http\Requests\UpdateProcesoStateRequest;
 use App\Models\Cliente;
+use App\Models\EstadoProceso;
 use App\Models\Proceso;
 use App\Models\Servicio;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -84,6 +87,20 @@ class ProcesoController extends Controller
     public function update(UpdateProcesoRequest $request, Proceso $proceso)
     {
         //
+    }
+
+    public function updateState(UpdateProcesoStateRequest $request, Proceso $proceso): RedirectResponse
+    {
+        $validated = $request->validated();
+        $estado = EstadoProceso::query()->active()->where('slug', $validated['estado'])->firstOrFail();
+
+        DB::transaction(function () use ($proceso, $estado, $validated): void {
+            $proceso->transitionTo($estado, $validated['motivo'] ?: null);
+        });
+
+        return redirect()
+            ->route('legajos.procesos.show', [$proceso->cliente_id, $proceso])
+            ->with('success', 'Estado del proceso actualizado correctamente.');
     }
 
     /**
