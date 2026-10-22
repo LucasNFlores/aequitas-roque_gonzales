@@ -20,17 +20,17 @@ class UpdateUserRolesRequest extends FormRequest
             return false;
         }
 
-        $roles = $this->input('roles', []);
+        $role = $this->input('role');
 
         return $actor->hasRole('Administrador')
-            || ! in_array('Administrador', is_array($roles) ? $roles : [], true);
+            || $role !== 'Administrador';
     }
 
     public function rules(): array
     {
         return [
-            'roles' => ['nullable', 'array'],
-            'roles.*' => ['string', 'exists:roles,name'],
+            'role' => ['nullable', 'string', 'exists:roles,name'],
+            'roles' => ['prohibited'],
         ];
     }
 }

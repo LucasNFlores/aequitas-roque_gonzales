@@ -57,8 +57,8 @@
 
                             <dl class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                                 <div><dt class="text-xs font-semibold uppercase tracking-wide text-muted">Inicio</dt><dd class="mt-1 text-sm text-ink">{{ $proceso->fecha_inicio?->format('d/m/Y') ?? 'Sin fecha' }}</dd></div>
-                                <div><dt class="text-xs font-semibold uppercase tracking-wide text-muted">Coordinador</dt><dd class="mt-1 text-sm text-ink">{{ $proceso->coordinador?->name ?? 'Sin asignar' }}</dd></div>
-                                <div><dt class="text-xs font-semibold uppercase tracking-wide text-muted">Profesional</dt><dd class="mt-1 text-sm text-ink">{{ $proceso->profesional?->name ?? 'Sin asignar' }}</dd></div>
+                                <div><dt class="text-xs font-semibold uppercase tracking-wide text-muted">Coordinador</dt><dd class="mt-1 text-sm text-ink">{{ $proceso->coordinador?->nombre_completo ?? 'Sin asignar' }}</dd></div>
+                                <div><dt class="text-xs font-semibold uppercase tracking-wide text-muted">Profesional</dt><dd class="mt-1 text-sm text-ink">{{ $proceso->profesional?->nombre_completo ?? 'Sin asignar' }}</dd></div>
                                 <div><dt class="text-xs font-semibold uppercase tracking-wide text-muted">Honorarios</dt><dd class="mt-1 text-sm text-ink">{{ $proceso->honorarios !== null ? '$ '.number_format((float) $proceso->honorarios, 2, ',', '.') : 'Sin definir' }}</dd></div>
                             </dl>
 
@@ -83,7 +83,7 @@
                             <div class="rounded-card border border-line p-4">
                                 <div class="flex items-start justify-between gap-3"><p class="font-medium text-ink">{{ str_replace('_', ' ', ucfirst($turno->tipo)) }}</p><span class="rounded-full bg-aequitas-50 px-2.5 py-1 text-xs font-medium text-ink">{{ ucfirst($turno->estado) }}</span></div>
                                 <p class="mt-2 text-sm text-ink">{{ $turno->fecha_hora?->format('d/m/Y H:i') ?? 'Sin fecha' }}</p>
-                                <p class="mt-1 text-sm text-muted">{{ $turno->profesional?->name ?? $turno->coordinador?->name ?? 'Sin responsable' }}</p>
+                                <p class="mt-1 text-sm text-muted">{{ $turno->profesional?->nombre_completo ?? $turno->coordinador?->nombre_completo ?? 'Sin responsable' }}</p>
                                 @if($turno->es_externo && $turno->detalle_externo)<p class="mt-2 text-sm text-muted">{{ $turno->detalle_externo }}</p>@endif
                             </div>
                         @endforeach

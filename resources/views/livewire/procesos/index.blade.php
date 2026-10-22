@@ -67,7 +67,7 @@
             <select id="process-coordinator-filter" wire:model.live="coordinadorId" class="mt-2 block w-full rounded-control border-line shadow-panel focus:border-gold-600 focus:ring-gold-600">
                 <option value="">Todos los coordinadores</option>
                 @foreach($coordinadores as $coordinador)
-                    <option value="{{ $coordinador->id }}">{{ $coordinador->name }}</option>
+                    <option value="{{ $coordinador->id }}">{{ $coordinador->nombre_completo }}</option>
                 @endforeach
             </select>
         </div>
@@ -77,7 +77,7 @@
             <select id="process-professional-filter" wire:model.live="profesionalId" class="mt-2 block w-full rounded-control border-line shadow-panel focus:border-gold-600 focus:ring-gold-600">
                 <option value="">Todos los profesionales</option>
                 @foreach($profesionales as $profesional)
-                    <option value="{{ $profesional->id }}">{{ $profesional->name }}</option>
+                    <option value="{{ $profesional->id }}">{{ $profesional->nombre_completo }}</option>
                 @endforeach
             </select>
         </div>
@@ -139,8 +139,8 @@
                                 <p class="mt-1 max-w-48 text-xs text-muted">{{ $proceso->motivo_rechazo }}</p>
                             @endif
                         </td>
-                        <td class="px-5 py-4">{{ $proceso->coordinador?->name ?? 'Sin coordinador' }}</td>
-                        <td class="px-5 py-4">{{ $proceso->profesional?->name ?? 'Sin asignar' }}</td>
+                        <td class="px-5 py-4">{{ $proceso->coordinador?->nombre_completo ?? 'Sin coordinador' }}</td>
+                        <td class="px-5 py-4">{{ $proceso->profesional?->nombre_completo ?? 'Sin asignar' }}</td>
                         <td class="whitespace-nowrap px-5 py-4">{{ $proceso->honorarios === null ? '—' : '$'.number_format((float) $proceso->honorarios, 2, ',', '.') }}</td>
                         <td class="whitespace-nowrap px-5 py-4">{{ $proceso->fecha_inicio?->format('d/m/Y') ?? '—' }}</td>
                         <td class="space-y-2 px-5 py-4 text-center">
@@ -275,7 +275,7 @@
                     <select id="assignment-professional" wire:model.defer="selectedProfesionalId" required class="mt-2 block w-full rounded-control border-line shadow-panel focus:border-gold-600 focus:ring-gold-600">
                         <option value="">Seleccionar profesional</option>
                         @foreach($profesionalesElegibles as $profesionalElegible)
-                            <option value="{{ $profesionalElegible->id }}">{{ $profesionalElegible->name }}</option>
+                            <option value="{{ $profesionalElegible->id }}">{{ $profesionalElegible->nombre_completo }}</option>
                         @endforeach
                     </select>
                     @if($profesionalesElegibles->isEmpty())

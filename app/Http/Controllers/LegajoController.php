@@ -21,7 +21,7 @@ class LegajoController extends Controller
 
         $procesos = $cliente->procesos()
             ->visibleTo($user)
-            ->with(['servicio:id,nombre', 'coordinador:id,name', 'profesional:id,name'])
+            ->with(['servicio:id,nombre', 'coordinador:id,name,apellido', 'profesional:id,name,apellido'])
             ->orderByDesc('fecha_inicio')
             ->orderByDesc('id')
             ->get([
@@ -41,7 +41,7 @@ class LegajoController extends Controller
         $turnosSinProceso = $cliente->turnos()
             ->whereNull('proceso_id')
             ->when($user->requiresProfessionalAssignmentScope(), fn (Builder $query): Builder => $query->where('profesional_id', $user->id))
-            ->with(['profesional:id,name', 'coordinador:id,name'])
+            ->with(['profesional:id,name,apellido', 'coordinador:id,name,apellido'])
             ->orderByDesc('fecha_hora')
             ->orderByDesc('id')
             ->get(['id', 'cliente_id', 'profesional_id', 'coordinador_id', 'fecha_hora', 'tipo', 'estado', 'es_externo', 'detalle_externo']);
@@ -76,14 +76,14 @@ class LegajoController extends Controller
             ->visibleTo($user)
             ->with([
                 'servicio:id,nombre',
-                'coordinador:id,name',
-                'profesional:id,name',
+                'coordinador:id,name,apellido',
+                'profesional:id,name,apellido',
                 'turnos' => fn ($query) => $query
                     ->select(['id', 'proceso_id', 'cliente_id', 'profesional_id', 'coordinador_id', 'fecha_hora', 'tipo', 'estado', 'es_externo', 'detalle_externo'])
                     ->orderByDesc('fecha_hora')
                     ->orderByDesc('id'),
-                'turnos.profesional:id,name',
-                'turnos.coordinador:id,name',
+                'turnos.profesional:id,name,apellido',
+                'turnos.coordinador:id,name,apellido',
                 'documentos' => fn ($query) => $query
                     ->select(['id', 'proceso_id', 'categoria_id', 'nombre', 'tipo_documento', 'created_at', 'updated_at'])
                     ->orderByDesc('created_at')
@@ -94,20 +94,20 @@ class LegajoController extends Controller
                     ->select(['id', 'documento_id', 'usuario_id', 'categoria_id', 'categoria_nombre', 'tipo_documento', 'nombre', 'fecha_reemplazo'])
                     ->orderByDesc('fecha_reemplazo')
                     ->orderByDesc('id'),
-                'documentos.versiones.usuario:id,name',
+                'documentos.versiones.usuario:id,name,apellido',
                 'documentos.versiones.categoria:id,nombre',
                 'reportes' => fn ($query) => $query
                     ->visibleTo($user)
                     ->select(['id', 'proceso_id', 'profesional_id', 'registrado_por_id', 'contenido', 'fecha'])
                     ->orderByDesc('fecha')
                     ->orderByDesc('id'),
-                'reportes.profesional:id,name',
-                'reportes.registradoPor:id,name',
+                'reportes.profesional:id,name,apellido',
+                'reportes.registradoPor:id,name,apellido',
                 'historialEstados' => fn ($query) => $query
                     ->select(['id', 'proceso_id', 'usuario_id', 'estado_anterior', 'estado_nuevo', 'motivo', 'fecha_cambio'])
                     ->orderByDesc('fecha_cambio')
                     ->orderByDesc('id'),
-                'historialEstados.usuario:id,name',
+                'historialEstados.usuario:id,name,apellido',
             ])
             ->whereKey($proceso->getKey())
             ->firstOrFail([

@@ -5,7 +5,7 @@
         </label>
         @error('clienteId')<p role="alert" class="text-sm text-red-700">{{ $message }}</p>@enderror
         <label class="grid gap-1 text-sm font-medium text-ink">Profesional
-            <select wire:model="profesionalId" class="min-h-11 w-full rounded-control border-line bg-white px-3 py-2 text-ink shadow-sm focus:border-gold-600 focus:ring-gold-600"><option value="">Seleccionar</option>@foreach ($profesionales as $profesional)<option value="{{ $profesional->id }}">{{ $profesional->name }}</option>@endforeach</select>
+            <select wire:model="profesionalId" class="min-h-11 w-full rounded-control border-line bg-white px-3 py-2 text-ink shadow-sm focus:border-gold-600 focus:ring-gold-600"><option value="">Seleccionar</option>@foreach ($profesionales as $profesional)<option value="{{ $profesional->id }}">{{ $profesional->nombre_completo }}</option>@endforeach</select>
         </label>
         @error('profesionalId')<p role="alert" class="text-sm text-red-700">{{ $message }}</p>@enderror
         <label class="grid gap-1 text-sm font-medium text-ink">Tipo

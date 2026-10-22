@@ -70,6 +70,8 @@ class LegajoTest extends TestCase
         $response->assertOk()
             ->assertSee('Visible asignado')
             ->assertSee(route('legajos.procesos.show', [$client, $assignedProcess]))
+            ->assertSee($professional->nombre_completo)
+            ->assertSee($coordinator->nombre_completo)
             ->assertDontSee('Proceso ajeno')
             ->assertDontSee('Turno de otro profesional');
 

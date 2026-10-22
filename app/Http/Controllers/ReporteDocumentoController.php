@@ -169,7 +169,7 @@ class ReporteDocumentoController extends Controller
             'categorias' => $categorias,
             'filtros' => $filtros,
             'totales' => $totales,
-            'emitidoPor' => $request->user()->name,
+            'emitidoPor' => $request->user()->nombre_completo,
             'fechaHora' => now()->format('d/m/Y H:i'),
         ])->setPaper('a4', 'portrait');
 

@@ -24,7 +24,7 @@
                 <option value="">Seleccione un profesional</option>
                 @foreach($profesionales as $profesional)
                     <option value="{{ $profesional->id }}" @selected(old('profesional_id', $turno->profesional_id ?? '') == $profesional->id)>
-                        {{ $profesional->name }}
+                        {{ $profesional->nombre_completo }}
                     </option>
                 @endforeach
             </select>

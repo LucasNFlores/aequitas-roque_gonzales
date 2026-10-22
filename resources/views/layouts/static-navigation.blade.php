@@ -59,7 +59,7 @@
         </div>
 
         <div class="flex flex-wrap items-center gap-4 text-sm">
-            <span class="font-medium text-gray-700">{{ Auth::user()->name }}</span>
+            <span class="font-medium text-gray-700">{{ Auth::user()->nombre_completo }}</span>
             <a href="{{ route('profile.edit') }}" class="text-gray-600 hover:text-indigo-600">{{ __('Profile') }}</a>
 
             <form method="POST" action="{{ route('logout') }}">

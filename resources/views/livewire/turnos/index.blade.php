@@ -27,7 +27,7 @@
             <select wire:model.live="profesionalId" aria-label="Filtrar por profesional" class="min-h-11 w-full rounded-control border-line bg-white text-ink shadow-sm focus:border-gold-600 focus:ring-gold-600">
                 <option value="">Todos los profesionales</option>
                 @foreach ($profesionales as $profesional)
-                    <option value="{{ $profesional->id }}">{{ $profesional->name }}</option>
+                    <option value="{{ $profesional->id }}">{{ $profesional->nombre_completo }}</option>
                 @endforeach
             </select>
         @endif
@@ -40,7 +40,7 @@
                 @forelse ($turnos as $turno)
                     <tr wire:key="turno-table-{{ $turno->id }}" class="align-top hover:bg-canvas">
                         <td class="max-w-[15rem] break-words p-3 font-medium text-ink">{{ $turno->es_externo ? $turno->detalle_externo : ($turno->cliente?->apellido . ', ' . $turno->cliente?->nombre) }}</td>
-                        <td class="p-3">{{ $turno->profesional?->name }}</td>
+                        <td class="p-3">{{ $turno->profesional?->nombre_completo }}</td>
                         <td class="max-w-[12rem] break-words p-3">{{ $turno->proceso?->nombre ?? '—' }}</td>
                         <td class="p-3">{{ $turno->es_externo ? 'Compromiso externo' : ($turno->tipo === 'seguimiento' ? 'Seguimiento' : 'Consulta inicial') }}</td>
                         <td class="whitespace-nowrap p-3">{{ $turno->fecha_hora?->format('d/m/Y H:i') }}</td>
@@ -82,7 +82,7 @@
                     @endif
                 </div>
                 <dl class="mt-3 grid gap-2 text-sm sm:grid-cols-2">
-                    <div><dt class="font-medium text-muted">Profesional</dt><dd class="break-words text-ink">{{ $turno->profesional?->name }}</dd></div>
+                    <div><dt class="font-medium text-muted">Profesional</dt><dd class="break-words text-ink">{{ $turno->profesional?->nombre_completo }}</dd></div>
                     <div><dt class="font-medium text-muted">Proceso</dt><dd class="break-words text-ink">{{ $turno->proceso?->nombre ?? '—' }}</dd></div>
                     <div><dt class="font-medium text-muted">Tipo</dt><dd class="text-ink">{{ $turno->es_externo ? 'Compromiso externo' : ($turno->tipo === 'seguimiento' ? 'Seguimiento' : 'Consulta inicial') }}</dd></div>
                     <div><dt class="font-medium text-muted">Fecha y hora</dt><dd class="text-ink">{{ $turno->fecha_hora?->format('d/m/Y H:i') }}</dd></div>

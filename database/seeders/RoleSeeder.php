@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -106,15 +107,21 @@ class RoleSeeder extends Seeder
             $permissions[$permissionName] = Permission::findOrCreate($permissionName, 'web');
         }
 
-        foreach (self::PERMISSIONS_BY_ROLE as $roleName => $rolePermissionNames) {
+        foreach (User::ROLE_HIERARCHY as $roleName) {
             $role = Role::findOrCreate($roleName, 'web');
+
+            if ($roleName === 'Administrador') {
+                continue;
+            }
+
+            $rolePermissionNames = self::PERMISSIONS_BY_ROLE[$roleName];
             $role->syncPermissions(array_map(
                 fn (string $permissionName): Permission => $permissions[$permissionName],
                 $rolePermissionNames,
             ));
         }
 
-        // Revisar funcion de sptie para asignar todos los permisos al rol administrador
+        // El rol Administrador conserva todos los permisos y ocupa el primer lugar jerárquico.
         Role::findOrCreate('Administrador', 'web')->syncPermissions(array_values($permissions));
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();

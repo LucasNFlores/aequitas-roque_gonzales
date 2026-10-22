@@ -92,6 +92,17 @@ class TurnoTest extends TestCase
         ], $overrides);
     }
 
+    public function test_professional_selectors_show_full_name(): void
+    {
+        $this->profesional->update(['name' => 'Lucía', 'apellido' => 'García']);
+        $fullName = 'Lucía García';
+
+        Livewire::actingAs($this->secretario)->test(Index::class)->assertSee($fullName);
+        $this->form()->assertSee($fullName);
+        Livewire::actingAs($this->secretario)->test(Agenda::class)->assertSee($fullName);
+        Livewire::actingAs($this->secretario)->test(ExternalForm::class)->assertSee($fullName);
+    }
+
     public function test_secretario_agenda_consulta_inicial_sin_generar_notificacion(): void
     {
         $turnoDate = now()->addDays(2)->setTime(10, 0)->format('Y-m-d\\TH:i');

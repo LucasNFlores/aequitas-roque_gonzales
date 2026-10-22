@@ -33,9 +33,11 @@ class UsuarioIndexTest extends TestCase
             ->test(UsuariosIndex::class)
             ->call('createUser')
             ->assertSet('showModal', true)
+            ->assertSet('fecha_ingreso', today()->toDateString())
             ->set('name', 'Livewire Creado')
+            ->set('apellido', 'Pérez')
             ->set('email', 'livewire.creado@example.com')
-            ->set('selectedRoles', ['Profesional'])
+            ->set('selectedRole', 'Profesional')
             ->call('saveUser')
             ->assertHasNoErrors()
             ->assertDispatched('usuario-guardado')
@@ -43,6 +45,8 @@ class UsuarioIndexTest extends TestCase
 
         $creado = User::where('email', 'livewire.creado@example.com')->firstOrFail();
         $this->assertSame('Livewire Creado', $creado->name);
+        $this->assertSame('Pérez', $creado->apellido);
+        $this->assertSame(today()->toDateString(), $creado->fecha_ingreso->toDateString());
         $this->assertTrue($creado->hasRole('Profesional'));
         $this->assertTrue(Hash::check('1234', $creado->password));
 
@@ -52,19 +56,21 @@ class UsuarioIndexTest extends TestCase
             ->call('editUser', $creado->id)
             ->assertSet('showModal', true)
             ->set('name', 'Livewire Editado')
+            ->set('apellido', 'López')
             ->set('email', 'livewire.editado@example.com')
-            ->set('selectedRoles', ['Secretario'])
+            ->set('selectedRole', 'Secretario')
             ->call('saveUser')
             ->assertHasNoErrors();
 
         $creado->refresh();
         $this->assertSame('Livewire Editado', $creado->name);
+        $this->assertSame('López', $creado->apellido);
         $this->assertSame('livewire.editado@example.com', $creado->email);
         $this->assertTrue($creado->hasRole('Secretario'));
         $this->assertDatabaseCount('users', 2); // directivo + creado (no duplicado)
     }
 
-    public function test_asignar_roles_desde_livewire_respeta_bd(): void
+    public function test_asignar_un_rol_desde_livewire_respeta_bd(): void
     {
         $directivo = User::factory()->create();
         $directivo->assignRole('Directivo');
@@ -74,17 +80,18 @@ class UsuarioIndexTest extends TestCase
         Livewire::actingAs($directivo)
             ->test(UsuariosIndex::class)
             ->call('editUser', $target->id)
-            ->set('selectedRoles', ['RolInexistente'])
+            ->set('selectedRole', 'RolInexistente')
             ->call('saveUser')
-            ->assertHasErrors(['selectedRoles.0']);
+            ->assertHasErrors(['selectedRole']);
 
         // Directivo no puede asignar Administrador -> 403
         Livewire::actingAs($directivo)
             ->test(UsuariosIndex::class)
             ->call('editUser', $target->id)
             ->set('name', $target->name)
+            ->set('apellido', $target->apellido)
             ->set('email', $target->email)
-            ->set('selectedRoles', ['Administrador'])
+            ->set('selectedRole', 'Administrador')
             ->call('saveUser')
             ->assertForbidden();
 
@@ -95,8 +102,9 @@ class UsuarioIndexTest extends TestCase
             ->test(UsuariosIndex::class)
             ->call('editUser', $target->id)
             ->set('name', $target->name)
+            ->set('apellido', $target->apellido)
             ->set('email', $target->email)
-            ->set('selectedRoles', ['Administrador'])
+            ->set('selectedRole', 'Administrador')
             ->call('saveUser')
             ->assertHasNoErrors();
         $this->assertTrue($target->fresh()->hasRole('Administrador'));
@@ -196,6 +204,7 @@ class UsuarioIndexTest extends TestCase
             ->test(UsuariosIndex::class)
             ->call('createUser')
             ->set('name', 'Duplicado')
+            ->set('apellido', 'Test')
             ->set('email', 'unico@example.com')
             ->call('saveUser')
             ->assertHasErrors(['email']);
@@ -207,6 +216,8 @@ class UsuarioIndexTest extends TestCase
         $directivo->assignRole('Directivo');
         $this->actingAs($directivo)->get(route('users.index'))->assertOk()
             ->assertSee('wire:click="createUser"', false)
+            ->assertSee('wire:model.defer="selectedRole"', false)
+            ->assertDontSee('selectedRoles', false)
             ->assertSee('x-data', false)
             ->assertSee('x-show="formOpen"', false)
             ->assertSee('x-show="serviciosOpen"', false)

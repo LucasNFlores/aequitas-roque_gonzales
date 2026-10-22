@@ -10,11 +10,11 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         $users = [
-            ['name' => 'Admin', 'email' => 'admin@example.com', 'role' => 'Administrador'],
-            ['name' => 'Carlos Villalba', 'email' => 'carlos@example.com', 'role' => 'Secretario'],
-            ['name' => 'Juan Perez', 'email' => 'juanperez@example.com', 'role' => 'Profesional'],
-            ['name' => 'Coordinador Demo', 'email' => 'coordinador@example.com', 'role' => 'Coordinador'],
-            ['name' => 'Directivo Demo', 'email' => 'directivo@example.com', 'role' => 'Directivo'],
+            ['name' => 'Admin', 'apellido' => 'Sistema', 'email' => 'admin@example.com', 'role' => 'Administrador'],
+            ['name' => 'Carlos', 'apellido' => 'Villalba', 'email' => 'carlos@example.com', 'role' => 'Secretario'],
+            ['name' => 'Juan', 'apellido' => 'Perez', 'email' => 'juanperez@example.com', 'role' => 'Profesional'],
+            ['name' => 'Coordinador', 'apellido' => 'Demo', 'email' => 'coordinador@example.com', 'role' => 'Coordinador'],
+            ['name' => 'Directivo', 'apellido' => 'Demo', 'email' => 'directivo@example.com', 'role' => 'Directivo'],
         ];
 
         foreach ($users as $userData) {
@@ -24,10 +24,17 @@ class UserSeeder extends Seeder
                 $user->restore();
             }
 
-            $user->fill([
+            $attributes = [
                 'name' => $userData['name'],
+                'apellido' => $userData['apellido'],
                 'password' => '1234',
-            ])->save();
+            ];
+
+            if (! $user->exists) {
+                $attributes['fecha_ingreso'] = today()->toDateString();
+            }
+
+            $user->fill($attributes)->save();
             $user->syncRoles([$userData['role']]);
         }
     }
