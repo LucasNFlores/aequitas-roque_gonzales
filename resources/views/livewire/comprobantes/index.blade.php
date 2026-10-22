@@ -160,6 +160,6 @@
             @endforelse
         </div>
 
-        <div class="mt-5">{{ $comprobantes->links() }}</div>
+        <div class="mt-5">{{ $comprobantes->links('livewire.comprobantes.pagination') }}</div>
     </section>
 </div>
