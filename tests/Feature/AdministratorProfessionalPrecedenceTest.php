@@ -155,13 +155,21 @@ class AdministratorProfessionalPrecedenceTest extends TestCase
                 ->get(route('legajos.show', $records['sharedClient']))
                 ->assertOk()
                 ->assertSee('Proceso asignado compartido')
-                ->assertSee('Proceso ajeno compartido')
+                ->assertSee('Proceso ajeno compartido');
+
+            $this->actingAs($administrator)
+                ->get(route('legajos.procesos.show', [$records['sharedClient'], $records['sharedForeignProcess']]))
+                ->assertOk()
                 ->assertSee('Reporte compartido ajeno');
 
             $this->actingAs($administrator)
                 ->get(route('legajos.show', $records['foreignClient']))
                 ->assertOk()
-                ->assertSee('Proceso sin asignación')
+                ->assertSee('Proceso sin asignación');
+
+            $this->actingAs($administrator)
+                ->get(route('legajos.procesos.show', [$records['foreignClient'], $records['foreignProcess']]))
+                ->assertOk()
                 ->assertSee('Reporte sin asignación');
         }
 
@@ -195,7 +203,11 @@ class AdministratorProfessionalPrecedenceTest extends TestCase
             ->get(route('legajos.show', $records['sharedClient']))
             ->assertOk()
             ->assertSee('Proceso asignado compartido')
-            ->assertDontSee('Proceso ajeno compartido')
+            ->assertDontSee('Proceso ajeno compartido');
+
+        $this->actingAs($records['professional'])
+            ->get(route('legajos.procesos.show', [$records['sharedClient'], $records['sharedAssignedProcess']]))
+            ->assertOk()
             ->assertDontSee('Reporte compartido ajeno');
 
         $this->actingAs($records['professional'])

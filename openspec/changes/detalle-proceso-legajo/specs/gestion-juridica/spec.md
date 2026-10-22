@@ -2,12 +2,18 @@
 
 ### Requirement: Consultar procesos resumidos desde el legajo
 
-El legajo MUST presentar cada proceso autorizado como un resumen y MUST permitir abrir una vista de detalle por proceso. La vista de detalle MUST incluir los datos del proceso y del cliente, turnos, documentos y versiones, reportes, comprobantes e historial, respetando las autorizaciones existentes para cada relación y acción.
+El legajo MUST presentar cada proceso autorizado como un resumen y MUST permitir abrir una vista de detalle por proceso. La vista de detalle MUST incluir los datos del proceso y del cliente, turnos, documentos y versiones, reportes, comprobantes e historial, respetando las autorizaciones existentes para cada relación y acción. Cada reporte MUST identificar su autor, quién lo registró y su fecha.
 
 #### Scenario: Usuario autorizado abre el detalle desde un resumen
 
 - **WHEN** un usuario con CU18 selecciona un proceso visible en el legajo de un cliente
 - **THEN** el sistema abre el detalle de ese proceso y muestra sus relaciones autorizadas
+
+#### Scenario: Consultar autoría de un reporte
+
+- **WHEN** un usuario autorizado abre el detalle de un proceso con reportes
+- **THEN** cada reporte identifica al profesional autor, al usuario que lo registró y su fecha
+- **AND** los reportes históricos sin usuario registrante muestran una indicación de registro anterior
 
 #### Scenario: Profesional solicita un proceso no asignado
 

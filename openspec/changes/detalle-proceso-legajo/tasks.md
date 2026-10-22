@@ -9,6 +9,7 @@
 
 - [x] Cambiar los procesos completos del legajo por resúmenes seleccionables.
 - [x] Crear la ruta, carga acotada y vista de detalle del proceso.
+- [x] Mostrar autor, usuario registrante y fecha en cada reporte del detalle.
 - [x] Presentar acciones por policy y asegurar autorización de las escrituras.
 - [x] Mantener el detalle responsive y alineado con Aequitas.
 

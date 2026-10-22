@@ -156,7 +156,7 @@ class ReporteFlowTest extends TestCase
         $this->assertSame([$report->id], Reporte::query()->visibleTo($administrator)->pluck('id')->all());
 
         $this->actingAs($administrator)
-            ->get(route('legajos.show', $process->cliente))
+            ->get(route('legajos.procesos.show', [$process->cliente, $process]))
             ->assertOk()
             ->assertSee('Autor: '.$professional->nombre_completo.' · Registrado por '.$administrator->nombre_completo);
     }

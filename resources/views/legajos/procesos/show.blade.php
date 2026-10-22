@@ -153,7 +153,7 @@
                     @forelse($proceso->reportes as $reporte)
                         <article class="rounded-card border border-line bg-canvas p-4">
                             <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                                <div><p class="text-xs font-semibold uppercase tracking-wide text-muted">{{ $reporte->profesional?->nombre_completo ?? 'Profesional' }} · {{ $reporte->fecha?->format('d/m/Y') ?? 'Sin fecha' }}</p><p class="mt-3 whitespace-pre-line text-sm leading-6 text-ink">{{ $reporte->contenido }}</p></div>
+                                <div><p class="text-xs font-semibold uppercase tracking-wide text-muted">Autor: {{ $reporte->profesional?->nombre_completo ?? 'Profesional' }} · Registrado por {{ $reporte->registradoPor?->nombre_completo ?? 'Usuario anterior' }} · {{ $reporte->fecha?->format('d/m/Y') ?? 'Sin fecha' }}</p><p class="mt-3 whitespace-pre-line text-sm leading-6 text-ink">{{ $reporte->contenido }}</p></div>
                                 <div class="flex flex-wrap gap-2">
                                     @can('view', $reporte)<a href="{{ route('procesos.reportes.historial', [$proceso, $reporte]) }}" class="inline-flex min-h-11 items-center rounded-control bg-white px-3 py-2 text-xs font-semibold text-aequitas-900 ring-1 ring-inset ring-line">Ver historial</a>@endcan
                                     @can('update', $reporte)
