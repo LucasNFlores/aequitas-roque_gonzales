@@ -72,6 +72,19 @@ class RolePermissionTest extends TestCase
         $this->assertCount(count($expectedUsers), User::all());
     }
 
+    public function test_user_seeder_preserves_unknown_entry_date_for_existing_accounts(): void
+    {
+        $this->seed(RoleSeeder::class);
+        User::factory()->create([
+            'email' => 'admin@example.com',
+            'fecha_ingreso' => null,
+        ]);
+
+        $this->seed(UserSeeder::class);
+
+        $this->assertNull(User::where('email', 'admin@example.com')->firstOrFail()->fecha_ingreso);
+    }
+
     public function test_permissions_control_the_existing_user_and_service_routes(): void
     {
         $this->seed(RoleSeeder::class);

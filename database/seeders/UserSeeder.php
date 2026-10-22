@@ -30,7 +30,7 @@ class UserSeeder extends Seeder
                 'password' => '1234',
             ];
 
-            if (! $user->exists || $user->fecha_ingreso === null) {
+            if (! $user->exists) {
                 $attributes['fecha_ingreso'] = today()->toDateString();
             }
 
