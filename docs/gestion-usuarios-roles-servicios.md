@@ -294,21 +294,21 @@ Navegación `resources/views/layouts/navigation.blade.php:62` ya mostraba `@can(
 
 `phpunit.xml:26` usa `DB_CONNECTION sqlite` `DB_DATABASE :memory:` (aislado, `RefreshDatabase`).
 
-### 12.1 `tests/Feature/UserManagementTest.php:8` (8 tests, HTTP)
+### 12.1 `tests/Feature/UserManagementTest.php` (16 tests, HTTP)
 
-- `test_directivo_o_administrador_registra_usuario_interno_con_rol_y_password_inicial` — POST `users.store` sin password → `Hash::check('1234')`; con password → hash correcto.
+- `test_directivo_o_administrador_registra_usuario_interno_con_rol_y_password_inicial` — POST `users.store` guarda nombres y apellido separados, asigna fecha actual si se omite y mantiene la contraseña inicial `1234` o la contraseña indicada.
 - `test_email_debe_ser_unico` — duplicado → `assertSessionHasErrors('email')`.
-- `test_modificar_usuario_actualiza_permisos_sin_duplicar` — PUT `users.update` cambia `name/email/roles`, `syncRoles` sin crear segundo registro, `Rule::unique->ignore` permite mismo email propio pero bloquea ajeno.
+- `test_modificar_usuario_actualiza_permisos_sin_duplicar` — PUT `users.update` cambia `name/apellido/email/role`; `syncRoles` reemplaza el rol y `Rule::unique->ignore` permite el email propio pero bloquea uno ajeno.
 - `test_baja_logica_impide_eliminacion_fisica_y_conserva_trazabilidad` — crea `Proceso pendiente` para profesional → `DELETE` → `assertForbidden` y `deleted_at null`; `estado finalizado` → `assertSoftDeleted` y `withTrashed` no null y `can('forceDelete') false`.
 - `test_baja_logica_tambien_valida_coordinador_con_procesos_activos` — idem para `coordinador_id` `en_proceso` → `rechazado`.
 - `test_servicio_o_especialidad_gestion_y_asignacion_evita_duplicados` — Coordinador/Directivo/Admin `PUT users.servicios.update` con `[id, id]` → `count==1`; Profesional actor → `403`; verifica `Proceso` con `servicio_id`.
-- `test_roles_deben_venir_de_bd_y_validar_existentes` — `RolInexistente` → `roles.0` error; rol válido → `hasRole`; Directivo intentando `Administrador` → `403`.
+- `test_roles_deben_venir_de_bd_y_validar_existentes` — `RolInexistente` → error en `role`; una petición con `roles[]` se rechaza; Directivo intentando asignar `Administrador` → `403`.
 - `test_rutas_de_usuarios_existentes_y_protegidas` — `Route::has` para 9 nombres; Profesional `GET users.index 403`, Directivo `200`.
 - `test_vistas_users_renderizan` — `assertSee x-data, Listado, Nuevo, Editar, email`.
 
-### 12.2 `tests/Feature/Livewire/UsuarioIndexTest.php:12` (7 tests, Livewire)
+### 12.2 `tests/Feature/Livewire/UsuarioIndexTest.php` (7 tests, Livewire)
 
-- `test_crear_y_editar_usuarios_desde_livewire` — `Livewire::test(UsuariosIndex)->call('createUser')->set(...)->call('saveUser')->assertHasNoErrors->assertDispatched` y verifica `hasRole`, `Hash::check`.
+- `test_crear_y_editar_usuarios_desde_livewire` — captura nombre y apellido, precompleta la fecha de hoy en altas y guarda un único rol seleccionado.
 - `test_asignar_roles_desde_livewire_respeta_bd` — rol inexistente → `assertHasErrors`, Directivo→Administrador → `assertForbidden`, Admin→Administrador → ok.
 - `test_asociar_servicios_a_profesionales_evita_duplicados` — `manageServicios`+`saveServicios` con 1 y 2 servicios, `assertSame count`, vía `saveUser` también.
 - `test_desactivar_usuarios_con_baja_logica_y_validacion_procesos` — `confirmDelete` con pendiente → `assertForbidden`; tras `finalizado` → `confirmDelete->assertSet showDeleteModal true` + `deleteUser->assertDispatched` + `assertSoftDeleted`.
@@ -319,9 +319,8 @@ Navegación `resources/views/layouts/navigation.blade.php:62` ya mostraba `@can(
 **Ejecución:**
 
 ```bash
-php artisan test --compact tests/Feature/UserManagementTest.php tests/Feature/Livewire/UsuarioIndexTest.php
-# 16 passed (117 assertions)
-php artisan test --compact # 76 passed (416 assertions) total proyecto
+php artisan test --compact tests/Feature/UserManagementTest.php
+php artisan test --compact tests/Feature/Livewire/UsuarioIndexTest.php
 ```
 
 ---

@@ -87,7 +87,7 @@ class Form extends Component
     public function render(): View
     {
         $clientes = Cliente::query()->orderBy('apellido')->orderBy('nombre')->get();
-        $profesionales = User::query()->role('Profesional')->orderBy('name')->get(['id', 'name']);
+        $profesionales = User::query()->role('Profesional')->orderBy('name')->orderBy('apellido')->get(['id', 'name', 'apellido']);
         $procesos = Proceso::query()
             ->with('cliente:id,nombre,apellido')
             ->whereNotIn('estado', Turno::PROCESO_ESTADOS_INACTIVOS)

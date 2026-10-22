@@ -80,7 +80,7 @@ class Index extends Component
 
         $profesionales = $user->requiresProfessionalAssignmentScope()
             ? collect()
-            : User::query()->role('Profesional')->orderBy('name')->get(['id', 'name']);
+            : User::query()->role('Profesional')->orderBy('name')->orderBy('apellido')->get(['id', 'name', 'apellido']);
 
         return view('livewire.turnos.index', compact('turnos', 'profesionales'));
     }
