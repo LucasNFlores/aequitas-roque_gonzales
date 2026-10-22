@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Livewire\Legajos\Index;
+use App\Livewire\Turnos\Form as TurnoForm;
 use App\Models\CategoriaDocumento;
 use App\Models\Cliente;
 use App\Models\Documento;
@@ -181,6 +182,119 @@ class LegajoTest extends TestCase
             'motivo' => 'Se inicia la etapa probatoria.',
             'usuario_id' => $professional->id,
         ]);
+    }
+
+    public function test_scheduling_a_turn_from_process_detail_preserves_and_returns_to_the_origin(): void
+    {
+        $administrator = $this->userWithRole('Administrador');
+        $client = Cliente::factory()->create();
+        $professional = $this->userWithRole('Profesional');
+        $coordinator = $this->userWithRole('Coordinador');
+        $process = $this->processFor($client, $professional, $coordinator);
+        $detailUrl = route('legajos.procesos.show', [$client, $process]);
+        $createUrl = route('turnos.create', [
+            'return_cliente_id' => $client->id,
+            'return_proceso_id' => $process->id,
+        ]);
+
+        $this->actingAs($administrator)
+            ->get($detailUrl)
+            ->assertOk()
+            ->assertSee($createUrl);
+
+        $createResponse = $this->actingAs($administrator)->get($createUrl);
+        $createResponse->assertViewHas('returnClienteId', $client->id);
+        $createResponse->assertViewHas('returnProcesoId', $process->id);
+        $createResponse->assertOk();
+
+        Livewire::actingAs($administrator)
+            ->test(TurnoForm::class, [
+                'returnClienteId' => $client->id,
+                'returnProcesoId' => $process->id,
+            ])
+            ->assertSet('returnClienteId', $client->id)
+            ->assertSet('returnProcesoId', $process->id)
+            ->assertSet('clienteId', (string) $client->id)
+            ->assertSet('procesoId', (string) $process->id)
+            ->assertSet('profesionalId', (string) $professional->id)
+            ->set('fechaHora', now()->addDays(4)->setTime(10, 0)->format('Y-m-d\\TH:i'))
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertRedirect($detailUrl);
+
+        $this->assertDatabaseHas('turnos', [
+            'cliente_id' => $client->id,
+            'proceso_id' => $process->id,
+            'profesional_id' => $professional->id,
+            'estado' => 'programado',
+        ]);
+    }
+
+    public function test_editing_a_client_from_process_detail_returns_to_that_process(): void
+    {
+        $administrator = $this->userWithRole('Administrador');
+        $client = Cliente::factory()->create();
+        $process = $this->processFor(
+            $client,
+            $this->userWithRole('Profesional'),
+            $this->userWithRole('Coordinador'),
+        );
+        $detailUrl = route('legajos.procesos.show', [$client, $process]);
+        $context = [
+            'cliente' => $client,
+            'return_cliente_id' => $client->id,
+            'return_proceso_id' => $process->id,
+        ];
+
+        $this->actingAs($administrator)
+            ->get($detailUrl)
+            ->assertOk()
+            ->assertSee(route('clientes.edit', $context));
+
+        $this->actingAs($administrator)
+            ->get(route('clientes.edit', $context))
+            ->assertOk()
+            ->assertSee($detailUrl);
+
+        $this->actingAs($administrator)
+            ->put(route('clientes.update', $context), [
+                'nombre' => 'Nombre actualizado',
+                'apellido' => $client->apellido,
+                'dni' => $client->dni,
+                'telefono' => $client->telefono,
+                'correo' => $client->correo,
+                'domicilio' => $client->domicilio,
+                'fecha_nacimiento' => $client->fecha_nacimiento?->format('Y-m-d'),
+            ])
+            ->assertRedirect($detailUrl);
+
+        $this->assertDatabaseHas('clientes', [
+            'id' => $client->id,
+            'nombre' => 'Nombre actualizado',
+        ]);
+    }
+
+    public function test_client_edit_does_not_accept_a_process_from_another_client_as_return_context(): void
+    {
+        $administrator = $this->userWithRole('Administrador');
+        $client = Cliente::factory()->create();
+        $otherClient = Cliente::factory()->create();
+        $otherProcess = $this->processFor(
+            $otherClient,
+            $this->userWithRole('Profesional'),
+            $this->userWithRole('Coordinador'),
+        );
+        $context = [
+            'cliente' => $client,
+            'return_cliente_id' => $client->id,
+            'return_proceso_id' => $otherProcess->id,
+        ];
+
+        $this->actingAs($administrator)
+            ->get(route('clientes.edit', $context))
+            ->assertOk()
+            ->assertSee(route('clientes.index'))
+            ->assertDontSee(route('legajos.procesos.show', [$otherClient, $otherProcess]));
     }
 
     public function test_coordinator_and_administrator_can_open_a_legajo_with_empty_relations(): void

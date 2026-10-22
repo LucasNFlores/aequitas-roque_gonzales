@@ -9,8 +9,9 @@
         <div class="mx-auto max-w-3xl">
             <section class="rounded-panel border border-line bg-white p-4 shadow-panel sm:p-6">
                 @include('clientes._form', [
-                    'action' => route('clientes.update', $cliente),
+                    'action' => $updateUrl,
                     'submitLabel' => 'Guardar Cambios',
+                    'returnUrl' => $returnUrl,
                 ])
             </section>
         </div>

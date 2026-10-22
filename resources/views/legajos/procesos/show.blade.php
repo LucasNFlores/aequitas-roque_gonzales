@@ -84,7 +84,7 @@
                 <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div><h2 class="text-lg font-semibold text-ink">Datos maestros del cliente</h2><p class="mt-1 text-sm text-muted">Identidad legal y datos de contacto.</p></div>
                     @can('update', $cliente)
-                        <a href="{{ route('clientes.edit', $cliente) }}" class="inline-flex min-h-11 items-center justify-center rounded-control border border-line bg-white px-4 py-2 text-sm font-semibold text-ink transition hover:bg-canvas focus:outline-none focus:ring-2 focus:ring-gold-600 focus:ring-offset-2">Editar datos del cliente</a>
+                        <a href="{{ route('clientes.edit', ['cliente' => $cliente, 'return_cliente_id' => $cliente->id, 'return_proceso_id' => $proceso->id]) }}" class="inline-flex min-h-11 items-center justify-center rounded-control border border-line bg-white px-4 py-2 text-sm font-semibold text-ink transition hover:bg-canvas focus:outline-none focus:ring-2 focus:ring-gold-600 focus:ring-offset-2">Editar datos del cliente</a>
                     @endcan
                 </div>
                 <dl class="mt-5 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -102,7 +102,7 @@
                     <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                         <div><h2 id="turnos-proceso" class="text-lg font-semibold text-ink">Turnos relacionados</h2><p class="mt-1 text-sm text-muted">Citas y audiencias vinculadas al proceso.</p></div>
                         @can('create', \App\Models\Turno::class)
-                            <a href="{{ route('turnos.create') }}" class="inline-flex min-h-11 items-center justify-center rounded-control bg-aequitas-900 px-4 py-2 text-sm font-semibold text-white hover:bg-aequitas-800">Agendar nuevo turno</a>
+                            <a href="{{ route('turnos.create', ['return_cliente_id' => $cliente->id, 'return_proceso_id' => $proceso->id]) }}" class="inline-flex min-h-11 items-center justify-center rounded-control bg-aequitas-900 px-4 py-2 text-sm font-semibold text-white hover:bg-aequitas-800">Agendar nuevo turno</a>
                         @endcan
                     </div>
                     <div class="mt-5 space-y-3">
