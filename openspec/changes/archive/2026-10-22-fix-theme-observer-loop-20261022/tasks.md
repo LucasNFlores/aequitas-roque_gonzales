@@ -15,4 +15,4 @@
 
 - [x] Ejecutar la prueba PHPUnit focalizada (1 test, 13 aserciones), el build frontend y comprobar en navegador la carga e interacción del tema.
 - [x] Revisar el diff y `git diff --check`.
-- [ ] Integrar la rama terminada en `dev` según las instrucciones del repositorio.
+- [x] Integrar la rama terminada en `dev` según las instrucciones del repositorio.

@@ -1,10 +1,10 @@
 # Evitar que el selector de tema bloquee el dashboard
 
-## Objetivo
+## Why
 
 Permitir que el dashboard autenticado termine de cargar y siga siendo interactivo cuando aparece el selector de tema.
 
-## Problema
+## What Changes
 
 El observador global de mutaciones llama a `syncThemeToggle`, que reemplaza el texto del selector aunque no haya cambiado. Esa escritura vuelve a disparar el mismo observador y mantiene ocupado el hilo principal del navegador.
 
