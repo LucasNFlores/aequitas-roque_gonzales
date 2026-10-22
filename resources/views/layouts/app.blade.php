@@ -44,12 +44,6 @@
                 document.addEventListener('DOMContentLoaded', syncThemeToggle, { once: true });
                 document.addEventListener('livewire:navigated', syncThemeToggle);
                 window.addEventListener('pageshow', syncThemeToggle);
-                new MutationObserver(syncThemeToggle).observe(document.documentElement, {
-                    childList: true,
-                    subtree: true,
-                    attributes: true,
-                    attributeFilter: ['data-theme'],
-                });
                 document.addEventListener('click', (event) => {
                     const themeToggle = event.target.closest('[data-theme-toggle]');
 

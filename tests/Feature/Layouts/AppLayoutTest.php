@@ -28,6 +28,8 @@ class AppLayoutTest extends TestCase
         $response->assertSee('h-screen w-64', false);
         $response->assertSee('md:sticky', false);
         $response->assertSee('Secretario');
+        $response->assertSee('data-theme-toggle', false);
+        $response->assertSee('data-theme-toggle-label', false);
         $response->assertDontSee($user->email);
         $response->assertSee(route('profile.edit'), false);
         $response->assertSee(route('logout'), false);
