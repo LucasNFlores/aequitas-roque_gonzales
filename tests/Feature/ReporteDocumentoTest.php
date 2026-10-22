@@ -97,6 +97,10 @@ class ReporteDocumentoTest extends TestCase
         $coordinator = User::factory()->create();
         $coordinator->assignRole('Coordinador');
 
+        foreach (range(1, 45) as $number) {
+            CategoriaDocumento::factory()->create(['nombre' => 'Categoría '.$number]);
+        }
+
         $response = $this->actingAs($coordinator)->get(route('reportes.documentos.pdf', [
             'fecha_desde' => '2026-10-01',
             'fecha_hasta' => '2026-10-20',

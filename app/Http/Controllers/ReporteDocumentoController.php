@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\CategoriaDocumento;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Barryvdh\DomPDF\PDF as DomPdf;
 use Carbon\CarbonImmutable;
+use Dompdf\Canvas;
+use Dompdf\FontMetrics;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -17,6 +20,31 @@ use Symfony\Component\HttpFoundation\Response;
 class ReporteDocumentoController extends Controller
 {
     private const MAXIMO_DIAS_PERIODO = 366;
+
+    private function agregarEncabezadoYPaginacion(DomPdf $pdf): void
+    {
+        $pdf->render();
+
+        $canvas = $pdf->getDomPDF()->getCanvas();
+        $canvas->page_script(static function (int $pageNumber, int $pageCount, Canvas $canvas, FontMetrics $fontMetrics): void {
+            $navy = [0.12, 0.16, 0.27];
+            $gray = [0.33, 0.33, 0.33];
+            $normalFont = $fontMetrics->getFont('DejaVu Sans', 'normal');
+            $boldFont = $fontMetrics->getFont('DejaVu Sans', 'bold');
+
+            $canvas->filled_rectangle(35, 25, 40, 40, $navy);
+            $canvas->line(47, 54, 55, 36, [1, 1, 1], 2.5);
+            $canvas->line(55, 36, 63, 54, [1, 1, 1], 2.5);
+            $canvas->line(50, 48, 60, 48, [1, 1, 1], 2.5);
+            $canvas->text(90, 35, 'AEQUITAS GESTIÓN', $boldFont, 15, $navy);
+            $canvas->text(90, 50, 'Estudio jurídico - Sistemas de gestión', $normalFont, 10, $gray);
+            $canvas->text(90, 65, 'Av. del Parque 1250, Posadas, Misiones · Tel. (0376) 400-0000 · informes@aequitas.example', $normalFont, 8, $gray);
+            $canvas->line(35, 85, $canvas->get_width() - 35, 85, $navy, 2);
+            $canvas->line(35, 790, $canvas->get_width() - 35, 790, [0.6, 0.6, 0.6], 0.8);
+            $canvas->text(35, 808, 'AEQUITAS Gestión · Uso interno · Informe documental', $normalFont, 9, $gray);
+            $canvas->text(455, 808, "Página {$pageNumber} de {$pageCount}", $normalFont, 9, $gray);
+        });
+    }
 
     /**
      * @return array{fecha_desde: string, fecha_hasta: string, estado: string, categoria_id: int|null}
@@ -137,13 +165,16 @@ class ReporteDocumentoController extends Controller
         $categorias = $this->queryReporte($filtros)->get();
         $totales = $this->totales($categorias);
 
-        return Pdf::loadView('reportes.documentos-pdf', [
+        $pdf = Pdf::loadView('reportes.documentos-pdf', [
             'categorias' => $categorias,
             'filtros' => $filtros,
             'totales' => $totales,
             'emitidoPor' => $request->user()->name,
             'fechaHora' => now()->format('d/m/Y H:i'),
-        ])->setPaper('a4', 'portrait')
-            ->download('informe-documentos-'.$filtros['fecha_desde'].'_'.$filtros['fecha_hasta'].'.pdf');
+        ])->setPaper('a4', 'portrait');
+
+        $this->agregarEncabezadoYPaginacion($pdf);
+
+        return $pdf->download('informe-documentos-'.$filtros['fecha_desde'].'_'.$filtros['fecha_hasta'].'.pdf');
     }
 }
