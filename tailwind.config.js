@@ -21,6 +21,21 @@ export default {
 
     theme: {
         extend: {
+            fontSize: {
+                xs: ['10px', { lineHeight: '14px' }],
+                sm: ['12px', { lineHeight: '18px' }],
+                base: ['12px', { lineHeight: '18px' }],
+                lg: ['14px', { lineHeight: '20px' }],
+                xl: ['14px', { lineHeight: '20px' }],
+                '2xl': ['16px', { lineHeight: '24px' }],
+                '3xl': ['20px', { lineHeight: '28px' }],
+                '4xl': ['24px', { lineHeight: '32px' }],
+                '5xl': ['32px', { lineHeight: '40px' }],
+                '6xl': ['40px', { lineHeight: '48px' }],
+                '7xl': ['48px', { lineHeight: '56px' }],
+                '8xl': ['64px', { lineHeight: '72px' }],
+                '9xl': ['80px', { lineHeight: '88px' }],
+            },
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
                 editorial: ['Playfair Display', 'Georgia', 'serif'],

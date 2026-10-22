@@ -32,6 +32,8 @@ La base se declara en `resources/css/app.css` mediante variables CSS semánticas
 
 Las fuentes disponibles son `font-sans` (Figtree) y `font-editorial` (Playfair Display). El uso editorial debe mantenerse puntual para no restar claridad a datos, formularios o navegación.
 
+La escala tipográfica compartida usa 12 px para el texto base y pasos redondeados en Tailwind: 10 px para texto auxiliar, 12 px para texto pequeño y base, 14 px para títulos pequeños, 16/20/24 px para títulos y 32 px en adelante para encabezados de mayor jerarquía. El texto normal no baja de 12 px; las alturas de controles y áreas táctiles se mantienen independientes de esta escala.
+
 Las variables de superficie (`--aequitas-surface`, `--aequitas-surface-muted`, `--aequitas-control`), texto, bordes y feedback semántico tienen valores claros por defecto y valores oscuros bajo `[data-theme="dark"]`. Las paletas Tailwind heredadas usadas en feedback, badges, tablas y formularios también se adaptan al tema. Los controles nativos respetan `color-scheme`.
 
 ## Layout autenticado y navegación implementados
