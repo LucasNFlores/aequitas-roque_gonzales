@@ -286,7 +286,7 @@ Navegación `resources/views/layouts/navigation.blade.php:62` ya mostraba `@can(
 | **Desactivar usuarios** | `UserPolicy::delete`, `destroy`/`deleteUser`, `SoftDeletes` | Verifica `procesos activos`, baja lógica, `forceDelete false`, trazabilidad `withTrashed` |
 | **Completar rutas** | `routes/web.php:30` | 9 rutas `users.*` + `users.servicios.update` con `permission` |
 | **Vistas** | `users/index.blade.php`, `livewire/usuarios/index.blade.php`, `users/create/edit/show/_form.blade.php` | Híbrida Tailwind+Alpine+Livewire + clásicas |
-| **Tests** | `tests/Feature/UserManagementTest.php`, `Livewire/UsuarioIndexTest.php` | 16 tests, validan criterios de aceptación |
+| **Tests** | `tests/Feature/UserManagementTest.php` (16) y `Livewire/UsuarioIndexTest.php` (7) | 23 tests, validan criterios de aceptación |
 
 ---
 

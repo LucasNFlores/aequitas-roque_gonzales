@@ -19,6 +19,6 @@
 ## Calidad y entrega
 
 - [x] Ejecutar pruebas afectadas y Pint.
-- [ ] Revisar el diff y ejecutar `git diff --check`.
-- [ ] Obtener revisión independiente en un chat separado sobre la concordancia del modelo, especificación y documentación.
+- [x] Revisar el diff y ejecutar `git diff --check`.
+- [x] Obtener revisión independiente en un chat separado sobre la concordancia del modelo, especificación y documentación.
 - [ ] Integrar en `dev` solo después de completar validaciones y confirmar que la rama destino está limpia.

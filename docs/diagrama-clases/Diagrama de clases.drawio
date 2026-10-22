@@ -71,9 +71,6 @@
         <mxCell id="relation-2" value="reportes (user_id ausente)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=10;strokeColor=#555555;" edge="1" parent="1" source="class-User" target="class-Reporte">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="relation-3" value="registradoPor" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=10;strokeColor=#555555;" edge="1" parent="1" source="class-User" target="class-Reporte">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
         <mxCell id="relation-4" value="procesosComoProfesional" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;fontSize=10;strokeColor=#555555;" edge="1" parent="1" source="class-User" target="class-Proceso">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
