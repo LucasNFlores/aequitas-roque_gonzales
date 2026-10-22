@@ -23,7 +23,7 @@ Laravel usa `->constrained()` para definir estas relaciones automáticamente.
 
 ## Estado actual del proyecto
 
-Ya existen (implementado y probado, 82 tests):
+Ya existen (implementado y probado; la guía no fija el total de pruebas del proyecto):
 - `users` — tabla base + `add_profesional_fields_to_users` + `add_apellido_to_users_table` (`apellido` nullable, sin backfill heurístico) + modelo `User` (`HasFactory, HasRoles, SoftDeletes, Auditable`, `nombre_completo`, `servicios() BelongsToMany`, `procesosComoProfesional/Coordinador HasMany`)
 - `user_servicios` — tabla intermedia N:M `user_id, servicio_id` PK compuesta, `constrained cascade` (permite múltiples servicios por profesional, evita duplicados, disponible para `Proceso.servicio_id`)
 - `permissions`, `roles`, `model_has_permissions`, `model_has_roles`, `role_has_permissions` — creados por Spatie

@@ -16,7 +16,7 @@ Se implementó la administración completa de usuarios internos del estudio jur�
 
 Stack: `Laravel 12 + Eloquent + Spatie/laravel-permission 7.4 + Livewire 3.6 + Alpine.js + Tailwind CSS + PHPUnit 11.5 (RefreshDatabase sqlite:memory)`.
 
-Estado: **82 tests passed (452 assertions)** al 2026-09-10 tras correcciones críticas. `php vendor/bin/pint --dirty` aplicado.
+Estado histórico: **82 tests passed (452 assertions)** al 2026-09-10 tras correcciones críticas. `php vendor/bin/pint --dirty` aplicado.
 
 ---
 
@@ -309,7 +309,7 @@ Navegación `resources/views/layouts/navigation.blade.php:62` ya mostraba `@can(
 ### 12.2 `tests/Feature/Livewire/UsuarioIndexTest.php` (7 tests, Livewire)
 
 - `test_crear_y_editar_usuarios_desde_livewire` — captura nombre y apellido, precompleta la fecha de hoy en altas y guarda un único rol seleccionado.
-- `test_asignar_roles_desde_livewire_respeta_bd` — rol inexistente → `assertHasErrors`, Directivo→Administrador → `assertForbidden`, Admin→Administrador → ok.
+- `test_asignar_un_rol_desde_livewire_respeta_bd` — rol inexistente → `assertHasErrors`, Directivo→Administrador → `assertForbidden`, Admin→Administrador → ok.
 - `test_asociar_servicios_a_profesionales_evita_duplicados` — `manageServicios`+`saveServicios` con 1 y 2 servicios, `assertSame count`, vía `saveUser` también.
 - `test_desactivar_usuarios_con_baja_logica_y_validacion_procesos` — `confirmDelete` con pendiente → `assertForbidden`; tras `finalizado` → `confirmDelete->assertSet showDeleteModal true` + `deleteUser->assertDispatched` + `assertSoftDeleted`.
 - `test_usuario_unico_por_email_livewire_valida` — `assertHasErrors('email')`.
@@ -382,7 +382,7 @@ php artisan serve --host=127.0.0.1 --port=3000
 - `app/Livewire/Usuarios/Index.php:1` (300 líneas)
 - `resources/views/livewire/usuarios/index.blade.php:1` (263 líneas)
 - `resources/views/users/create.blade.php:1`, `edit.blade.php:1`, `show.blade.php:1`, `_form.blade.php:1`
-- `tests/Feature/UserManagementTest.php:1` (8 tests) y `tests/Feature/Livewire/UsuarioIndexTest.php:1` (7 tests)
+- `tests/Feature/UserManagementTest.php` (16 tests) y `tests/Feature/Livewire/UsuarioIndexTest.php` (7 tests)
 - `docs/gestion-usuarios-roles-servicios.md` (este documento)
 
 **Modificados:**
@@ -422,7 +422,7 @@ No se modificó `User.php`, `Servicio.php`, `UserPolicy.php` (ya cumplían), `Ro
 ```bash
 php vendor/bin/pint --dirty
 php artisan test --compact
-# 82 passed (452 assertions), ~63s total (actualizado tras correcciones)
+# Ejecución documentada al 2026-09-10: 82 passed (452 assertions), ~63s
 ```
 
 Checklist de la imagen: 7/7 completados.

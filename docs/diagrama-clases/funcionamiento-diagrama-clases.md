@@ -42,6 +42,8 @@ Este modulo agrupa las personas principales del sistema:
 - `<<Notifiable>>`: puede recibir notificaciones.
 - `<<SoftDeletes>>`: permite borrado logico mediante `deleted_at`.
 
+Los nombres y el apellido de `User` se guardan en campos separados; `nombre_completo` es un valor derivado para presentarlos juntos. Cada usuario puede tener cero o un rol activo, aunque Spatie implemente la relación mediante su trait `HasRoles`.
+
 `Cliente` no inicia sesion en el sistema. Es una entidad de dominio usada para registrar datos personales, procesos, turnos, comprobantes y notificaciones.
 
 ### Gestion Juridica

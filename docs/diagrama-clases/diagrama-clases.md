@@ -12,13 +12,15 @@ direction LR
         class User {
             -String name
             -String apellido
+            +String nombre_completo (derivado)
             -String email
             -String dni
             -String telefono
             -String domicilio
             -Date fecha_nacimiento
             -Date fecha_ingreso
-            -Role roles
+            -Role asignado (0..1)
+            +rolePriority(roleName): int
             +HasMany turnos()
             +HasMany turnosComoCoordinador()
             +HasMany reportes()
