@@ -4,6 +4,7 @@ Este documento explica como interpretar el diagrama de clases del sistema de ges
 
 Archivos relacionados:
 
+- `Diagrama de clases.drawio`: versión editable del diagrama.
 - `diagrama-clases.mermaid`: version Mermaid del diagrama.
 - `diagrama-clases.md`: documentacion del diagrama con el bloque Mermaid incrustado.
 
@@ -49,6 +50,8 @@ Este modulo contiene el nucleo funcional del sistema:
 
 - `Proceso`: representa un caso o expediente juridico abierto para un cliente.
 - `Servicio`: representa el tipo de servicio ofrecido por el estudio, con su costo asociado.
+- `EstadoProceso`: define los estados disponibles y su orden de visualizacion.
+- `HistorialEstadoProceso`: conserva las transiciones de estado de cada proceso y el usuario que las registró, cuando existe.
 
 `Proceso` es la clase central del diagrama porque conecta clientes, profesionales, coordinadores, servicios, turnos, documentos y reportes. Cada proceso pertenece a un cliente y a un servicio. Tambien puede tener un profesional asignado y un coordinador responsable.
 
@@ -58,7 +61,7 @@ Este modulo contiene el nucleo funcional del sistema:
 
 Este modulo administra la planificacion de citas:
 
-- `Turno`: representa una cita entre un cliente y un profesional.
+- `Turno`: representa una cita entre un cliente y un profesional, con un coordinador opcional.
 
 Un turno pertenece a un cliente y a un profesional. Tambien puede pertenecer a un proceso cuando se trata de un seguimiento de caso. Si el turno es externo, como una audiencia judicial, el campo `es_externo` permite distinguirlo y `detalle_externo` permite guardar informacion adicional.
 
@@ -69,6 +72,7 @@ Este modulo registra el material asociado al avance de un proceso:
 - `Documento`: archivo digital asociado a un proceso.
 - `DocumentoVersion`: conserva los metadatos y la ruta interna de cada archivo anterior cuando se reemplaza un documento.
 - `Reporte`: acta, informe o registro generado por un profesional.
+- `ReporteVersion`: conserva el contenido y la fecha anteriores de un reporte, junto con el usuario asociado.
 
 Los documentos permiten mantener el expediente digital ordenado. Las versiones anteriores conservan su relación con el documento y deben consultarse mediante las mismas autorizaciones documentales. Los reportes permiten dejar constancia de reuniones, avances o acciones realizadas sobre el proceso.
 
@@ -78,7 +82,7 @@ Este modulo registra comprobantes economicos asociados a clientes:
 
 - `ComprobantePago`: archivo de comprobante de pago vinculado a un cliente.
 
-El comprobante guarda la ruta del archivo, la fecha de subida y una descripcion opcional. A diferencia de la mayoria de los modelos del diagrama, no aparece con `SoftDeletes`.
+El comprobante guarda la ruta del archivo, la fecha de subida y una descripcion opcional. Pertenece a un cliente y puede asociarse a un proceso. A diferencia de la mayoria de los modelos del diagrama, no aparece con `SoftDeletes`.
 
 ### Comunicaciones
 
@@ -154,6 +158,8 @@ Esto permite registrar mensajes para eventos como confirmacion de turnos, asigna
 
 `Proceso.estado` representa el ciclo de vida del caso:
 
+`EstadoProceso` es el catálogo de estados activos y su orden. Su `slug` coincide con `Proceso.estado`; los siguientes valores son los estados iniciales del seeder:
+
 - `pendiente`
 - `admitido`
 - `iniciado`
@@ -174,22 +180,27 @@ Esto permite registrar mensajes para eventos como confirmacion de turnos, asigna
 - `seguimiento`
 - `externo`
 
+`Turno.estado` puede ser `programado` o `cancelado`.
+
 `Notificacion.canal` representa el medio de comunicación registrado:
 
+- `interno`
 - `email`
 - `whatsapp`
+
+`Notificacion.estado` puede ser `enviado` o `fallido`.
 
 ## Capacidades tecnicas representadas
 
 ### SoftDeletes
 
-Los modelos con `<<SoftDeletes>>` usan borrado logico. Cuando se eliminan, no se borran fisicamente de la base de datos; se marca la columna `deleted_at`.
+`User`, `Cliente`, `Proceso`, `Servicio`, `EstadoProceso`, `CategoriaDocumento`, `Documento`, `Reporte` y `Notificacion` usan el trait `SoftDeletes`. `Turno` tiene la columna `deleted_at`, pero su modelo no usa el trait; `ComprobantePago` tampoco lo usa.
 
 Esto ayuda a conservar trazabilidad y permite recuperar informacion si fue eliminada por error.
 
 ### HasFactory
 
-`<<HasFactory>>` indica que el modelo puede generar datos de prueba mediante factories de Laravel. Aunque todos los modelos pueden tener factories, en el diagrama se destaca especialmente en `ComprobantePago` porque no usa `SoftDeletes`.
+`<<HasFactory>>` indica que el modelo usa una factory de Laravel. `DocumentoVersion` y `ReporteVersion` no declaran ese trait.
 
 ### Authenticatable
 
@@ -201,7 +212,7 @@ Esto ayuda a conservar trazabilidad y permite recuperar informacion si fue elimi
 
 ### Auditable
 
-`<<Auditable>>` aparece en `User` porque se registran cambios relevantes para trazabilidad.
+`<<Auditable>>` aparece en `User` y `Documento` porque se registran cambios relevantes para trazabilidad.
 
 ### Notifiable
 
