@@ -1,0 +1,46 @@
+sequenceDiagram
+    autonumber
+    actor Secretario as Secretario / Administrador
+    participant Vista as Vista documentos.index
+    participant Componente as Documentos.Index (Livewire)
+    participant Policy as DocumentoPolicy
+    participant Storage as Storage local
+    participant DB as Transaccion DB
+    participant Documento as Documento (Model)
+
+    Secretario->>Vista: Clic en "Nuevo documento"
+    Vista->>Componente: createDocumento()
+    Componente->>Componente: Gate::authorize('view', proceso)
+    Componente->>Componente: Gate::authorize('create', Documento::class)
+    Componente-->>Vista: showModal = true
+
+    Secretario->>Vista: nombre + categoría + PDF y clic en "Guardar"
+    Vista->>Componente: saveDocumento()
+    Componente->>Componente: Gate::authorize('view', proceso)
+    Componente->>Componente: Gate::authorize('create', Documento::class)
+    Componente->>Componente: validate(nombre, categoría, archivo)
+
+    alt Datos inválidos
+        Componente-->>Vista: errores de validación
+    else Datos válidos
+        Componente->>Componente: CategoriaDocumento::withTrashed()->findOrFail(categoriaId)
+        alt Categoría no disponible
+            Componente-->>Vista: error 422
+        else Categoría disponible
+            Componente->>Storage: storeAs('documentos/{proceso}/uuid.pdf', 'local')
+            Componente->>DB: transaction
+            DB->>Documento: create(proceso_id, categoria_id, archivo_path, tipo_documento, nombre)
+            Documento-->>DB: documento creado
+            alt Error al guardar
+                DB-->>Componente: Throwable
+                Componente->>Storage: delete(archivo_path)
+                Componente-->>Vista: addError('archivo', 'No pudimos guardar...')
+            else Guardado correcto
+                DB-->>Componente: OK
+                Componente->>Vista: successMessage + closeModal()
+                Componente-->>Vista: dispatch('documento-guardado')
+            end
+        end
+    end
+
+    Note over Componente,Documento: La carga inicial no crea DocumentoVersion ni Notificacion.
