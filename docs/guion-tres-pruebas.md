@@ -29,11 +29,11 @@ Las tres pertenecen al CRUD de usuarios y recorren una operación distinta: **cr
 
 | # | Prueba | Operación | Ruta → método | Archivo | Resultado obtenido |
 | --- | --- | --- | --- | --- | --- |
-| 1 | `test_directivo_o_administrador_registra_usuario_interno_con_rol_y_password_inicial` | Create | `POST /usuarios` → `store` | `tests/Feature/UserManagementTest.php:45` | OK (1 test, 8 assertions) |
-| 2 | `test_modificar_usuario_actualiza_permisos_sin_duplicar` | Update | `PUT /usuarios/{user}` → `update` | `tests/Feature/UserManagementTest.php:92` | OK (1 test, 9 assertions) |
-| 3 | `test_baja_logica_impide_eliminacion_fisica_y_conserva_trazabilidad` | Delete | `DELETE /usuarios/{user}` → `destroy` | `tests/Feature/UserManagementTest.php:122` | OK (1 test, 7 assertions) |
+| 1 | `test_directivo_o_administrador_registra_usuario_interno_con_rol_y_password_inicial` | Create | `POST /usuarios` → `store` | `tests/Feature/UserManagementTest.php:45` | OK (1 test, 9 assertions) |
+| 2 | `test_modificar_usuario_actualiza_permisos_sin_duplicar` | Update | `PUT /usuarios/{user}` → `update` | `tests/Feature/UserManagementTest.php:96` | OK (1 test, 10 assertions) |
+| 3 | `test_baja_logica_impide_eliminacion_fisica_y_conserva_trazabilidad` | Delete | `DELETE /usuarios/{user}` → `destroy` | `tests/Feature/UserManagementTest.php:129` | OK (1 test, 7 assertions) |
 
-Total de la demostración: **3 casos ejecutados y 24 aserciones aprobadas**.
+Total de la demostración: **3 casos ejecutados y 26 aserciones aprobadas**.
 
 ---
 
@@ -51,25 +51,25 @@ php vendor/bin/phpunit tests/Feature/UserManagementTest.php --testdox --filter='
 User Management (Tests\Feature\UserManagement)
  ✔ Directivo o administrador registra usuario interno con rol y password inicial
 
-OK (1 test, 8 assertions)
+OK (1 test, 9 assertions)
 ```
 
 ### Qué hace
 
 Comprueba que un usuario autorizado puede registrar un usuario interno, asignarle un rol y definir su contraseña inicial:
 
-1. Un **Directivo** registra un usuario con rol `Profesional` y **sin** contraseña: el sistema debe generar `1234`.
+1. Un **Directivo** registra un usuario con rol `Profesional` y **sin** contraseña: el sistema debe generar `1234` y registrar la fecha de ingreso del día.
 2. Un **Administrador** registra otro usuario con contraseña explícita.
 3. Verifica que ambos usuarios se guarden, que el rol se asigne y que la contraseña quede hasheada.
 
 ### Cómo lo hace
 
-1. `setUp()` ejecuta `RoleSeeder`, que crea los roles y sincroniza la matriz de permisos (`database/seeders/RoleSeeder.php:15`).
+1. `setUp()` ejecuta `RoleSeeder`, que crea los roles y sincroniza la matriz de permisos (`database/seeders/RoleSeeder.php:16`).
 2. `actingAsDirectivo()` crea un usuario con factory y le asigna el rol `Directivo`.
-3. Autentica con `actingAs($directivo)` y hace `POST route('users.store')` con `name`, `email` y `roles`, sin `password`.
+3. Autentica con `actingAs($directivo)` y hace `POST route('users.store')` con `name`, `apellido`, `email` y `role`, sin `password`.
 4. La ruta está protegida por el middleware `permission:agregar_usuarios` (`routes/web.php:51`).
 5. `StoreUserRequest` valida los datos y autoriza con `can('agregar_usuarios')` (`app/Http/Requests/StoreUserRequest.php:9`).
-6. `UserController@store` (`app/Http/Controllers/UserController.php:76`) usa `1234` cuando no se envía contraseña, crea el usuario y sincroniza el rol con `syncRoles`.
+6. `UserController@store` (`app/Http/Controllers/UserController.php:79`) usa `1234` cuando no se envía contraseña, asigna `fecha_ingreso` con la fecha del día y sincroniza el rol con `syncRoles([$role])`.
 7. Repite el alta con un Administrador y contraseña explícita `secreta123`.
 
 ### Aserciones principales
@@ -77,6 +77,7 @@ Comprueba que un usuario autorizado puede registrar un usuario interno, asignarl
 - `assertRedirect(route('users.index'))`: el alta termina en el listado.
 - `assertDatabaseHas('users', ['email' => ...])`: el registro se persistió.
 - `hasRole('Profesional')`: el rol se asignó.
+- `fecha_ingreso` igual a la fecha del día: se registró el ingreso.
 - `Hash::check('1234', ...)`: se aplicó la contraseña inicial por defecto.
 - `Hash::check('secreta123', ...)`: se respetó la contraseña explícita.
 
@@ -87,9 +88,9 @@ Comprueba que un usuario autorizado puede registrar un usuario interno, asignarl
 | Definición de la prueba | `tests/Feature/UserManagementTest.php:45` |
 | Ruta del alta | `routes/web.php:53` |
 | Validación y autorización | `app/Http/Requests/StoreUserRequest.php:9` |
-| Controller | `app/Http/Controllers/UserController.php:76` |
+| Controller | `app/Http/Controllers/UserController.php:79` |
 | Policy de creación | `app/Policies/UserPolicy.php:19` |
-| Matriz de roles y permisos | `database/seeders/RoleSeeder.php:15` |
+| Matriz de roles y permisos | `database/seeders/RoleSeeder.php:16` |
 
 ### Con qué herramientas
 
@@ -113,7 +114,7 @@ Comprueba que un usuario autorizado puede registrar un usuario interno, asignarl
 Porque `RoleSeeder` le asigna `agregar_usuarios` y la ruta exige ese permiso (`routes/web.php:51`).
 
 **¿Quién puede asignar el rol Administrador?**
-Solo un Administrador: `UserController@store` aborta con 403 si otro rol intenta asignarlo (`app/Http/Controllers/UserController.php:80`).
+Solo un Administrador: `UserController@store` aborta con 403 si otro rol intenta asignarlo (`app/Http/Controllers/UserController.php:84`).
 
 ---
 
@@ -131,7 +132,7 @@ php vendor/bin/phpunit tests/Feature/UserManagementTest.php --testdox --filter='
 User Management (Tests\Feature\UserManagement)
  ✔ Modificar usuario actualiza permisos sin duplicar
 
-OK (1 test, 9 assertions)
+OK (1 test, 10 assertions)
 ```
 
 ### Qué hace
@@ -139,7 +140,7 @@ OK (1 test, 9 assertions)
 Comprueba que un Directivo puede modificar los datos y el rol de un usuario existente, sin duplicarlo y sin permitir emails repetidos:
 
 1. Crea un usuario con rol `Secretario`.
-2. Envía un `PUT` con nuevo nombre, nuevo email y rol `Coordinador`.
+2. Envía un `PUT` con nuevo nombre, apellido, email y rol `Coordinador`.
 3. Verifica que los datos y el rol se actualicen.
 4. Intenta usar un email ya existente y confirma que la validación lo rechaza.
 
@@ -147,15 +148,16 @@ Comprueba que un Directivo puede modificar los datos y el rol de un usuario exis
 
 1. `actingAsDirectivo()` autentica a un Directivo.
 2. Crea un usuario objetivo y le asigna `Secretario`.
-3. Hace `PUT route('users.update', $target)` con `name`, `email` y `roles`.
+3. Hace `PUT route('users.update', $target)` con `name`, `apellido`, `email` y `role`.
 4. La ruta está protegida por `permission:modificar_usuarios` (`routes/web.php:56`).
 5. `UpdateUserRequest` autoriza con `can('update', $target)` y valida el email con `Rule::unique(...)->ignore($userId)` (`app/Http/Requests/UpdateUserRequest.php:21`).
-6. `UserController@update` (`app/Http/Controllers/UserController.php:141`) actualiza los datos y reemplaza los roles con `syncRoles`.
+6. `UserController@update` (`app/Http/Controllers/UserController.php:145`) actualiza los datos y reemplaza el rol con `syncRoles([$role])`.
 7. Repite el `PUT` con un email ya usado y verifica el error de validación.
 
 ### Aserciones principales
 
 - `assertSame('Nombre Actualizado', $target->name)`: se persistió el nombre.
+- `assertSame('Actualizado', $target->apellido)`: se persistió el apellido.
 - `assertSame('actualizado@example.com', $target->email)`: se persistió el email.
 - `hasRole('Coordinador')` y `! hasRole('Secretario')`: el rol se reemplazó, no se acumuló.
 - `assertSame(1, User::where('email', ...)->count())`: no se duplicó el usuario.
@@ -165,10 +167,10 @@ Comprueba que un Directivo puede modificar los datos y el rol de un usuario exis
 
 | Responsabilidad | Archivo |
 | --- | --- |
-| Definición de la prueba | `tests/Feature/UserManagementTest.php:92` |
+| Definición de la prueba | `tests/Feature/UserManagementTest.php:96` |
 | Ruta de edición | `routes/web.php:58` |
 | Validación y autorización | `app/Http/Requests/UpdateUserRequest.php:21` |
-| Controller | `app/Http/Controllers/UserController.php:141` |
+| Controller | `app/Http/Controllers/UserController.php:145` |
 | Policy de edición | `app/Policies/UserPolicy.php:24` |
 
 ### Con qué herramientas
@@ -182,7 +184,7 @@ Comprueba que un Directivo puede modificar los datos y el rol de un usuario exis
 
 ### Explicación oral sugerida
 
-> “Esta prueba cubre la edición. Un Directivo modifica nombre, email y rol de un usuario existente mediante un PUT. El FormRequest valida la unicidad ignorando el propio usuario y el controlador actualiza los datos y sincroniza los roles, es decir, reemplaza el rol anterior en lugar de acumularlo. Después intenta reutilizar un email existente y confirma que la validación lo rechaza. También comprueba que no se creó un usuario duplicado.”
+> “Esta prueba cubre la edición. Un Directivo modifica nombre, apellido, email y rol de un usuario existente mediante un PUT. El FormRequest valida la unicidad ignorando el propio usuario y el controlador actualiza los datos y sincroniza el rol, es decir, reemplaza el rol anterior en lugar de acumularlo. Después intenta reutilizar un email existente y confirma que la validación lo rechaza. También comprueba que no se creó un usuario duplicado.”
 
 ### Preguntas posibles
 
@@ -226,7 +228,7 @@ Comprueba que la baja de un usuario respeta las reglas de negocio:
 2. Crea un Coordinador, un Profesional, un Cliente, un Servicio y un `Proceso` en estado `pendiente` asociado al Profesional.
 3. Hace `DELETE route('users.destroy', $profesional)`.
 4. La ruta está protegida por `permission:eliminar_usuarios` (`routes/web.php:62`).
-5. `UserController@destroy` autoriza con `can('delete', $user)` y ejecuta `$user->delete()` (`app/Http/Controllers/UserController.php:185`).
+5. `UserController@destroy` autoriza con `can('delete', $user)` y ejecuta `$user->delete()` (`app/Http/Controllers/UserController.php:191`).
 6. `UserPolicy::delete` exige `eliminar_usuarios`, que el objetivo no sea Administrador y que no tenga procesos activos como Profesional ni como Coordinador (`app/Policies/UserPolicy.php:30`).
 7. Finaliza el proceso y repite el `DELETE`: ahora la baja lógica se ejecuta.
 8. Verifica que el registro siga existiendo con `withTrashed()` y que `forceDelete` sea falso.
@@ -242,9 +244,9 @@ Comprueba que la baja de un usuario respeta las reglas de negocio:
 
 | Responsabilidad | Archivo |
 | --- | --- |
-| Definición de la prueba | `tests/Feature/UserManagementTest.php:122` |
+| Definición de la prueba | `tests/Feature/UserManagementTest.php:129` |
 | Ruta de baja | `routes/web.php:63` |
-| Controller | `app/Http/Controllers/UserController.php:185` |
+| Controller | `app/Http/Controllers/UserController.php:191` |
 | Policy de baja | `app/Policies/UserPolicy.php:30` |
 | Regla de borrado físico | `app/Policies/UserPolicy.php:47` |
 
@@ -351,7 +353,7 @@ Si querés sumar la **R** de lectura, existe:
 php vendor/bin/phpunit tests/Feature/UserManagementTest.php --testdox --filter='test_vistas_users_renderizan'
 ```
 
-Verifica que `index`, `create`, `edit`, `show` y `roles.edit` rendericen correctamente (`tests/Feature/UserManagementTest.php:295`).
+Verifica que `index`, `create`, `edit`, `show` y `roles.edit` rendericen correctamente (`tests/Feature/UserManagementTest.php:305`).
 
 ---
 
@@ -359,8 +361,8 @@ Verifica que `index`, `create`, `edit`, `show` y `roles.edit` rendericen correct
 
 | Prueba | Resultado |
 | --- | --- |
-| Crear usuario | OK (1 test, 8 assertions) |
-| Editar usuario | OK (1 test, 9 assertions) |
+| Crear usuario | OK (1 test, 9 assertions) |
+| Editar usuario | OK (1 test, 10 assertions) |
 | Dar de baja usuario | OK (1 test, 7 assertions) |
 
 Las tres pruebas se ejecutaron sobre este repositorio y finalizaron correctamente. No se modificó ningún test ni código de la aplicación para preparar esta guía.
