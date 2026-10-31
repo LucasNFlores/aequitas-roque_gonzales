@@ -1,6 +1,6 @@
 # Guía de las tres pruebas
 
-Documento de apoyo para ejecutar y explicar tres pruebas que ya existen en el proyecto. No requiere crear pruebas nuevas ni modificar código.
+Documento de apoyo para ejecutar y explicar tres pruebas del **mismo CRUD** (gestión de usuarios) usando **rutas y controladores HTTP**. No requiere crear pruebas nuevas ni modificar código.
 
 ## 1. Entorno verificado
 
@@ -25,307 +25,253 @@ No hace falta levantar MySQL ni ejecutar `npm run build`. Cada prueba crea su pr
 
 ## 2. Resumen de las tres pruebas
 
-| # | Prueba | Archivo | Comando | Resultado obtenido |
-| --- | --- | --- | --- | --- |
-| 1 | CRUD de cliente | `tests/Feature/ClienteTest.php` | `php vendor/bin/phpunit tests/Feature/ClienteTest.php --testdox --filter='test_administrador_can_crud_cliente'` | OK (1 test, 15 assertions) |
-| 2 | Permisos por rol | `tests/Feature/RolePermissionTest.php` | `php vendor/bin/phpunit tests/Feature/RolePermissionTest.php --testdox --filter='test_permissions_control_the_existing_user_and_service_routes'` | OK (1 test, 4 assertions) |
-| 3 | Reporte de documentos | `tests/Feature/ReporteDocumentoTest.php` | Comando detallado en la sección de la Prueba 3 | OK (3 tests, 29 assertions) |
+Las tres pertenecen al CRUD de usuarios y recorren una operación distinta: **crear**, **editar** y **dar de baja**. Todas pasan por `routes/web.php`, `UserController`, un `FormRequest` y `UserPolicy`.
 
-Total de la demostración: **5 casos ejecutados y 48 aserciones aprobadas**.
+| # | Prueba | Operación | Ruta → método | Archivo | Resultado obtenido |
+| --- | --- | --- | --- | --- | --- |
+| 1 | `test_directivo_o_administrador_registra_usuario_interno_con_rol_y_password_inicial` | Create | `POST /usuarios` → `store` | `tests/Feature/UserManagementTest.php:45` | OK (1 test, 8 assertions) |
+| 2 | `test_modificar_usuario_actualiza_permisos_sin_duplicar` | Update | `PUT /usuarios/{user}` → `update` | `tests/Feature/UserManagementTest.php:92` | OK (1 test, 9 assertions) |
+| 3 | `test_baja_logica_impide_eliminacion_fisica_y_conserva_trazabilidad` | Delete | `DELETE /usuarios/{user}` → `destroy` | `tests/Feature/UserManagementTest.php:122` | OK (1 test, 7 assertions) |
+
+Total de la demostración: **3 casos ejecutados y 24 aserciones aprobadas**.
 
 ---
 
-## 3. Prueba 1 — CRUD de cliente
+## 3. Prueba 1 — Crear usuario (Create)
 
 ### Comando
 
 ```bash
-php vendor/bin/phpunit tests/Feature/ClienteTest.php --testdox --filter='test_administrador_can_crud_cliente'
+php vendor/bin/phpunit tests/Feature/UserManagementTest.php --testdox --filter='test_directivo_o_administrador_registra_usuario_interno_con_rol_y_password_inicial'
 ```
 
 ### Resultado obtenido
 
 ```text
-Cliente (Tests\Feature\Cliente)
- ✔ Administrador can crud cliente
+User Management (Tests\Feature\UserManagement)
+ ✔ Directivo o administrador registra usuario interno con rol y password inicial
 
-OK (1 test, 15 assertions)
+OK (1 test, 8 assertions)
 ```
 
 ### Qué hace
 
-Comprueba que un usuario con rol **Administrador** puede realizar el ciclo completo de un cliente:
+Comprueba que un usuario autorizado puede registrar un usuario interno, asignarle un rol y definir su contraseña inicial:
 
-1. Listar clientes.
-2. Abrir el formulario de alta.
-3. Crear un cliente.
-4. Ver el detalle.
-5. Abrir el formulario de edición.
-6. Actualizar el cliente.
-7. Eliminarlo con baja lógica.
-
-La prueba también verifica que el cliente realmente se guarda en la base y que la eliminación no borra el registro físicamente.
+1. Un **Directivo** registra un usuario con rol `Profesional` y **sin** contraseña: el sistema debe generar `1234`.
+2. Un **Administrador** registra otro usuario con contraseña explícita.
+3. Verifica que ambos usuarios se guarden, que el rol se asigne y que la contraseña quede hasheada.
 
 ### Cómo lo hace
 
-1. Usa `RefreshDatabase` para migrar una base limpia antes del test.
-2. Ejecuta `RoleSeeder` para crear los roles y permisos.
-3. Ejecuta `EstadoProcesoSeeder` y `ServicioSeeder` porque el alta de cliente crea registros relacionados.
-4. Crea un usuario con `User::factory()->create()` y le asigna el rol con `assignRole('Administrador')`.
-5. Autentica con `actingAs($admin)`, sin pasar por el formulario de login.
-6. Recorre las rutas del resource:
-   - `GET clientes.index` → `ClienteController@index`.
-   - `GET clientes.create` → `ClienteController@create`.
-   - `POST clientes.store` → `ClienteController@store`.
-   - `GET clientes.show` → `ClienteController@show`.
-   - `GET clientes.edit` → `ClienteController@edit`.
-   - `PUT clientes.update` → `ClienteController@update`.
-   - `DELETE clientes.destroy` → `ClienteController@destroy`.
-7. El controller autoriza cada operación con `ClientePolicy`:
-   - `viewAny` exige `listar_filtrar_clientes`.
-   - `create` exige `registrar_clientes`.
-   - `update` exige `modificar_clientes`.
-   - `delete` exige `eliminar_clientes`.
-8. La validación del alta y la edición se hace con `StoreClienteRequest` y `UpdateClienteRequest`.
-9. El alta ejecuta `RegistrarClienteInicial`, que crea cliente, proceso inicial, turno y notificación dentro de una transacción.
-10. Antes de eliminar, la prueba marca el proceso como `finalizado` porque la policy impide dar de baja un cliente con procesos activos.
-11. Las aserciones principales son:
-    - `assertOk()`: la pantalla responde 200.
-    - `assertRedirect(route('clientes.index'))`: el flujo continúa correctamente.
-    - `assertDatabaseHas('clientes', [...])`: el registro se persistió.
-    - `assertSee('Juan')`: la vista muestra el dato esperado.
-    - `assertSoftDeleted('clientes', [...])`: la baja es lógica.
+1. `setUp()` ejecuta `RoleSeeder`, que crea los roles y sincroniza la matriz de permisos (`database/seeders/RoleSeeder.php:15`).
+2. `actingAsDirectivo()` crea un usuario con factory y le asigna el rol `Directivo`.
+3. Autentica con `actingAs($directivo)` y hace `POST route('users.store')` con `name`, `email` y `roles`, sin `password`.
+4. La ruta está protegida por el middleware `permission:agregar_usuarios` (`routes/web.php:51`).
+5. `StoreUserRequest` valida los datos y autoriza con `can('agregar_usuarios')` (`app/Http/Requests/StoreUserRequest.php:9`).
+6. `UserController@store` (`app/Http/Controllers/UserController.php:76`) usa `1234` cuando no se envía contraseña, crea el usuario y sincroniza el rol con `syncRoles`.
+7. Repite el alta con un Administrador y contraseña explícita `secreta123`.
+
+### Aserciones principales
+
+- `assertRedirect(route('users.index'))`: el alta termina en el listado.
+- `assertDatabaseHas('users', ['email' => ...])`: el registro se persistió.
+- `hasRole('Profesional')`: el rol se asignó.
+- `Hash::check('1234', ...)`: se aplicó la contraseña inicial por defecto.
+- `Hash::check('secreta123', ...)`: se respetó la contraseña explícita.
 
 ### Archivos que intervienen
 
 | Responsabilidad | Archivo |
 | --- | --- |
-| Definición de la prueba | `tests/Feature/ClienteTest.php:42` |
-| Rutas del resource | `routes/web.php:163` |
-| Controller | `app/Http/Controllers/ClienteController.php` |
-| Policy | `app/Policies/ClientePolicy.php:28` |
-| Validación del alta | `app/Http/Requests/StoreClienteRequest.php:9` |
-| Validación de la edición | `app/Http/Requests/UpdateClienteRequest.php:10` |
-| Alta transaccional | `app/Actions/RegistrarClienteInicial.php:18` |
+| Definición de la prueba | `tests/Feature/UserManagementTest.php:45` |
+| Ruta del alta | `routes/web.php:53` |
+| Validación y autorización | `app/Http/Requests/StoreUserRequest.php:9` |
+| Controller | `app/Http/Controllers/UserController.php:76` |
+| Policy de creación | `app/Policies/UserPolicy.php:19` |
+| Matriz de roles y permisos | `database/seeders/RoleSeeder.php:15` |
 
 ### Con qué herramientas
 
 - **PHPUnit 11.5** para definir y ejecutar la prueba.
-- **Laravel HTTP Testing** para `actingAs`, `get`, `post`, `put` y `delete`.
+- **Laravel HTTP Testing** para `actingAs` y `post`.
 - **RefreshDatabase** para aislar la base.
 - **SQLite `:memory:`** como base de datos de test.
-- **Faker + factories** para crear datos falsos.
-- **Seeders** para roles, estados y servicios.
-- **Spatie Laravel Permission** para `assignRole`.
-- **Asserts de Laravel**: `assertOk`, `assertRedirect`, `assertSee`, `assertDatabaseHas`, `assertSoftDeleted`.
-- **PowerShell o terminal de VS Code** para ejecutar el comando.
+- **Faker + factories** para crear usuarios.
+- **Seeders** para roles y permisos.
+- **Spatie Laravel Permission** para `assignRole`, `hasRole` y middleware de permisos.
+- **Hash** para verificar las contraseñas.
+- **Asserts de Laravel**: `assertRedirect`, `assertDatabaseHas`.
 
 ### Explicación oral sugerida
 
-> “Esta prueba verifica el CRUD completo de clientes. Prepara un Administrador con su rol y recorre todas las rutas del resource: listar, crear, ver, editar, actualizar y eliminar. Comprueba que las pantallas carguen, que el cliente se guarde en la base, que la edición se persista y que la eliminación sea lógica. Antes de borrar finaliza el proceso porque la policy bloquea la baja de clientes con procesos activos. Usa PHPUnit con las utilidades de testing de Laravel, SQLite en memoria, factories, seeders y Spatie Permission.”
+> “Esta prueba cubre el alta de usuarios. Carga la matriz de roles, autentica a un Directivo y hace un POST a la ruta de usuarios con nombre, email y rol, sin contraseña. El FormRequest valida y autoriza, y el controlador crea el usuario con la contraseña inicial 1234 y le sincroniza el rol. Después repite el alta con un Administrador y una contraseña explícita. Verifica la redirección, la persistencia, el rol y que ambas contraseñas queden hasheadas.”
 
 ### Preguntas posibles
 
-**¿Por qué finaliza el proceso antes de eliminar?**
-Porque `ClientePolicy::delete` exige `eliminar_clientes` y además verifica que no existan procesos activos. Sin ese paso, la baja sería rechazada.
+**¿Por qué el Directivo puede crear usuarios?**
+Porque `RoleSeeder` le asigna `agregar_usuarios` y la ruta exige ese permiso (`routes/web.php:51`).
 
-**¿La prueba usa un navegador real?**
-No. Usa el cliente HTTP de Laravel, que ejecuta el mismo stack de rutas, middleware, controller y policy sin abrir un navegador.
+**¿Quién puede asignar el rol Administrador?**
+Solo un Administrador: `UserController@store` aborta con 403 si otro rol intenta asignarlo (`app/Http/Controllers/UserController.php:80`).
 
 ---
 
-## 4. Prueba 2 — Permisos por rol
+## 4. Prueba 2 — Editar usuario (Update)
 
 ### Comando
 
 ```bash
-php vendor/bin/phpunit tests/Feature/RolePermissionTest.php --testdox --filter='test_permissions_control_the_existing_user_and_service_routes'
+php vendor/bin/phpunit tests/Feature/UserManagementTest.php --testdox --filter='test_modificar_usuario_actualiza_permisos_sin_duplicar'
 ```
 
 ### Resultado obtenido
 
 ```text
-Role Permission (Tests\Feature\RolePermission)
- ✔ Permissions control the existing user and service routes
+User Management (Tests\Feature\UserManagement)
+ ✔ Modificar usuario actualiza permisos sin duplicar
 
-OK (1 test, 4 assertions)
+OK (1 test, 9 assertions)
 ```
 
 ### Qué hace
 
-Demuestra que el acceso a las rutas depende del rol del usuario:
+Comprueba que un Directivo puede modificar los datos y el rol de un usuario existente, sin duplicarlo y sin permitir emails repetidos:
 
-- Un **Directivo** puede entrar a `/usuarios` y `/servicios` y recibe `200`.
-- Un **Profesional** recibe `403` en ambas rutas.
-
-La prueba confirma que la autorización se resuelve en el servidor y no solo ocultando enlaces en la interfaz.
+1. Crea un usuario con rol `Secretario`.
+2. Envía un `PUT` con nuevo nombre, nuevo email y rol `Coordinador`.
+3. Verifica que los datos y el rol se actualicen.
+4. Intenta usar un email ya existente y confirma que la validación lo rechaza.
 
 ### Cómo lo hace
 
-1. Ejecuta `RoleSeeder`, que crea los cinco roles y sincroniza la matriz de permisos.
-2. Crea un usuario con `User::factory()->create()` y le asigna `Directivo`.
-3. Crea otro usuario y le asigna `Profesional`.
-4. Realiza `GET` a `route('users.index')` y `route('servicios.index')` con cada usuario.
-5. Las rutas están protegidas por middleware de Spatie:
-   - `/usuarios` exige `permission:listar_usuarios`.
-   - `/servicios` exige `permission:gestionar_servicios`.
-6. El `RoleSeeder` asigna esos permisos al Directivo y no al Profesional.
-7. Las aserciones verifican el código de estado:
-   - `assertOk()` espera `200`.
-   - `assertForbidden()` espera `403`.
+1. `actingAsDirectivo()` autentica a un Directivo.
+2. Crea un usuario objetivo y le asigna `Secretario`.
+3. Hace `PUT route('users.update', $target)` con `name`, `email` y `roles`.
+4. La ruta está protegida por `permission:modificar_usuarios` (`routes/web.php:56`).
+5. `UpdateUserRequest` autoriza con `can('update', $target)` y valida el email con `Rule::unique(...)->ignore($userId)` (`app/Http/Requests/UpdateUserRequest.php:21`).
+6. `UserController@update` (`app/Http/Controllers/UserController.php:141`) actualiza los datos y reemplaza los roles con `syncRoles`.
+7. Repite el `PUT` con un email ya usado y verifica el error de validación.
 
-### Permisos relevantes de la matriz
+### Aserciones principales
 
-| Permiso | Directivo | Profesional |
-| --- | --- | --- |
-| `listar_usuarios` | Sí | No |
-| `gestionar_servicios` | Sí | No |
+- `assertSame('Nombre Actualizado', $target->name)`: se persistió el nombre.
+- `assertSame('actualizado@example.com', $target->email)`: se persistió el email.
+- `hasRole('Coordinador')` y `! hasRole('Secretario')`: el rol se reemplazó, no se acumuló.
+- `assertSame(1, User::where('email', ...)->count())`: no se duplicó el usuario.
+- `assertSessionHasErrors('email')`: la unicidad se respeta al editar.
 
 ### Archivos que intervienen
 
 | Responsabilidad | Archivo |
 | --- | --- |
-| Definición de la prueba | `tests/Feature/RolePermissionTest.php:67` |
-| Matriz de roles y permisos | `database/seeders/RoleSeeder.php:11` |
-| Ruta de usuarios | `routes/web.php:48` |
-| Ruta de servicios | `routes/web.php:81` |
+| Definición de la prueba | `tests/Feature/UserManagementTest.php:92` |
+| Ruta de edición | `routes/web.php:58` |
+| Validación y autorización | `app/Http/Requests/UpdateUserRequest.php:21` |
+| Controller | `app/Http/Controllers/UserController.php:141` |
+| Policy de edición | `app/Policies/UserPolicy.php:24` |
 
 ### Con qué herramientas
 
 - **PHPUnit 11.5**.
-- **Laravel HTTP Testing** para `actingAs` y `get`.
-- **Spatie Laravel Permission 7.4** para roles, permisos y middleware.
-- **RoleSeeder** como fuente de verdad de la matriz.
+- **Laravel HTTP Testing** para `actingAs` y `put`.
+- **FormRequest + Rule::unique(...)->ignore()** para la unicidad en edición.
+- **Spatie Laravel Permission** para `syncRoles` y `hasRole`.
 - **RefreshDatabase + SQLite `:memory:`**.
-- **Asserts**: `assertOk` y `assertForbidden`.
+- **Asserts**: `assertRedirect`, `assertSame`, `assertSessionHasErrors`.
 
 ### Explicación oral sugerida
 
-> “Esta prueba valida la seguridad por roles. Carga la matriz de permisos con el seeder, crea un Directivo y un Profesional, y comprueba que el Directivo accede a usuarios y servicios mientras el Profesional recibe 403. Lo importante es que la autorización se resuelve en el servidor mediante middleware y permisos, no ocultando botones. Usa Spatie Permission para los roles y las aserciones HTTP de Laravel para verificar los códigos de estado.”
+> “Esta prueba cubre la edición. Un Directivo modifica nombre, email y rol de un usuario existente mediante un PUT. El FormRequest valida la unicidad ignorando el propio usuario y el controlador actualiza los datos y sincroniza los roles, es decir, reemplaza el rol anterior en lugar de acumularlo. Después intenta reutilizar un email existente y confirma que la validación lo rechaza. También comprueba que no se creó un usuario duplicado.”
 
 ### Preguntas posibles
 
-**¿Dónde se define que el Directivo puede entrar?**
-En `database/seeders/RoleSeeder.php`, dentro de la matriz `PERMISSIONS_BY_ROLE`. El Directivo tiene `listar_usuarios` y `gestionar_servicios`; el Profesional no.
+**¿Qué diferencia hay entre `syncRoles` y `assignRole`?**
+`assignRole` agrega un rol; `syncRoles` deja exactamente los roles indicados. Por eso el usuario deja de ser `Secretario` al pasar a `Coordinador`.
 
-**¿Qué diferencia hay entre 403 y 302?**
-`403` significa autenticado pero sin permiso. `302` se usa normalmente para redirigir a login cuando el usuario no está autenticado.
+**¿Por qué el email duplicado no falla en la primera edición?**
+Porque `Rule::unique(...)->ignore($userId)` excluye al propio usuario de la comprobación de unicidad.
 
 ---
 
-## 5. Prueba 3 — Reporte de documentos
+## 5. Prueba 3 — Dar de baja usuario (Delete)
 
 ### Comando
 
 ```bash
-php vendor/bin/phpunit tests/Feature/ReporteDocumentoTest.php --testdox --filter='test_manual_period_filters_documents_through_the_end_of_the_final_day|test_invalid_periods_redirect_back_with_validation_errors|test_coordinator_can_download_pdf_with_the_same_filters'
-```
-
-Si la terminal no acepta el pipe dentro de `--filter`, ejecutá cada método por separado:
-
-```bash
-php vendor/bin/phpunit tests/Feature/ReporteDocumentoTest.php --testdox --filter='test_manual_period_filters_documents_through_the_end_of_the_final_day'
-php vendor/bin/phpunit tests/Feature/ReporteDocumentoTest.php --testdox --filter='test_invalid_periods_redirect_back_with_validation_errors'
-php vendor/bin/phpunit tests/Feature/ReporteDocumentoTest.php --testdox --filter='test_coordinator_can_download_pdf_with_the_same_filters'
+php vendor/bin/phpunit tests/Feature/UserManagementTest.php --testdox --filter='test_baja_logica_impide_eliminacion_fisica_y_conserva_trazabilidad'
 ```
 
 ### Resultado obtenido
 
 ```text
-Reporte Documento (Tests\Feature\ReporteDocumento)
- ✔ Manual period filters documents through the end of the final day
- ✔ Invalid periods redirect back with validation errors
- ✔ Coordinator can download pdf with the same filters
+User Management (Tests\Feature\UserManagement)
+ ✔ Baja logica impide eliminacion fisica y conserva trazabilidad
 
-OK (3 tests, 29 assertions)
+OK (1 test, 7 assertions)
 ```
 
 ### Qué hace
 
-Ejecuta tres casos del informe de documentos:
+Comprueba que la baja de un usuario respeta las reglas de negocio:
 
-1. **Período manual:** verifica que un rango de fechas incluya los documentos hasta el último instante del día final.
-2. **Períodos inválidos:** verifica que un rango incompleto, invertido, inexistente o demasiado largo vuelva al formulario con errores.
-3. **Descarga PDF:** verifica que el Coordinador descargue un PDF real usando los mismos filtros.
+1. Un Profesional con un proceso activo **no** puede darse de baja.
+2. Al finalizar el proceso, la baja se permite y es **lógica**.
+3. El registro sigue existiendo para conservar trazabilidad.
+4. El borrado físico (`forceDelete`) nunca está permitido.
 
 ### Cómo lo hace
 
-### Preparación común
+1. `actingAsDirectivo()` autentica a un Directivo.
+2. Crea un Coordinador, un Profesional, un Cliente, un Servicio y un `Proceso` en estado `pendiente` asociado al Profesional.
+3. Hace `DELETE route('users.destroy', $profesional)`.
+4. La ruta está protegida por `permission:eliminar_usuarios` (`routes/web.php:62`).
+5. `UserController@destroy` autoriza con `can('delete', $user)` y ejecuta `$user->delete()` (`app/Http/Controllers/UserController.php:185`).
+6. `UserPolicy::delete` exige `eliminar_usuarios`, que el objetivo no sea Administrador y que no tenga procesos activos como Profesional ni como Coordinador (`app/Policies/UserPolicy.php:30`).
+7. Finaliza el proceso y repite el `DELETE`: ahora la baja lógica se ejecuta.
+8. Verifica que el registro siga existiendo con `withTrashed()` y que `forceDelete` sea falso.
 
-1. `setUp()` ejecuta `RoleSeeder`.
-2. `travelTo(Carbon::parse('2026-10-20 12:00:00'))` congela la fecha para que el resultado sea determinístico.
-3. Cada test crea un Coordinador con factory y le asigna el rol.
+### Aserciones principales
 
-### Caso 1: período manual
-
-1. Crea una categoría `Judicial`.
-2. Crea dos documentos en los bordes del período:
-   - `2026-09-01 00:00:00`.
-   - `2026-09-30 23:59:59.999999`.
-3. Pide `reportes.documentos.index` con `fecha_desde=2026-09-01` y `fecha_hasta=2026-09-30`.
-4. `ReporteDocumentoController::filtros()` valida las fechas.
-5. El controller calcula `$hastaExclusivo = fecha_hasta + 1 día` y consulta con:
-   - `created_at >= desde`.
-   - `created_at < hastaExclusivo`.
-6. Por eso incluye todo el último día, incluso `23:59:59.999999`.
-7. `assertSee('>2</td>')` comprueba que contó los dos documentos.
-
-### Caso 2: períodos inválidos
-
-1. Recorre varios escenarios:
-   - Falta `fecha_hasta`.
-   - Falta `fecha_desde`.
-   - Fecha inexistente (`2026-02-30`).
-   - Fechas invertidas.
-   - Período mayor a 366 días.
-2. Cada solicitud debe redirigir a `reportes.documentos.index`.
-3. `assertSessionHasErrors($campo)` verifica que el error aparezca en el campo correcto.
-4. El controller lanza `ValidationException` con `redirectTo(...)`.
-
-### Caso 3: descarga PDF
-
-1. Pide `reportes.documentos.pdf` con fechas y estado `activas`.
-2. El controller autoriza con `viewAny` sobre `CategoriaDocumento`.
-3. Reutiliza la misma validación y la misma consulta que el informe HTML.
-4. Genera el PDF con DomPDF desde `reportes.documentos-pdf`.
-5. Las aserciones verifican:
-   - `assertOk()`: respuesta 200.
-   - `Content-Type: application/pdf`.
-   - El contenido empieza con `%PDF-`.
+- `assertForbidden()` con proceso activo y `deleted_at => null`: la baja se bloquea y nada se borra.
+- `assertSoftDeleted('users', ['id' => ...])`: la baja es lógica.
+- `assertNotNull(User::withTrashed()->find(...))`: el registro sigue existiendo.
+- `assertFalse($directivo->can('forceDelete', ...))`: el borrado físico está prohibido.
 
 ### Archivos que intervienen
 
 | Responsabilidad | Archivo |
 | --- | --- |
-| Definición de las pruebas | `tests/Feature/ReporteDocumentoTest.php:57`, `:74`, `:95` |
-| Rutas del informe | `routes/web.php:116` y `routes/web.php:117` |
-| Controller | `app/Http/Controllers/ReporteDocumentoController.php` |
-| Validación y cálculo de fechas | `app/Http/Controllers/ReporteDocumentoController.php:24` |
-| Consulta con límite exclusivo | `app/Http/Controllers/ReporteDocumentoController.php:72` |
-| Generación del PDF | `app/Http/Controllers/ReporteDocumentoController.php:132` |
-| Vista del PDF | `resources/views/reportes/documentos-pdf.blade.php` |
+| Definición de la prueba | `tests/Feature/UserManagementTest.php:122` |
+| Ruta de baja | `routes/web.php:63` |
+| Controller | `app/Http/Controllers/UserController.php:185` |
+| Policy de baja | `app/Policies/UserPolicy.php:30` |
+| Regla de borrado físico | `app/Policies/UserPolicy.php:47` |
 
 ### Con qué herramientas
 
 - **PHPUnit 11.5**.
-- **Laravel HTTP Testing** para `actingAs` y `get`.
-- **Carbon / CarbonImmutable** y `travelTo` para congelar fechas.
-- **Validator de Laravel** con reglas `date_format`, `before_or_equal`, `after_or_equal` y `required_with`.
-- **DomPDF 3.1** (`Barryvdh\DomPDF\Facade\Pdf`) para generar el archivo.
+- **Laravel HTTP Testing** para `actingAs` y `delete`.
+- **SoftDeletes** en el modelo `User`.
+- **Laravel Gate/Policy** para `delete` y `forceDelete`.
+- **Factories** para crear usuarios, clientes, servicios y procesos.
 - **RefreshDatabase + SQLite `:memory:`**.
-- **Asserts**: `assertOk`, `assertSee`, `assertRedirect`, `assertSessionHasErrors`, `assertStringContainsString`, `assertStringStartsWith`.
+- **Asserts**: `assertForbidden`, `assertDatabaseHas`, `assertSoftDeleted`, `assertNotNull`, `assertFalse`.
 
 ### Explicación oral sugerida
 
-> “Esta prueba cubre los bordes del informe de documentos. Primero verifica que el rango incluya el último instante del día final: el controller usa una fecha límite exclusiva que suma un día. Después comprueba que los rangos inválidos vuelvan con errores de validación. Por último, descarga el PDF y confirma que el contenido sea realmente un PDF. Usa Carbon para congelar la fecha, el validador de Laravel, DomPDF para generar el archivo y las aserciones HTTP para verificar la respuesta.”
+> “Esta prueba cubre la baja de usuarios. Primero crea un Profesional con un proceso activo e intenta eliminarlo: la policy lo bloquea con 403 porque no se puede dar de baja a alguien con procesos pendientes. Después finaliza el proceso y repite el DELETE: ahora la baja es lógica, el registro se conserva con deleted_at y sigue existiendo con withTrashed. Por último confirma que forceDelete siempre devuelve falso, así que nunca se borra físicamente.”
 
 ### Preguntas posibles
 
-**¿Por qué usa una fecha límite exclusiva?**
-Porque comparar con `<= 2026-09-30` dejaría afuera los documentos creados después de la medianoche de ese día. Al sumar un día y usar `< 2026-10-01`, se incluye todo el 30 de septiembre.
+**¿Por qué la primera baja devuelve 403 y no un error de validación?**
+Porque es una regla de autorización: `UserPolicy::delete` devuelve falso cuando hay procesos activos, y Laravel responde 403.
 
-**¿El PDF se genera de verdad?**
-Sí. DomPDF renderiza la vista y devuelve un archivo cuyo contenido empieza con `%PDF-`. La prueba lo verifica sin abrir un navegador.
+**¿Qué es una baja lógica?**
+Es marcar el registro con `deleted_at` sin borrarlo de la tabla. Eloquent lo excluye por defecto, pero se puede recuperar con `withTrashed()` o `restore()`.
+
+**¿Por qué se verifica también como Coordinador?**
+Porque un usuario puede tener procesos activos en dos roles; la policy revisa tanto `procesosComoProfesional()` como `procesosComoCoordinador()` (`app/Policies/UserPolicy.php:34`).
 
 ---
 
@@ -334,12 +280,12 @@ Sí. DomPDF renderiza la vista y devuelve un archivo cuyo contenido empieza con 
 | Nivel | Comando | Qué significa |
 | --- | --- | --- |
 | Un caso | `--filter='test_x'` | Solo se ejecuta la regla que querés mostrar |
-| Un archivo | `php vendor/bin/phpunit tests/Feature/ClienteTest.php --testdox` | Se ejecuta toda la suite del módulo |
+| Un archivo | `php vendor/bin/phpunit tests/Feature/UserManagementTest.php --testdox` | Se ejecuta toda la suite del módulo |
 | Proyecto | `php artisan test --compact` | Se ejecutan todos los tests del proyecto |
 
 Frase sugerida:
 
-> “El alcance de esta prueba es el CRUD de cliente; por eso uso `--filter` y no ejecuto las otras 244 pruebas del proyecto.”
+> “El alcance de esta demostración es el CRUD de usuarios; por eso uso `--filter` y ejecuto solo los tres casos que quiero explicar.”
 
 ---
 
@@ -355,8 +301,8 @@ php artisan --version
 # Limpiar configuración antes de ejecutar
 php artisan config:clear
 
-# Ejecutar todo el archivo de una prueba
-php vendor/bin/phpunit tests/Feature/ClienteTest.php --testdox
+# Ejecutar todo el archivo de la prueba
+php vendor/bin/phpunit tests/Feature/UserManagementTest.php --testdox
 
 # Ejecutar toda la suite del proyecto
 php artisan test --compact
@@ -372,111 +318,40 @@ php artisan test --compact
 | Error de Vite | `tests/TestCase.php` usa `withoutVite()`; si aparece igual, ejecutá `php artisan config:clear`. |
 | La primera ejecución tarda | Es normal: se migra la base y se cargan los seeders. Las siguientes son más rápidas. |
 | El pipe del filtro falla en PowerShell | Usá comillas simples y escapá el pipe si es necesario, o ejecutá cada método por separado. |
-| El PDF no se genera | Verificá que `barryvdh/laravel-dompdf` esté instalado. |
 | Se intenta usar MySQL | No hace falta: `phpunit.xml` fuerza SQLite en memoria para los tests. |
+| Falla `assignRole` | Verificá que `RoleSeeder` se haya ejecutado en `setUp()` y que el rol exista. |
 
 ---
 
-## 9. Alternativas detalladas
+## 9. Alternativas
 
-Si querés una demostración más extensa del bloque de permisos, estas pruebas ya existen y se pueden usar en lugar de la Prueba 2 o como complemento.
+Si necesitás otra trilogía dentro del mismo CRUD, estas pruebas ya existen.
 
-### 9.1 Servicios por profesional (recomendada)
+### 9.1 CRUD de clientes (HTTP/controladores)
 
-```bash
-php vendor/bin/phpunit tests/Feature/ServiciosProfesionalesTest.php --testdox --filter='test_pantalla_y_navegacion_cu34_respetan_los_cinco_roles'
-```
-
-Resultado real:
-
-```text
-Servicios Profesionales (Tests\Feature\ServiciosProfesionales)
- ✔ Pantalla y navegacion cu34 respetan los cinco roles
-
-OK (1 test, 28 assertions)
-```
-
-**Qué hace:** recorre los cinco roles y comprueba:
-
-- Coordinador, Directivo y Administrador ven la pantalla de servicios por profesional.
-- Secretario y Profesional reciben `403` en esa pantalla.
-- Solo Directivo y Administrador ven el enlace “Servicios por profesional” y pueden entrar a `/usuarios`.
-- El Coordinador no puede listar usuarios.
-
-**Cómo lo hace:**
-
-1. `setUp()` ejecuta `RoleSeeder`.
-2. Crea un usuario por cada rol con `User::factory()->create()` y `assignRole`.
-3. Entra con `actingAs($actor)`.
-4. Consulta `profile.edit` para revisar la navegación.
-5. Consulta `profesionales.servicios.index` para revisar la pantalla.
-6. Consulta `users.index` para comprobar el acceso a usuarios.
-7. Combina `assertOk`, `assertForbidden`, `assertSee` y `assertDontSee`.
-
-**Herramientas:** PHPUnit, HTTP Testing de Laravel, Spatie Permission, `RoleSeeder`, factories, `RefreshDatabase` y SQLite en memoria.
-
-**Por qué usarla:** es la alternativa más parecida a la Prueba 2, pero mucho más detallada: cubre los cinco roles en un solo test y verifica tanto la navegación como la respuesta del servidor.
-
-**Archivos que intervienen:**
-
-| Responsabilidad | Archivo |
-| --- | --- |
-| Definición de la prueba | `tests/Feature/ServiciosProfesionalesTest.php:31` |
-| Matriz de roles y permisos | `database/seeders/RoleSeeder.php:11` |
-| Ruta de la pantalla | `routes/web.php:76` |
-| Ruta de usuarios | `routes/web.php:48` |
-
-### 9.2 Políticas de procesos por rol
+Archivo `tests/Feature/ClienteTest.php`:
 
 ```bash
-php vendor/bin/phpunit tests/Feature/AuthorizationPolicyTest.php --testdox --filter='test_process_actions_follow_the_role_matrix'
+php vendor/bin/phpunit tests/Feature/ClienteTest.php --testdox --filter='test_administrador_can_crud_cliente'
+php vendor/bin/phpunit tests/Feature/ClienteTest.php --testdox --filter='test_validation_rejects_invalid_data'
+php vendor/bin/phpunit tests/Feature/ClienteTest.php --testdox --filter='test_unauthorized_roles_cannot_access_clientes'
 ```
 
-Resultado real: `OK (1 test, 13 assertions)`.
+- El primer test recorre **todo** el CRUD de clientes en una sola prueba (index, create, store, show, edit, update y destroy).
+- El segundo cubre validaciones del alta.
+- El tercero cubre autorización por rol.
 
-**Qué hace:** verifica las acciones permitidas sobre un proceso según el rol:
+**Diferencia con la trilogía recomendada:** en usuarios cada test equivale a una operación (crear, editar, dar de baja); en clientes el primer test concentra todo el CRUD.
 
-- El Coordinador puede admitir, rechazar, asignar, reasignar y cambiar estado.
-- El Secretario puede asignar y reasignar, pero no admitir.
-- El Profesional puede cambiar estado.
-- El Directivo puede ver, pero no cambiar estado.
-- El Administrador puede admitir y eliminar.
+### 9.2 Lectura del CRUD de usuarios
 
-**Cómo lo hace:** crea un usuario por rol y un proceso asignado al Profesional; después consulta directamente las habilidades de la policy con `can('admit')`, `can('reject')`, `can('updateState')`, etc.
-
-**Herramientas:** PHPUnit, Laravel Gate/Policy, Spatie Permission, factories, `RefreshDatabase` y SQLite en memoria.
-
-### 9.3 Políticas de documentos y reportes
+Si querés sumar la **R** de lectura, existe:
 
 ```bash
-php vendor/bin/phpunit tests/Feature/AuthorizationPolicyTest.php --testdox --filter='test_document_and_report_policies_enforce_role_and_ownership_scope'
+php vendor/bin/phpunit tests/Feature/UserManagementTest.php --testdox --filter='test_vistas_users_renderizan'
 ```
 
-Resultado real: `OK (1 test, 19 assertions)`.
-
-**Qué hace:** comprueba el alcance de documentos y reportes:
-
-- El Profesional solo ve y descarga documentos de procesos asignados.
-- El Secretario ve documentos, pero no los descarga.
-- El Coordinador y el Administrador pueden descargar.
-- El Directivo no ve documentos.
-- El Profesional solo puede ver, editar y eliminar sus propios reportes.
-- Coordinador, Directivo y Administrador conservan acceso según su alcance.
-
-**Cómo lo hace:** crea dos profesionales, dos procesos, documentos y reportes; después verifica `view`, `download`, `update`, `delete` y los scopes `visibleTo()`.
-
-**Herramientas:** PHPUnit, Laravel Gate/Policy, Spatie Permission, factories, `RefreshDatabase` y SQLite en memoria.
-
-### 9.4 Cómo cambia la trilogía
-
-| Opción | Prueba de permisos | Assertions | Nivel de detalle |
-| --- | --- | --- | --- |
-| Actual | `RolePermissionTest::test_permissions_control_the_existing_user_and_service_routes` | 4 | Básico |
-| Alternativa 1 | `ServiciosProfesionalesTest::test_pantalla_y_navegacion_cu34_respetan_los_cinco_roles` | 28 | Alto |
-| Alternativa 2 | `AuthorizationPolicyTest::test_process_actions_follow_the_role_matrix` | 13 | Medio |
-| Alternativa 3 | `AuthorizationPolicyTest::test_document_and_report_policies_enforce_role_and_ownership_scope` | 19 | Alto |
-
-Recomendación: si el tiempo alcanza, usar la Alternativa 1 en lugar de la Prueba 2 y conservar las pruebas de CRUD y de reportes.
+Verifica que `index`, `create`, `edit`, `show` y `roles.edit` rendericen correctamente (`tests/Feature/UserManagementTest.php:295`).
 
 ---
 
@@ -484,11 +359,8 @@ Recomendación: si el tiempo alcanza, usar la Alternativa 1 en lugar de la Prueb
 
 | Prueba | Resultado |
 | --- | --- |
-| CRUD de cliente | OK (1 test, 15 assertions) |
-| Permisos por rol | OK (1 test, 4 assertions) |
-| Reporte de documentos | OK (3 tests, 29 assertions) |
-| Alternativa: servicios por profesional | OK (1 test, 28 assertions) |
-| Alternativa: políticas de procesos | OK (1 test, 13 assertions) |
-| Alternativa: políticas de documentos y reportes | OK (1 test, 19 assertions) |
+| Crear usuario | OK (1 test, 8 assertions) |
+| Editar usuario | OK (1 test, 9 assertions) |
+| Dar de baja usuario | OK (1 test, 7 assertions) |
 
-Las pruebas se ejecutaron sobre este repositorio y finalizaron correctamente. No se modificó ningún test ni código de la aplicación para preparar esta guía.
+Las tres pruebas se ejecutaron sobre este repositorio y finalizaron correctamente. No se modificó ningún test ni código de la aplicación para preparar esta guía.
