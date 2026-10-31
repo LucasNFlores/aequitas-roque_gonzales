@@ -1,0 +1,90 @@
+sequenceDiagram
+    autonumber
+    actor Coordinador as Coordinador / Administrador
+    participant Vista as Vista procesos.index
+    participant Componente as Procesos.Index (Livewire)
+    participant Policy as ProcesoPolicy
+    participant Accion as AdmitirProceso / RechazarProceso
+    participant DB as Transaccion DB
+    participant Proceso as Proceso (Model)
+    participant Estado as EstadoProceso
+    participant Historial as HistorialEstadoProceso
+
+    Coordinador->>Vista: Elige un proceso pendiente
+
+    alt Admisión
+        Coordinador->>Vista: Clic en "Admitir"
+        Vista->>Componente: admitProcess(procesoId)
+        Componente->>Componente: authorizedProcess(procesoId, 'admit')
+        Componente->>Componente: findVisibleProceso() + Proceso::visibleTo(user)
+        Componente->>Policy: authorize('admit', proceso)
+        Policy-->>Componente: can('admitir_procesos')
+        Componente->>Accion: AdmitirProceso::handle(proceso)
+        Accion->>DB: transaction
+        Accion->>Proceso: lockForUpdate()->findOrFail(id)
+        alt Proceso no está pendiente
+            Accion-->>Componente: DomainException
+            Componente-->>Vista: addError('admission', mensaje)
+        else Proceso pendiente
+            Accion->>Estado: active()->where('slug', 'admitido')->first()
+            alt Estado no activo
+                Accion-->>Componente: DomainException
+                Componente-->>Vista: addError('admission', mensaje)
+            else Estado activo
+                Accion->>Proceso: forceFill(motivo_rechazo = null)
+                Accion->>Proceso: transitionTo(estado, 'Admisión aprobada.')
+                Proceso->>Proceso: valida estado activo/no eliminado y guarda
+                Proceso->>Historial: evento updated -> recordStateChange(...)
+                Historial-->>Proceso: historial creado
+                Proceso-->>Accion: OK
+                Accion-->>Componente: OK
+                Componente->>Componente: finishProcessAction('Proceso admitido...')
+                Componente-->>Vista: successMessage + dispatch('proceso-estado-actualizado')
+            end
+        end
+    else Rechazo
+        Coordinador->>Vista: Clic en "Rechazar"
+        Vista->>Componente: prepareRejection(procesoId)
+        Componente->>Componente: authorizedProcess(procesoId, 'reject')
+        Componente->>Policy: authorize('reject', proceso)
+        Policy-->>Componente: can('registrar_motivo_rechazo')
+        Componente->>Componente: verifica estado pendiente
+        Note over Componente,Vista: Si no está pendiente, corta con error antes del modal.
+        Componente-->>Vista: showRejectionModal = true
+        Coordinador->>Vista: motivo de rechazo
+        Vista->>Componente: saveRejection()
+        Componente->>Componente: authorizedSelectedProcess('reject')
+        Componente->>Policy: authorize('reject', proceso)
+        Componente->>Componente: trim(motivo) + validate(required|max:5000)
+        alt Motivo vacío o inválido
+            Componente-->>Vista: error motivoRechazo
+            Note over Componente,Vista: El flujo termina sin llamar a la Action
+        else Motivo válido
+            Componente->>Accion: RechazarProceso::handle(proceso, motivo)
+            Accion->>DB: transaction
+            Accion->>Proceso: lockForUpdate()->findOrFail(id)
+            alt Proceso no está pendiente
+                Accion-->>Componente: DomainException
+                Componente-->>Vista: addError('motivoRechazo', mensaje)
+            else Proceso pendiente
+                Accion->>Estado: active()->where('slug', 'rechazado')->first()
+                alt Estado no activo
+                    Accion-->>Componente: DomainException
+                    Componente-->>Vista: addError('motivoRechazo', mensaje)
+                else Estado activo
+                    Accion->>Proceso: forceFill(motivo_rechazo = motivo)
+                    Accion->>Proceso: transitionTo(estado, motivo)
+                    Proceso->>Proceso: valida estado activo/no eliminado y guarda
+                    Proceso->>Historial: evento updated -> recordStateChange(...)
+                    Historial-->>Proceso: historial creado
+                    Proceso-->>Accion: OK
+                    Accion-->>Componente: OK
+                    Componente->>Componente: finishProcessAction('Proceso rechazado...')
+                    Componente-->>Vista: successMessage + dispatch('proceso-estado-actualizado')
+                end
+            end
+        end
+    end
+
+    Note over Accion,Historial: El historial guarda estado anterior, estado nuevo, motivo, usuario y fecha.
+    Note over Componente,Historial: Este flujo no crea Notificacion.

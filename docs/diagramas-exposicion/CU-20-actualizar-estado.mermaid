@@ -1,0 +1,51 @@
+sequenceDiagram
+    autonumber
+    actor Usuario as Profesional asignado / Coordinador / Administrador
+    participant Vista as Vista procesos.index
+    participant Componente as Procesos.Index (Livewire)
+    participant Policy as ProcesoPolicy
+    participant Estado as EstadoProceso
+    participant DB as Transaccion DB
+    participant Proceso as Proceso (Model)
+    participant Historial as HistorialEstadoProceso
+
+    Usuario->>Vista: Clic en "Cambiar estado"
+    Vista->>Componente: prepareStateChange(procesoId)
+    Componente->>Componente: authorizedProcess(procesoId, 'updateState')
+    Componente->>Componente: findVisibleProceso() + Proceso::visibleTo(user)
+    Componente->>Policy: authorize('updateState', proceso)
+    Policy-->>Componente: permiso + asignación si es Profesional
+    Componente-->>Vista: showStateModal = true
+    Componente-->>Vista: pendingEstado = proceso.estado
+
+    Usuario->>Vista: elige estado + motivo opcional
+    Vista->>Componente: saveStateChange()
+    Componente->>Componente: authorizedSelectedProcess('updateState')
+    Componente->>Policy: authorize('updateState', proceso)
+    Componente->>Componente: validate(pendingEstado, motivoEstado)
+
+    alt Validación fallida
+        Componente-->>Vista: errores pendingEstado / motivoEstado
+    else Validación correcta
+        alt Estado admitido o rechazado
+            Componente-->>Vista: error "Utiliza las acciones de admisión o rechazo"
+        else Estado no bloqueado
+            alt Estado igual al actual
+                Componente-->>Vista: error "Selecciona un estado diferente"
+            else Datos válidos
+                Componente->>Estado: active()->where('slug', pendingEstado)->firstOrFail()
+                Componente->>DB: transaction
+                DB->>Proceso: transitionTo(estado, motivo ?: null)
+                Proceso->>Proceso: valida estado activo/no eliminado y guarda
+                Proceso->>Historial: evento updated -> recordStateChange(...)
+                Historial-->>Proceso: historial creado
+                Proceso-->>DB: OK
+                DB-->>Componente: OK
+                Componente->>Componente: finishProcessAction('Estado actualizado...')
+                Componente-->>Vista: successMessage + dispatch('proceso-estado-actualizado')
+            end
+        end
+    end
+
+    Note over Componente,Estado: La vista excluye admitido y rechazado y el servidor vuelve a validarlos.
+    Note over Proceso,Historial: Este flujo no crea Notificacion.
