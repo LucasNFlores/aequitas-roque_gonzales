@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -20,6 +21,15 @@ class User extends Authenticatable implements Auditable
 
     use \OwenIt\Auditing\Auditable;
 
+    /** @var list<string> */
+    public const ROLE_HIERARCHY = [
+        'Administrador',
+        'Directivo',
+        'Coordinador',
+        'Profesional',
+        'Secretario',
+    ];
+
     /**
      * The attributes that are mass assignable.
      *
@@ -27,6 +37,7 @@ class User extends Authenticatable implements Auditable
      */
     protected $fillable = [
         'name',
+        'apellido',
         'email',
         'password',
         'dni',
@@ -59,6 +70,21 @@ class User extends Authenticatable implements Auditable
             'fecha_nacimiento' => 'date',
             'fecha_ingreso' => 'date',
         ];
+    }
+
+    protected function nombreCompleto(): Attribute
+    {
+        return Attribute::get(fn (): string => trim(implode(' ', array_filter([
+            $this->name,
+            $this->apellido,
+        ]))));
+    }
+
+    public static function rolePriority(string $roleName): int
+    {
+        $priority = array_search($roleName, self::ROLE_HIERARCHY, true);
+
+        return $priority === false ? count(self::ROLE_HIERARCHY) : $priority;
     }
 
     public function requiresProfessionalAssignmentScope(): bool

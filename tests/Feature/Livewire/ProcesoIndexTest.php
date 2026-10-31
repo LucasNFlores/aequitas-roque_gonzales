@@ -29,7 +29,9 @@ class ProcesoIndexTest extends TestCase
     public function test_process_page_renders_livewire_filters_and_authorized_actions(): void
     {
         $coordinator = $this->userWithRole('Coordinador');
+        $coordinator->update(['name' => 'Ana', 'apellido' => 'Coordinadora Prueba']);
         $professional = $this->userWithRole('Profesional');
+        $professional->update(['name' => 'Bruno', 'apellido' => 'Profesional Prueba']);
         $process = $this->processFor($professional, $coordinator, 'Proceso visible');
 
         $this->actingAs($coordinator)
@@ -38,7 +40,9 @@ class ProcesoIndexTest extends TestCase
             ->assertSee('wire:click="openHistory('.$process->id.')"', false)
             ->assertSee('wire:click="prepareStateChange('.$process->id.')"', false)
             ->assertSee('x-data', false)
-            ->assertSee('wire:model.live', false);
+            ->assertSee('wire:model.live', false)
+            ->assertSee('Ana Coordinadora Prueba')
+            ->assertSee('Bruno Profesional Prueba');
     }
 
     public function test_coordinator_can_change_process_state_and_history_keeps_reason_and_user(): void
@@ -68,6 +72,11 @@ class ProcesoIndexTest extends TestCase
         $this->assertSame($coordinator->id, $change->usuario_id);
         $this->assertSame('Se inició el trabajo del caso.', $change->motivo);
         $this->assertSame('pendiente', $change->estado_anterior);
+
+        Livewire::actingAs($coordinator)
+            ->test(ProcesosIndex::class)
+            ->call('openHistory', $process->id)
+            ->assertSet('historial.0.usuario', $coordinator->nombre_completo);
     }
 
     public function test_professional_is_limited_to_assigned_processes_and_history(): void
@@ -232,6 +241,7 @@ class ProcesoIndexTest extends TestCase
         $secretary = $this->userWithRole('Secretario');
         $coordinator = $this->userWithRole('Coordinador');
         $professional = $this->userWithRole('Profesional');
+        $professional->update(['name' => 'María', 'apellido' => 'Profesional Elegible HU16']);
         $service = Servicio::factory()->create(['costo_servicio' => 9200.50]);
         $professional->servicios()->attach($service);
         $process = $this->processFor($professional, $coordinator);
@@ -241,6 +251,7 @@ class ProcesoIndexTest extends TestCase
             ->test(ProcesosIndex::class)
             ->call('prepareProfessionalAssignment', $process->id)
             ->assertSet('showAssignmentModal', true)
+            ->assertSee('María Profesional Elegible HU16')
             ->set('selectedProfesionalId', (string) $professional->id)
             ->call('saveProfessionalAssignment')
             ->assertHasNoErrors()
@@ -326,8 +337,10 @@ class ProcesoIndexTest extends TestCase
     public function test_process_filters_include_service_coordinator_and_date_range(): void
     {
         $coordinator = $this->userWithRole('Coordinador');
+        $coordinator->update(['apellido' => 'Coordinador Filtro HU07']);
         $otherCoordinator = $this->userWithRole('Coordinador');
         $professional = $this->userWithRole('Profesional');
+        $professional->update(['apellido' => 'Profesional Filtro HU07']);
         $otherProfessional = $this->userWithRole('Profesional');
         $matchingService = Servicio::factory()->create(['nombre' => 'Servicio HU07 Coincidente']);
         $otherService = Servicio::factory()->create(['nombre' => 'Servicio HU07 Alternativo']);
@@ -351,6 +364,12 @@ class ProcesoIndexTest extends TestCase
 
         Livewire::actingAs($coordinator)
             ->test(ProcesosIndex::class)
+            ->set('search', 'Profesional Filtro HU07')
+            ->assertSee($matching->nombre)
+            ->assertDontSee('Proceso HU07 Fuera del rango')
+            ->set('search', 'Coordinador Filtro HU07')
+            ->assertSee($matching->nombre)
+            ->assertDontSee('Proceso HU07 Fuera del rango')
             ->set('search', 'Cliente HU07 Filtro')
             ->assertSee($matching->nombre)
             ->set('search', '')

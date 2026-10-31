@@ -6,14 +6,16 @@ use App\Models\Turno;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class TurnoScheduler
 {
-    /** @param array{cliente_id: int, profesional_id: int, proceso_id: int|null, fecha_hora: string, tipo: string} $attributes */
+    /** @param array{cliente_id: int, profesional_id: int, proceso_id: int, fecha_hora: string, tipo: string} $attributes */
     public function schedule(array $attributes): Turno
     {
         return DB::transaction(function () use ($attributes): Turno {
+            $this->assertProcess($attributes);
             $professionalId = (int) $attributes['profesional_id'];
             $this->lockProfessionals([$professionalId]);
 
@@ -30,10 +32,11 @@ class TurnoScheduler
         });
     }
 
-    /** @param array{cliente_id: int, profesional_id: int, proceso_id: int|null, fecha_hora: string, detalle_externo: string} $attributes */
+    /** @param array{cliente_id: int, profesional_id: int, proceso_id: int, fecha_hora: string, detalle_externo: string} $attributes */
     public function scheduleExternal(array $attributes): Turno
     {
         return DB::transaction(function () use ($attributes): Turno {
+            $this->assertProcess($attributes);
             $professionalId = (int) $attributes['profesional_id'];
             $this->lockProfessionals([$professionalId]);
 
@@ -121,6 +124,23 @@ class TurnoScheduler
 
             return $lockedTurno->refresh();
         });
+    }
+
+    /** @param array{cliente_id: int, proceso_id?: int|null} $attributes */
+    private function assertProcess(array $attributes): void
+    {
+        validator(['procesoId' => $attributes['proceso_id'] ?? null], [
+            'procesoId' => [
+                'required',
+                'integer',
+                Rule::exists('procesos', 'id')
+                    ->where('cliente_id', $attributes['cliente_id'])
+                    ->whereNull('deleted_at'),
+            ],
+        ], [
+            'procesoId.required' => 'Selecciona un proceso para el turno.',
+            'procesoId.exists' => 'El proceso seleccionado no está disponible para el cliente.',
+        ])->validate();
     }
 
     private function assertAvailability(

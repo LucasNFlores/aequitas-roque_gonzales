@@ -15,6 +15,7 @@ class StoreUserRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
+            'apellido' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => ['nullable', 'string', 'min:4', 'max:255'],
             'dni' => ['nullable', 'string', 'max:20', 'unique:users,dni'],
@@ -22,17 +23,10 @@ class StoreUserRequest extends FormRequest
             'domicilio' => ['nullable', 'string', 'max:255'],
             'fecha_nacimiento' => ['nullable', 'date', 'before:today'],
             'fecha_ingreso' => ['nullable', 'date'],
-            'roles' => ['nullable', 'array'],
-            'roles.*' => ['string', 'exists:roles,name'],
+            'role' => ['nullable', 'string', 'exists:roles,name'],
+            'roles' => ['prohibited'],
             'servicios' => ['nullable', 'array'],
             'servicios.*' => ['integer', 'exists:servicios,id'],
         ];
-    }
-
-    protected function prepareForValidation(): void
-    {
-        if ($this->has('roles') && ! is_array($this->input('roles'))) {
-            $this->merge(['roles' => []]);
-        }
     }
 }

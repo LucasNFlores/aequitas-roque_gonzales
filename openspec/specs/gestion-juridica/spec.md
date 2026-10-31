@@ -60,13 +60,38 @@ El sistema MUST permitir que Secretario, Profesional, Coordinador, Directivo y A
 
 ### Requirement: Presentar navegación acorde a rol y permisos
 
-Las navegaciones autenticadas MUST ofrecer los destinos operativos implementados que correspondan a los permisos del usuario según la matriz Aequitas V2. Cada enlace operativo MUST ocultarse cuando el usuario no tenga el permiso exigido por la ruta. Las variantes de navegación MUST conservar el mismo conjunto de destinos autorizados. Los accesos comunes de inicio, perfil y cierre de sesión MUST seguir disponibles para los usuarios internos autenticados. La guía técnica MUST NOT estar disponible como ruta ni como destino de navegación. Ocultar un enlace MUST NOT reemplazar la autorización del servidor para solicitudes directas.
+Las navegaciones autenticadas MUST ofrecer los destinos operativos implementados que correspondan a los permisos del usuario según la matriz Aequitas V2. Cada enlace operativo MUST ocultarse cuando el usuario no tenga el permiso exigido por la ruta. La navegación lateral MUST agrupar los destinos en secciones funcionales colapsables, MUST iniciar cerrada cada sección excepto la que contiene la ruta actual y MUST NOT mostrar encabezados de sección sin enlaces autorizados para el usuario. El Dashboard MUST permanecer agrupado bajo «Inicio» y la navegación lateral MUST NOT mostrar el rótulo redundante «Navegación». Las variantes de navegación MUST conservar el mismo conjunto de destinos autorizados. Los accesos comunes de inicio MUST seguir disponibles. Las acciones de tema, perfil y cierre de sesión MUST estar disponibles desde un desplegable asociado a la sesión activa. La guía técnica MUST NOT estar disponible como ruta ni como destino de navegación. Ocultar un enlace MUST NOT reemplazar la autorización del servidor para solicitudes directas.
+
+#### Scenario: Empleado abre una sección de navegación
+
+- **WHEN** un empleado autenticado activa el encabezado de una sección
+- **THEN** se muestran u ocultan los enlaces de esa sección
+- **AND** el estado expandido se comunica con `aria-expanded`
+
+#### Scenario: Empleado abre directamente una página de una sección
+
+- **WHEN** un empleado autenticado carga una ruta perteneciente a una sección
+- **THEN** esa sección aparece expandida y conserva visible el enlace de la ruta actual
+- **AND** las otras secciones empiezan cerradas
+
+#### Scenario: Empleado navega funciones autorizadas por secciones
+
+- **WHEN** Secretario, Profesional, Coordinador, Directivo o Administrador inicia sesión
+- **THEN** la navegación presenta los destinos implementados que corresponden a sus permisos en la matriz, agrupados por función
+- **AND** no se muestran encabezados de secciones vacías
+- **AND** todas las variantes de navegación muestran los mismos destinos operativos autorizados
 
 #### Scenario: Empleado navega funciones autorizadas
 
 - **WHEN** Secretario, Profesional, Coordinador, Directivo o Administrador inicia sesión
 - **THEN** la navegación presenta los destinos implementados que corresponden a sus permisos en la matriz
 - **AND** todas las variantes de navegación muestran los mismos destinos operativos autorizados
+
+#### Scenario: Empleado abre las acciones de su sesión
+
+- **WHEN** un empleado autenticado activa la tarjeta que identifica su sesión
+- **THEN** el desplegable muestra el control de tema, el acceso a su perfil y la acción de cerrar sesión
+- **AND** cuando el desplegable está cerrado, esas acciones no ocupan espacio visible en la navegación
 
 #### Scenario: Empleado no autorizado solicita una función
 
@@ -297,17 +322,29 @@ El sistema MUST asociar cada reporte al proceso y al Profesional actualmente asi
 
 ### Requirement: Administrar usuarios según CU 25 a CU 27
 
-El sistema MUST permitir a Directivo y Administrador agregar, modificar y dar de baja lógicamente usuarios. La baja MUST rechazarse mientras el usuario tenga procesos activos y MUST conservar trazabilidad.
+El sistema MUST permitir a Directivo y Administrador agregar, modificar y dar de baja lógicamente usuarios. La baja MUST rechazarse mientras el usuario tenga procesos activos y MUST conservar trazabilidad. Los formularios MUST admitir nombres y apellido en campos separados y MUST conservar los nombres existentes sin inferir apellidos automáticamente. Al crear una cuenta, la fecha de ingreso MUST iniciar con la fecha actual, incluso si una petición autorizada omite el campo.
+
+Cada cuenta MUST tener como máximo un rol en todo el sistema. La gestión MUST presentar un selector de un solo valor y rechazar asignaciones múltiples. Al migrar cuentas existentes con varios roles, MUST conservar únicamente el rol de mayor jerarquía en este orden: Administrador, Directivo, Coordinador, Profesional y Secretario. Los roles no listados MUST quedar por debajo de los roles oficiales y MUST desempatarse de forma determinista. La base de datos MUST impedir que una cuenta reciba más de un rol simultáneo.
 
 #### Scenario: CU 25 - Agregar Nuevo Usuario
 
-- **WHEN** Directivo o Administrador agrega un usuario interno y asigna su rol
+- **WHEN** Directivo o Administrador agrega un usuario interno con nombres, apellido y un rol
 - **THEN** el sistema crea la cuenta autenticable con los datos y rol admitidos
+- **AND** asigna la fecha actual como fecha de ingreso si la petición no incluye una fecha
+- **AND** guarda como máximo un rol
 
 #### Scenario: CU 26 - Modificar Usuario
 
 - **WHEN** Directivo o Administrador modifica los datos o rol de un usuario
-- **THEN** el sistema guarda los cambios autorizados
+- **THEN** el sistema guarda los cambios autorizados y mantiene nombre y apellido en campos separados
+- **AND** reemplaza el rol anterior por el único rol seleccionado, si se modifica
+
+#### Scenario: Normalizar cuentas con roles múltiples
+
+- **GIVEN** una cuenta existente con dos o más roles
+- **WHEN** se aplica la migración de la regla de rol único
+- **THEN** conserva únicamente el rol de mayor jerarquía
+- **AND** la base de datos impide que esa cuenta vuelva a recibir otro rol simultáneo
 
 #### Scenario: CU 27 - Eliminar Usuario
 
@@ -355,7 +392,7 @@ Coordinador y Administrador MUST poder administrar estados de proceso y categor�
 
 ### Requirement: Generar informe PDF de documentos por categoría (CU 39)
 
-El sistema MUST permitir al Coordinador y al Administrador generar un informe PDF que resuma documentos por categoría para un período. El informe MUST permitir filtrar por período, estado de categoría y categoría, y MUST presentar cantidades de documentos y la última fecha de carga por categoría. Si no se ingresa un período, MUST usar hoy y los 29 días anteriores, inclusive. Si se ingresan fechas, MUST exigir ambas, validar el formato y existencia de cada fecha, rechazar fechas futuras, exigir `desde <= hasta` y limitar el rango a 366 días calendario inclusive. El informe MUST NOT incluir ni adjuntar los archivos originales. El Directivo MUST NOT obtener acceso a este informe por el solo hecho de poder consultar legajos. El Administrador MUST conservar acceso como superadministrador.
+El sistema MUST permitir al Coordinador, al Directivo y al Administrador generar un informe PDF que resuma documentos por categoría para un período. El informe MUST permitir filtrar por período, estado de categoría y categoría, y MUST presentar cantidades de documentos y la última fecha de carga por categoría. Si no se ingresa un período, MUST usar hoy y los 29 días anteriores, inclusive. Si se ingresan fechas, MUST exigir ambas, validar el formato y existencia de cada fecha, rechazar fechas futuras, exigir `desde <= hasta` y limitar el rango a 366 días calendario inclusive. El informe MUST NOT incluir ni adjuntar los archivos originales. El acceso MUST usar un permiso específico de consulta que no conceda permisos para gestionar categorías, visualizar documentación individual ni descargar archivos de legajos. El Administrador MUST conservar acceso como superadministrador.
 
 #### Scenario: Coordinador genera informe PDF de documentos
 
@@ -373,9 +410,15 @@ El sistema MUST permitir al Coordinador y al Administrador generar un informe PD
 - **WHEN** se envía una sola fecha, una fecha imposible o futura, un rango invertido o un período mayor a 366 días
 - **THEN** el sistema conserva los filtros y muestra el error sin generar el PDF
 
-#### Scenario: Directivo intenta acceder al informe documental
+#### Scenario: Directivo genera el informe documental
 
-- **WHEN** un Directivo solicita el informe desde la interfaz o una ruta directa
+- **WHEN** un Directivo solicita el informe con filtros válidos desde la interfaz o una ruta directa
+- **THEN** el sistema genera el informe agregado y su PDF
+- **AND** el permiso no habilita la gestión de categorías ni el acceso a archivos individuales
+
+#### Scenario: Secretario o Profesional intenta acceder al informe documental
+
+- **WHEN** un Secretario o Profesional solicita el informe desde la interfaz o una ruta directa
 - **THEN** el sistema deniega el acceso y no revela sus resultados
 
 ### Requirement: Conservar las bajas y excluirlas de la operación vigente
@@ -438,3 +481,13 @@ El dashboard común MUST presentar al Directivo la variante estratégica aprobad
 - **THEN** conserva su panel autorizado de HU-22
 - **AND** no recibe la distribución estratégica por servicio de CU 40
 - **AND** no recibe la distribución histórica de CU 40
+
+### Requirement: Mantener utilizable el dashboard con el selector de tema
+
+El dashboard autenticado MUST completar su carga y permanecer interactivo cuando se renderiza el selector de tema. La sincronización de la etiqueta y el icono MUST NOT producir actualizaciones continuas que bloqueen la interfaz.
+
+#### Scenario: El Administrador cambia el tema desde el dashboard
+
+- **WHEN** un Administrador abre el dashboard y alterna entre modo claro y oscuro
+- **THEN** el dashboard permanece interactivo y el control refleja el tema activo
+- **AND** la preferencia elegida se conserva al navegar entre páginas autenticadas

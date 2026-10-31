@@ -92,6 +92,7 @@ Route::middleware(['auth', 'permission:listar_filtrar_procesos'])->group(functio
 Route::middleware(['auth', 'permission:consultar_legajos'])->group(function () {
     Route::get('/legajos', fn () => view('legajos.index'))->name('legajos.index');
     Route::get('/clientes/{cliente}/legajo', [LegajoController::class, 'show'])->name('legajos.show');
+    Route::get('/clientes/{cliente}/legajo/procesos/{proceso}', [LegajoController::class, 'showProcess'])->name('legajos.procesos.show');
 });
 
 // HU-23: proceso adicional para un cliente existente (Secretario y Administrador vía Policy create).
@@ -112,7 +113,7 @@ Route::middleware(['auth', 'permission:gestionar_categorias_documentos'])->group
     Route::get('/categorias', fn () => view('categorias.index'))->name('categorias.index');
 });
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'permission:consultar_informe_documental'])->group(function () {
     Route::get('/reportes/documentos', [ReporteDocumentoController::class, 'index'])->name('reportes.documentos.index');
     Route::get('/reportes/documentos/pdf', [ReporteDocumentoController::class, 'pdf'])->name('reportes.documentos.pdf');
 });
@@ -121,10 +122,13 @@ Route::middleware('auth')->group(function () {
 // MÓDULO DOCUMENTAL — ruta anidada por proceso (CU9-12, CU19, CU37)
 // -----------------------------------------------------------------------------
 Route::middleware(['auth', 'permission:visualizar_documentacion'])->group(function () {
-    Route::get('/procesos/{proceso}/documentos', fn (Proceso $proceso) => view('documentos.index', compact('proceso')))->name('procesos.documentos.index');
+    Route::get('/procesos/{proceso}/documentos', [DocumentoController::class, 'index'])->name('procesos.documentos.index');
 });
 
 Route::middleware(['auth'])->group(function () {
+    Route::patch('/procesos/{proceso}/estado', [ProcesoController::class, 'updateState'])
+        ->middleware('permission:actualizar_estados_proceso')
+        ->name('procesos.estado.update');
     Route::post('/procesos/{proceso}/documentos', [DocumentoController::class, 'store'])
         ->middleware('permission:cargar_documentacion')
         ->name('procesos.documentos.store');
@@ -181,7 +185,18 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/turnos', fn () => view('turnos.index'))
         ->middleware('permission:ver_agenda_profesional')
         ->name('turnos.index');
-    Route::get('/turnos/create', fn () => view('turnos.create'))
+    Route::get('/turnos/create', function (Request $request) {
+        $readPositiveId = static function (mixed $value): ?int {
+            $id = filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+
+            return $id === false ? null : $id;
+        };
+
+        return view('turnos.create', [
+            'returnClienteId' => $readPositiveId($request->query('return_cliente_id')),
+            'returnProcesoId' => $readPositiveId($request->query('return_proceso_id')),
+        ]);
+    })
         ->middleware('permission:agendar_turnos_internos|agendar_turnos_seguimiento')
         ->name('turnos.create');
     Route::get('/turnos/externos/create', fn () => view('turnos.externos.create'))

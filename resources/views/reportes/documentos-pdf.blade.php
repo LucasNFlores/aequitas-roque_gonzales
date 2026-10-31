@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <title>Informe de documentos por categoría</title>
     <style>
-        @page { margin: 32px; }
-        body { color: #1f2937; font-family: DejaVu Sans, sans-serif; font-size: 11px; }
+        @page { margin: 120pt 30pt 70pt 30pt; }
+        body { margin: 0; color: #1f2937; font-family: DejaVu Sans, sans-serif; font-size: 11px; }
         h1 { margin: 0 0 5px; font-size: 20px; }
         .subtitulo { color: #6b7280; margin-bottom: 20px; }
         .datos, .resultados { border-collapse: collapse; width: 100%; }

@@ -58,7 +58,7 @@ class ReporteFlowTest extends TestCase
             'reporte_id' => $report->id,
             'contenido_anterior' => 'Primera consulta completada.',
             'usuario_id' => $professional->id,
-            'usuario_nombre' => $professional->name,
+            'usuario_nombre' => $professional->nombre_completo,
         ]);
         $this->assertSame(now()->toDateString(), ReporteVersion::query()->sole()->fecha_anterior->toDateString());
 
@@ -68,6 +68,39 @@ class ReporteFlowTest extends TestCase
 
         $this->assertSoftDeleted($report);
         $this->assertDatabaseHas('reporte_versiones', ['reporte_id' => $report->id]);
+    }
+
+    public function test_assigned_professional_sees_and_uses_the_report_form_on_process_detail(): void
+    {
+        $professional = $this->userWithRole('Profesional');
+        $process = $this->processFor($professional);
+        $detailUrl = route('legajos.procesos.show', [$process->cliente_id, $process]);
+
+        $this->assertTrue($professional->can('registrar_reportes'));
+        $this->assertTrue($professional->can('create', Reporte::class));
+
+        $this->actingAs($professional)
+            ->get($detailUrl)
+            ->assertOk()
+            ->assertSee('reporte-contenido')
+            ->assertSee('Registrar nueva actuación judicial o acta')
+            ->assertSee(route('procesos.reportes.store', $process));
+
+        $this->actingAs($professional)
+            ->post(route('procesos.reportes.store', $process), [
+                'proceso_id' => $process->id,
+                'contenido' => 'Actuación cargada desde el detalle del proceso.',
+                'fecha' => now()->toDateString(),
+            ])
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('reportes', [
+            'proceso_id' => $process->id,
+            'profesional_id' => $professional->id,
+            'registrado_por_id' => $professional->id,
+            'contenido' => 'Actuación cargada desde el detalle del proceso.',
+        ]);
     }
 
     public function test_editing_without_changes_does_not_create_a_version_and_multiple_edits_keep_snapshots(): void
@@ -124,7 +157,7 @@ class ReporteFlowTest extends TestCase
             'reporte_id' => $report->id,
             'contenido_anterior' => 'Contenido del profesional.',
             'usuario_id' => $administrator->id,
-            'usuario_nombre' => $administrator->name,
+            'usuario_nombre' => $administrator->nombre_completo,
         ]);
         $this->assertDatabaseHas('reportes', [
             'id' => $report->id,
@@ -156,9 +189,9 @@ class ReporteFlowTest extends TestCase
         $this->assertSame([$report->id], Reporte::query()->visibleTo($administrator)->pluck('id')->all());
 
         $this->actingAs($administrator)
-            ->get(route('legajos.show', $process->cliente))
+            ->get(route('legajos.procesos.show', [$process->cliente, $process]))
             ->assertOk()
-            ->assertSee('Autor: '.$professional->name.' · Registrado por '.$administrator->name);
+            ->assertSee('Autor: '.$professional->nombre_completo.' · Registrado por '.$administrator->nombre_completo);
     }
 
     public function test_professional_report_scope_excludes_reports_from_processes_reassigned_to_someone_else(): void
@@ -264,7 +297,7 @@ class ReporteFlowTest extends TestCase
             'contenido_anterior' => 'Texto anterior confidencial.',
             'fecha_anterior' => now()->subDay()->toDateString(),
             'usuario_id' => $professional->id,
-            'usuario_nombre' => $professional->name,
+            'usuario_nombre' => $professional->nombre_completo,
             'fecha_cambio' => now(),
         ]);
         $historyUrl = route('procesos.reportes.historial', [$process, $report]);
@@ -285,6 +318,23 @@ class ReporteFlowTest extends TestCase
         $this->actingAs($otherProfessional)
             ->get($historyUrl)
             ->assertForbidden();
+    }
+
+    public function test_report_history_returns_to_its_process_detail(): void
+    {
+        $professional = $this->userWithRole('Profesional');
+        $process = $this->processFor($professional);
+        $report = Reporte::factory()->create([
+            'proceso_id' => $process->id,
+            'profesional_id' => $professional->id,
+        ]);
+        $detailUrl = route('legajos.procesos.show', [$process->cliente_id, $process]);
+
+        $this->actingAs($professional)
+            ->get(route('procesos.reportes.historial', [$process, $report]))
+            ->assertOk()
+            ->assertSee('Volver al proceso')
+            ->assertSee($detailUrl);
     }
 
     public function test_professional_author_cannot_access_history_after_process_assignment_changes(): void

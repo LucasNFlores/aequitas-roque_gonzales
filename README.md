@@ -300,6 +300,6 @@ php artisan boost:mcp
 - Ajustar permisos de `storage/` y `bootstrap/cache/` si es necesario (en Linux/Mac: `chmod -R 775 storage bootstrap/cache`).
 - Actualizar la documentación a medida que avance el desarrollo.
 
-### Pendiente: visualización de comprobantes
+### Comprobantes de pago
 
-El módulo permite registrar y listar comprobantes de pago en PDF, almacenándolos de forma privada. Falta implementar la visualización o descarga autorizada del archivo desde el listado de comprobantes.
+Los comprobantes PDF pueden registrarse, listarse y visualizarse en línea. El enlace **Ver comprobante** abre la ruta protegida `GET /comprobantes/{comprobantePagoId}`; requiere el permiso `ver_comprobantes_pago` y la autorización de lectura del comprobante. El archivo se transmite desde el almacenamiento privado como `application/pdf` con disposición `inline`.

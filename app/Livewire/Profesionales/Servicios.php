@@ -98,8 +98,13 @@ class Servicios extends Component
             ->role('Profesional')
             ->with('servicios')
             ->when($search !== '', function (Builder $query) use ($search): void {
-                $query->where('name', 'like', '%'.$search.'%');
+                $term = '%'.$search.'%';
+                $query->where(function (Builder $userQuery) use ($term): void {
+                    $userQuery->where('name', 'like', $term)
+                        ->orWhere('apellido', 'like', $term);
+                });
             })
+            ->orderBy('apellido')
             ->orderBy('name')
             ->paginate(10);
 

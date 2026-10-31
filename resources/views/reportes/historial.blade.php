@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex flex-wrap items-center justify-between gap-3">
             <h2 class="text-xl font-semibold leading-tight text-ink">Historial del reporte</h2>
-            <a href="{{ route('legajos.show', $proceso->cliente_id) }}" class="text-sm font-medium text-aequitas-900 hover:text-aequitas-800">Volver al legajo</a>
+            <a href="{{ route('legajos.procesos.show', [$proceso->cliente_id, $proceso]) }}" class="text-sm font-medium text-aequitas-900 hover:text-aequitas-800">Volver al proceso</a>
         </div>
     </x-slot>
 

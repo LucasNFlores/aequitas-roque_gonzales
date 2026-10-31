@@ -57,8 +57,24 @@ class DocumentoCategoriaFlowTest extends TestCase
         $secretario = $this->userWithRole('Secretario');
         $directivo = $this->userWithRole('Directivo');
 
-        $this->actingAs($secretario)->get(route('procesos.documentos.index', $proceso))->assertOk();
+        $this->actingAs($secretario)
+            ->get(route('procesos.documentos.index', $proceso))
+            ->assertOk()
+            ->assertSee(route('procesos.index'))
+            ->assertDontSee(route('legajos.procesos.show', [$proceso->cliente_id, $proceso]));
         $this->actingAs($directivo)->get(route('procesos.documentos.index', $proceso))->assertForbidden();
+    }
+
+    public function test_documentation_returns_to_process_detail_when_cu18_allows_it(): void
+    {
+        $administrator = $this->userWithRole('Administrador');
+        $process = $this->procesoWithCliente();
+        $detailUrl = route('legajos.procesos.show', [$process->cliente_id, $process]);
+
+        $this->actingAs($administrator)
+            ->get(route('procesos.documentos.index', $process))
+            ->assertOk()
+            ->assertSee($detailUrl);
     }
 
     public function test_profesional_solo_ve_su_proceso(): void

@@ -226,7 +226,7 @@ class Index extends Component
     public function openHistory(int $procesoId): void
     {
         $proceso = $this->authorizedProcess($procesoId, 'viewHistory');
-        $history = $proceso->historialEstados()->with('usuario:id,name')->get();
+        $history = $proceso->historialEstados()->with('usuario:id,name,apellido')->get();
         $stateNames = EstadoProceso::withTrashed()
             ->whereIn('slug', $history->pluck('estado_nuevo')->merge($history->pluck('estado_anterior'))->filter()->unique())
             ->pluck('nombre', 'slug');
@@ -237,7 +237,7 @@ class Index extends Component
                 : 'Sin estado previo',
             'estado_nuevo' => $stateNames[$change->estado_nuevo] ?? Str::headline($change->estado_nuevo),
             'motivo' => $change->motivo ?: 'Sin motivo registrado',
-            'usuario' => $change->usuario?->name ?? 'Sistema',
+            'usuario' => $change->usuario?->nombre_completo ?? 'Sistema',
             'fecha_cambio' => $change->fecha_cambio?->format('d/m/Y H:i') ?? 'Sin fecha',
         ])->all();
         $this->selectedProcesoId = $proceso->id;
@@ -292,12 +292,13 @@ class Index extends Component
             ->orderBy('nombre')
             ->orderBy('apellido')
             ->get(['id', 'nombre', 'apellido', 'dni']);
-        $coordinadores = User::query()->role('Coordinador')->orderBy('name')->get(['id', 'name']);
+        $coordinadores = User::query()->role('Coordinador')->orderBy('name')->orderBy('apellido')->get(['id', 'name', 'apellido']);
         $profesionales = User::query()
             ->role('Profesional')
             ->when($user->requiresProfessionalAssignmentScope(), fn (Builder $query): Builder => $query->whereKey($user->id))
             ->orderBy('name')
-            ->get(['id', 'name']);
+            ->orderBy('apellido')
+            ->get(['id', 'name', 'apellido']);
         $profesionalesElegibles = $this->eligibleProfessionals();
         $search = trim($this->search);
 
@@ -320,8 +321,8 @@ class Index extends Component
             ->with([
                 'cliente:id,nombre,apellido,dni',
                 'servicio:id,nombre',
-                'profesional:id,name',
-                'coordinador:id,name',
+                'profesional:id,name,apellido',
+                'coordinador:id,name,apellido',
             ])
             ->when($search !== '', fn (Builder $query): Builder => $this->applySearch($query, $search))
             ->when($this->estadoFiltro !== '', fn (Builder $query): Builder => $query->where('estado', $this->estadoFiltro))
@@ -365,8 +366,12 @@ class Index extends Component
                         ->orWhere('dni', 'like', $like);
                 })
                 ->orWhereHas('servicio', fn (Builder $serviceQuery): Builder => $serviceQuery->where('nombre', 'like', $like))
-                ->orWhereHas('profesional', fn (Builder $professionalQuery): Builder => $professionalQuery->where('name', 'like', $like))
-                ->orWhereHas('coordinador', fn (Builder $coordinatorQuery): Builder => $coordinatorQuery->where('name', 'like', $like));
+                ->orWhereHas('profesional', fn (Builder $professionalQuery): Builder => $professionalQuery
+                    ->where('name', 'like', $like)
+                    ->orWhere('apellido', 'like', $like))
+                ->orWhereHas('coordinador', fn (Builder $coordinatorQuery): Builder => $coordinatorQuery
+                    ->where('name', 'like', $like)
+                    ->orWhere('apellido', 'like', $like));
         });
     }
 
@@ -382,7 +387,8 @@ class Index extends Component
             ->role('Profesional')
             ->whereHas('servicios', fn (Builder $query): Builder => $query->whereKey($proceso->servicio_id))
             ->orderBy('name')
-            ->get(['id', 'name']);
+            ->orderBy('apellido')
+            ->get(['id', 'name', 'apellido']);
     }
 
     private function authorizedProcess(int $procesoId, string $ability): Proceso

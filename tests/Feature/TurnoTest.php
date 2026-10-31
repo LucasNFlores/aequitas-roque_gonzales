@@ -75,7 +75,7 @@ class TurnoTest extends TestCase
         return array_merge([
             'clienteId' => (string) $this->cliente->id,
             'profesionalId' => (string) $this->profesional->id,
-            'procesoId' => '',
+            'procesoId' => $overrides['procesoId'] ?? (string) $this->procesoActivo()->id,
             'fechaHora' => now()->addDays(2)->setTime(10, 0)->format('Y-m-d\\TH:i'),
             'tipo' => 'consulta_inicial',
         ], $overrides);
@@ -86,10 +86,21 @@ class TurnoTest extends TestCase
         return array_merge([
             'clienteId' => (string) $this->cliente->id,
             'profesionalId' => (string) $this->profesional->id,
-            'procesoId' => '',
+            'procesoId' => $overrides['procesoId'] ?? (string) $this->procesoActivo()->id,
             'fechaHora' => now()->addDays(3)->setTime(9, 0)->format('Y-m-d\\TH:i'),
             'detalleExterno' => 'Audiencia de prueba HU-13',
         ], $overrides);
+    }
+
+    public function test_professional_selectors_show_full_name(): void
+    {
+        $this->profesional->update(['name' => 'Lucía', 'apellido' => 'García']);
+        $fullName = 'Lucía García';
+
+        Livewire::actingAs($this->secretario)->test(Index::class)->assertSee($fullName);
+        $this->form()->assertSee($fullName);
+        Livewire::actingAs($this->secretario)->test(Agenda::class)->assertSee($fullName);
+        Livewire::actingAs($this->secretario)->test(ExternalForm::class)->assertSee($fullName);
     }
 
     public function test_secretario_agenda_consulta_inicial_sin_generar_notificacion(): void
@@ -100,7 +111,7 @@ class TurnoTest extends TestCase
             ->set($this->fillNewTurno(['fechaHora' => $turnoDate]))
             ->call('save')
             ->assertHasNoErrors()
-            ->assertRedirect();
+            ->assertRedirect(route('turnos.show', Turno::query()->latest('id')->firstOrFail()));
 
         $this->assertDatabaseHas('turnos', [
             'cliente_id' => $this->cliente->id,
@@ -111,10 +122,33 @@ class TurnoTest extends TestCase
         $this->assertDatabaseCount('notificaciones', 0);
     }
 
+    public function test_todos_los_turnos_internos_exigen_un_proceso(): void
+    {
+        foreach (['consulta_inicial', 'seguimiento'] as $tipo) {
+            $this->form()
+                ->set($this->fillNewTurno(['tipo' => $tipo, 'procesoId' => '']))
+                ->call('save')
+                ->assertHasErrors(['procesoId' => 'required']);
+        }
+
+        $this->assertDatabaseCount('turnos', 0);
+    }
+
+    public function test_compromiso_externo_exige_un_proceso(): void
+    {
+        Livewire::actingAs($this->secretario)
+            ->test(ExternalForm::class)
+            ->set($this->fillNewExternalTurno(['procesoId' => '']))
+            ->call('save')
+            ->assertHasErrors(['procesoId' => 'required']);
+
+        $this->assertDatabaseCount('turnos', 0);
+    }
+
     public function test_seguimiento_exige_proceso_activo_y_cliente_y_profesional_coherentes(): void
     {
         $this->form()
-            ->set($this->fillNewTurno(['tipo' => 'seguimiento']))
+            ->set($this->fillNewTurno(['tipo' => 'seguimiento', 'procesoId' => '']))
             ->call('save')
             ->assertHasErrors('procesoId');
 

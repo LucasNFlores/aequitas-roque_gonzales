@@ -5,19 +5,45 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreDocumentoRequest;
 use App\Http\Requests\UpdateDocumentoRequest;
 use App\Models\CategoriaDocumento;
+use App\Models\Cliente;
 use App\Models\Documento;
 use App\Models\DocumentoVersion;
 use App\Models\Proceso;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Throwable;
 
 class DocumentoController extends Controller
 {
+    public function index(Request $request, Proceso $proceso): View
+    {
+        $this->authorize('view', $proceso);
+
+        $user = $request->user();
+        abort_unless($user instanceof User, 403);
+
+        $cliente = $proceso->cliente;
+        abort_unless($cliente instanceof Cliente, 404);
+
+        $canReturnToLegajo = $user->can('viewLegajo', $cliente)
+            && $cliente->procesos()->visibleTo($user)->whereKey($proceso->getKey())->exists();
+
+        return view('documentos.index', [
+            'proceso' => $proceso,
+            'returnUrl' => $canReturnToLegajo
+                ? route('legajos.procesos.show', [$cliente, $proceso])
+                : route('procesos.index'),
+            'returnLabel' => $canReturnToLegajo ? 'Volver al detalle del proceso' : 'Volver a procesos',
+        ]);
+    }
+
     public function store(StoreDocumentoRequest $request, Proceso $proceso): RedirectResponse
     {
         Gate::authorize('create', Documento::class);

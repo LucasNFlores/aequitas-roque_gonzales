@@ -72,7 +72,7 @@
                                             <li class="flex flex-col gap-2 rounded-control bg-white p-3 sm:flex-row sm:items-center sm:justify-between" wire:key="doc-version-{{ $version->id }}">
                                                 <div>
                                                     <p class="text-sm font-medium text-ink">{{ $version->nombre }} · {{ $version->categoria_nombre ?: $version->categoria?->nombre ?: 'Sin categoría' }}</p>
-                                                    <p class="mt-1 text-xs text-muted">{{ $version->tipo_documento }} · {{ $version->fecha_reemplazo?->format('d/m/Y H:i') ?? '—' }} · {{ $version->usuario?->name ?? 'Usuario eliminado' }}</p>
+                                                    <p class="mt-1 text-xs text-muted">{{ $version->tipo_documento }} · {{ $version->fecha_reemplazo?->format('d/m/Y H:i') ?? '—' }} · {{ $version->usuario?->nombre_completo ?? 'Usuario eliminado' }}</p>
                                                 </div>
                                                 <div class="flex flex-wrap gap-2">
                                                     @can('view', $documento)
@@ -99,7 +99,7 @@
     <div class="mt-5">{{ $documentos->links() }}</div>
 
     {{-- Modal crear/editar --}}
-    <div x-cloak x-show="formOpen" x-transition.opacity role="dialog" aria-modal="true" @click.self="formOpen = false; $wire.closeModal()" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 px-4 py-6 backdrop-blur-sm">
+    <div x-cloak x-show="formOpen" x-transition.opacity role="dialog" aria-modal="true" @click.self="formOpen = false; $wire.closeModal()" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 py-6 backdrop-blur-sm">
         <div class="w-full max-w-xl rounded-panel bg-white shadow-floating">
             <div class="flex items-start justify-between gap-4 border-b border-line px-6 py-5 sm:px-8">
                 <div>
@@ -146,7 +146,7 @@
     </div>
 
     {{-- Modal eliminar --}}
-    <div x-cloak x-show="deleteOpen" x-transition.opacity role="dialog" aria-modal="true" @click.self="deleteOpen = false; $wire.closeDeleteModal()" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 px-4 py-6 backdrop-blur-sm">
+    <div x-cloak x-show="deleteOpen" x-transition.opacity role="dialog" aria-modal="true" @click.self="deleteOpen = false; $wire.closeDeleteModal()" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 py-6 backdrop-blur-sm">
         <div class="w-full max-w-md rounded-panel bg-white p-6 shadow-floating sm:p-8">
             <h2 class="text-lg font-semibold text-ink">Eliminar documento</h2>
             <p class="mt-2 text-sm leading-6 text-muted">Se hará baja lógica. Se conserva auditoría y archivo físico.</p>

@@ -43,9 +43,12 @@
                     <a href="{{ route('estados-proceso.index') }}" class="text-gray-700 hover:text-indigo-600">{{ __('Estados de proceso') }}</a>
                 @endcan
 
+                @can('consultar_informe_documental')
+                    <a href="{{ route('reportes.documentos.index') }}" class="text-gray-700 hover:text-indigo-600">{{ __('Informe documental') }}</a>
+                @endcan
+
                 @can('gestionar_categorias_documentos')
                     <a href="{{ route('categorias.index') }}" class="text-gray-700 hover:text-indigo-600">{{ __('Categorías') }}</a>
-                    <a href="{{ route('reportes.documentos.index') }}" class="text-gray-700 hover:text-indigo-600">{{ __('Informe documental') }}</a>
                 @endcan
 
                 @can('ver_agenda_profesional')
@@ -56,7 +59,7 @@
         </div>
 
         <div class="flex flex-wrap items-center gap-4 text-sm">
-            <span class="font-medium text-gray-700">{{ Auth::user()->name }}</span>
+            <span class="font-medium text-gray-700">{{ Auth::user()->nombre_completo }}</span>
             <a href="{{ route('profile.edit') }}" class="text-gray-600 hover:text-indigo-600">{{ __('Profile') }}</a>
 
             <form method="POST" action="{{ route('logout') }}">

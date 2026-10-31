@@ -3,15 +3,18 @@
 namespace Tests\Feature;
 
 use App\Livewire\Legajos\Index;
+use App\Livewire\Turnos\Form as TurnoForm;
 use App\Models\CategoriaDocumento;
 use App\Models\Cliente;
 use App\Models\Documento;
 use App\Models\DocumentoVersion;
+use App\Models\EstadoProceso;
 use App\Models\Proceso;
 use App\Models\Reporte;
 use App\Models\Servicio;
 use App\Models\Turno;
 use App\Models\User;
+use Database\Seeders\EstadoProcesoSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -28,6 +31,7 @@ class LegajoTest extends TestCase
         parent::setUp();
 
         $this->seed(RoleSeeder::class);
+        $this->seed(EstadoProcesoSeeder::class);
         Storage::fake('local');
     }
 
@@ -42,7 +46,7 @@ class LegajoTest extends TestCase
             'dni' => '28123456',
         ]);
         $assignedProcess = $this->processFor($client, $professional, $coordinator, 'Visible asignado');
-        $this->processFor($client, $otherProfessional, $coordinator, 'Proceso ajeno');
+        $otherProcess = $this->processFor($client, $otherProfessional, $coordinator, 'Proceso ajeno');
 
         Turno::factory()->create([
             'cliente_id' => $client->id,
@@ -52,7 +56,7 @@ class LegajoTest extends TestCase
         Turno::factory()->create([
             'cliente_id' => $client->id,
             'profesional_id' => $otherProfessional->id,
-            'proceso_id' => null,
+            'proceso_id' => $otherProcess->id,
             'detalle_externo' => 'Turno de otro profesional',
         ]);
 
@@ -66,8 +70,30 @@ class LegajoTest extends TestCase
 
         $response->assertOk()
             ->assertSee('Visible asignado')
+            ->assertSee(route('legajos.procesos.show', [$client, $assignedProcess]))
+            ->assertSee($professional->nombre_completo)
+            ->assertSee($coordinator->nombre_completo)
             ->assertDontSee('Proceso ajeno')
+            ->assertDontSee('Turnos del cliente sin proceso asociado')
             ->assertDontSee('Turno de otro profesional');
+
+        $this->actingAs($professional)
+            ->get(route('legajos.procesos.show', [$client, $assignedProcess]))
+            ->assertOk()
+            ->assertSee('Turnos relacionados')
+            ->assertSee('Visible asignado')
+            ->assertDontSee('Proceso ajeno');
+
+        $this->actingAs($professional)
+            ->get(route('legajos.procesos.show', [$client, $this->processFor($client, $otherProfessional, $coordinator, 'Proceso directo ajeno')]))
+            ->assertNotFound();
+
+        $otherClient = Cliente::factory()->create();
+        $otherClientProcess = $this->processFor($otherClient, $professional, $coordinator, 'Proceso de otro cliente');
+
+        $this->actingAs($professional)
+            ->get(route('legajos.procesos.show', [$client, $otherClientProcess]))
+            ->assertNotFound();
     }
 
     public function test_directivo_can_read_document_metadata_but_never_receives_file_paths_or_links(): void
@@ -83,7 +109,7 @@ class LegajoTest extends TestCase
             'archivo_path' => 'documentos/privado/archivo-secreto.pdf',
         ]);
 
-        $response = $this->actingAs($executive)->get(route('legajos.show', $client));
+        $response = $this->actingAs($executive)->get(route('legajos.procesos.show', [$client, $process]));
 
         $response->assertOk()
             ->assertSee('DNI actualizado')
@@ -97,9 +123,178 @@ class LegajoTest extends TestCase
     {
         $secretary = $this->userWithRole('Secretario');
         $client = Cliente::factory()->create();
+        $process = $this->processFor($client, $this->userWithRole('Profesional'), $this->userWithRole('Coordinador'));
 
         $this->actingAs($secretary)->get(route('legajos.index'))->assertForbidden();
         $this->actingAs($secretary)->get(route('legajos.show', $client))->assertForbidden();
+        $this->actingAs($secretary)->get(route('legajos.procesos.show', [$client, $process]))->assertForbidden();
+    }
+
+    public function test_legajo_process_detail_shows_client_editing_only_to_authorized_roles(): void
+    {
+        $administrator = $this->userWithRole('Administrador');
+        $executive = $this->userWithRole('Directivo');
+        $client = Cliente::factory()->create();
+        $process = $this->processFor($client, $this->userWithRole('Profesional'), $this->userWithRole('Coordinador'));
+
+        $this->actingAs($executive)
+            ->get(route('legajos.procesos.show', [$client, $process]))
+            ->assertOk()
+            ->assertDontSee('Editar datos del cliente');
+
+        $this->actingAs($administrator)
+            ->get(route('legajos.procesos.show', [$client, $process]))
+            ->assertOk()
+            ->assertSee('Editar datos del cliente');
+    }
+
+    public function test_process_state_editing_is_authorized_and_recorded_from_the_detail(): void
+    {
+        $professional = $this->userWithRole('Profesional');
+        $coordinator = $this->userWithRole('Coordinador');
+        $executive = $this->userWithRole('Directivo');
+        $client = Cliente::factory()->create();
+        $process = $this->processFor($client, $professional, $coordinator, 'Proceso editable');
+        $state = EstadoProceso::query()->where('slug', 'en_proceso')->firstOrFail();
+
+        $this->actingAs($professional)
+            ->get(route('legajos.procesos.show', [$client, $process]))
+            ->assertOk()
+            ->assertSee('Cambiar fase del caso');
+
+        $this->actingAs($executive)
+            ->get(route('legajos.procesos.show', [$client, $process]))
+            ->assertOk()
+            ->assertDontSee('Cambiar fase del caso');
+
+        $this->actingAs($executive)
+            ->patch(route('procesos.estado.update', $process), ['estado' => 'en_proceso'])
+            ->assertForbidden();
+
+        $this->actingAs($professional)
+            ->patch(route('procesos.estado.update', $process), ['estado' => 'en_proceso', 'motivo' => 'Se inicia la etapa probatoria.'])
+            ->assertRedirect(route('legajos.procesos.show', [$client, $process]));
+
+        $this->assertSame('en_proceso', $process->fresh()->estado);
+        $this->assertDatabaseHas('historial_estados_proceso', [
+            'proceso_id' => $process->id,
+            'estado_nuevo' => $state->slug,
+            'motivo' => 'Se inicia la etapa probatoria.',
+            'usuario_id' => $professional->id,
+        ]);
+    }
+
+    public function test_scheduling_a_turn_from_process_detail_preserves_and_returns_to_the_origin(): void
+    {
+        $administrator = $this->userWithRole('Administrador');
+        $client = Cliente::factory()->create();
+        $professional = $this->userWithRole('Profesional');
+        $coordinator = $this->userWithRole('Coordinador');
+        $process = $this->processFor($client, $professional, $coordinator);
+        $detailUrl = route('legajos.procesos.show', [$client, $process]);
+        $createUrl = route('turnos.create', [
+            'return_cliente_id' => $client->id,
+            'return_proceso_id' => $process->id,
+        ]);
+
+        $this->actingAs($administrator)
+            ->get($detailUrl)
+            ->assertOk()
+            ->assertSee($createUrl);
+
+        $createResponse = $this->actingAs($administrator)->get($createUrl);
+        $createResponse->assertViewHas('returnClienteId', $client->id);
+        $createResponse->assertViewHas('returnProcesoId', $process->id);
+        $createResponse->assertOk();
+
+        Livewire::actingAs($administrator)
+            ->test(TurnoForm::class, [
+                'returnClienteId' => $client->id,
+                'returnProcesoId' => $process->id,
+            ])
+            ->assertSet('returnClienteId', $client->id)
+            ->assertSet('returnProcesoId', $process->id)
+            ->assertSet('clienteId', (string) $client->id)
+            ->assertSet('procesoId', (string) $process->id)
+            ->assertSet('profesionalId', (string) $professional->id)
+            ->set('fechaHora', now()->addDays(4)->setTime(10, 0)->format('Y-m-d\\TH:i'))
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertRedirect($detailUrl);
+
+        $this->assertDatabaseHas('turnos', [
+            'cliente_id' => $client->id,
+            'proceso_id' => $process->id,
+            'profesional_id' => $professional->id,
+            'estado' => 'programado',
+        ]);
+    }
+
+    public function test_editing_a_client_from_process_detail_returns_to_that_process(): void
+    {
+        $administrator = $this->userWithRole('Administrador');
+        $client = Cliente::factory()->create();
+        $process = $this->processFor(
+            $client,
+            $this->userWithRole('Profesional'),
+            $this->userWithRole('Coordinador'),
+        );
+        $detailUrl = route('legajos.procesos.show', [$client, $process]);
+        $context = [
+            'cliente' => $client,
+            'return_cliente_id' => $client->id,
+            'return_proceso_id' => $process->id,
+        ];
+
+        $this->actingAs($administrator)
+            ->get($detailUrl)
+            ->assertOk()
+            ->assertSee(route('clientes.edit', $context));
+
+        $this->actingAs($administrator)
+            ->get(route('clientes.edit', $context))
+            ->assertOk()
+            ->assertSee($detailUrl);
+
+        $this->actingAs($administrator)
+            ->put(route('clientes.update', $context), [
+                'nombre' => 'Nombre actualizado',
+                'apellido' => $client->apellido,
+                'dni' => $client->dni,
+                'telefono' => $client->telefono,
+                'correo' => $client->correo,
+                'domicilio' => $client->domicilio,
+                'fecha_nacimiento' => $client->fecha_nacimiento?->format('Y-m-d'),
+            ])
+            ->assertRedirect($detailUrl);
+
+        $this->assertDatabaseHas('clientes', [
+            'id' => $client->id,
+            'nombre' => 'Nombre actualizado',
+        ]);
+    }
+
+    public function test_client_edit_does_not_accept_a_process_from_another_client_as_return_context(): void
+    {
+        $administrator = $this->userWithRole('Administrador');
+        $client = Cliente::factory()->create();
+        $otherClient = Cliente::factory()->create();
+        $otherProcess = $this->processFor(
+            $otherClient,
+            $this->userWithRole('Profesional'),
+            $this->userWithRole('Coordinador'),
+        );
+        $context = [
+            'cliente' => $client,
+            'return_cliente_id' => $client->id,
+            'return_proceso_id' => $otherProcess->id,
+        ];
+
+        $this->actingAs($administrator)
+            ->get(route('clientes.edit', $context))
+            ->assertOk()
+            ->assertSee(route('clientes.index'))
+            ->assertDontSee(route('legajos.procesos.show', [$otherClient, $otherProcess]));
     }
 
     public function test_coordinator_and_administrator_can_open_a_legajo_with_empty_relations(): void
@@ -144,7 +339,7 @@ class LegajoTest extends TestCase
             ->assertDontSee('28123456');
     }
 
-    public function test_related_tables_are_loaded_in_batches_for_multiple_processes(): void
+    public function test_related_tables_are_loaded_in_batches_for_the_selected_process_detail(): void
     {
         $executive = $this->userWithRole('Directivo');
         $client = Cliente::factory()->create();
@@ -179,7 +374,7 @@ class LegajoTest extends TestCase
         }
 
         DB::enableQueryLog();
-        $this->actingAs($executive)->get(route('legajos.show', $client))->assertOk();
+        $this->actingAs($executive)->get(route('legajos.procesos.show', [$client, $client->procesos()->firstOrFail()]))->assertOk();
         $queries = DB::getQueryLog();
         DB::disableQueryLog();
 
@@ -194,8 +389,7 @@ class LegajoTest extends TestCase
         $this->assertSame(1, $queryCountForTable('documento_versiones'));
         $this->assertSame(1, $queryCountForTable('reportes'));
         $this->assertSame(1, $queryCountForTable('historial_estados_proceso'));
-        $this->assertSame(2, $queryCountForTable('turnos'));
-        $this->assertSame(1, $queryCountForTable('comprobante_pagos'));
+        $this->assertSame(1, $queryCountForTable('turnos'));
     }
 
     private function userWithRole(string $role): User

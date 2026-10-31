@@ -6,9 +6,14 @@
 
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <div>
-            <label for="name" class="block text-sm font-medium text-muted">Nombre *</label>
-            <input id="name" type="text" name="name" value="{{ old('name', $user->name ?? '') }}" required class="mt-1 block w-full rounded-control border-line shadow-sm focus:border-gold-600 focus:ring-gold-600" />
+            <label for="name" class="block text-sm font-medium text-muted">Nombres *</label>
+            <input id="name" type="text" name="name" value="{{ old('name', $user?->name ?? '') }}" required class="mt-1 block w-full rounded-control border-line shadow-sm focus:border-gold-600 focus:ring-gold-600" />
             @error('name') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
+        </div>
+        <div>
+            <label for="apellido" class="block text-sm font-medium text-muted">Apellido *</label>
+            <input id="apellido" type="text" name="apellido" value="{{ old('apellido', $user->apellido ?? '') }}" required class="mt-1 block w-full rounded-control border-line shadow-sm focus:border-gold-600 focus:ring-gold-600" />
+            @error('apellido') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
         </div>
         <div>
             <label for="email" class="block text-sm font-medium text-muted">Email *</label>
@@ -42,24 +47,22 @@
         </div>
         <div>
             <label for="fecha_ingreso" class="block text-sm font-medium text-muted">Fecha ingreso</label>
-            <input id="fecha_ingreso" type="date" name="fecha_ingreso" value="{{ old('fecha_ingreso', isset($user?->fecha_ingreso) ? $user->fecha_ingreso->format('Y-m-d') : '') }}" class="mt-1 block w-full rounded-control border-line shadow-sm focus:border-gold-600 focus:ring-gold-600" />
+            <input id="fecha_ingreso" type="date" name="fecha_ingreso" value="{{ old('fecha_ingreso', isset($user) ? ($user->fecha_ingreso?->format('Y-m-d') ?? '') : today()->toDateString()) }}" class="mt-1 block w-full rounded-control border-line shadow-sm focus:border-gold-600 focus:ring-gold-600" />
             @error('fecha_ingreso') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
         </div>
     </div>
 
     <div>
-        <label class="block text-sm font-medium text-muted">Roles (desde BD)</label>
-        <div class="mt-2 space-y-2">
-            @foreach(\Spatie\Permission\Models\Role::orderBy('name')->get() as $role)
+        <label for="role" class="block text-sm font-medium text-muted">Rol</label>
+        <select id="role" name="role" class="mt-1 block w-full rounded-control border-line shadow-sm focus:border-gold-600 focus:ring-gold-600">
+            <option value="">Sin rol</option>
+            @foreach($roles as $role)
                 @if(auth()->user()->hasRole('Administrador') || $role->name !== 'Administrador')
-                <label class="flex items-center gap-2">
-                    <input type="checkbox" name="roles[]" value="{{ $role->name }}" {{ in_array($role->name, old('roles', isset($user) ? $user->roles->pluck('name')->all() : [])) ? 'checked' : '' }} class="rounded border-line text-aequitas-900 shadow-sm focus:ring-gold-600" />
-                    <span class="text-sm text-muted">{{ $role->name }}</span>
-                </label>
+                    <option value="{{ $role->name }}" @selected(old('role', $user?->roles?->first()?->name ?? '') === $role->name)>{{ $role->name }}</option>
                 @endif
             @endforeach
-        </div>
-        @error('roles') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
+        </select>
+        @error('role') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
     </div>
 
     @can('asignar_especialidad_servicio')

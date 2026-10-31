@@ -2,21 +2,31 @@
 
 ## Sistema de Gestión de Turnos y Procesos
 
+El diagrama refleja los modelos y relaciones declarados en `app/Models/`. Las tablas pivote y los modelos de infraestructura de paquetes se resumen como relaciones o estereotipos para mantener el foco en el dominio.
+
+El modelo de dominio se organiza alrededor de `Cliente` y `Proceso`: un cliente puede tener muchos procesos y cada proceso reúne sus turnos, documentos, comprobantes, reportes e historial de estados. `Legajo` es la consulta/vista que compone información del cliente y sus procesos; no existe como clase Eloquent ni como tabla.
+
 ```mermaid
 classDiagram
 direction LR
 
+%% Cliente agrupa procesos; cada Proceso relaciona turnos, documentos, comprobantes, reportes e historial. Legajo es una consulta/vista compuesta, no un modelo.
+
     namespace Acceso_y_Personas {
         class User {
             -String name
+            -String apellido
+            +String nombre_completo (derivado)
             -String email
-            -String password
             -String dni
             -String telefono
             -String domicilio
             -Date fecha_nacimiento
             -Date fecha_ingreso
+            -Role asignado (0..1)
+            +rolePriority(roleName): int
             +HasMany turnos()
+            +HasMany turnosComoCoordinador()
             +HasMany reportes()
             +HasMany procesosComoProfesional()
             +HasMany procesosComoCoordinador()
@@ -37,22 +47,22 @@ direction LR
             +HasMany notificaciones()
             +HasMany turnos()
         }
-
     }
 
     namespace Gestion_Juridica {
         class Proceso {
             -BigInt cliente_id
-            -BigInt profesional_id
+            -BigInt profesional_id (nullable)
             -BigInt servicio_id
             -BigInt coordinador_id
             -String nombre
             -Text descripcion
             -Date fecha_inicio
-            -Decimal honorarios
+            -Decimal honorarios (nullable)
+            -UUID submission_token (nullable)
             -String tipo
             -String estado
-            -String motivo_rechazo
+            -String motivo_rechazo (nullable)
             +BelongsTo cliente()
             +BelongsTo profesional()
             +BelongsTo coordinador()
@@ -70,19 +80,41 @@ direction LR
             +HasMany procesos()
             +BelongsToMany usuarios()
         }
+
+        class EstadoProceso {
+            -String nombre
+            -String slug
+            -Boolean activo
+            -Integer posicion
+            +HasMany procesos()
+        }
+
+        class HistorialEstadoProceso {
+            -BigInt proceso_id
+            -BigInt usuario_id
+            -String estado_anterior
+            -String estado_nuevo
+            -String motivo
+            -DateTime fecha_cambio
+            +BelongsTo proceso()
+            +BelongsTo usuario()
+        }
     }
 
     namespace Agenda {
         class Turno {
             -BigInt cliente_id
             -BigInt profesional_id
-            -BigInt proceso_id
+            -BigInt coordinador_id
+            -BigInt proceso_id (obligatorio)
             -DateTime fecha_hora
             -Boolean es_externo
             -String detalle_externo
             -String tipo
+            -String estado
             +BelongsTo cliente()
             +BelongsTo profesional()
+            +BelongsTo coordinador()
             +BelongsTo proceso()
         }
     }
@@ -123,20 +155,36 @@ direction LR
         class Reporte {
             -BigInt proceso_id
             -BigInt profesional_id
+            -BigInt registrado_por_id
             -Text contenido
             -Date fecha
             +BelongsTo proceso()
             +BelongsTo profesional()
+            +BelongsTo registradoPor()
+            +HasMany versiones()
+        }
+
+        class ReporteVersion {
+            -BigInt reporte_id
+            -Text contenido_anterior
+            -Date fecha_anterior
+            -BigInt usuario_id
+            -String usuario_nombre
+            -DateTime fecha_cambio
+            +BelongsTo reporte()
+            +BelongsTo usuario()
         }
     }
 
     namespace Pagos {
         class ComprobantePago {
             -BigInt cliente_id
+            -BigInt proceso_id
             -String archivo_path
             -Date fecha_subida
             -String descripcion
             +BelongsTo cliente()
+            +BelongsTo proceso()
         }
     }
 
@@ -158,17 +206,31 @@ direction LR
     <<HasRoles>> User
     <<Notifiable>> User
     <<SoftDeletes>> User
+    <<HasFactory>> User
     <<SoftDeletes>> Cliente
+    <<HasFactory>> Cliente
     <<SoftDeletes>> Proceso
-    <<SoftDeletes>> Turno
+    <<HasFactory>> Proceso
     <<SoftDeletes>> Servicio
+    <<HasFactory>> Servicio
+    <<SoftDeletes>> EstadoProceso
+    <<HasFactory>> EstadoProceso
+    <<HasFactory>> HistorialEstadoProceso
+    <<SoftDeletes>> CategoriaDocumento
+    <<HasFactory>> CategoriaDocumento
+    <<Auditable>> Documento
     <<SoftDeletes>> Documento
+    <<HasFactory>> Documento
     <<SoftDeletes>> Reporte
+    <<HasFactory>> Reporte
     <<SoftDeletes>> Notificacion
+    <<HasFactory>> Notificacion
+    <<HasFactory>> Turno
     <<HasFactory>> ComprobantePago
 
-    User "1" --> "N" Turno : turnos
-    User "1" --> "N" Reporte : reportes
+    User "1" --> "N" Turno : turnos (FK user_id ausente)
+    User "1" --> "N" Turno : turnosComoCoordinador
+    User "1" --> "N" Reporte : reportes (FK user_id ausente)
     User "1" --> "N" Proceso : procesosComoProfesional
     User "1" --> "N" Proceso : procesosComoCoordinador
     User "1" --> "N" Notificacion : notificaciones
@@ -180,97 +242,67 @@ direction LR
     Cliente "1" --> "N" Turno : turnos
 
     Proceso "N" --> "1" Cliente : cliente
-    Proceso "N" --> "1" User : profesional
+    Proceso "N" --> "0..1" User : profesional
     Proceso "N" --> "1" User : coordinador
     Proceso "N" --> "1" Servicio : servicio
     Proceso "1" --> "N" Turno : turnos
     Proceso "1" --> "N" Documento : documentos
+    Proceso "1" --> "N" ComprobantePago : comprobantesPago
     Proceso "1" --> "N" Reporte : reportes
+    Proceso "1" --> "N" HistorialEstadoProceso : historialEstados
 
     Servicio "1" --> "N" Proceso : procesos
     Servicio "N" --> "N" User : usuarios
+    EstadoProceso "1" --> "N" Proceso : procesos (slug a estado)
 
     Turno "N" --> "1" Cliente : cliente
     Turno "N" --> "1" User : profesional
+    Turno "N" --> "0..1" User : coordinador
     Turno "N" --> "1" Proceso : proceso
 
     Documento "N" --> "1" Proceso : proceso
-    Documento "N" --> "1" CategoriaDocumento : categoria
+    Documento "N" --> "0..1" CategoriaDocumento : categoria
     Documento "1" --> "N" DocumentoVersion : versiones
     DocumentoVersion "N" --> "1" User : usuario
     DocumentoVersion "N" --> "0..1" CategoriaDocumento : categoria
 
     Reporte "N" --> "1" Proceso : proceso
     Reporte "N" --> "1" User : profesional
+    Reporte "N" --> "1" User : registradoPor
+    ReporteVersion "N" --> "1" Reporte : reporte
+    ReporteVersion "N" --> "1" User : usuario
+    HistorialEstadoProceso "N" --> "0..1" User : usuario
 
-    Notificacion "N" --> "1" User : user
-    Notificacion "N" --> "1" Cliente : cliente
+    Notificacion "N" --> "0..1" User : user
+    Notificacion "N" --> "0..1" Cliente : cliente
 
     ComprobantePago "N" --> "1" Cliente : cliente
+    ComprobantePago "N" --> "0..1" Proceso : proceso
 ```
 
-## Módulos del Diagrama
+## Módulos del diagrama
 
-- **Acceso y Personas**: agrupa usuarios internos del sistema y clientes del estudio.
-- **Gestión Jurídica**: concentra procesos legales y servicios ofrecidos.
-- **Agenda**: contiene los turnos internos, seguimientos y eventos externos.
-- **Documentación y Seguimiento**: reúne documentos del expediente y reportes profesionales.
-- **Pagos**: registra comprobantes asociados a clientes.
-- **Comunicaciones**: representa los registros de notificaciones.
+- **Acceso y Personas**: usuarios internos y clientes.
+- **Gestión Jurídica**: procesos, servicios, catálogo de estados y el historial de transiciones.
+- **Agenda**: turnos con relaciones para cliente, profesional, coordinador y proceso.
+- **Documentación y Seguimiento**: categorías, documentos y sus versiones, reportes y sus versiones.
+- **Pagos**: comprobantes asociados a clientes y, opcionalmente, a procesos.
+- **Comunicaciones**: notificaciones dirigidas opcionalmente a usuarios internos o clientes.
 
-## Descripción de Relaciones
+## Relaciones relevantes
 
-### User (Profesional/Coordinador)
-- `turnos()` → Turno[] : Un usuario puede tener muchos turnos
-- `reportes()` → Reporte[] : Un usuario puede generar muchos reportes
-- `procesosComoProfesional()` → Proceso[] : Un usuario puede ser profesional de muchos procesos
-- `procesosComoCoordinador()` → Proceso[] : Un usuario puede ser coordinador de muchos procesos
-- `notificaciones()` → Notificacion[] : Un usuario puede recibir muchas notificaciones
-- `servicios()` → Servicio[] : Un usuario profesional puede estar asociado a muchos servicios
+- `Proceso` conecta clientes, profesionales, coordinadores, servicios, turnos, documentos, comprobantes, reportes e historial de estados.
+- `EstadoProceso.procesos()` relaciona `EstadoProceso.slug` con `Proceso.estado`; no utiliza la clave primaria numérica del estado.
+- `HistorialEstadoProceso` pertenece a un proceso y opcionalmente al usuario que registró la transición.
+- `Reporte` puede tener muchas `ReporteVersion`; cada versión conserva el contenido y la fecha previos, además del usuario asociado.
+- `ComprobantePago.proceso_id` y `Turno.coordinador_id` son opcionales; cada `Turno` requiere un `proceso_id`. Las claves de `Notificacion` a usuario y cliente también son opcionales.
+- `User` tiene asignación de un solo rol. Los roles son gestionados por Spatie Permission; no existe una columna `role` directa en `users`.
+- `Servicio` y `User` se relacionan mediante `user_servicios`.
 
-### Cliente
-- `procesos()` → Proceso[] : Un cliente puede tener muchos procesos
-- `comprobantesPago()` → ComprobantePago[] : Un cliente puede tener muchos comprobantes
-- `notificaciones()` → Notificacion[] : Un cliente puede recibir muchas notificaciones
-- `turnos()` → Turno[] : Un cliente puede tener muchos turnos
+## Diferencias entre el modelo y la base de datos
 
-### Proceso
-- `cliente()` → Cliente : Un proceso pertenece a un cliente
-- `profesional()` → User : Un proceso tiene un profesional asignado
-- `coordinador()` → User : Un proceso tiene un coordinador asignado
-- `servicio()` → Servicio : Un proceso ofrece un servicio
-- `turnos()` → Turno[] : Un proceso puede tener muchos turnos
-- `documentos()` → Documento[] : Un proceso puede tener muchos documentos
-- `reportes()` → Reporte[] : Un proceso puede tener muchos reportes
+`User.turnos()` y `User.reportes()` están declarados con las claves convencionales `turnos.user_id` y `reportes.user_id`, pero las migraciones no crean esas columnas. El diagrama marca esos métodos declarados; las relaciones operativas explícitas usan `Turno.profesional()` (`profesional_id`), `Turno.coordinador()` (`coordinador_id`), `Reporte.profesional()` (`profesional_id`) y `Reporte.registradoPor()` (`registrado_por_id`).
 
-### Servicio
-- `procesos()` → Proceso[] : Un servicio puede estar en muchos procesos
-- `usuarios()` → User[] : Un servicio puede estar asociado a muchos usuarios profesionales
+## Capacidades técnicas
 
-### Turno
-- `cliente()` → Cliente : Un turno pertenece a un cliente
-- `profesional()` → User : Un turno tiene un profesional asignado
-- `proceso()` → Proceso : Un turno puede pertenecer a un proceso
-
-### Documento
-- `proceso()` → Proceso : Un documento pertenece a un proceso
-
-### Reporte
-- `proceso()` → Proceso : Un reporte pertenece a un proceso
-- `profesional()` → User : Un reporte es creado por un profesional
-
-### Notificacion
-- `user()` → User : Una notificación pertenece a un usuario
-- `cliente()` → Cliente : Una notificación puede pertenecer a un cliente
-
-### ComprobantePago
-- `cliente()` → Cliente : Un comprobante pertenece a un cliente
-
-## Notas de Implementación
-
-- **SoftDeletes**: Todos los modelos (excepto ComprobantePago) implementan SoftDeletes para eliminación lógica
-- **HasFactory**: Todos los modelos tienen factories asociadas para testing
-- **Auditable**: User implementa Auditable de OwenIt para auditoría de cambios
-- **HasRoles**: User usa Spatie Permission para gestión de roles y permisos
-- **Casts**: Los campos de fecha/fecha_hora están casteados correctamente
-- **Fillable**: Todos los campos editables están definidos en $fillable
+Los estereotipos señalan traits e interfaces presentes en los modelos. `Turno` no usa el trait `SoftDeletes`, aunque la migración crea `deleted_at`. Los modelos con `HasFactory` se indican en el diagrama; `DocumentoVersion` y `ReporteVersion` no lo declaran.

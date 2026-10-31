@@ -4,6 +4,7 @@ Este documento explica como interpretar el diagrama de clases del sistema de ges
 
 Archivos relacionados:
 
+- `Diagrama de clases.drawio`: versión editable del diagrama.
 - `diagrama-clases.mermaid`: version Mermaid del diagrama.
 - `diagrama-clases.md`: documentacion del diagrama con el bloque Mermaid incrustado.
 
@@ -41,6 +42,8 @@ Este modulo agrupa las personas principales del sistema:
 - `<<Notifiable>>`: puede recibir notificaciones.
 - `<<SoftDeletes>>`: permite borrado logico mediante `deleted_at`.
 
+Los nombres y el apellido de `User` se guardan en campos separados; `nombre_completo` es un valor derivado para presentarlos juntos. Cada usuario puede tener cero o un rol activo, aunque Spatie implemente la relación mediante su trait `HasRoles`.
+
 `Cliente` no inicia sesion en el sistema. Es una entidad de dominio usada para registrar datos personales, procesos, turnos, comprobantes y notificaciones.
 
 ### Gestion Juridica
@@ -49,8 +52,10 @@ Este modulo contiene el nucleo funcional del sistema:
 
 - `Proceso`: representa un caso o expediente juridico abierto para un cliente.
 - `Servicio`: representa el tipo de servicio ofrecido por el estudio, con su costo asociado.
+- `EstadoProceso`: define los estados disponibles y su orden de visualizacion.
+- `HistorialEstadoProceso`: conserva las transiciones de estado de cada proceso y el usuario que las registró, cuando existe.
 
-`Proceso` es la clase central del diagrama porque conecta clientes, profesionales, coordinadores, servicios, turnos, documentos y reportes. Cada proceso pertenece a un cliente y a un servicio. Tambien puede tener un profesional asignado y un coordinador responsable.
+`Proceso` es la clase central del diagrama porque conecta un cliente y un servicio con sus turnos, documentos, comprobantes, reportes e historial de estados. Cada proceso pertenece a un cliente, a un servicio y a un coordinador. `profesional_id` sí es opcional: el proceso puede no tener profesional asignado todavía.
 
 `Servicio` define lo que el estudio ofrece. Un servicio puede estar vinculado a muchos procesos y tambien a muchos usuarios profesionales mediante la relacion muchos-a-muchos `user_servicios`.
 
@@ -58,9 +63,9 @@ Este modulo contiene el nucleo funcional del sistema:
 
 Este modulo administra la planificacion de citas:
 
-- `Turno`: representa una cita entre un cliente y un profesional.
+- `Turno`: representa una cita entre un cliente y un profesional, siempre asociada a un proceso y con un coordinador opcional.
 
-Un turno pertenece a un cliente y a un profesional. Tambien puede pertenecer a un proceso cuando se trata de un seguimiento de caso. Si el turno es externo, como una audiencia judicial, el campo `es_externo` permite distinguirlo y `detalle_externo` permite guardar informacion adicional.
+Un turno pertenece a un cliente, a un profesional y a un proceso (`proceso_id` obligatorio). `coordinador_id` sí es opcional. Si el turno es externo, como una audiencia judicial, el campo `es_externo` permite distinguirlo y `detalle_externo` permite guardar informacion adicional.
 
 ### Documentacion y Seguimiento
 
@@ -69,6 +74,7 @@ Este modulo registra el material asociado al avance de un proceso:
 - `Documento`: archivo digital asociado a un proceso.
 - `DocumentoVersion`: conserva los metadatos y la ruta interna de cada archivo anterior cuando se reemplaza un documento.
 - `Reporte`: acta, informe o registro generado por un profesional.
+- `ReporteVersion`: conserva el contenido y la fecha anteriores de un reporte, junto con el usuario asociado.
 
 Los documentos permiten mantener el expediente digital ordenado. Las versiones anteriores conservan su relación con el documento y deben consultarse mediante las mismas autorizaciones documentales. Los reportes permiten dejar constancia de reuniones, avances o acciones realizadas sobre el proceso.
 
@@ -78,7 +84,7 @@ Este modulo registra comprobantes economicos asociados a clientes:
 
 - `ComprobantePago`: archivo de comprobante de pago vinculado a un cliente.
 
-El comprobante guarda la ruta del archivo, la fecha de subida y una descripcion opcional. A diferencia de la mayoria de los modelos del diagrama, no aparece con `SoftDeletes`.
+El comprobante guarda la ruta del archivo, la fecha de subida y una descripcion opcional. Pertenece a un cliente y puede asociarse a un proceso. A diferencia de la mayoria de los modelos del diagrama, no aparece con `SoftDeletes`.
 
 ### Comunicaciones
 
@@ -110,19 +116,25 @@ Esta relacion se implementa mediante la tabla intermedia `user_servicios`. Sirve
 
 ### Cliente con Proceso
 
-Un cliente puede tener muchos procesos. Cada proceso pertenece a un solo cliente.
+Un cliente puede tener muchos procesos. Cada proceso pertenece a un solo cliente. Esta relación organiza el modelo orientado a objetos: `Cliente` reúne los casos de una persona y cada `Proceso` concentra las relaciones asociadas a ese caso.
 
 Esta es una de las relaciones principales del sistema porque el historial juridico de una persona se construye a partir de sus procesos.
 
-### Proceso con Turno, Documento y Reporte
+### Proceso con Turno, Documento, Comprobante, Reporte e Historial
 
 Un proceso puede tener:
 
-- Muchos turnos de seguimiento.
+- Muchos turnos, cada uno asociado obligatoriamente al proceso.
 - Muchos documentos cargados.
+- Muchos comprobantes de pago asociados al proceso; el comprobante también pertenece a un cliente y `proceso_id` puede ser nulo.
 - Muchos reportes generados por profesionales.
+- Muchas entradas de historial de estado.
 
 Estas relaciones convierten a `Proceso` en el punto de entrada natural para consultar el expediente completo de un cliente.
+
+### Legajo como consulta compuesta
+
+`Legajo` no es un modelo Eloquent ni una clase persistente. `LegajoController` reúne el cliente y sus procesos visibles, y las vistas `legajos.show` y `legajos.procesos.show` presentan los datos relacionados. El legajo es, por tanto, una consulta/vista compuesta sobre `Cliente`, `Proceso` y sus relaciones.
 
 ### Cliente con ComprobantePago
 
@@ -145,7 +157,7 @@ Esto permite registrar mensajes para eventos como confirmacion de turnos, asigna
 2. Se crea un `Proceso` asociado a ese cliente y a un `Servicio`.
 3. Un `User` con rol de coordinador evalua el proceso.
 4. Si el proceso es admitido, se asigna un `User` profesional.
-5. Se agendan `Turno` para consulta inicial, seguimiento o eventos externos.
+5. Se agendan `Turno` para consulta inicial, seguimiento o eventos externos; cada turno queda vinculado a un `Proceso`.
 6. Se cargan `Documento` vinculados al proceso.
 7. El profesional registra `Reporte` con avances o reuniones.
 8. Se cargan `ComprobantePago` asociados al cliente.
@@ -153,6 +165,8 @@ Esto permite registrar mensajes para eventos como confirmacion de turnos, asigna
 ## Estados y tipos importantes
 
 `Proceso.estado` representa el ciclo de vida del caso:
+
+`EstadoProceso` es el catálogo de estados activos y su orden. Su `slug` coincide con `Proceso.estado`; los siguientes valores son los estados iniciales del seeder:
 
 - `pendiente`
 - `admitido`
@@ -174,22 +188,27 @@ Esto permite registrar mensajes para eventos como confirmacion de turnos, asigna
 - `seguimiento`
 - `externo`
 
+`Turno.estado` puede ser `programado` o `cancelado`.
+
 `Notificacion.canal` representa el medio de comunicación registrado:
 
+- `interno`
 - `email`
 - `whatsapp`
+
+`Notificacion.estado` puede ser `enviado` o `fallido`.
 
 ## Capacidades tecnicas representadas
 
 ### SoftDeletes
 
-Los modelos con `<<SoftDeletes>>` usan borrado logico. Cuando se eliminan, no se borran fisicamente de la base de datos; se marca la columna `deleted_at`.
+`User`, `Cliente`, `Proceso`, `Servicio`, `EstadoProceso`, `CategoriaDocumento`, `Documento`, `Reporte` y `Notificacion` usan el trait `SoftDeletes`. `Turno` tiene la columna `deleted_at`, pero su modelo no usa el trait; `ComprobantePago` tampoco lo usa.
 
 Esto ayuda a conservar trazabilidad y permite recuperar informacion si fue eliminada por error.
 
 ### HasFactory
 
-`<<HasFactory>>` indica que el modelo puede generar datos de prueba mediante factories de Laravel. Aunque todos los modelos pueden tener factories, en el diagrama se destaca especialmente en `ComprobantePago` porque no usa `SoftDeletes`.
+`<<HasFactory>>` indica que el modelo usa una factory de Laravel. `DocumentoVersion` y `ReporteVersion` no declaran ese trait.
 
 ### Authenticatable
 
@@ -201,7 +220,7 @@ Esto ayuda a conservar trazabilidad y permite recuperar informacion si fue elimi
 
 ### Auditable
 
-`<<Auditable>>` aparece en `User` porque se registran cambios relevantes para trazabilidad.
+`<<Auditable>>` aparece en `User` y `Documento` porque se registran cambios relevantes para trazabilidad.
 
 ### Notifiable
 
@@ -209,7 +228,7 @@ Esto ayuda a conservar trazabilidad y permite recuperar informacion si fue elimi
 
 ## Resumen
 
-El diagrama muestra un sistema centrado en `Proceso`. Alrededor de esa clase se organizan los clientes, usuarios internos, servicios, turnos, documentos, reportes, pagos y notificaciones.
+El diagrama muestra un modelo centrado en `Cliente` y `Proceso`: un cliente reúne sus procesos y cada proceso vincula turnos, documentos, comprobantes, reportes e historial de estados. `Legajo` es la consulta/vista que compone esos datos; no es una clase del dominio persistente.
 
 La separacion por modulos permite leer el sistema por responsabilidades:
 

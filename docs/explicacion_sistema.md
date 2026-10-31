@@ -17,11 +17,11 @@ La fuente definitiva de casos de uso y permisos es la matriz online **“Aequita
 
 ### Usuario
 
-Representa a un empleado autenticable. Sus permisos dependen del rol asignado. Los roles son Secretario, Profesional, Coordinador, Directivo y Administrador.
+Representa a un empleado autenticable. Cada cuenta tiene un solo rol, que determina sus permisos: Secretario, Profesional, Coordinador, Directivo o Administrador. Si una cuenta anterior tiene varios roles, se conserva el de mayor jerarquía.
 
-> **Implementación completa CU25-27, CU34:** ver `docs/gestion-usuarios-roles-servicios.md` para detalle de altas/modificaciones/baja lógica, validación `email único`, roles desde BD, password inicial `1234`, búsqueda por `nombre/email/DNI`, relación N:M `user_servicios` (múltiples servicios por profesional), `UserPolicy` con bloqueo por procesos activos, `StoreUserRequest`/`UpdateUserRequest`, `UserController` + `Livewire/Usuarios/Index` (Blade+Alpine+Tailwind), pantalla CU34 independiente `Livewire/Profesionales/Servicios` en `/profesionales/servicios`, rutas protegidas por permiso, registro público `/register` deshabilitado (solo CU25), y pruebas de usuarios y servicios por profesional.
+> **Implementación completa CU25-27, CU34:** ver `docs/gestion-usuarios-roles-servicios.md` para altas/modificaciones/baja lógica, nombre y apellido separados, rol único desde BD con jerarquía, fecha de ingreso actual en altas, password inicial `1234`, búsqueda por nombre/apellido/email/DNI, relación N:M `user_servicios` (múltiples servicios por profesional), `UserPolicy`, `UserController` + `Livewire/Usuarios/Index`, pantalla CU34 independiente, rutas protegidas por permiso y registro público `/register` deshabilitado.
 
-El alta la realizan exclusivamente Directivo/Administrador vía `POST /usuarios` (CU25) con roles traídos de `roles` (Spatie). La modificación valida unicidad con `Rule::unique->ignore` sin duplicar. La baja es lógica (`SoftDeletes`, `deleted_at`) y verifica que el usuario no tenga procesos en `pendiente/admitido/iniciado/en_proceso/en_espera`; sólo `finalizado/rechazado` permite desactivar, conservando trazabilidad (`withTrashed`). El perfil propio (`DELETE /profile`) reutiliza la misma regla de negocio y aborta `403` si tiene procesos activos.
+El alta la realizan exclusivamente Directivo/Administrador vía `POST /usuarios` (CU25) con un rol traído de `roles` (Spatie). La modificación valida unicidad con `Rule::unique->ignore` sin duplicar. La baja es lógica (`SoftDeletes`, `deleted_at`) y verifica que el usuario no tenga procesos en `pendiente/admitido/iniciado/en_proceso/en_espera`; sólo `finalizado/rechazado` permite desactivar, conservando trazabilidad (`withTrashed`). El perfil propio (`DELETE /profile`) reutiliza la misma regla de negocio y aborta `403` si tiene procesos activos.
 
 La asociación de servicios/especialidades es N:M vía tabla intermedia `user_servicios` (PK compuesta `user_id,servicio_id` evita duplicados, `sync()` idempotente). Sólo profesionales (`hasRole Profesional`) pueden tener servicios asignados; Coordinador, Directivo y Administrador están autorizados por `asignar_especialidad_servicio`.
 
@@ -93,7 +93,7 @@ El alta inicial crea un registro interno dirigido al Coordinador, con canal, des
 
 ## Informe documental (CU 39)
 
-Coordinador y Administrador pueden consultar el informe por categoría y descargarlo como PDF. Por defecto abarca hoy y los 29 días anteriores. El rango manual exige ambas fechas, no admite fechas futuras ni períodos invertidos y está limitado a 366 días. Se puede filtrar por estado y categoría; el resumen no incluye los archivos originales. El acceso usa la autorización de CU 37.
+Coordinador, Directivo y Administrador pueden consultar el informe por categoría y descargarlo como PDF. Por defecto abarca hoy y los 29 días anteriores. El rango manual exige ambas fechas, no admite fechas futuras ni períodos invertidos y está limitado a 366 días. Se puede filtrar por estado y categoría; el resumen no incluye los archivos originales. Coordinador y Directivo usan el permiso específico `consultar_informe_documental`, que no habilita la gestión de categorías ni el acceso a documentación individual. El Administrador conserva acceso como superusuario.
 
 ## Dashboard operativo (HU-22 / CU 40)
 

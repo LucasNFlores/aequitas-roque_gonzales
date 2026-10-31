@@ -7,6 +7,11 @@ use App\Models\User;
 
 class CategoriaDocumentoPolicy
 {
+    public function viewReport(User $user): bool
+    {
+        return $user->can('consultar_informe_documental');
+    }
+
     public function viewAny(User $user): bool
     {
         return $user->can('gestionar_categorias_documentos');

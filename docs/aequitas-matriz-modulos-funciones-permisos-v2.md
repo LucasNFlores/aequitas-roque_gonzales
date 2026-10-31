@@ -1,6 +1,6 @@
 +# Aequitas — Matriz de Módulos, Funciones y Permisos por Rol V2
 
-> Transcripción local en Markdown de la pestaña **Aequitas - Matriz de Módulos, Funciones y Permisos por Rol V2** de la [matriz funcional en Google Sheets](https://docs.google.com/spreadsheets/d/13L_GwiJ1DvFIU2CaaXYfjaDDXHQEhSmcOST4z9bl1Oc/edit), complementada con la decisión local de secuencia de entrega. La hoja online se actualizó el 2026-10-14 para incorporar CU 39 y CU 40.
+> Transcripción local en Markdown de la pestaña **Aequitas - Matriz de Módulos, Funciones y Permisos por Rol V2** de la [matriz funcional en Google Sheets](https://docs.google.com/spreadsheets/d/13L_GwiJ1DvFIU2CaaXYfjaDDXHQEhSmcOST4z9bl1Oc/edit), complementada con la decisión local de secuencia de entrega. La hoja online se actualizó el 2026-10-22 para habilitar CU 39 al Directivo.
 
 - **Fuente de verdad:** Google Sheets.
 - **Pestaña:** Aequitas - Matriz de Módulos, Funciones y Permisos por Rol V2.
@@ -54,7 +54,7 @@
 | Comunicaciones y Notificaciones | CU 35 | Consultar Registro de Notificaciones | Sí | No | Sí | Sí | Sí | Auditoría de envíos internos, Email y WhatsApp mediante Brevo |
 | Parámetros del Sistema | CU 36 | Gestionar Estados de Proceso | No | No | Sí | No | Sí | CRUD, ordenamiento, activación y desactivación segura de estados |
 | Parámetros del Sistema | CU 37 | Gestionar Categorías de Documentos | No | No | Sí | No | Sí | CRUD, activación y baja lógica de categorías o tipos documentales |
-| Gestión Documental | CU 39 | Generar Informe PDF de Documentos por Categoría | No | No | Sí | No | Sí | Resumen por categoría y período, con filtros por estado de categoría y categoría; incluye cantidades y última carga, sin adjuntar archivos individuales |
+| Gestión Documental | CU 39 | Generar Informe PDF de Documentos por Categoría | No | No | Sí | Sí | Sí | Resumen por categoría y período, con filtros por estado de categoría y categoría; incluye cantidades y última carga, sin adjuntar archivos individuales |
 | Gestión Directiva | CU 40 | Consultar Dashboard del Directivo | No | No | No | Sí | Sí | Dashboard propio del Directivo; métricas pendientes de definición. Administrador autorizado por su condición de superadministrador |
 
 ## Alineación con el sistema
@@ -62,6 +62,7 @@
 - La matriz define el alcance funcional y la autorización por rol.
 - En pagos, CU 13 y CU 14 solo contemplan registro y consulta de comprobantes; no existe un caso de uso ni permiso por rol para su baja u ocultación. Cualquier ampliación requiere primero actualizar la matriz online.
 - `database/seeders/RoleSeeder.php` contiene los permisos técnicos de Spatie y debe mantenerse alineado con esta tabla.
+- CU 39 asigna `consultar_informe_documental` a Coordinador y Directivo; el Administrador conserva acceso como superusuario. Este permiso no concede gestión de categorías ni acceso a archivos individuales.
 - CU 31 y CU 32 son capacidades transversales de autenticación y perfil; se aplican a los usuarios internos según la matriz.
 - Cuando se agregue o modifique un caso de uso, primero debe actualizarse la matriz fuente, luego este archivo y finalmente la implementación, OpenSpec y las pruebas relacionadas.
 - Si existe una diferencia entre esta copia y Drive, Drive tiene prioridad hasta que el cambio sea acordado y reflejado en el código.

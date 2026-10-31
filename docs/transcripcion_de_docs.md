@@ -85,11 +85,11 @@ El cliente se registra como dato administrativo. No inicia sesión, no tiene cre
 | CU 35 | Comunicaciones y Notificaciones | Consultar Registro de Notificaciones | Secretario, Coordinador, Directivo |
 | CU 36 | Parámetros del Sistema | Gestionar Estados de Proceso | Coordinador |
 | CU 37 | Parámetros del Sistema | Gestionar Categorías de Documentos | Coordinador |
-| CU 39 | Gestión Documental | Generar Informe PDF de Documentos por Categoría | Coordinador |
+| CU 39 | Gestión Documental | Generar Informe PDF de Documentos por Categoría | Coordinador, Directivo |
 | CU 40 | Gestión Directiva | Consultar Dashboard del Directivo (métricas pendientes de definición) | Directivo |
 
 El Administrador está autorizado en todos los casos de uso, por su carácter de superadministrador.
-CU 39 está implementado con autorización de Coordinador y Administrador. El dashboard operativo HU-22 ya está implementado. El 2026-10-15 se aprobaron las métricas estratégicas de Directivo para CU 40 y, por separado, el panel operativo de Administrador descrito en OpenSpec. La matriz online conserva su nota de métricas pendientes y no se modifica en esta tarea.
+CU 39 está implementado con autorización de Coordinador y Directivo; el Administrador conserva acceso global. La matriz online se actualizó el 2026-10-22 para reflejar el acceso del Directivo. El dashboard operativo HU-22 ya está implementado. El 2026-10-15 se aprobaron las métricas estratégicas de Directivo para CU 40 y, por separado, el panel operativo de Administrador descrito en OpenSpec.
 
 ## 5. Reglas funcionales complementarias
 
@@ -133,7 +133,7 @@ Coordinador y Administrador pueden crear, editar, activar, desactivar, dar de ba
 
 ### Informe PDF de documentos por categoría (CU 39)
 
-El Coordinador y el Administrador pueden consultar un resumen por categoría y descargarlo como PDF, con filtros de estado y categoría. Por defecto incluye hoy y los 29 días previos. El rango personalizado exige ambas fechas válidas, no futuras, ordenadas y limitado a 366 días calendario. El informe presenta cantidades y última fecha de carga; no contiene ni adjunta archivos individuales. El Directivo no recibe acceso al informe por consultar el legajo.
+El Coordinador, el Directivo y el Administrador pueden consultar un resumen por categoría y descargarlo como PDF, con filtros de estado y categoría. Por defecto incluye hoy y los 29 días previos. El rango personalizado exige ambas fechas válidas, no futuras, ordenadas y limitado a 366 días calendario. El informe presenta cantidades y última fecha de carga; no contiene ni adjunta archivos individuales. Coordinador y Directivo usan `consultar_informe_documental`, que no concede gestión de categorías ni acceso a archivos individuales; el Administrador conserva acceso global.
 
 ### Dashboard del Directivo (CU 40)
 

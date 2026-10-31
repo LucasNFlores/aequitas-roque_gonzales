@@ -19,6 +19,12 @@ class Form extends Component
     #[Locked]
     public ?int $turnoId = null;
 
+    #[Locked]
+    public ?int $returnClienteId = null;
+
+    #[Locked]
+    public ?int $returnProcesoId = null;
+
     public string $clienteId = '';
 
     public string $profesionalId = '';
@@ -31,9 +37,12 @@ class Form extends Component
 
     public string $successMessage = '';
 
-    public function mount(?Turno $turno = null): void
-    {
-        if ($turno instanceof Turno) {
+    public function mount(
+        ?Turno $turno = null,
+        ?int $returnClienteId = null,
+        ?int $returnProcesoId = null,
+    ): void {
+        if ($turno instanceof Turno && $turno->exists) {
             Gate::authorize('update', $turno);
             abort_if($turno->es_externo, 404);
 
@@ -45,6 +54,25 @@ class Form extends Component
 
         Gate::authorize('create', Turno::class);
         $this->fechaHora = now()->addHour()->format('Y-m-d\TH:i');
+
+        $user = auth()->user();
+        $cliente = $returnClienteId === null ? null : Cliente::query()->find($returnClienteId);
+        $proceso = $user instanceof User && $cliente instanceof Cliente && $returnProcesoId !== null
+            ? $cliente->procesos()->visibleTo($user)->whereKey($returnProcesoId)->first()
+            : null;
+
+        if (
+            $user instanceof User
+            && $cliente instanceof Cliente
+            && $proceso instanceof Proceso
+            && $user->can('viewLegajo', $cliente)
+        ) {
+            $this->returnClienteId = $cliente->id;
+            $this->returnProcesoId = $proceso->id;
+            $this->clienteId = (string) $cliente->id;
+            $this->procesoId = (string) $proceso->id;
+            $this->profesionalId = $proceso->profesional_id === null ? '' : (string) $proceso->profesional_id;
+        }
     }
 
     public function save(TurnoScheduler $scheduler): mixed
@@ -58,16 +86,17 @@ class Form extends Component
         $validated = $this->validate([
             'clienteId' => ['required', 'integer', Rule::exists('clientes', 'id')->whereNull('deleted_at')],
             'profesionalId' => ['required', 'integer', Rule::exists('users', 'id')->whereNull('deleted_at')],
-            'procesoId' => ['nullable', 'integer', Rule::exists('procesos', 'id')->whereNull('deleted_at')],
+            'procesoId' => ['required', 'integer', Rule::exists('procesos', 'id')->whereNull('deleted_at')],
             'fechaHora' => ['required', 'date', 'after:now'],
             'tipo' => ['required', Rule::in(['consulta_inicial', 'seguimiento'])],
         ], [
             'clienteId.required' => 'Selecciona un cliente.',
             'profesionalId.required' => 'Selecciona un profesional.',
+            'procesoId.required' => 'Selecciona un proceso para el turno.',
             'fechaHora.required' => 'Indica fecha y hora del turno.',
         ]);
 
-        $this->validateRelationships($validated['procesoId'] ?: null);
+        $this->validateRelationships($validated['procesoId']);
         Gate::authorize($validated['tipo'] === 'seguimiento'
             ? 'agendar_turnos_seguimiento'
             : 'agendar_turnos_internos');
@@ -75,10 +104,17 @@ class Form extends Component
         $turno = $scheduler->schedule([
             'cliente_id' => (int) $validated['clienteId'],
             'profesional_id' => (int) $validated['profesionalId'],
-            'proceso_id' => $validated['procesoId'] !== '' ? (int) $validated['procesoId'] : null,
+            'proceso_id' => (int) $validated['procesoId'],
             'fecha_hora' => $validated['fechaHora'],
             'tipo' => $validated['tipo'],
         ]);
+
+        $returnProcess = $this->authorizedReturnProcess();
+
+        if ($returnProcess !== null) {
+            return redirect()->route('legajos.procesos.show', [$returnProcess['cliente'], $returnProcess['proceso']])
+                ->with('success', 'Turno registrado correctamente.');
+        }
 
         return redirect()->route('turnos.show', $turno)
             ->with('success', 'Turno registrado correctamente.');
@@ -87,7 +123,7 @@ class Form extends Component
     public function render(): View
     {
         $clientes = Cliente::query()->orderBy('apellido')->orderBy('nombre')->get();
-        $profesionales = User::query()->role('Profesional')->orderBy('name')->get(['id', 'name']);
+        $profesionales = User::query()->role('Profesional')->orderBy('name')->orderBy('apellido')->get(['id', 'name', 'apellido']);
         $procesos = Proceso::query()
             ->with('cliente:id,nombre,apellido')
             ->whereNotIn('estado', Turno::PROCESO_ESTADOS_INACTIVOS)
@@ -111,6 +147,36 @@ class Form extends Component
 
         return redirect()->route('turnos.show', $turno)
             ->with('success', 'Turno reprogramado correctamente. Se liberó la disponibilidad anterior.');
+    }
+
+    /**
+     * @return array{cliente: Cliente, proceso: Proceso}|null
+     */
+    private function authorizedReturnProcess(): ?array
+    {
+        $user = auth()->user();
+
+        if (
+            $this->returnClienteId !== null
+            && $this->returnProcesoId !== null
+            && $user instanceof User
+            && $user->can('consultar_legajos')
+        ) {
+            $cliente = Cliente::query()->find($this->returnClienteId);
+            $proceso = $cliente instanceof Cliente
+                ? $cliente->procesos()->visibleTo($user)->whereKey($this->returnProcesoId)->first()
+                : null;
+
+            if (
+                $cliente instanceof Cliente
+                && $proceso instanceof Proceso
+                && $user->can('viewLegajo', $cliente)
+            ) {
+                return ['cliente' => $cliente, 'proceso' => $proceso];
+            }
+        }
+
+        return null;
     }
 
     private function validateRelationships(int|string|null $procesoId): void
